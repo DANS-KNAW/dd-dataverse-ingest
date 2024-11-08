@@ -13,14 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package nl.knaw.dans.dvingest.resources;
 
-package nl.knaw.dans.dvingest;
+import javax.ws.rs.core.Response;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-import io.dropwizard.core.Configuration;
+public class DefaultApiResource implements DefaultApi {
 
-import javax.validation.constraints.NotEmpty;
-
-public class DdDataverseIngestConfiguration extends Configuration {
-
+    @Override
+    public Response rootGet() {
+        return Response.ok().entity(
+            "Dataverse Ingest Service v%s".formatted(
+                this.getClass().getPackage().getImplementationVersion())).build();
+    }
 }

@@ -36,6 +36,7 @@
 
     <properties>
         <main-class>nl.knaw.dans.dvingest.DdDataverseIngestApplication</main-class>
+        <dd-dataverse-ingest-api.version>0.1.0-SNAPSHOT</dd-dataverse-ingest-api.version>
     </properties>
 
     <scm>
@@ -56,6 +57,48 @@
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
             </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <phase>initialize</phase>
+                        <goals>
+                            <goal>unpack</goal>
+                        </goals>
+                        <configuration>
+                            <artifactItems>
+                                <artifactItem>
+                                    <groupId>nl.knaw.dans</groupId>
+                                    <artifactId>dd-dataverse-ingest-api</artifactId>
+                                    <version>${dd-dataverse-ingest-api.version}</version>
+                                    <outputDirectory>${project.build.directory}/openapi</outputDirectory>
+                                </artifactItem>
+                            </artifactItems>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.openapitools</groupId>
+                <artifactId>openapi-generator-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>generate</goal>
+                        </goals>
+                        <configuration combine.children="override">
+                            <generatorName>jaxrs-spec</generatorName>
+                            <inputSpec>${project.build.directory}/openapi/dd-dataverse-ingest-api.yml</inputSpec>
+                            <apiPackage>nl.knaw.dans.dvingest.resources</apiPackage>
+                            <modelPackage>nl.knaw.dans.dvingest.api</modelPackage>
+                            <invokerPackage>nl.knaw.dans.dvingest.resources</invokerPackage>
+                            <templateDirectory>${project.basedir}/src/main/resources/openapi-generator-templates</templateDirectory>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
         </plugins>
     </build>
 
