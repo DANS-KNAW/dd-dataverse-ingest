@@ -19,10 +19,22 @@ package nl.knaw.dans.dvingest;
 import io.dropwizard.core.Application;
 import io.dropwizard.core.setup.Bootstrap;
 import io.dropwizard.core.setup.Environment;
+import io.dropwizard.db.PooledDataSourceFactory;
+import io.dropwizard.hibernate.HibernateBundle;
 import nl.knaw.dans.dvingest.config.DdDataverseIngestConfiguration;
+import nl.knaw.dans.dvingest.core.ImportJob;
+import nl.knaw.dans.dvingest.db.ImportJobDao;
 import nl.knaw.dans.dvingest.resources.DefaultApiResource;
+import nl.knaw.dans.dvingest.resources.IngestApiResource;
 
 public class DdDataverseIngestApplication extends Application<DdDataverseIngestConfiguration> {
+    private final HibernateBundle<DdDataverseIngestConfiguration> hibernateBundle = new HibernateBundle<>(ImportJob.class) {
+
+        @Override
+        public PooledDataSourceFactory getDataSourceFactory(DdDataverseIngestConfiguration ddDataverseIngestConfiguration) {
+            return ddDataverseIngestConfiguration.getDatabase();
+        }
+    };
 
     public static void main(final String[] args) throws Exception {
         new DdDataverseIngestApplication().run(args);
@@ -35,12 +47,14 @@ public class DdDataverseIngestApplication extends Application<DdDataverseIngestC
 
     @Override
     public void initialize(final Bootstrap<DdDataverseIngestConfiguration> bootstrap) {
-        // TODO: application initialization
+        bootstrap.addBundle(hibernateBundle);
     }
 
     @Override
     public void run(final DdDataverseIngestConfiguration configuration, final Environment environment) {
         environment.jersey().register(new DefaultApiResource());
+        var dao = new ImportJobDao(hibernateBundle.getSessionFactory());
+        environment.jersey().register(new IngestApiResource(dao));
     }
 
 }

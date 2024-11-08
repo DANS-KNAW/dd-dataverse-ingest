@@ -13,25 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package nl.knaw.dans.dvingest;
 
-package nl.knaw.dans.dvingest.config;
+import nl.knaw.dans.dvingest.api.ImportCommandDto;
+import nl.knaw.dans.dvingest.api.ImportJobStatusDto;
+import nl.knaw.dans.dvingest.core.ImportJob;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 
-import io.dropwizard.core.Configuration;
-import io.dropwizard.db.DataSourceFactory;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import nl.knaw.dans.lib.util.DataverseClientFactory;
+@Mapper
+public interface Conversions {
 
-import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "location", source = "importCommandDto.path")
+    ImportJob convert(ImportCommandDto importCommandDto);
 
-@Data
-@EqualsAndHashCode(callSuper = true)
-public class DdDataverseIngestConfiguration extends Configuration {
-    private DataverseClientFactory dataverse;
-    private IngestConfig ingest;
 
-    @Valid
-    @NotNull
-    private DataSourceFactory database = new DataSourceFactory();
+    ImportJobStatusDto convert(ImportJob importJob);
 }

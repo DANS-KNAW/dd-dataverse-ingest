@@ -15,13 +15,39 @@
  */
 package nl.knaw.dans.dvingest.resources;
 
+import io.dropwizard.hibernate.UnitOfWork;
+import lombok.AllArgsConstructor;
+import nl.knaw.dans.dvingest.Conversions;
 import nl.knaw.dans.dvingest.api.ImportCommandDto;
+import nl.knaw.dans.dvingest.api.ImportJobStatusDto;
+import nl.knaw.dans.dvingest.api.ImportJobStatusDto.StatusEnum;
+import nl.knaw.dans.dvingest.core.ImportJob;
+import nl.knaw.dans.dvingest.db.ImportJobDao;
+import org.mapstruct.factory.Mappers;
 
 import javax.ws.rs.core.Response;
 
+@AllArgsConstructor
 public class IngestApiResource implements IngestApi {
+    private static final Conversions conversions = Mappers.getMapper(Conversions.class);
+    private final ImportJobDao importJobDao;
+
     @Override
+    @UnitOfWork
     public Response ingestPost(ImportCommandDto importCommandDto) {
-        return null;
+        ImportJob job = conversions.convert(importCommandDto);
+        job.setStatus("PENDING");
+        job.setCreationTime(System.currentTimeMillis());
+        try {
+            importJobDao.save(job);
+        }
+        catch (Exception e) {
+            return Response.serverError().entity(e.getMessage()).build();
+        }
+        var status = new ImportJobStatusDto()
+            .singleObject(importCommandDto.getSingleObject())
+            .status(StatusEnum.PENDING)
+            .path(importCommandDto.getPath());
+        return Response.ok(status).build();
     }
 }

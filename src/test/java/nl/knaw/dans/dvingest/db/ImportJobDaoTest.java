@@ -34,22 +34,16 @@ public class ImportJobDaoTest {
 
     @Test
     public void create_should_save_ImportJob() {
-        var uuid = "f797a6a9-2a85-4f26-af62-b3eaae724497";
-
         db.inTransaction(() -> {
             var importJob = new ImportJob();
             importJob.setLocation("path");
-            importJob.setUuid(uuid);
             importJob.setStatus("status");
             importJob.setCreationTime(123L);
             dao.save(importJob);
-        });
 
-        db.inTransaction(() -> {
-            var result = dao.findByUuid(uuid);
+            var result = dao.findById(importJob.getId());
             assertThat(result).isPresent();
             assertThat(result.get().getLocation()).isEqualTo("path");
-            assertThat(result.get().getUuid()).isEqualTo(uuid);
             assertThat(result.get().getStatus()).isEqualTo("status");
             assertThat(result.get().getCreationTime()).isEqualTo(123L);
         });

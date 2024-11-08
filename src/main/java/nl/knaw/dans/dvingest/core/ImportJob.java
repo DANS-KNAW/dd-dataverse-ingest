@@ -31,7 +31,7 @@ import javax.persistence.Table;
 import java.nio.file.Path;
 
 /**
- * Description of an import job.
+ * Description of an import job. A job is a request to import a deposit or a batch of deposits.
  */
 @Entity
 @Table(name = "import_job")
@@ -48,13 +48,11 @@ public class ImportJob {
     @Column(name = "creation_time")
     private Long creationTime;
 
-    @Column(name = "uuid")
-    @Uuid
-    private String uuid;
-
     @Column(name = "status")
-    private String status;
+    private String status = "PENDING";
 
     @Column(name = "location")
     private String location;
+
+    // TODO: isBatch to indicate if the location contains a single object or a batch of objects, for now always a single object
 }

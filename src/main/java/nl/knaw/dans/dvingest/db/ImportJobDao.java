@@ -53,11 +53,11 @@ public class ImportJobDao extends AbstractDAO<ImportJob> {
         return Optional.ofNullable(get(id));
     }
 
-    public Optional<ImportJob> findByUuid(String uuid) {
+    public Optional<ImportJob> findById(long id) {
         CriteriaBuilder builder = currentSession().getCriteriaBuilder();
         CriteriaQuery<ImportJob> query = builder.createQuery(ImportJob.class);
         Root<ImportJob> root = query.from(ImportJob.class);
-        query.select(root).where(builder.equal(root.get("uuid"), uuid));
+        query.select(root).where(builder.equal(root.get("id"), id));
 
         return Optional.ofNullable(currentSession().createQuery(query).uniqueResult());
     }
