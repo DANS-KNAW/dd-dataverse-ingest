@@ -1,0 +1,15 @@
+[Unit]
+Description=Dd Dataverse Ingest Service
+
+[Service]
+ExecStart=/opt/dans.knaw.nl/dd-dataverse-ingest/bin/dd-dataverse-ingest server /etc/opt/dans.knaw.nl/dd-dataverse-ingest/config.yml
+# Java returns 143 even if the SIGTERM was handled correctly.
+SuccessExitStatus=143
+Environment="JAVA_OPTS=-Xms64m"
+Environment="LC_ALL=en_US.UTF-8"
+
+User=dd-dataverse-ingest
+Group=dd-dataverse-ingest
+
+[Install]
+WantedBy=multi-user.target
