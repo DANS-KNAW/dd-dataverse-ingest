@@ -13,17 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package nl.knaw.dans.dvingest.resources;
 
-package nl.knaw.dans.dvingest.config;
+import nl.knaw.dans.dvingest.api.ImportCommandDto;
 
-import io.dropwizard.core.Configuration;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import nl.knaw.dans.lib.util.DataverseClientFactory;
+import javax.ws.rs.core.Response;
 
-@Data
-@EqualsAndHashCode(callSuper = true)
-public class DdDataverseIngestConfiguration extends Configuration {
-    private DataverseClientFactory dataverse;
-    private IngestConfig ingest;
+public class IngestApiResource implements IngestApi {
+    @Override
+    public Response ingestPost(ImportCommandDto importCommandDto) {
+        return null;
+    }
 }
