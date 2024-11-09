@@ -15,39 +15,24 @@
  */
 package nl.knaw.dans.dvingest.resources;
 
-import io.dropwizard.hibernate.UnitOfWork;
 import lombok.AllArgsConstructor;
-import nl.knaw.dans.dvingest.Conversions;
 import nl.knaw.dans.dvingest.api.ImportCommandDto;
-import nl.knaw.dans.dvingest.api.ImportJobStatusDto;
-import nl.knaw.dans.dvingest.api.ImportJobStatusDto.StatusEnum;
-import nl.knaw.dans.dvingest.core.ImportJob;
-import nl.knaw.dans.dvingest.db.ImportJobDao;
-import org.mapstruct.factory.Mappers;
+import nl.knaw.dans.dvingest.core.IngestArea;
 
 import javax.ws.rs.core.Response;
 
 @AllArgsConstructor
 public class IngestApiResource implements IngestApi {
-    private static final Conversions conversions = Mappers.getMapper(Conversions.class);
-    private final ImportJobDao importJobDao;
+    private final IngestArea ingestArea;
 
     @Override
-    @UnitOfWork
     public Response ingestPost(ImportCommandDto importCommandDto) {
-        ImportJob job = conversions.convert(importCommandDto);
-        job.setStatus("PENDING");
-        job.setCreationTime(System.currentTimeMillis());
         try {
-            importJobDao.save(job);
+            ingestArea.submit(importCommandDto);
         }
-        catch (Exception e) {
-            return Response.serverError().entity(e.getMessage()).build();
+        catch (IllegalArgumentException e) {
+            return Response.status(Response.Status.BAD_REQUEST).entity(e.getMessage()).build();
         }
-        var status = new ImportJobStatusDto()
-            .singleObject(importCommandDto.getSingleObject())
-            .status(StatusEnum.PENDING)
-            .path(importCommandDto.getPath());
-        return Response.ok(status).build();
+        return Response.ok(ingestArea.getStatus(importCommandDto.getPath())).build();
     }
 }

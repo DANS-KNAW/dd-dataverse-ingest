@@ -15,44 +15,96 @@
  */
 package nl.knaw.dans.dvingest.core;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.ToString;
-import nl.knaw.dans.validation.Uuid;
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import nl.knaw.dans.dvingest.api.ImportCommandDto;
+import nl.knaw.dans.dvingest.api.ImportJobStatusDto;
+import nl.knaw.dans.dvingest.api.ImportJobStatusDto.StatusEnum;
+import nl.knaw.dans.lib.dataverse.DataverseClient;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.List;
 
-/**
- * Description of an import job. A job is a request to import a deposit or a batch of deposits.
- */
-@Entity
-@Table(name = "import_job")
-@Getter
-@Setter
-@ToString
-@NoArgsConstructor
-@AllArgsConstructor
-public class ImportJob {
-    @GeneratedValue
-    @Id
-    private Long id;
+@Slf4j
+@RequiredArgsConstructor
+public class ImportJob implements Runnable {
+    @NonNull
+    private final ImportCommandDto importCommand;
+    @NonNull
+    private final Path outputDir;
+    @NonNull
+    private final DataverseClient dataverseClient;
 
-    @Column(name = "creation_time")
-    private Long creationTime;
+    @Getter
+    private final ImportJobStatusDto status = new ImportJobStatusDto();
 
-    @Column(name = "status")
-    private String status = "PENDING";
+    @Override
+    public void run() {
+        try {
+            log.debug("Starting import job: {}", importCommand);
+            status.setStatus(StatusEnum.RUNNING);
+            List<Deposit> deposits = new ArrayList<>();
 
-    @Column(name = "location")
-    private String location;
+            // Build deposit list, todo: ordered
+            if (importCommand.getSingleObject()) {
+                deposits.add(new Deposit(Path.of(importCommand.getPath())));
+            }
+            else {
+                // Multiple objects
+                // Create deposit for each object
+                // Add to list
+            }
 
-    // TODO: isBatch to indicate if the location contains a single object or a batch of objects, for now always a single object
+            initOutputDir();
+
+            // Process deposits
+            for (Deposit deposit : deposits) {
+                new IngestTask(deposit, dataverseClient, outputDir).run();
+            }
+
+            // Job completed, some deposits may still have failed, TODO: change to DONE
+            status.setStatus(StatusEnum.SUCCESS);
+        }
+        catch (Exception e) {
+            log.error("Failed to process import job", e);
+            status.setStatus(StatusEnum.FAILED);
+        }
+    }
+
+    private void initOutputDir() {
+        log.debug("Initializing output directory: {}", outputDir);
+        createDirectoryIfNotExists(outputDir);
+        createDirectoryIfNotExists(outputDir.resolve("processed"));
+        createDirectoryIfNotExists(outputDir.resolve("failed"));
+        createDirectoryIfNotExists(outputDir.resolve("rejected"));
+        if (!importCommand.getSingleObject()) {
+            checkDirectoryEmpty(outputDir.resolve("processed"));
+            checkDirectoryEmpty(outputDir.resolve("failed"));
+            checkDirectoryEmpty(outputDir.resolve("rejected"));
+        }
+    }
+
+    private void createDirectoryIfNotExists(Path path) {
+        if (!path.toFile().exists()) {
+            if (!path.toFile().mkdirs()) {
+                throw new IllegalStateException("Failed to create directory: " + path);
+            }
+        }
+    }
+
+    private void checkDirectoryEmpty(Path path) {
+        try (var stream = Files.list(path)) {
+            if (stream.findAny().isPresent()) {
+                throw new IllegalStateException("Directory not empty: " + path);
+            }
+        }
+        catch (IOException e) {
+            throw new IllegalStateException("Failed to check directory: " + path, e);
+        }
+    }
 }

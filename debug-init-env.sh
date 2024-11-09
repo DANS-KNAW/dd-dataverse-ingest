@@ -17,5 +17,8 @@
 
 echo -n "Pre-creating log..."
 TEMPDIR=data
+mkdir -p $TEMPDIR/imports/inbox
+mkdir -p $TEMPDIR/imports/outbox
+mkdir -p $TEMPDIR/temp
 touch $TEMPDIR/dd-dataverse-ingest.log
 echo "OK"

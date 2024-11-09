@@ -23,5 +23,4 @@ import java.nio.file.Path;
 public class IngestConfig {
     private Path inbox;
     private Path outbox;
-    private Path tempDir;
 }

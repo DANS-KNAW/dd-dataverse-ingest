@@ -4,12 +4,30 @@ server:
   adminContextPath: /
   applicationConnectors:
     - type: http
-      # Replace with port number unique for this service
-      port: 20000
+      port: 20360
   adminConnectors:
     - type: http
-      # Replace with port number unique for this service
-      port: 20001
+      port: 20361
+
+dataverse:
+  baseUrl: 'http://dev.archaeology.datastations.nl:8080'
+  apiKey: '93423e09-848c-47cb-a979-219dafcfa4da'
+  unblockKey: 's3kretKey'
+  awaitLockStateMaxNumberOfRetries: 30
+  awaitLockStateMillisecondsBetweenRetries: 500
+  httpClient:
+    timeout: 30s
+    connectionTimeout: 15s
+    connectionRequestTimeout: 15s
+    timeToLive: 1h
+    retries: 2
+    userAgent: dd-dataverse-ingest
+
+ingest:
+  inbox: data/inbox
+  outbox: data/outbox
+
+tempDir: data/tmp
 
 #
 # See https://www.dropwizard.io/en/latest/manual/configuration.html#logging
