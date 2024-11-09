@@ -65,6 +65,7 @@ public class ImportJob implements Runnable {
             // Process deposits
             for (Deposit deposit : deposits) {
                 new IngestTask(deposit, dataverseClient, outputDir).run();
+                // TODO: record number of processed/rejected/failed deposits in ImportJob status
             }
 
             // Job completed, some deposits may still have failed, TODO: change to DONE
