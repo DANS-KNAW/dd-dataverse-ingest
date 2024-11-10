@@ -15,8 +15,10 @@
  */
 package nl.knaw.dans.dvingest.core;
 
+import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
 import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
 import org.apache.commons.compress.archivers.zip.ZipArchiveOutputStream;
 import org.apache.commons.io.IOUtils;
@@ -31,6 +33,7 @@ import java.util.Iterator;
 
 // TODO: move to dans-java-utils
 @Builder
+@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 public class PathIteratorZipper {
     @NonNull
     private final Path rootDir;
@@ -45,7 +48,7 @@ public class PathIteratorZipper {
     @Builder.Default
     private final int maxNumberOfFiles = Integer.MAX_VALUE;
 
-    public void zip() throws IOException {
+    public Path zip() throws IOException {
         if (overwrite && Files.exists(targetZipFile)) {
             Files.delete(targetZipFile);
         } else {
@@ -70,6 +73,7 @@ public class PathIteratorZipper {
                     }
                 }
             }
+            return targetZipFile;
         }
     }
 

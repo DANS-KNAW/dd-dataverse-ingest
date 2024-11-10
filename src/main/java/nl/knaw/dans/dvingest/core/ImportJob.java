@@ -34,14 +34,21 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ImportJob implements Runnable {
     @NonNull
+    @Getter
     private final ImportCommandDto importCommand;
     @NonNull
     private final Path outputDir;
     @NonNull
     private final DataverseClient dataverseClient;
+    @NonNull
+    private final CompletionHandler completionHandler;
 
     @Getter
     private final ImportJobStatusDto status = new ImportJobStatusDto();
+
+    public static interface CompletionHandler {
+        void handle(ImportJob job);
+    }
 
     @Override
     public void run() {
@@ -74,6 +81,8 @@ public class ImportJob implements Runnable {
         catch (Exception e) {
             log.error("Failed to process import job", e);
             status.setStatus(StatusEnum.FAILED);
+        } finally {
+            completionHandler.handle(this);
         }
     }
 

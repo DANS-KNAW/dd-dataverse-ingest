@@ -15,16 +15,22 @@
  */
 package nl.knaw.dans.dvingest.core;
 
-import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
 
 import java.io.File;
 import java.nio.file.Path;
 import java.util.Iterator;
 
 // TODO: move to dans-java-utils
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class PathIterator implements Iterator<Path> {
+    @NonNull
     private final Iterator<File> fileIterator;
+
+    @Getter
+    private long iteratedCount = 0;
 
     @Override
     public boolean hasNext() {
@@ -33,6 +39,7 @@ public class PathIterator implements Iterator<Path> {
 
     @Override
     public Path next() {
+        iteratedCount++;
         return fileIterator.next().toPath();
     }
 }

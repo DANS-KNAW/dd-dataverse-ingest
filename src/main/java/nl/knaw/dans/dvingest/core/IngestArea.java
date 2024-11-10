@@ -20,6 +20,7 @@ import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import nl.knaw.dans.dvingest.api.ImportCommandDto;
 import nl.knaw.dans.dvingest.api.ImportJobStatusDto;
+import nl.knaw.dans.dvingest.core.ImportJob.CompletionHandler;
 import nl.knaw.dans.lib.dataverse.DataverseClient;
 
 import java.io.IOException;
@@ -83,7 +84,13 @@ public class IngestArea {
         else {
             relativePath = inbox.relativize(Path.of(importCommand.getPath()));
         }
-        return new ImportJob(importCommand, outbox.resolve(relativePath).toAbsolutePath(), dataverseClient);
+        return new ImportJob(importCommand, outbox.resolve(relativePath).toAbsolutePath(), dataverseClient, new CompletionHandler() {
+
+            @Override
+            public void handle(ImportJob job) {
+                importJobs.remove(job.getImportCommand().getPath());
+            }
+        });
     }
 
     private void validatePath(String path) {
