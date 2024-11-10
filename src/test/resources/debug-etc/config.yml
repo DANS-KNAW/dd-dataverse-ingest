@@ -11,7 +11,7 @@ server:
 
 dataverse:
   baseUrl: 'http://dev.archaeology.datastations.nl:8080'
-  apiKey: '93423e09-848c-47cb-a979-219dafcfa4da'
+  apiKey: 'changeme'
   unblockKey: 's3kretKey'
   awaitLockStateMaxNumberOfRetries: 30
   awaitLockStateMillisecondsBetweenRetries: 500
@@ -24,8 +24,8 @@ dataverse:
     userAgent: dd-dataverse-ingest
 
 ingest:
-  inbox: data/inbox
-  outbox: data/outbox
+  inbox: data/imports/inbox
+  outbox: data/imports/outbox
 
 tempDir: data/tmp
 

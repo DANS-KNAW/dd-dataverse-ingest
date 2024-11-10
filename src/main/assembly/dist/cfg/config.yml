@@ -11,6 +11,25 @@ server:
     - type: http
       port: 20361
 
+dataverse:
+  baseUrl: 'http://localhost:8080'
+  apiKey: 'changeme'
+  awaitLockStateMaxNumberOfRetries: 30
+  awaitLockStateMillisecondsBetweenRetries: 500
+  httpClient:
+    timeout: 30s
+    connectionTimeout: 15s
+    connectionRequestTimeout: 15s
+    timeToLive: 1h
+    retries: 2
+    userAgent: dd-dataverse-ingest
+
+ingest:
+  inbox: /var/opt/dans.knaw.nl/tmp/import/inbox
+  outbox: /var/opt/dans.knaw.nl/tmp/import/outbox
+
+tempDir: /var/opt/dans.knaw.nl/tmp/zip-wrapping
+
 #
 # See https://www.dropwizard.io/en/latest/manual/configuration.html#logging
 #
