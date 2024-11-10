@@ -42,7 +42,7 @@ public class IngestTask implements Runnable {
 
             // Upload files
             var iterator = new PathIterator(FileUtils.iterateFiles(deposit.getFilesDir().toFile(), null, true));
-            int uploadBatchSize = 1000;
+            int uploadBatchSize = 1000; // TODO: make configurable
             while (iterator.hasNext()) {
                 var zipFile = PathIteratorZipper.builder()
                     .rootDir(deposit.getFilesDir())

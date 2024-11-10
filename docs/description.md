@@ -15,7 +15,7 @@ A directory with the following structure:
 ```text
 <uuid>/
   ├── deposit.properties
-  ├── dataset.json
+  ├── dataset.yml
   ├── files/
   │   ├── file1.txt
   │   ├── file2.txt
@@ -25,11 +25,11 @@ A directory with the following structure:
 
 The name of the deposit directory must be a UUID. The deposit directory contains the following files:
 
-| File                 | Description                                                                                             |
-|----------------------|---------------------------------------------------------------------------------------------------------|
-| `deposit.properties` | Contains instructions for `dd-dataverse-ingest` on how to ingest the dataset.                           |
-| `dataset.json`       | Contains metadata for the dataset in the Native API format that Dataverse<br> expects.                  |
-| `files/`             | Contains the files that are part of the dataset; subdirectories are translated<br>into directoryLabels. |
+| File                 | Description                                                                                                 |
+|----------------------|-------------------------------------------------------------------------------------------------------------|
+| `deposit.properties` | Contains instructions for `dd-dataverse-ingest` on how to ingest the dataset.                               |
+| `dataset.yml`        | Contains metadata for the dataset in Yaml compatible with the Native API format that Dataverse<br> expects. |
+| `files/`             | Contains the files that are part of the dataset; subdirectories are translated<br>into directoryLabels.     |
 
 ### `dans-bag`: TODO
 
@@ -62,7 +62,7 @@ imports
 The deposits to be processed are to be placed under `inbox`. All the files in it must be readable and writable by the service.
 When the service is requested to process a batch, it will do the folowing for each deposit:
 
-1. Create a dataset in Dataverse using the metadata in `dataset.json`.
+1. Create a dataset in Dataverse using the metadata in `dataset.yml`.
 2. Upload the files in `files/` to the dataset.
 3. Publish the dataset.
 4. Wait for the dataset to be published.

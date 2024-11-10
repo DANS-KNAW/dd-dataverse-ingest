@@ -16,20 +16,26 @@
 package nl.knaw.dans.dvingest.core;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.module.SimpleModule;
+import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import nl.knaw.dans.lib.dataverse.MetadataFieldDeserializer;
 import nl.knaw.dans.lib.dataverse.model.dataset.Dataset;
-import nl.knaw.dans.lib.dataverse.model.dataset.DatasetVersion;
+import nl.knaw.dans.lib.dataverse.model.dataset.MetadataField;
 import org.apache.commons.io.FileUtils;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Collections;
 import java.util.UUID;
 
 @Getter
 @RequiredArgsConstructor
+@Slf4j
 public class Deposit {
     private static final ObjectMapper MAPPER = new ObjectMapper();
     @NonNull
@@ -39,8 +45,15 @@ public class Deposit {
         return UUID.fromString(location.getFileName().toString());
     }
 
-    public String getDatasetMetadata() throws IOException {
-        return FileUtils.readFileToString(location.resolve("dataset.json").toFile(), "UTF-8");
+    @SuppressWarnings("unchecked")
+    public Dataset getDatasetMetadata() throws IOException {
+        ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
+        SimpleModule module = new SimpleModule();
+        module.addDeserializer(MetadataField.class, new MetadataFieldDeserializer());
+        mapper.registerModule(module);
+        var dataset = mapper.readValue(FileUtils.readFileToString(location.resolve("dataset.yml").toFile(), "UTF-8"), Dataset.class);
+        dataset.getDatasetVersion().setFiles(Collections.emptyList()); // files = null or a list of files is not allowed
+        return dataset;
     }
 
     public Path getFilesDir() {
