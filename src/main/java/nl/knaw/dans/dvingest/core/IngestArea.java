@@ -25,7 +25,9 @@ import nl.knaw.dans.lib.dataverse.DataverseClient;
 
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 
 @Slf4j
@@ -40,7 +42,7 @@ public class IngestArea {
     @NonNull
     private final Path outbox;
 
-    private final Map<String, ImportJob> importJobs = new java.util.concurrent.ConcurrentHashMap<>();
+    private final Map<String, ImportJob> importJobs = new ConcurrentHashMap<>();
 
     private IngestArea(ExecutorService executorService, DataverseClient dataverseClient, Path inbox, Path outbox) {
         try {
@@ -68,12 +70,15 @@ public class IngestArea {
         executorService.submit(importJob);
     }
 
-    public ImportJobStatusDto getStatus(String path) {
-        var importJob = importJobs.get(path);
-        if (importJob == null) {
-            throw new IllegalArgumentException("No job for " + path);
+    public List<ImportJobStatusDto> getStatus(String path) {
+        if (path == null) {
+            return importJobs.values().stream().map(ImportJob::getStatus).toList();
+        } else {
+            if (importJobs.get(path) == null) {
+                throw new IllegalArgumentException("No job found for path: " + path);
+            }
+            return List.of(importJobs.get(path).getStatus());
         }
-        return importJob.getStatus();
     }
 
     private ImportJob createImportJob(ImportCommandDto importCommand) {

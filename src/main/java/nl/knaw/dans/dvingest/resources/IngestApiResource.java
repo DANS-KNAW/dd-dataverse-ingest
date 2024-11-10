@@ -26,6 +26,11 @@ public class IngestApiResource implements IngestApi {
     private final IngestArea ingestArea;
 
     @Override
+    public Response ingestGet(String path) {
+        return Response.ok(ingestArea.getStatus(path)).build();
+    }
+
+    @Override
     public Response ingestPost(ImportCommandDto importCommandDto) {
         try {
             ingestArea.submit(importCommandDto);
@@ -33,6 +38,6 @@ public class IngestApiResource implements IngestApi {
         catch (IllegalArgumentException e) {
             return Response.status(Response.Status.BAD_REQUEST).entity(e.getMessage()).build();
         }
-        return Response.ok(ingestArea.getStatus(importCommandDto.getPath())).build();
+        return Response.ok(ingestArea.getStatus(importCommandDto.getPath()).get(0)).build();
     }
 }

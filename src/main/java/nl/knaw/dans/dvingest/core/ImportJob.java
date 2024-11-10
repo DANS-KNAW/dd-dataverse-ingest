@@ -62,21 +62,22 @@ public class ImportJob implements Runnable {
                 deposits.add(new Deposit(Path.of(importCommand.getPath())));
             }
             else {
-                // Multiple objects
-                // Create deposit for each object
-                // Add to list
+                try (var depositPaths = Files.list(Path.of(importCommand.getPath()))) {
+                    depositPaths.forEach(p -> deposits.add(new Deposit(p)));
+                }
             }
 
             initOutputDir();
 
             // Process deposits
             for (Deposit deposit : deposits) {
+                log.info("START Processing deposit: {}", deposit.getId());
                 new IngestTask(deposit, dataverseClient, outputDir).run();
+                log.info("END Processing deposit: {}", deposit.getId());
                 // TODO: record number of processed/rejected/failed deposits in ImportJob status
             }
 
-            // Job completed, some deposits may still have failed, TODO: change to DONE
-            status.setStatus(StatusEnum.SUCCESS);
+            status.setStatus(StatusEnum.DONE);
         }
         catch (Exception e) {
             log.error("Failed to process import job", e);

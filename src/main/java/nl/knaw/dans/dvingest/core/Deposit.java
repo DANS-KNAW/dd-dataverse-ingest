@@ -31,6 +31,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collections;
+import java.util.List;
 import java.util.UUID;
 
 @Getter
@@ -51,13 +52,28 @@ public class Deposit {
         SimpleModule module = new SimpleModule();
         module.addDeserializer(MetadataField.class, new MetadataFieldDeserializer());
         mapper.registerModule(module);
-        var dataset = mapper.readValue(FileUtils.readFileToString(location.resolve("dataset.yml").toFile(), "UTF-8"), Dataset.class);
+        var dataset = mapper.readValue(FileUtils.readFileToString(getBagDir().resolve("dataset.yml").toFile(), "UTF-8"), Dataset.class);
         dataset.getDatasetVersion().setFiles(Collections.emptyList()); // files = null or a list of files is not allowed
         return dataset;
     }
 
+    public Path getBagDir() {
+        try (var files = Files.list(location).filter(Files::isDirectory)) {
+            List<Path> filesList = files.toList();
+            if (filesList.size() == 1) {
+                return filesList.get(0);
+            }
+            else {
+                throw new IllegalStateException("Deposit " + location + " should contain exactly one directory");
+            }
+        }
+        catch (IOException e) {
+            throw new IllegalStateException("Error listing files in deposit " + location, e);
+        }
+    }
+
     public Path getFilesDir() {
-        return location.resolve("files");
+        return getBagDir().resolve("data");
     }
 
     public void moveTo(Path targetDir) throws IOException {
