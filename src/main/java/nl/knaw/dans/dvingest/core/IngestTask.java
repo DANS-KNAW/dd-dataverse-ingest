@@ -17,8 +17,6 @@ package nl.knaw.dans.dvingest.core;
 
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import nl.knaw.dans.lib.dataverse.DataverseClient;
-import nl.knaw.dans.lib.dataverse.DataverseException;
 import nl.knaw.dans.lib.dataverse.model.file.FileMeta;
 import org.apache.commons.io.FileUtils;
 
@@ -30,37 +28,35 @@ import java.nio.file.Path;
 @AllArgsConstructor
 public class IngestTask implements Runnable {
     private final Deposit deposit;
-    private final DataverseClient dataverseClient;
+    private final DataverseService dataverseService;
+    private final UtilityServices utilityServices;
     private final Path outputDir;
 
     @Override
     public void run() {
         try {
-            var result = dataverseClient.dataverse("root").createDataset(deposit.getDatasetMetadata());
+            var result = dataverseService.createDataset(deposit.getDatasetMetadata());
             var pid = result.getData().getPersistentId();
             log.debug(result.getEnvelopeAsString());
-
-            // Upload files
             var iterator = new PathIterator(FileUtils.iterateFiles(deposit.getFilesDir().toFile(), null, true));
-            int uploadBatchSize = 1000; // TODO: make configurable
             while (iterator.hasNext()) {
-                var zipFile = PathIteratorZipper.builder()
-                    .rootDir(deposit.getFilesDir())
-                    .sourceIterator(iterator)
-                    .targetZipFile(Files.createTempFile("dvingest", ".zip"))
-                    .maxNumberOfFiles(uploadBatchSize)
-                    .build()
-                    .zip();
-                dataverseClient.dataset(pid).addFile(zipFile, new FileMeta());
-                log.debug("Uploaded {} files (cumulative)", iterator.getIteratedCount());
+                var tempZipFile = utilityServices.createTempZipFile();
+                try {
+                    var zipFile = utilityServices.createPathIteratorZipperBuilder()
+                        .rootDir(deposit.getFilesDir())
+                        .sourceIterator(iterator)
+                        .targetZipFile(tempZipFile)
+                        .build()
+                        .zip();
+                    dataverseService.addFile(pid, zipFile, new FileMeta());
+                    log.debug("Uploaded {} files (cumulative)", iterator.getIteratedCount());
+                }
+                finally {
+                    Files.deleteIfExists(tempZipFile);
+                }
             }
-
-            // Publish dataset
-            dataverseClient.dataset(pid).publish();
-
-            // Wait for publish to complete
-            waitForState(pid, "RELEASED");
-
+            dataverseService.publishDataset(pid);
+            dataverseService.waitForState(pid, "RELEASED");
             deposit.moveTo(outputDir.resolve("processed"));
         }
         catch (Exception e) {
@@ -74,41 +70,4 @@ public class IngestTask implements Runnable {
         }
     }
 
-    private void waitForState(String datasetId, String expectedState) {
-        var numberOfTimesTried = 0;
-        var state = "";
-
-        try {
-            state = getDatasetState(datasetId);
-
-            log.debug("Initial state for dataset {} is {}", datasetId, state);
-
-            // TODO: make configurable again
-            while (!expectedState.equals(state) && numberOfTimesTried < 10) {
-                Thread.sleep(3000);
-
-                state = getDatasetState(datasetId);
-                numberOfTimesTried += 1;
-                log.trace("Current state for dataset {} is {}, numberOfTimesTried = {}", datasetId, state, numberOfTimesTried);
-            }
-
-            if (!expectedState.equals(state)) {
-                throw new IllegalStateException(String.format(
-                    "Dataset did not become %s within the wait period; current state is %s", expectedState, state
-                ));
-            }
-        }
-        catch (InterruptedException e) {
-            throw new RuntimeException("Dataset state check was interrupted; last know state is " + state);
-        }
-        catch (IOException | DataverseException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    private String getDatasetState(String datasetId) throws IOException, DataverseException {
-        var version = dataverseClient.dataset(datasetId).getLatestVersion();
-        return version.getData().getLatestVersion().getVersionState();
-
-    }
 }

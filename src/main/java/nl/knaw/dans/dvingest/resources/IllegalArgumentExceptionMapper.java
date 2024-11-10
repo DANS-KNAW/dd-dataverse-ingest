@@ -13,29 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package nl.knaw.dans.dvingest.config;
+package nl.knaw.dans.dvingest.resources;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.Data;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.ext.ExceptionMapper;
 
-import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
-import java.nio.file.Path;
-
-@Data
-public class IngestConfig {
-
-    @Valid
-    @JsonProperty("import")
-    private IngestAreaConfig importConfig;
-
-    // If null, use the standard temp directory
-    private Path tempDir;
-
-    private int maxNumberOfFilesPerUpload = 1000;
-
-
-    @Valid
-    @NotNull
-    private WaitForReleasedStateConfig waitForReleasedState;
+public class IllegalArgumentExceptionMapper implements ExceptionMapper<IllegalArgumentException> {
+    @Override
+    public Response toResponse(IllegalArgumentException exception) {
+        return Response.status(Response.Status.BAD_REQUEST).entity(exception.getMessage()).build();
+    }
 }

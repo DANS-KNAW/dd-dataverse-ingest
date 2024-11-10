@@ -20,8 +20,11 @@ import io.dropwizard.core.Application;
 import io.dropwizard.core.setup.Bootstrap;
 import io.dropwizard.core.setup.Environment;
 import nl.knaw.dans.dvingest.config.DdDataverseIngestConfiguration;
+import nl.knaw.dans.dvingest.core.DataverseServiceImpl;
 import nl.knaw.dans.dvingest.core.IngestArea;
+import nl.knaw.dans.dvingest.core.UtilityServicesImpl;
 import nl.knaw.dans.dvingest.resources.DefaultApiResource;
+import nl.knaw.dans.dvingest.resources.IllegalArgumentExceptionMapper;
 import nl.knaw.dans.dvingest.resources.IngestApiResource;
 
 public class DdDataverseIngestApplication extends Application<DdDataverseIngestConfiguration> {
@@ -41,11 +44,23 @@ public class DdDataverseIngestApplication extends Application<DdDataverseIngestC
     @Override
     public void run(final DdDataverseIngestConfiguration configuration, final Environment environment) {
         environment.jersey().register(new DefaultApiResource());
-        var ingestArea = IngestArea.builder()
-            .executorService(environment.lifecycle().executorService("ingest").minThreads(1).maxThreads(1).build())
-            .dataverseClient(configuration.getDataverse().build())
-            .inbox(configuration.getIngest().getInbox())
-            .outbox(configuration.getIngest().getOutbox()).build();
-        environment.jersey().register(new IngestApiResource(ingestArea));
+        var dataverseClient = configuration.getDataverse().build();
+        var dataverseService = DataverseServiceImpl.builder()
+            .dataverseClient(dataverseClient)
+            .millisecondsBetweenChecks(configuration.getIngest().getWaitForReleasedState().getTimeBetweenChecks().toMilliseconds())
+            .maxNumberOfRetries(configuration.getIngest().getWaitForReleasedState().getMaxNumberOfRetries())
+            .build();
+        var utilityServices = UtilityServicesImpl.builder()
+            .tempDir(configuration.getIngest().getTempDir())
+            .maxNumberOfFilesPerUpload(configuration.getIngest().getMaxNumberOfFilesPerUpload())
+            .build();
+        var importArea = IngestArea.builder()
+            .executorService(environment.lifecycle().executorService("import").minThreads(1).maxThreads(1).build())
+            .dataverseService(dataverseService)
+            .utilityServices(utilityServices)
+            .inbox(configuration.getIngest().getImportConfig().getInbox())
+            .outbox(configuration.getIngest().getImportConfig().getOutbox()).build();
+        environment.jersey().register(new IngestApiResource(importArea));
+        environment.jersey().register(new IllegalArgumentExceptionMapper());
     }
 }

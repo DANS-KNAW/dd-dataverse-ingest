@@ -25,10 +25,14 @@ dataverse:
     userAgent: dd-dataverse-ingest
 
 ingest:
-  inbox: /var/opt/dans.knaw.nl/tmp/import/inbox
-  outbox: /var/opt/dans.knaw.nl/tmp/import/outbox
-
-tempDir: /var/opt/dans.knaw.nl/tmp/zip-wrapping
+  import:
+    inbox: /var/opt/dans.knaw.nl/tmp/import/inbox
+    outbox: /var/opt/dans.knaw.nl/tmp/import/outbox
+  tempDir: /var/opt/dans.knaw.nl/tmp/zip-wrapping
+  waitForReleasedState:
+    # 10s * 360 = 1 hour
+    maxNumberOfRetries: 360
+    timeBetweenChecks: 10s
 
 #
 # See https://www.dropwizard.io/en/latest/manual/configuration.html#logging

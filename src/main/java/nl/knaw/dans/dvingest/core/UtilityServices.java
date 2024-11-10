@@ -13,29 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package nl.knaw.dans.dvingest.config;
+package nl.knaw.dans.dvingest.core;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.Data;
-
-import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
+import java.io.IOException;
 import java.nio.file.Path;
 
-@Data
-public class IngestConfig {
+public interface UtilityServices {
 
-    @Valid
-    @JsonProperty("import")
-    private IngestAreaConfig importConfig;
+    Path createTempZipFile() throws IOException;
 
-    // If null, use the standard temp directory
-    private Path tempDir;
+    PathIteratorZipper.PathIteratorZipperBuilder createPathIteratorZipperBuilder();
 
-    private int maxNumberOfFilesPerUpload = 1000;
-
-
-    @Valid
-    @NotNull
-    private WaitForReleasedStateConfig waitForReleasedState;
 }

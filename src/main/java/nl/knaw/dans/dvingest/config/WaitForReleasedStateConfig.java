@@ -15,27 +15,12 @@
  */
 package nl.knaw.dans.dvingest.config;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
+import io.dropwizard.util.Duration;
 import lombok.Data;
 
-import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
-import java.nio.file.Path;
-
 @Data
-public class IngestConfig {
+public class WaitForReleasedStateConfig {
+    private int maxNumberOfRetries = 10;
 
-    @Valid
-    @JsonProperty("import")
-    private IngestAreaConfig importConfig;
-
-    // If null, use the standard temp directory
-    private Path tempDir;
-
-    private int maxNumberOfFilesPerUpload = 1000;
-
-
-    @Valid
-    @NotNull
-    private WaitForReleasedStateConfig waitForReleasedState;
+    private Duration timeBetweenChecks = Duration.seconds(10);
 }

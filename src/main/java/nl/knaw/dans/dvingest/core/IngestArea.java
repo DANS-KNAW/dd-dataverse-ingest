@@ -21,7 +21,6 @@ import lombok.extern.slf4j.Slf4j;
 import nl.knaw.dans.dvingest.api.ImportCommandDto;
 import nl.knaw.dans.dvingest.api.ImportJobStatusDto;
 import nl.knaw.dans.dvingest.core.ImportJob.CompletionHandler;
-import nl.knaw.dans.lib.dataverse.DataverseClient;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -36,7 +35,9 @@ public class IngestArea {
     @NonNull
     private final ExecutorService executorService;
     @NonNull
-    private final DataverseClient dataverseClient;
+    private final DataverseService dataverseService;
+    @NonNull
+    private final UtilityServices utilityServices;
     @NonNull
     private final Path inbox;
     @NonNull
@@ -44,10 +45,11 @@ public class IngestArea {
 
     private final Map<String, ImportJob> importJobs = new ConcurrentHashMap<>();
 
-    private IngestArea(ExecutorService executorService, DataverseClient dataverseClient, Path inbox, Path outbox) {
+    private IngestArea(ExecutorService executorService, DataverseService dataverseService, UtilityServices utilityServices, Path inbox, Path outbox) {
         try {
             this.executorService = executorService;
-            this.dataverseClient = dataverseClient;
+            this.dataverseService = dataverseService;
+            this.utilityServices = utilityServices;
             this.inbox = inbox.toAbsolutePath().toRealPath();
             this.outbox = outbox.toAbsolutePath().toRealPath();
         }
@@ -73,7 +75,8 @@ public class IngestArea {
     public List<ImportJobStatusDto> getStatus(String path) {
         if (path == null) {
             return importJobs.values().stream().map(ImportJob::getStatus).toList();
-        } else {
+        }
+        else {
             if (importJobs.get(path) == null) {
                 throw new IllegalArgumentException("No job found for path: " + path);
             }
@@ -89,13 +92,13 @@ public class IngestArea {
         else {
             relativePath = inbox.relativize(Path.of(importCommand.getPath()));
         }
-        return new ImportJob(importCommand, outbox.resolve(relativePath).toAbsolutePath(), dataverseClient, new CompletionHandler() {
-
-            @Override
-            public void handle(ImportJob job) {
-                importJobs.remove(job.getImportCommand().getPath());
-            }
-        });
+        return ImportJob.builder()
+            .importCommand(importCommand)
+            .outputDir(outbox.resolve(relativePath))
+            .dataverseService(dataverseService)
+            .utilityServices(utilityServices)
+            .completionHandler(job -> importJobs.remove(job.getImportCommand().getPath()))
+            .build();
     }
 
     private void validatePath(String path) {

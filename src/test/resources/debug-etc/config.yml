@@ -24,10 +24,13 @@ dataverse:
     userAgent: dd-dataverse-ingest
 
 ingest:
-  inbox: data/imports/inbox
-  outbox: data/imports/outbox
-
-tempDir: data/tmp
+  import:
+    inbox: data/imports/inbox
+    outbox: data/imports/outbox
+  tempDir: data/tmp
+  waitForReleasedState:
+    maxNumberOfRetries: 30
+    timeBetweenChecks: 3s
 
 #
 # See https://www.dropwizard.io/en/latest/manual/configuration.html#logging

@@ -15,6 +15,7 @@
  */
 package nl.knaw.dans.dvingest.core;
 
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
@@ -31,7 +32,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Slf4j
-@RequiredArgsConstructor
+@Builder
 public class ImportJob implements Runnable {
     @NonNull
     @Getter
@@ -39,12 +40,22 @@ public class ImportJob implements Runnable {
     @NonNull
     private final Path outputDir;
     @NonNull
-    private final DataverseClient dataverseClient;
+    private final DataverseService dataverseService;
+    @NonNull
+    private final UtilityServices utilityServices;
     @NonNull
     private final CompletionHandler completionHandler;
 
     @Getter
     private final ImportJobStatusDto status = new ImportJobStatusDto();
+
+    private ImportJob(ImportCommandDto importCommand, Path outputDir, DataverseService dataverseService, UtilityServices utilityServices, CompletionHandler completionHandler) {
+        this.importCommand = importCommand;
+        this.outputDir = outputDir;
+        this.dataverseService = dataverseService;
+        this.utilityServices = utilityServices;
+        this.completionHandler = completionHandler;
+    }
 
     public static interface CompletionHandler {
         void handle(ImportJob job);
@@ -72,7 +83,7 @@ public class ImportJob implements Runnable {
             // Process deposits
             for (Deposit deposit : deposits) {
                 log.info("START Processing deposit: {}", deposit.getId());
-                new IngestTask(deposit, dataverseClient, outputDir).run();
+                new IngestTask(deposit, dataverseService, utilityServices, outputDir).run();
                 log.info("END Processing deposit: {}", deposit.getId());
                 // TODO: record number of processed/rejected/failed deposits in ImportJob status
             }
