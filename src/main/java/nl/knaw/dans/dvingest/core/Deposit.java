@@ -20,27 +20,48 @@ import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import lombok.Getter;
 import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import nl.knaw.dans.lib.dataverse.MetadataFieldDeserializer;
 import nl.knaw.dans.lib.dataverse.model.dataset.Dataset;
 import nl.knaw.dans.lib.dataverse.model.dataset.MetadataField;
 import org.apache.commons.io.FileUtils;
 
+import javax.validation.constraints.NotNull;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.OffsetDateTime;
 import java.util.Collections;
 import java.util.List;
+import java.util.Properties;
 import java.util.UUID;
 
 @Getter
-@RequiredArgsConstructor
 @Slf4j
-public class Deposit {
-    private static final ObjectMapper MAPPER = new ObjectMapper();
-    @NonNull
+public class Deposit implements Comparable<Deposit> {
+    private static final ObjectMapper MAPPER;
+
+    static {
+        MAPPER = new ObjectMapper(new YAMLFactory());
+        SimpleModule module = new SimpleModule();
+        module.addDeserializer(MetadataField.class, new MetadataFieldDeserializer());
+        MAPPER.registerModule(module);
+    }
+
     private Path location;
+
+    private final Properties depositProperties;
+
+    public Deposit(@NonNull Path location) {
+        this.location = location;
+        this.depositProperties = new Properties();
+        try {
+            depositProperties.load(Files.newBufferedReader(location.resolve("deposit.properties")));
+        }
+        catch (IOException e) {
+            throw new IllegalStateException("Error loading deposit properties from " + location.resolve("deposit.properties"), e);
+        }
+    }
 
     public UUID getId() {
         return UUID.fromString(location.getFileName().toString());
@@ -48,11 +69,7 @@ public class Deposit {
 
     @SuppressWarnings("unchecked")
     public Dataset getDatasetMetadata() throws IOException {
-        ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
-        SimpleModule module = new SimpleModule();
-        module.addDeserializer(MetadataField.class, new MetadataFieldDeserializer());
-        mapper.registerModule(module);
-        var dataset = mapper.readValue(FileUtils.readFileToString(getBagDir().resolve("dataset.yml").toFile(), "UTF-8"), Dataset.class);
+        var dataset = MAPPER.readValue(FileUtils.readFileToString(getBagDir().resolve("dataset.yml").toFile(), "UTF-8"), Dataset.class);
         dataset.getDatasetVersion().setFiles(Collections.emptyList()); // files = null or a list of files is not allowed
         return dataset;
     }
@@ -76,8 +93,29 @@ public class Deposit {
         return getBagDir().resolve("data");
     }
 
+    public int getSeqNumber() {
+        return depositProperties.get("seqNumber") == null ? -1 : Integer.parseInt(depositProperties.getProperty("seqNumber"));
+    }
+
+    public OffsetDateTime getCreationTimestamp() {
+        return OffsetDateTime.parse(depositProperties.getProperty("creation.timestamp"));
+    }
+
     public void moveTo(Path targetDir) throws IOException {
         Files.move(location, targetDir.resolve(location.getFileName()));
         location = targetDir.resolve(location.getFileName());
+    }
+
+    @Override
+    public int compareTo(@NotNull Deposit deposit) {
+        if (getSeqNumber() != -1 && deposit.getSeqNumber() != -1) {
+            return Integer.compare(getSeqNumber(), deposit.getSeqNumber());
+        }
+        else if (getCreationTimestamp() != null && deposit.getCreationTimestamp() != null) {
+            return getCreationTimestamp().compareTo(deposit.getCreationTimestamp());
+        }
+        else {
+            throw new IllegalStateException("Deposit " + getId() + " or " + deposit.getId() + " has no sequence number");
+        }
     }
 }

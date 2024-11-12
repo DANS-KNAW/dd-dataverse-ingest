@@ -30,6 +30,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.TreeSet;
 
 @Slf4j
 @Builder
@@ -66,7 +67,7 @@ public class ImportJob implements Runnable {
         try {
             log.debug("Starting import job: {}", importCommand);
             status.setStatus(StatusEnum.RUNNING);
-            List<Deposit> deposits = new ArrayList<>();
+            var deposits = new TreeSet<Deposit>();
 
             // Build deposit list, todo: ordered
             if (importCommand.getSingleObject()) {
