@@ -39,17 +39,20 @@ public class IngestArea {
     @NonNull
     private final UtilityServices utilityServices;
     @NonNull
+    private final DatasetTaskFactory datasetTaskFactory;
+    @NonNull
     private final Path inbox;
     @NonNull
     private final Path outbox;
 
     private final Map<String, ImportJob> importJobs = new ConcurrentHashMap<>();
 
-    private IngestArea(ExecutorService executorService, DataverseService dataverseService, UtilityServices utilityServices, Path inbox, Path outbox) {
+    private IngestArea(ExecutorService executorService, DataverseService dataverseService, UtilityServices utilityServices, DatasetTaskFactory datasetTaskFactory, Path inbox, Path outbox) {
         try {
             this.executorService = executorService;
             this.dataverseService = dataverseService;
             this.utilityServices = utilityServices;
+            this.datasetTaskFactory = datasetTaskFactory;
             this.inbox = inbox.toAbsolutePath().toRealPath();
             this.outbox = outbox.toAbsolutePath().toRealPath();
         }
@@ -97,6 +100,7 @@ public class IngestArea {
             .outputDir(outbox.resolve(relativePath))
             .dataverseService(dataverseService)
             .utilityServices(utilityServices)
+            .datasetTaskFactory(datasetTaskFactory)
             .completionHandler(job -> importJobs.remove(job.getImportCommand().getPath()))
             .build();
     }

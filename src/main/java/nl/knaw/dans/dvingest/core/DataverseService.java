@@ -20,6 +20,7 @@ import nl.knaw.dans.lib.dataverse.DataverseHttpResponse;
 import nl.knaw.dans.lib.dataverse.model.dataset.Dataset;
 import nl.knaw.dans.lib.dataverse.model.dataset.DatasetCreationResult;
 import nl.knaw.dans.lib.dataverse.model.dataset.DatasetPublicationResult;
+import nl.knaw.dans.lib.dataverse.model.dataset.DatasetVersion;
 import nl.knaw.dans.lib.dataverse.model.dataset.FileList;
 import nl.knaw.dans.lib.dataverse.model.file.FileMeta;
 
@@ -35,4 +36,6 @@ public interface DataverseService {
     DataverseHttpResponse<DatasetPublicationResult> publishDataset(String persistentId) throws DataverseException, IOException;
 
     void waitForState(String persistentId, String state) throws DataverseException;
+
+    DataverseHttpResponse<DatasetVersion> updateMetadata(String targetDatasetPid, DatasetVersion datasetMetadata) throws DataverseException, IOException;
 }

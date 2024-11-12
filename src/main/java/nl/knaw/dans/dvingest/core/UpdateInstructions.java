@@ -13,32 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package nl.knaw.dans.dvingest.config;
+package nl.knaw.dans.dvingest.core;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
-
-import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
-import java.nio.file.Path;
-import java.util.HashMap;
-import java.util.Map;
+import nl.knaw.dans.lib.dataverse.model.dataset.UpdateType;
 
 @Data
-public class IngestConfig {
-
-    @Valid
-    @JsonProperty("import")
-    private IngestAreaConfig importConfig;
-
-    // If null, use the standard temp directory
-    private Path tempDir;
-
-    private int maxNumberOfFilesPerUpload = 1000;
-
-    private Map<String, String> metadataKeys = new HashMap<>();
-
-    @Valid
-    @NotNull
-    private WaitForReleasedStateConfig waitForReleasedState;
+public class UpdateInstructions {
+    private String targetDatasetPid;
+    // TODO: implement minor update
+    //private UpdateType updateType = UpdateType.major;
 }

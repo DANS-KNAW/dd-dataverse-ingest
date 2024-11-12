@@ -18,18 +18,14 @@ package nl.knaw.dans.dvingest.core;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import nl.knaw.dans.dvingest.api.ImportCommandDto;
 import nl.knaw.dans.dvingest.api.ImportJobStatusDto;
 import nl.knaw.dans.dvingest.api.ImportJobStatusDto.StatusEnum;
-import nl.knaw.dans.lib.dataverse.DataverseClient;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.TreeSet;
 
 @Slf4j
@@ -44,17 +40,27 @@ public class ImportJob implements Runnable {
     private final DataverseService dataverseService;
     @NonNull
     private final UtilityServices utilityServices;
+
+    @NonNull
+    private final DatasetTaskFactory datasetTaskFactory;
+
     @NonNull
     private final CompletionHandler completionHandler;
 
     @Getter
     private final ImportJobStatusDto status = new ImportJobStatusDto();
 
-    private ImportJob(ImportCommandDto importCommand, Path outputDir, DataverseService dataverseService, UtilityServices utilityServices, CompletionHandler completionHandler) {
+    private ImportJob(@NonNull ImportCommandDto importCommand,
+        @NonNull Path outputDir,
+        @NonNull DataverseService dataverseService,
+        @NonNull UtilityServices utilityServices,
+        @NonNull DatasetTaskFactory datasetTaskFactory,
+        @NonNull CompletionHandler completionHandler) {
         this.importCommand = importCommand;
         this.outputDir = outputDir;
         this.dataverseService = dataverseService;
         this.utilityServices = utilityServices;
+        this.datasetTaskFactory = datasetTaskFactory;
         this.completionHandler = completionHandler;
     }
 
@@ -84,7 +90,7 @@ public class ImportJob implements Runnable {
             // Process deposits
             for (Deposit deposit : deposits) {
                 log.info("START Processing deposit: {}", deposit.getId());
-                new IngestTask(deposit, dataverseService, utilityServices, outputDir).run();
+                datasetTaskFactory.createIngestTask(deposit, outputDir).run();
                 log.info("END Processing deposit: {}", deposit.getId());
                 // TODO: record number of processed/rejected/failed deposits in ImportJob status
             }
@@ -94,7 +100,8 @@ public class ImportJob implements Runnable {
         catch (Exception e) {
             log.error("Failed to process import job", e);
             status.setStatus(StatusEnum.FAILED);
-        } finally {
+        }
+        finally {
             completionHandler.handle(this);
         }
     }

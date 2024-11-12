@@ -24,11 +24,14 @@ import nl.knaw.dans.lib.dataverse.DataverseHttpResponse;
 import nl.knaw.dans.lib.dataverse.model.dataset.Dataset;
 import nl.knaw.dans.lib.dataverse.model.dataset.DatasetCreationResult;
 import nl.knaw.dans.lib.dataverse.model.dataset.DatasetPublicationResult;
+import nl.knaw.dans.lib.dataverse.model.dataset.DatasetVersion;
 import nl.knaw.dans.lib.dataverse.model.dataset.FileList;
 import nl.knaw.dans.lib.dataverse.model.file.FileMeta;
 
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.HashMap;
+import java.util.Map;
 
 @Builder
 @Slf4j
@@ -42,8 +45,11 @@ public class DataverseServiceImpl implements DataverseService {
     @Builder.Default
     private long millisecondsBetweenChecks = 3000;
 
+    @Builder.Default
+    private Map<String, String> metadataKeys = new HashMap<>();
+
     public DataverseHttpResponse<DatasetCreationResult> createDataset(Dataset datasetMetadata) throws DataverseException, IOException {
-        return dataverseClient.dataverse("root").createDataset(datasetMetadata);
+        return dataverseClient.dataverse("root").createDataset(datasetMetadata, metadataKeys);
     }
 
     @Override
@@ -51,10 +57,17 @@ public class DataverseServiceImpl implements DataverseService {
         return dataverseClient.dataset(persistentId).addFile(file, fileMeta);
     }
 
+    @Override
     public DataverseHttpResponse<DatasetPublicationResult> publishDataset(String persistentId) throws DataverseException, IOException {
         return dataverseClient.dataset(persistentId).publish();
     }
 
+    @Override
+    public DataverseHttpResponse<DatasetVersion> updateMetadata(String targetDatasetPid, DatasetVersion datasetMetadata) throws DataverseException, IOException {
+        return dataverseClient.dataset(targetDatasetPid).updateMetadata(datasetMetadata, metadataKeys);
+    }
+
+    // TODO: move this to dans-dataverse-client-lib; it is similar to awaitLockState.
     public void waitForState(String datasetId, String expectedState) {
         var numberOfTimesTried = 0;
         var state = "";

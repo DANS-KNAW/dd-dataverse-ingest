@@ -102,19 +102,19 @@ public class DepositTest extends TestDirFixture {
         var dir1 = testDir.resolve(id1);
         Files.createDirectories(dir1);
         var props1 = new Properties();
-        props1.setProperty("creation-timestamp", "2023-01-01T10:00:00Z");
+        props1.setProperty("creation.timestamp", "2023-01-01T10:00:00Z");
         props1.store(Files.newBufferedWriter(dir1.resolve("deposit.properties")), "");
 
         var dir2 = testDir.resolve(id2);
         Files.createDirectories(dir2);
         var props2 = new Properties();
-        props2.setProperty("creation-timestamp", "2023-01-02T10:00:00Z");
+        props2.setProperty("creation.timestamp", "2023-01-02T10:00:00Z");
         props2.store(Files.newBufferedWriter(dir2.resolve("deposit.properties")), "");
 
         var dir3 = testDir.resolve(id3);
         Files.createDirectories(dir3);
         var props3 = new Properties();
-        props3.setProperty("creation-timestamp", "2023-01-03T10:00:00Z");
+        props3.setProperty("creation.timestamp", "2023-01-03T10:00:00Z");
         props3.store(Files.newBufferedWriter(dir3.resolve("deposit.properties")), "");
 
         var deposit1 = new Deposit(dir1);

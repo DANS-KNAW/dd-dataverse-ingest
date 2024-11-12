@@ -17,16 +17,13 @@ package nl.knaw.dans.dvingest.core;
 
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import nl.knaw.dans.lib.dataverse.model.file.FileMeta;
-import org.apache.commons.io.FileUtils;
 
 import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
 
-@Slf4j
 @AllArgsConstructor
-public class IngestTask implements Runnable {
+@Slf4j
+public class UpdateDatasetTask implements Runnable {
     private final Deposit deposit;
     private final DataverseService dataverseService;
     private final UtilityServices utilityServices;
@@ -35,29 +32,11 @@ public class IngestTask implements Runnable {
     @Override
     public void run() {
         try {
-            var result = dataverseService.createDataset(deposit.getDatasetMetadata());
-            var pid = result.getData().getPersistentId();
-            log.debug(result.getEnvelopeAsString());
-            var iterator = new PathIterator(FileUtils.iterateFiles(deposit.getFilesDir().toFile(), null, true));
-            while (iterator.hasNext()) {
-                var tempZipFile = utilityServices.createTempZipFile();
-                try {
-                    var zipFile = utilityServices.createPathIteratorZipperBuilder()
-                        .rootDir(deposit.getFilesDir())
-                        .sourceIterator(iterator)
-                        .targetZipFile(tempZipFile)
-                        .build()
-                        .zip();
-                    dataverseService.addFile(pid, zipFile, new FileMeta());
-                    log.debug("Uploaded {} files (cumulative)", iterator.getIteratedCount());
-                }
-                finally {
-                    Files.deleteIfExists(tempZipFile);
-                }
-            }
-            dataverseService.publishDataset(pid);
-            dataverseService.waitForState(pid, "RELEASED");
-            deposit.moveTo(outputDir.resolve("processed"));
+            var targetDatasetPid = deposit.getTargetDatasetPid();
+            dataverseService.updateMetadata(targetDatasetPid, deposit.getDatasetMetadata().getDatasetVersion());
+
+            dataverseService.publishDataset(targetDatasetPid);
+            dataverseService.waitForState(targetDatasetPid, "RELEASED");
         }
         catch (Exception e) {
             try {
@@ -68,6 +47,6 @@ public class IngestTask implements Runnable {
                 log.error("Failed to move deposit to failed directory", ioException);
             }
         }
-    }
 
+    }
 }

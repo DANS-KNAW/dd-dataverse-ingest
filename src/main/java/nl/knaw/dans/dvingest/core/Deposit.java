@@ -103,11 +103,15 @@ public class Deposit implements Comparable<Deposit> {
     }
 
     public OffsetDateTime getCreationTimestamp() {
-        var creationTimestamp = depositProperties.getProperty("creation-timestamp");
+        var creationTimestamp = depositProperties.getProperty("creation.timestamp");
         if (creationTimestamp == null) {
             return null;
         }
         return OffsetDateTime.parse(creationTimestamp);
+    }
+
+    public boolean isUpdate() {
+        return Files.exists(getBagDir().resolve("update.yml"));
     }
 
     public void moveTo(Path targetDir) throws IOException {
@@ -126,5 +130,10 @@ public class Deposit implements Comparable<Deposit> {
         else {
             throw new IllegalStateException("Deposit " + getId() + " should contain either a sequence number or a creation timestamp");
         }
+    }
+
+    public String getTargetDatasetPid() throws IOException {
+        var updateInstructions = MAPPER.readValue(FileUtils.readFileToString(getBagDir().resolve("update.yml").toFile(), "UTF-8"), UpdateInstructions.class);
+        return updateInstructions.getTargetDatasetPid();
     }
 }

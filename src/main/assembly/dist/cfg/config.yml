@@ -29,6 +29,7 @@ ingest:
     inbox: /var/opt/dans.knaw.nl/tmp/import/inbox
     outbox: /var/opt/dans.knaw.nl/tmp/import/outbox
   tempDir: /var/opt/dans.knaw.nl/tmp/zip-wrapping
+  metadataKeys: {}
   waitForReleasedState:
     # 10s * 360 = 1 hour
     maxNumberOfRetries: 360

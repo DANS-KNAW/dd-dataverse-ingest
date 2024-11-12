@@ -20,6 +20,7 @@ import io.dropwizard.core.Application;
 import io.dropwizard.core.setup.Bootstrap;
 import io.dropwizard.core.setup.Environment;
 import nl.knaw.dans.dvingest.config.DdDataverseIngestConfiguration;
+import nl.knaw.dans.dvingest.core.DatasetTaskFactory;
 import nl.knaw.dans.dvingest.core.DataverseServiceImpl;
 import nl.knaw.dans.dvingest.core.IngestArea;
 import nl.knaw.dans.dvingest.core.UtilityServicesImpl;
@@ -47,6 +48,7 @@ public class DdDataverseIngestApplication extends Application<DdDataverseIngestC
         var dataverseClient = configuration.getDataverse().build();
         var dataverseService = DataverseServiceImpl.builder()
             .dataverseClient(dataverseClient)
+            .metadataKeys(configuration.getIngest().getMetadataKeys())
             .millisecondsBetweenChecks(configuration.getIngest().getWaitForReleasedState().getTimeBetweenChecks().toMilliseconds())
             .maxNumberOfRetries(configuration.getIngest().getWaitForReleasedState().getMaxNumberOfRetries())
             .build();
@@ -58,6 +60,7 @@ public class DdDataverseIngestApplication extends Application<DdDataverseIngestC
             .executorService(environment.lifecycle().executorService("import").minThreads(1).maxThreads(1).build())
             .dataverseService(dataverseService)
             .utilityServices(utilityServices)
+            .datasetTaskFactory(new DatasetTaskFactory(dataverseService, utilityServices))
             .inbox(configuration.getIngest().getImportConfig().getInbox())
             .outbox(configuration.getIngest().getImportConfig().getOutbox()).build();
         environment.jersey().register(new IngestApiResource(importArea));
