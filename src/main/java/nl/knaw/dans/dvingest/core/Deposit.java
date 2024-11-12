@@ -18,8 +18,10 @@ package nl.knaw.dans.dvingest.core;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NonNull;
+import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
 import nl.knaw.dans.lib.dataverse.MetadataFieldDeserializer;
 import nl.knaw.dans.lib.dataverse.model.dataset.Dataset;
@@ -38,6 +40,8 @@ import java.util.UUID;
 
 @Getter
 @Slf4j
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
+@ToString
 public class Deposit implements Comparable<Deposit> {
     private static final ObjectMapper MAPPER;
 
@@ -63,6 +67,7 @@ public class Deposit implements Comparable<Deposit> {
         }
     }
 
+    @EqualsAndHashCode.Include
     public UUID getId() {
         return UUID.fromString(location.getFileName().toString());
     }
@@ -93,12 +98,16 @@ public class Deposit implements Comparable<Deposit> {
         return getBagDir().resolve("data");
     }
 
-    public int getSeqNumber() {
-        return depositProperties.get("seqNumber") == null ? -1 : Integer.parseInt(depositProperties.getProperty("seqNumber"));
+    public int getSequenceNumber() {
+        return depositProperties.get("sequence-number") == null ? -1 : Integer.parseInt(depositProperties.getProperty("sequence-number"));
     }
 
     public OffsetDateTime getCreationTimestamp() {
-        return OffsetDateTime.parse(depositProperties.getProperty("creation.timestamp"));
+        var creationTimestamp = depositProperties.getProperty("creation-timestamp");
+        if (creationTimestamp == null) {
+            return null;
+        }
+        return OffsetDateTime.parse(creationTimestamp);
     }
 
     public void moveTo(Path targetDir) throws IOException {
@@ -108,14 +117,14 @@ public class Deposit implements Comparable<Deposit> {
 
     @Override
     public int compareTo(@NotNull Deposit deposit) {
-        if (getSeqNumber() != -1 && deposit.getSeqNumber() != -1) {
-            return Integer.compare(getSeqNumber(), deposit.getSeqNumber());
+        if (getSequenceNumber() != -1 && deposit.getSequenceNumber() != -1) {
+            return Integer.compare(getSequenceNumber(), deposit.getSequenceNumber());
         }
         else if (getCreationTimestamp() != null && deposit.getCreationTimestamp() != null) {
             return getCreationTimestamp().compareTo(deposit.getCreationTimestamp());
         }
         else {
-            throw new IllegalStateException("Deposit " + getId() + " or " + deposit.getId() + " has no sequence number");
+            throw new IllegalStateException("Deposit " + getId() + " should contain either a sequence number or a creation timestamp");
         }
     }
 }
