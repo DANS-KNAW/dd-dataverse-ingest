@@ -13,14 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package nl.knaw.dans.dvingest.core;
+package nl.knaw.dans.dvingest.core.service;
 
-import lombok.Data;
-import nl.knaw.dans.lib.dataverse.model.dataset.UpdateType;
+import nl.knaw.dans.dvingest.core.service.PathIteratorZipper.PathIteratorZipperBuilder;
 
-@Data
-public class UpdateInstructions {
-    private String targetDatasetPid;
-    // TODO: implement minor update
-    //private UpdateType updateType = UpdateType.major;
+import java.io.IOException;
+import java.nio.file.Path;
+
+public interface UtilityServices {
+
+    Path createTempZipFile() throws IOException;
+
+    PathIteratorZipperBuilder createPathIteratorZipperBuilder();
+
 }

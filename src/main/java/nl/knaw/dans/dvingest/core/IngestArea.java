@@ -20,7 +20,9 @@ import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import nl.knaw.dans.dvingest.api.ImportCommandDto;
 import nl.knaw.dans.dvingest.api.ImportJobStatusDto;
-import nl.knaw.dans.dvingest.core.ImportJob.CompletionHandler;
+import nl.knaw.dans.dvingest.core.datasetversiontask.DatasetVersionTaskFactory;
+import nl.knaw.dans.dvingest.core.service.DataverseService;
+import nl.knaw.dans.dvingest.core.service.UtilityServices;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -39,7 +41,7 @@ public class IngestArea {
     @NonNull
     private final UtilityServices utilityServices;
     @NonNull
-    private final DatasetTaskFactory datasetTaskFactory;
+    private final DatasetVersionTaskFactory datasetVersionTaskFactory;
     @NonNull
     private final Path inbox;
     @NonNull
@@ -47,12 +49,12 @@ public class IngestArea {
 
     private final Map<String, ImportJob> importJobs = new ConcurrentHashMap<>();
 
-    private IngestArea(ExecutorService executorService, DataverseService dataverseService, UtilityServices utilityServices, DatasetTaskFactory datasetTaskFactory, Path inbox, Path outbox) {
+    private IngestArea(ExecutorService executorService, DataverseService dataverseService, UtilityServices utilityServices, DatasetVersionTaskFactory datasetVersionTaskFactory, Path inbox, Path outbox) {
         try {
             this.executorService = executorService;
             this.dataverseService = dataverseService;
             this.utilityServices = utilityServices;
-            this.datasetTaskFactory = datasetTaskFactory;
+            this.datasetVersionTaskFactory = datasetVersionTaskFactory;
             this.inbox = inbox.toAbsolutePath().toRealPath();
             this.outbox = outbox.toAbsolutePath().toRealPath();
         }
@@ -100,7 +102,7 @@ public class IngestArea {
             .outputDir(outbox.resolve(relativePath))
             .dataverseService(dataverseService)
             .utilityServices(utilityServices)
-            .datasetTaskFactory(datasetTaskFactory)
+            .datasetVersionTaskFactory(datasetVersionTaskFactory)
             .completionHandler(job -> importJobs.remove(job.getImportCommand().getPath()))
             .build();
     }

@@ -13,10 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package nl.knaw.dans.dvingest.core;
+package nl.knaw.dans.dvingest.core.service;
 
 import lombok.Builder;
-import nl.knaw.dans.dvingest.core.PathIteratorZipper.PathIteratorZipperBuilder;
+import nl.knaw.dans.dvingest.core.service.PathIteratorZipper.PathIteratorZipperBuilder;
 
 import java.io.IOException;
 import java.nio.file.Files;

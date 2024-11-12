@@ -13,15 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package nl.knaw.dans.dvingest.core;
+package nl.knaw.dans.dvingest.core.model;
 
-import java.io.IOException;
-import java.nio.file.Path;
+import lombok.Data;
 
-public interface UtilityServices {
+@Data
+public class UpdateInstructions {
+    private String targetDatasetPid;
+    // Implement resultOfPreviousDeposit = uuid // Of implementeren in deposit.properties?
 
-    Path createTempZipFile() throws IOException;
-
-    PathIteratorZipper.PathIteratorZipperBuilder createPathIteratorZipperBuilder();
-
+    // TODO: implement minor update
+    //private UpdateType updateType = UpdateType.major;
 }

@@ -15,6 +15,8 @@
  */
 package nl.knaw.dans.dvingest.core;
 
+import nl.knaw.dans.dvingest.core.service.PathIterator;
+import nl.knaw.dans.dvingest.core.service.PathIteratorZipper;
 import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.Test;
 

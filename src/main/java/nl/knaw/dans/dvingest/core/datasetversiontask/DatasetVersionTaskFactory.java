@@ -13,23 +13,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package nl.knaw.dans.dvingest.core;
+package nl.knaw.dans.dvingest.core.datasetversiontask;
 
 import lombok.AllArgsConstructor;
+import nl.knaw.dans.dvingest.core.service.DataverseService;
+import nl.knaw.dans.dvingest.core.Deposit;
+import nl.knaw.dans.dvingest.core.service.UtilityServices;
 
 import java.nio.file.Path;
 
 @AllArgsConstructor
-public class DatasetTaskFactory {
+public class DatasetVersionTaskFactory {
     private final DataverseService dataverseService;
     private final UtilityServices utilityServices;
 
-    public Runnable createIngestTask(Deposit deposit, Path outputDir) {
+    public Runnable createDatasetVersionTask(Deposit deposit, Path outputDir) {
         if (deposit.isUpdate()) {
-            return new UpdateDatasetTask(deposit, dataverseService, utilityServices, outputDir);
+            return new UpdateDatasetWithNewVersion(deposit, dataverseService, utilityServices, outputDir);
         }
         else {
-            return new CreateNewDatasetTask(deposit, dataverseService, utilityServices, outputDir);
+            return new CreateNewDataset(deposit, dataverseService, utilityServices, outputDir);
         }
     }
 
