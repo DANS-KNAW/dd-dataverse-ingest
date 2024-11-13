@@ -31,6 +31,9 @@ nav:
       - Overview: dev.md
   - Context: arch.md
 
+extra:
+  bagit_specs_url: https://www.rfc-editor.org/rfc/rfc8493.html
+
 
 plugins:
   - markdownextradata
