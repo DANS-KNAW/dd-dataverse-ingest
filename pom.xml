@@ -59,6 +59,7 @@
         <dependency>
             <groupId>nl.knaw.dans</groupId>
             <artifactId>dans-dataverse-client-lib</artifactId>
+            <version>1.0.1</version>
         </dependency>
         <dependency>
             <groupId>nl.knaw.dans</groupId>

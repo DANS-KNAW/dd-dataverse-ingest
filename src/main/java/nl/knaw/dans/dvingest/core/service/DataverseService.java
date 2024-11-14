@@ -38,4 +38,6 @@ public interface DataverseService {
     void waitForState(String persistentId, String state) throws DataverseException;
 
     DataverseHttpResponse<DatasetVersion> updateMetadata(String targetDatasetPid, DatasetVersion datasetMetadata) throws DataverseException, IOException;
+
+    public DataverseHttpResponse<Object> deleteFile(String persistentId, String filepath) throws DataverseException, IOException;
 }

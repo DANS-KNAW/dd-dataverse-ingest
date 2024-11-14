@@ -21,12 +21,14 @@ import lombok.extern.slf4j.Slf4j;
 import nl.knaw.dans.lib.dataverse.DataverseClient;
 import nl.knaw.dans.lib.dataverse.DataverseException;
 import nl.knaw.dans.lib.dataverse.DataverseHttpResponse;
+import nl.knaw.dans.lib.dataverse.Version;
 import nl.knaw.dans.lib.dataverse.model.dataset.Dataset;
 import nl.knaw.dans.lib.dataverse.model.dataset.DatasetCreationResult;
 import nl.knaw.dans.lib.dataverse.model.dataset.DatasetPublicationResult;
 import nl.knaw.dans.lib.dataverse.model.dataset.DatasetVersion;
 import nl.knaw.dans.lib.dataverse.model.dataset.FileList;
 import nl.knaw.dans.lib.dataverse.model.file.FileMeta;
+import org.apache.commons.lang3.StringUtils;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -65,6 +67,24 @@ public class DataverseServiceImpl implements DataverseService {
     @Override
     public DataverseHttpResponse<DatasetVersion> updateMetadata(String targetDatasetPid, DatasetVersion datasetMetadata) throws DataverseException, IOException {
         return dataverseClient.dataset(targetDatasetPid).updateMetadata(datasetMetadata, metadataKeys);
+    }
+
+    public DataverseHttpResponse<Object> deleteFile(String persistentId, String filepath) throws DataverseException, IOException {
+        var result = dataverseClient.dataset(persistentId).getFiles(Version.DRAFT.toString());
+        var optFileToDelete = result.getData().stream()
+            .filter(file -> {
+                var fp = StringUtils.isBlank(file.getDirectoryLabel()) ?
+                    file.getLabel() :
+                    file.getDirectoryLabel() + "/" + file.getLabel();
+                return filepath.equals(fp);
+            })
+            .findFirst();
+
+        if (optFileToDelete.isEmpty()) {
+            throw new IllegalArgumentException("File not found: " + filepath);
+        }
+        log.debug("Deleting file with id {}", optFileToDelete.get().getDataFile().getId());
+        return dataverseClient.sword().deleteFile(optFileToDelete.get().getDataFile().getId());
     }
 
     // TODO: move this to dans-dataverse-client-lib; it is similar to awaitLockState.

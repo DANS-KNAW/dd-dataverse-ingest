@@ -81,6 +81,7 @@ public class DepositTask implements Runnable {
         else {
             updateMetadata(bag, targetPid);
         }
+        // TODO: replaceFiles(bag, targetPid);
         deleteFiles(bag, targetPid);
         addFiles(bag, targetPid);
         publishVersion(targetPid);
@@ -88,6 +89,7 @@ public class DepositTask implements Runnable {
     }
 
     private String createNewDataset(DepositBag bag) throws IOException, DataverseException {
+        log.debug("Creating new dataset");
         var result = dataverseService.createDataset(bag.getDatasetMetadata());
         var pid = result.getData().getPersistentId();
         log.debug(result.getEnvelopeAsString());
@@ -95,17 +97,24 @@ public class DepositTask implements Runnable {
     }
 
     private void updateMetadata(DepositBag bag, String pid) throws IOException, DataverseException {
+        log.debug("Updating dataset metadata for {}", pid);
         dataverseService.updateMetadata(pid, bag.getDatasetMetadata().getDatasetVersion());
     }
 
     private void deleteFiles(DepositBag bag, String pid) throws IOException, DataverseException {
-        //        var files = bag.getFiles();
-        //        for (var file : files) {
-        //            dataverseService.deleteFile(pid, file.getDataFile().getId());
-        //        }
+        var edit = bag.getEditInstructions();
+        if (edit == null) {
+            log.debug("No edit instructions found. Skipping file deletion.");
+            return;
+        }
+        for (var file : edit.getDeleteFiles()) {
+            log.debug("Deleting file: {}", file);
+            dataverseService.deleteFile(pid, file);
+        }
     }
 
     private void addFiles(DepositBag bag, String pid) throws IOException, DataverseException {
+        log.debug("Adding files from {}", bag.getDataDir());
         var iterator = new PathIterator(FileUtils.iterateFiles(bag.getDataDir().toFile(), null, true));
         while (iterator.hasNext()) {
             uploadFileBatch(iterator, bag.getDataDir(), pid);

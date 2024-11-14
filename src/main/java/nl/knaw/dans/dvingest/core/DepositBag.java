@@ -18,13 +18,13 @@ package nl.knaw.dans.dvingest.core;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
-import lombok.ToString;
 import nl.knaw.dans.lib.dataverse.MetadataFieldDeserializer;
 import nl.knaw.dans.lib.dataverse.model.dataset.Dataset;
 import nl.knaw.dans.lib.dataverse.model.dataset.MetadataField;
 import org.apache.commons.io.FileUtils;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collections;
@@ -50,9 +50,16 @@ public class DepositBag implements Comparable<DepositBag> {
     }
 
     public Dataset getDatasetMetadata() throws IOException {
-        var dataset = MAPPER.readValue(FileUtils.readFileToString(bagDir.resolve("dataset.yml").toFile(), "UTF-8"), Dataset.class);
+        var dataset = MAPPER.readValue(FileUtils.readFileToString(bagDir.resolve("dataset.yml").toFile(), StandardCharsets.UTF_8), Dataset.class);
         dataset.getDatasetVersion().setFiles(Collections.emptyList()); // files = null or a list of files is not allowed
         return dataset;
+    }
+
+    public Edit getEditInstructions() throws IOException {
+        if (!Files.exists(bagDir.resolve("edit.yml"))) {
+            return null;
+        }
+        return MAPPER.readValue(FileUtils.readFileToString(bagDir.resolve("edit.yml").toFile(), StandardCharsets.UTF_8), Edit.class);
     }
 
     @Override
