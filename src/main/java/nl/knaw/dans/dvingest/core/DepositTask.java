@@ -57,7 +57,9 @@ public class DepositTask implements Runnable {
         try {
             String pid = deposit.getUpdatesDataset();
             for (DepositBag bag : deposit.getBags()) {
+                log.info("START processing bag: {}/{}", deposit.getId(), bag);
                 pid = processBag(bag, pid);
+                log.info("END processing bag: {}/{}", deposit.getId(), bag);
             }
             deposit.moveTo(outputDir.resolve("processed"));
         }
