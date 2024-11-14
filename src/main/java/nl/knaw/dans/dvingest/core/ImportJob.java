@@ -22,7 +22,6 @@ import lombok.extern.slf4j.Slf4j;
 import nl.knaw.dans.dvingest.api.ImportCommandDto;
 import nl.knaw.dans.dvingest.api.ImportJobStatusDto;
 import nl.knaw.dans.dvingest.api.ImportJobStatusDto.StatusEnum;
-import nl.knaw.dans.dvingest.core.datasetversiontask.DatasetVersionTaskFactory;
 import nl.knaw.dans.dvingest.core.service.DataverseService;
 import nl.knaw.dans.dvingest.core.service.UtilityServices;
 
@@ -45,9 +44,6 @@ public class ImportJob implements Runnable {
     private final UtilityServices utilityServices;
 
     @NonNull
-    private final DatasetVersionTaskFactory datasetVersionTaskFactory;
-
-    @NonNull
     private final CompletionHandler completionHandler;
 
     @Getter
@@ -57,13 +53,11 @@ public class ImportJob implements Runnable {
         @NonNull Path outputDir,
         @NonNull DataverseService dataverseService,
         @NonNull UtilityServices utilityServices,
-        @NonNull DatasetVersionTaskFactory datasetVersionTaskFactory,
         @NonNull CompletionHandler completionHandler) {
         this.importCommand = importCommand;
         this.outputDir = outputDir;
         this.dataverseService = dataverseService;
         this.utilityServices = utilityServices;
-        this.datasetVersionTaskFactory = datasetVersionTaskFactory;
         this.completionHandler = completionHandler;
     }
 
@@ -93,7 +87,7 @@ public class ImportJob implements Runnable {
             // Process deposits
             for (Deposit deposit : deposits) {
                 log.info("START Processing deposit: {}", deposit.getId());
-                var task = datasetVersionTaskFactory.createDatasetVersionTask(deposit, outputDir);
+                var task = new DepositTask(deposit, dataverseService, utilityServices, outputDir);
                 task.run();
                 log.info("END Processing deposit: {}", deposit.getId());
                 // TODO: record number of processed/rejected/failed deposits in ImportJob status

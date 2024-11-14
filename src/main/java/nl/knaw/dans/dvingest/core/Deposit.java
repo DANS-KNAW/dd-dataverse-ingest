@@ -15,26 +15,17 @@
  */
 package nl.knaw.dans.dvingest.core;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.module.SimpleModule;
-import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
-import nl.knaw.dans.dvingest.core.model.UpdateInstructions;
-import nl.knaw.dans.lib.dataverse.MetadataFieldDeserializer;
-import nl.knaw.dans.lib.dataverse.model.dataset.Dataset;
-import nl.knaw.dans.lib.dataverse.model.dataset.MetadataField;
-import org.apache.commons.io.FileUtils;
 
 import javax.validation.constraints.NotNull;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.OffsetDateTime;
-import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
 import java.util.UUID;
@@ -44,97 +35,51 @@ import java.util.UUID;
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @ToString
 public class Deposit implements Comparable<Deposit> {
-    private static final ObjectMapper MAPPER;
+    private final OffsetDateTime creationTimestamp;
 
-    static {
-        MAPPER = new ObjectMapper(new YAMLFactory());
-        SimpleModule module = new SimpleModule();
-        module.addDeserializer(MetadataField.class, new MetadataFieldDeserializer());
-        MAPPER.registerModule(module);
-    }
+    private final UUID id;
 
     private Path location;
 
     private final Properties depositProperties;
+    private final String updatesDataset;
 
     public Deposit(@NonNull Path location) {
         this.location = location;
         this.depositProperties = new Properties();
         try {
             depositProperties.load(Files.newBufferedReader(location.resolve("deposit.properties")));
+            var creationTimestamp = depositProperties.getProperty("creation.timestamp");
+            if (creationTimestamp == null) {
+                throw new IllegalStateException("Deposit " + location + " does not contain a creation timestamp");
+            }
+            this.creationTimestamp = OffsetDateTime.parse(creationTimestamp);
+            this.id = UUID.fromString(location.getFileName().toString());
+            this.updatesDataset = depositProperties.getProperty("updates.dataset");
         }
         catch (IOException e) {
             throw new IllegalStateException("Error loading deposit properties from " + location.resolve("deposit.properties"), e);
         }
     }
 
-    @EqualsAndHashCode.Include
-    public UUID getId() {
-        return UUID.fromString(location.getFileName().toString());
-    }
-
-    @SuppressWarnings("unchecked")
-    public Dataset getDatasetMetadata() throws IOException {
-        var dataset = MAPPER.readValue(FileUtils.readFileToString(getBagDir().resolve("dataset.yml").toFile(), "UTF-8"), Dataset.class);
-        dataset.getDatasetVersion().setFiles(Collections.emptyList()); // files = null or a list of files is not allowed
-        return dataset;
-    }
-
-    public Path getBagDir() {
-        try (var files = Files.list(location).filter(Files::isDirectory)) {
-            List<Path> filesList = files.toList();
-            if (filesList.size() == 1) {
-                return filesList.get(0);
-            }
-            else {
-                throw new IllegalStateException("Deposit " + location + " should contain exactly one directory");
-            }
+    public List<DepositBag> getBags() throws IOException {
+        try (var files = Files.list(location)) {
+            return files
+                .filter(Files::isDirectory)
+                .map(DepositBag::new)
+                .sorted()
+                .toList();
         }
-        catch (IOException e) {
-            throw new IllegalStateException("Error listing files in deposit " + location, e);
-        }
-    }
-
-    public Path getFilesDir() {
-        return getBagDir().resolve("data");
-    }
-
-    public int getSequenceNumber() {
-        return depositProperties.get("sequence-number") == null ? -1 : Integer.parseInt(depositProperties.getProperty("sequence-number"));
-    }
-
-    public OffsetDateTime getCreationTimestamp() {
-        var creationTimestamp = depositProperties.getProperty("creation.timestamp");
-        if (creationTimestamp == null) {
-            return null;
-        }
-        return OffsetDateTime.parse(creationTimestamp);
-    }
-
-    public boolean isUpdate() {
-        return Files.exists(getBagDir().resolve("update.yml"));
     }
 
     public void moveTo(Path targetDir) throws IOException {
+        log.debug("Moving deposit {} to {}", location, targetDir);
         Files.move(location, targetDir.resolve(location.getFileName()));
         location = targetDir.resolve(location.getFileName());
     }
 
     @Override
     public int compareTo(@NotNull Deposit deposit) {
-        if (getSequenceNumber() != -1 && deposit.getSequenceNumber() != -1) {
-            return Integer.compare(getSequenceNumber(), deposit.getSequenceNumber());
-        }
-        else if (getCreationTimestamp() != null && deposit.getCreationTimestamp() != null) {
-            return getCreationTimestamp().compareTo(deposit.getCreationTimestamp());
-        }
-        else {
-            throw new IllegalStateException("Deposit " + getId() + " should contain either a sequence number or a creation timestamp");
-        }
-    }
-
-    public String getTargetDatasetPid() throws IOException {
-        var updateInstructions = MAPPER.readValue(FileUtils.readFileToString(getBagDir().resolve("update.yml").toFile(), "UTF-8"), UpdateInstructions.class);
-        return updateInstructions.getTargetDatasetPid();
+        return getCreationTimestamp().compareTo(deposit.getCreationTimestamp());
     }
 }

@@ -20,9 +20,8 @@ import io.dropwizard.core.Application;
 import io.dropwizard.core.setup.Bootstrap;
 import io.dropwizard.core.setup.Environment;
 import nl.knaw.dans.dvingest.config.DdDataverseIngestConfiguration;
-import nl.knaw.dans.dvingest.core.datasetversiontask.DatasetVersionTaskFactory;
-import nl.knaw.dans.dvingest.core.service.DataverseServiceImpl;
 import nl.knaw.dans.dvingest.core.IngestArea;
+import nl.knaw.dans.dvingest.core.service.DataverseServiceImpl;
 import nl.knaw.dans.dvingest.core.service.UtilityServicesImpl;
 import nl.knaw.dans.dvingest.resources.DefaultApiResource;
 import nl.knaw.dans.dvingest.resources.IllegalArgumentExceptionMapper;
@@ -60,7 +59,6 @@ public class DdDataverseIngestApplication extends Application<DdDataverseIngestC
             .executorService(environment.lifecycle().executorService("import").minThreads(1).maxThreads(1).build())
             .dataverseService(dataverseService)
             .utilityServices(utilityServices)
-            .datasetVersionTaskFactory(new DatasetVersionTaskFactory(dataverseService, utilityServices))
             .inbox(configuration.getIngest().getImportConfig().getInbox())
             .outbox(configuration.getIngest().getImportConfig().getOutbox()).build();
         environment.jersey().register(new IngestApiResource(importArea));

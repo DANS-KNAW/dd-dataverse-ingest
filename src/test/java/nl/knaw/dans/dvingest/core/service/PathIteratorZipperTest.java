@@ -13,10 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package nl.knaw.dans.dvingest.core;
+package nl.knaw.dans.dvingest.core.service;
 
-import nl.knaw.dans.dvingest.core.service.PathIterator;
-import nl.knaw.dans.dvingest.core.service.PathIteratorZipper;
+import nl.knaw.dans.dvingest.core.TestDirFixture;
 import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.Test;
 

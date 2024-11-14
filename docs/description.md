@@ -60,39 +60,16 @@ fileActions:
 
 <!-- TODO: simplify this ? -->
 
-A deposit can also be used to create a new version of an existing dataset. The `bag-info.txt` file must contain the tag `Updates-Dataset`: <doi>` where `<doi>
-` is the DOI of the dataset to be updated with the prefix `doi:`, as Dataverse requires.
-
-Instead of one bag directory, the deposit may contain multiple bags. In this case the names of the bag must contain a numeric prefix, followed by a dash.
-Alternatively, the name of the bag may be only a number. The numbers may have leading zeros. The numbers determine the order of processing, but are not included
-in the Dataverse metadata.
-
-If the first bag represents a new dataset it MUST use number 0. If the first bag represents a new version of an existing dataset it MUST use a number greater
-than 0.
-
-Examples:
+A deposit can also be used to create a new version of an existing dataset. In this case, the `deposit.properties` file must contain the following property:
 
 ```text
-# New dataset with two versions
-<uuid>
-├── 0-bag
-..
-└── 1-bag 
-
-# One bag, which updates an existing dataset
-<uuid>
-└── bag
-     └── bag-info.txt
-            Updates-Dataset: doi:10.5072/FK2/ABCDEF
-
-# Two bags, which update an existing dataset (adding two new versions)
-<uuid>
-├── 1-bag
-     └── bag-info.txt
-            Updates-Dataset: doi:10.5072/FK2/ABCDEF
-..
-└── 2-bag
+updates-dataset: 'doi:10.5072/FK2/ABCDEF'
 ```
+
+in which the value is the DOI of the dataset to be updated.
+
+Instead of one bag directory, the deposit may contain multiple bags. In this case the directories are processed in lexographical order, so you should name the
+bags accordingly, e.g. `1-bag`, `2-bag`, `3-bag`, etc. , or `001-bag`, `002-bag`, `003-bag`, etc., depending on the number of bags.
 
 [BagIt]: {{ bagit_specs_url }}
 
@@ -124,17 +101,34 @@ imports
                 └── rejected
 ```
 
+### Processing a batch
+
 The deposits to be processed are to be placed under `inbox`. All the files in it must be readable and writable by the service.
-When the service is requested to process a batch, it will do the folowing for each deposit:
+When the service is requested to process a batch, it will do the following:
 
-1. Create a dataset in Dataverse using the metadata in `dataset.yml`.
-2. Upload the files in `files/` to the dataset.
-3. Publish the dataset.
-4. Wait for the dataset to be published.
-5. Move the deposit to `outbox/path/to/batch/processed` if the dataset was published successfully, to
-   `outbox/path/to/batch/rejected` if the dataset was not valid, or to `outbox/path/to/batch/failed` if some
-   other error occurred.
+1. Sort the deposits in the batch by their `creation.timestamp` property in `deposit.properties`, in ascending order.
+2. Process each deposit in the batch in order.
 
-Note that the relative path of the processed files in outbox is the same as in the inbox, except for an extra level
+### Processing a deposit
+
+1. Sort the bags in the deposit by their numeric prefix, in ascending order.
+2. Process each bag in the deposit in order.
+3. Move the deposit to:
+    * `outbox/path/to/batch/processed` if the all versions were published successfully, or to
+    * `outbox/path/to/batch/rejected` if one or more of the version were not valid, or to
+    * `outbox/path/to/batch/failed` if some other error occurred.
+
+Note that the relative path of the processed deposits in outbox is the same as in the inbox, except for an extra level
 of directories for the status of the deposit.
+
+### Processing a bag
+
+1. If the bag is a first-version bag, create a dataset in Dataverse using the metadata in `dataset.yml`, otherwise update the existing dataset metadata
+   using the metadata in `dataset.yml`.
+2. Execute the actions in `edit.yml` if it exists.
+3.
+4. Publish the dataset.
+5. Wait for the dataset to be published.
+
+
 

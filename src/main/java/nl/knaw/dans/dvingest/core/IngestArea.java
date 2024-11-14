@@ -20,7 +20,6 @@ import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import nl.knaw.dans.dvingest.api.ImportCommandDto;
 import nl.knaw.dans.dvingest.api.ImportJobStatusDto;
-import nl.knaw.dans.dvingest.core.datasetversiontask.DatasetVersionTaskFactory;
 import nl.knaw.dans.dvingest.core.service.DataverseService;
 import nl.knaw.dans.dvingest.core.service.UtilityServices;
 
@@ -41,20 +40,17 @@ public class IngestArea {
     @NonNull
     private final UtilityServices utilityServices;
     @NonNull
-    private final DatasetVersionTaskFactory datasetVersionTaskFactory;
-    @NonNull
     private final Path inbox;
     @NonNull
     private final Path outbox;
 
     private final Map<String, ImportJob> importJobs = new ConcurrentHashMap<>();
 
-    private IngestArea(ExecutorService executorService, DataverseService dataverseService, UtilityServices utilityServices, DatasetVersionTaskFactory datasetVersionTaskFactory, Path inbox, Path outbox) {
+    private IngestArea(ExecutorService executorService, DataverseService dataverseService, UtilityServices utilityServices, Path inbox, Path outbox) {
         try {
             this.executorService = executorService;
             this.dataverseService = dataverseService;
             this.utilityServices = utilityServices;
-            this.datasetVersionTaskFactory = datasetVersionTaskFactory;
             this.inbox = inbox.toAbsolutePath().toRealPath();
             this.outbox = outbox.toAbsolutePath().toRealPath();
         }
@@ -102,7 +98,6 @@ public class IngestArea {
             .outputDir(outbox.resolve(relativePath))
             .dataverseService(dataverseService)
             .utilityServices(utilityServices)
-            .datasetVersionTaskFactory(datasetVersionTaskFactory)
             .completionHandler(job -> importJobs.remove(job.getImportCommand().getPath()))
             .build();
     }

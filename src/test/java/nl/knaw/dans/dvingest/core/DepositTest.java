@@ -15,6 +15,7 @@
  */
 package nl.knaw.dans.dvingest.core;
 
+import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.Test;
 
 import java.nio.file.Files;
@@ -46,7 +47,9 @@ public class DepositTest extends TestDirFixture {
         var uuid = UUID.randomUUID();
         var depositDir = testDir.resolve(uuid.toString());
         Files.createDirectories(depositDir);
-        Files.createFile(depositDir.resolve("deposit.properties"));
+        var props = new Properties();
+        props.setProperty("creation.timestamp", "2023-01-01T10:00:00Z");
+        props.store(Files.newBufferedWriter(depositDir.resolve("deposit.properties")), "");
 
         // When
         var deposit = new Deposit(depositDir);
@@ -55,42 +58,6 @@ public class DepositTest extends TestDirFixture {
         assertThat(deposit.getId()).isEqualTo(uuid);
     }
 
-    @Test
-    public void deposits_should_be_ordered_by_sequence_number() throws Exception {
-        // Given
-        var id1 = UUID.randomUUID().toString();
-        var id2 = UUID.randomUUID().toString();
-        var id3 = UUID.randomUUID().toString();
-
-        var dir1 = testDir.resolve(id1);
-        Files.createDirectories(dir1);
-        var props1 = new Properties();
-        props1.setProperty("sequence-number", "1");
-        props1.store(Files.newBufferedWriter(dir1.resolve("deposit.properties")), "");
-        var dir2 = testDir.resolve(id2);
-        Files.createDirectories(dir2);
-        var props2 = new Properties();
-        props2.setProperty("sequence-number", "2");
-        props2.store(Files.newBufferedWriter(dir2.resolve("deposit.properties")), "");
-        var dir3 = testDir.resolve(id3);
-        Files.createDirectories(dir3);
-        var props3 = new Properties();
-        props3.setProperty("sequence-number", "3");
-        props3.store(Files.newBufferedWriter(dir3.resolve("deposit.properties")), "");
-
-        var deposit1 = new Deposit(dir1);
-        var deposit2 = new Deposit(dir2);
-        var deposit3 = new Deposit(dir3);
-
-        // When
-        var deposits = new TreeSet<>();
-        deposits.add(deposit2);
-        deposits.add(deposit1);
-        deposits.add(deposit3);
-
-        // Then
-        assertThat(deposits).containsExactly(deposit1, deposit2, deposit3);
-    }
 
     @Test
     public void deposits_should_be_ordered_by_creation_timestamp() throws Exception {
@@ -130,36 +97,4 @@ public class DepositTest extends TestDirFixture {
         // Then
         assertThat(deposits).containsExactly(deposit1, deposit2, deposit3);
     }
-
-    @Test
-    public void ordering_should_fail_if_both_sequence_number_and_creation_timestamp_are_missing_in_one_of_the_deposits() throws Exception {
-        // Given
-        var id1 = UUID.randomUUID().toString();
-        var id2 = UUID.randomUUID().toString();
-        var id3 = UUID.randomUUID().toString();
-
-        var dir1 = testDir.resolve(id1);
-        Files.createDirectories(dir1);
-        var props1 = new Properties();
-        props1.store(Files.newBufferedWriter(dir1.resolve("deposit.properties")), "");
-
-        var dir2 = testDir.resolve(id2);
-        Files.createDirectories(dir2);
-        var props2 = new Properties();
-        props2.setProperty("sequence-number", "2");
-        props2.store(Files.newBufferedWriter(dir2.resolve("deposit.properties")), "");
-
-        var deposit1 = new Deposit(dir1);
-        var deposit2 = new Deposit(dir2);
-
-        // Then
-        assertThatIllegalStateException().isThrownBy(() -> {
-                // When
-                var deposits = new TreeSet<>();
-                deposits.add(deposit2);
-                deposits.add(deposit1);
-            })
-            .withMessage("Deposit " + deposit1.getId() + " should contain either a sequence number or a creation timestamp");
-    }
-
 }
