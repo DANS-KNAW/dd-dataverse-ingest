@@ -98,8 +98,9 @@ public class DepositTask implements Runnable {
     }
 
     private void updateMetadata(DepositBag bag, String pid) throws IOException, DataverseException {
-        log.debug("Updating dataset metadata for {}", pid);
+        log.debug("Start updating dataset metadata for deposit {}", deposit.getId());
         dataverseService.updateMetadata(pid, bag.getDatasetMetadata().getDatasetVersion());
+        log.debug("End updating dataset metadata for deposit {}", deposit.getId());
     }
 
     private void deleteFiles(DepositBag bag, String pid) throws IOException, DataverseException {
@@ -108,18 +109,21 @@ public class DepositTask implements Runnable {
             log.debug("No edit instructions found. Skipping file deletion.");
             return;
         }
+        log.debug("Start deleting files for deposit {}", deposit.getId());
         for (var file : edit.getDeleteFiles()) {
             log.debug("Deleting file: {}", file);
             dataverseService.deleteFile(pid, file);
         }
+        log.debug("End deleting files for deposit {}", deposit.getId());
     }
 
     private void addFiles(DepositBag bag, String pid) throws IOException, DataverseException {
-        log.debug("Adding files from {}", bag.getDataDir());
+        log.debug("Start uploading files for deposit {}", deposit.getId());
         var iterator = new PathIterator(FileUtils.iterateFiles(bag.getDataDir().toFile(), null, true));
         while (iterator.hasNext()) {
             uploadFileBatch(iterator, bag.getDataDir(), pid);
         }
+        log.debug("End uploading files for deposit {}", deposit.getId());
     }
 
     private void uploadFileBatch(PathIterator iterator, Path dataDir, String pid) throws IOException, DataverseException {
@@ -140,7 +144,9 @@ public class DepositTask implements Runnable {
     }
 
     private void publishVersion(String pid) throws DataverseException, IOException {
+        log.debug("Start publishing version for deposit {}", deposit.getId());
         dataverseService.publishDataset(pid);
         dataverseService.waitForState(pid, "RELEASED");
+        log.debug("End publishing version for deposit {}", deposit.getId());
     }
 }

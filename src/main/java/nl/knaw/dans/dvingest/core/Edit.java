@@ -22,5 +22,9 @@ import java.util.List;
 @Data
 public class Edit {
     private List<String> deleteFiles;
-
+    // TODO: IMPLEMENT
+    //    private List<String> replaceFiles;
+    //    private List<FileMeta> updateFileMetadata;
+    //    private Embargo setEmbargo;
+    //    private URI setLicense;
 }
