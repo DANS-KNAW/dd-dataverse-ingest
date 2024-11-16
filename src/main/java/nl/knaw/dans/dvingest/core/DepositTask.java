@@ -57,9 +57,9 @@ public class DepositTask implements Runnable {
         try {
             String pid = deposit.getUpdatesDataset();
             for (DepositBag bag : deposit.getBags()) {
-                log.info("START processing bag: {}/{}", deposit.getId(), bag);
+                log.info("START processing deposit / bag: {} / {}", deposit.getId(), bag);
                 pid = processBag(bag, pid);
-                log.info("END processing bag: {}/{}", deposit.getId(), bag);
+                log.info("END processing deposit / bag: {} / {}", deposit.getId(), bag);
             }
             deposit.moveTo(outputDir.resolve("processed"));
         }
@@ -76,7 +76,6 @@ public class DepositTask implements Runnable {
     }
 
     private String processBag(DepositBag bag, String targetPid) throws IOException, DataverseException {
-        log.info("Processing bag: {}", bag);
         if (targetPid == null) {
             targetPid = createNewDataset(bag);
         }
