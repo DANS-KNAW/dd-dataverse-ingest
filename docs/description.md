@@ -6,11 +6,7 @@ Service for ingesting datasets into Dataverse via the API.
 Deposit directories
 -------------------
 
-The datasets are prepared as deposit directories (or "deposits" for short) in the ingest area. There are the following types of deposit directories:
-
-### Simple
-
-A directory with the following structure:
+The datasets are prepared as deposit directories (or "deposits" for short) in the ingest area. A deposit is a directory with the following structure:
 
 ```text
 087920d1-e37d-4263-84c7-1321e3ecb5f8
@@ -38,27 +34,101 @@ Instead of one bag multiple bags may be included, see [below](#new-versions-of-e
 
 #### Metadata and instructions
 
-In the root of the bag, the following files can be included to provide metadata and instructions for the ingest process
+In the root of the bag, the following files can be included to provide metadata and instructions for the ingest process. The files are in YAML format and
+closely follow the JSON that is passed to the Dataverse API.
 
-* `dataset.yml`: Dataset level metadata for the dataset in YAML format. It corresponds the JSON that is passed to the `createDataset` and `updateMetadata` API
-  calls.
-* `files.yml`: File level metadata for the files in the dataset in YAML format. It corresponds to the JSON that is passed to the `addFile` API call.
-* `edit.yml`: Instructions to delete or replace specific files. An example of the content of this file is:
+| File                   | Description                                                                                       |
+|------------------------|---------------------------------------------------------------------------------------------------|
+| `dataset.yml`          | Dataset level metadata.                                                                           |
+| `files.yml`            | File level metadata.                                                                              |
+| `edit.yml`             | Instructions to delete or replace specific files and what state to transition <br>the dataset to. |
+| `role-assignments.yml` | Role assignments to create or delete on the dataset                                               |
+| `transition.yml`       | Instructions to transition the dataset to a specific state.                                       |
 
-<!-- TODO: elaborate this -->
+##### `dataset.yml`
+
+The format is the same as the JSON that is passed to the [createDataset]{:target=_blank} endpoint of the Dataverse API. Note that the `files` field is not used.
+It will be set to the empty list by the service, because otherwise Dataverse will reject the request.
 
 ```yaml
-fileActions:
-  - action: DELETE
-    filename: file1.txt
-  - action: REPLACE
-    filename: file2.txt
-    replacement: /path/to/new/file2.txt
+datasetVersion:
+  license:
+    name: "CC0 1.0"
+    uri: "http://creativecommons.org/publicdomain/zero/1.0"
+  fileAccessRequest: true
+  metadataBlocks:
+    citation:
+      displayName: "Citation Metadata"
+      name: "citation"
+      fields:
+        - typeName: "title"
+          multiple: false
+          typeClass: "primitive"
+          value: "My dataset"
+      # Add more metadata  fields and blocks as needed
+```
+
+[createDataset]: {{ dataverse_api_url }}/native-api.html#create-dataset
+
+##### `files.yml`
+
+<!-- TODO: add option to address file by id ? -->
+
+```yaml
+files:
+  - description: "This is the first file"
+    label: "file1.txt"
+    directoryLabel: "subdirectory"
+    restricted: false
+    categories: [ ]
+  # Add more files as needed
+```
+
+[updateFileMetadata]: {{ dataverse_api_url }}/native-api.html#update-file-metadata
+
+##### `edit.yml`
+
+```yaml
+# The file paths refer to existing files in the dataset. The service will reject the deposit if the files do not exist.
+edit:
+  files:
+    delete:
+      - 'file1.txt'
+      - 'subdirectory/file3.txt'
+    replace:
+      - 'file2.txt'
+  # One of the following actions:
+  # - 'leave-draft' (default)
+  # - 'publish-major-version'
+  # - 'publish-minor-version'
+  # - 'submit-for-review'
+  action: 'leave-draft'  
+```
+
+##### `role-assignments.yml`
+
+```yaml
+role_assignments:
+  create:
+    - role: 'admin'
+      assignee: 'user1'
+  delete:
+    - role: 'admin'
+      assignee: 'user2'      
+```
+
+##### `transition.yml`
+
+```yaml
+action: 'submit-for-review'
+# One of the following actions:
+# - 'leave-draft' (default)
+# - 'publish-major-version'
+# - 'publish-minor-version'
+# - 'submit-for-review'
 ```
 
 #### New versions of existing datasets
-
-<!-- TODO: simplify this ? -->
 
 A deposit can also be used to create a new version of an existing dataset. In this case, the `deposit.properties` file must contain the following property:
 
@@ -68,12 +138,20 @@ updates-dataset: 'doi:10.5072/FK2/ABCDEF'
 
 in which the value is the DOI of the dataset to be updated.
 
-Instead of one bag directory, the deposit may contain multiple bags. In this case the directories are processed in lexographical order, so you should name the
+Instead of one bag directory, the deposit may contain multiple bags. In this case the directories are processed in lexicographical order, so you should name the
 bags accordingly, e.g. `1-bag`, `2-bag`, `3-bag`, etc. , or `001-bag`, `002-bag`, `003-bag`, etc., depending on the number of bags.
 
 [BagIt]: {{ bagit_specs_url }}
 
 ### DANS bag
+
+A DANS bag is a directory in the [BagIt]{:target=_blank} format, that also conforms to the [DANS bag profile]{:target=_blank}. This is a legacy format that is
+used by the DANS SWORD2 service. The service can convert a DANS deposit to the standard one described above.
+
+<!-- TODO: elaborate -->
+
+[BagIt]: {{ bagit_specs_url }}
+[DANS bag profile]: {{ dans_bag_profile_url }}
 
 Processing
 ----------
@@ -111,24 +189,30 @@ When the service is requested to process a batch, it will do the following:
 
 ### Processing a deposit
 
-1. Sort the bags in the deposit by their numeric prefix, in ascending order.
+1. Sort the bags in the deposit by lexicographical order.
 2. Process each bag in the deposit in order.
 3. Move the deposit to:
     * `outbox/path/to/batch/processed` if the all versions were published successfully, or to
-    * `outbox/path/to/batch/rejected` if one or more of the version were not valid, or to
+    * `outbox/path/to/batch/rejected` if one or more of the versions were not valid, or to
     * `outbox/path/to/batch/failed` if some other error occurred.
 
-Note that the relative path of the processed deposits in outbox is the same as in the inbox, except for an extra level
-of directories for the status of the deposit.
+Note that the relative path of the processed deposits in outbox is the same as in the inbox, except for an extra level of directories for the status of the
+deposit.
 
 ### Processing a bag
 
-1. If the bag is a first-version bag, create a dataset in Dataverse using the metadata in `dataset.yml`, otherwise update the existing dataset metadata
+The service will do the following:
+
+1. If the bag is a first-version bag, creates a dataset in Dataverse using the metadata in `dataset.yml`, otherwise updates the existing dataset metadata
    using the metadata in `dataset.yml`.
-2. Execute the actions in `edit.yml` if it exists.
-3.
-4. Publish the dataset.
-5. Wait for the dataset to be published.
+2. Executes the actions in `edit.yml` if it exists:
+    * Delete the files listed in `delete`.
+    * Replace the files listed in `replace`.
+3. Adds files not listed in `edit.yml` to the dataset.
+4. Executes the actions in `role-assignments.yml` if it exists:
+    * Delete the role assignments listed in `delete`.
+    * Create the role assignments listed in `create`.
+5. Executes the action in `transition.yml` if it exists.
 
-
-
+Note that a bag for a new dataset must at least contain a `dataset.yml` file. A bag for an existing dataset will only add the files in the bag to the dataset
+and leave the draft as is.

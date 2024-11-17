@@ -21,6 +21,8 @@
 - implement setting license
 - implement setting embargo
 - implement setting request access permission
+- implement canceling a job
+
 
 //edit.yml
 deleteFiles: []
