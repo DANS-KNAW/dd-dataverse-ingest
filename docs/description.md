@@ -211,11 +211,12 @@ The service will do the following:
 2. Executes the actions in `edit.yml` if it exists:
     * Delete the files listed in `delete`.
     * Replace the files listed in `replace`.
-3. Adds files not listed in `edit.yml` to the dataset.
-4. Executes the actions in `role-assignments.yml` if it exists:
+3. Adds files not replaced by `edit.yml` to the dataset.
+4. Updates the metadata of the files in the dataset using the metadata in `files.yml`.
+5. Executes the actions in `role-assignments.yml` if it exists:
     * Delete the role assignments listed in `delete`.
     * Create the role assignments listed in `create`.
-5. Executes the action in `update-state.yml` if it exists.
+6. Executes the action in `update-state.yml` if it exists.
 
 Note that a bag for a new dataset must at least contain a `dataset.yml` file. A bag for an existing dataset will only add the files in the bag to the dataset
 and leave the draft as is.

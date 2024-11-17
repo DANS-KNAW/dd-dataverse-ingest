@@ -16,30 +16,34 @@
 package nl.knaw.dans.dvingest.core.service;
 
 import nl.knaw.dans.lib.dataverse.DataverseException;
-import nl.knaw.dans.lib.dataverse.DataverseHttpResponse;
 import nl.knaw.dans.lib.dataverse.model.dataset.Dataset;
-import nl.knaw.dans.lib.dataverse.model.dataset.DatasetCreationResult;
-import nl.knaw.dans.lib.dataverse.model.dataset.DatasetPublicationResult;
 import nl.knaw.dans.lib.dataverse.model.dataset.DatasetVersion;
 import nl.knaw.dans.lib.dataverse.model.dataset.FileList;
+import nl.knaw.dans.lib.dataverse.model.dataset.UpdateType;
 import nl.knaw.dans.lib.dataverse.model.file.FileMeta;
 
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.List;
+import java.util.Map;
 
 public interface DataverseService {
 
-    DataverseHttpResponse<DatasetCreationResult> createDataset(Dataset datasetMetadata) throws DataverseException, IOException;
+    String createDataset(Dataset datasetMetadata) throws DataverseException, IOException;
 
-    DataverseHttpResponse<FileList> addFile(String persistentId, Path file, FileMeta fileMeta) throws DataverseException, IOException;
+    FileList addFile(String persistentId, Path file, FileMeta fileMeta) throws DataverseException, IOException;
 
-    DataverseHttpResponse<DatasetPublicationResult> publishDataset(String persistentId) throws DataverseException, IOException;
+    void publishDataset(String persistentId, UpdateType updateType) throws DataverseException, IOException;
+
+    void replaceFile(String targetDatasetPid, String pathInDataset, Path replacement, Map<String, FileMeta> filesInDataset) throws DataverseException, IOException;
+
+    void deleteFile(String persistentId, String filepath, Map<String, FileMeta> filesInDataset) throws DataverseException, IOException;
 
     void waitForState(String persistentId, String state) throws DataverseException;
 
-    DataverseHttpResponse<DatasetVersion> updateMetadata(String targetDatasetPid, DatasetVersion datasetMetadata) throws DataverseException, IOException;
+    void updateMetadata(String targetDatasetPid, DatasetVersion datasetMetadata) throws DataverseException, IOException;
 
-    DataverseHttpResponse<FileList> replaceFile(String targetDatasetPid, String pathInDataset, Path replacement) throws DataverseException, IOException;
+    void updateFileMetadata(String pid, String pathInDataset, FileMeta newMeta, Map<String, FileMeta> filesInDataset) throws DataverseException, IOException;
 
-    public DataverseHttpResponse<Object> deleteFile(String persistentId, String filepath) throws DataverseException, IOException;
+    List<FileMeta> getFiles(String pid) throws IOException, DataverseException;
 }

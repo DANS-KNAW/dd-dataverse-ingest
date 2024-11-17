@@ -20,19 +20,21 @@ import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import nl.knaw.dans.lib.dataverse.DataverseClient;
 import nl.knaw.dans.lib.dataverse.DataverseException;
-import nl.knaw.dans.lib.dataverse.DataverseHttpResponse;
+import nl.knaw.dans.lib.dataverse.SearchOptions;
 import nl.knaw.dans.lib.dataverse.Version;
 import nl.knaw.dans.lib.dataverse.model.dataset.Dataset;
-import nl.knaw.dans.lib.dataverse.model.dataset.DatasetCreationResult;
-import nl.knaw.dans.lib.dataverse.model.dataset.DatasetPublicationResult;
 import nl.knaw.dans.lib.dataverse.model.dataset.DatasetVersion;
 import nl.knaw.dans.lib.dataverse.model.dataset.FileList;
+import nl.knaw.dans.lib.dataverse.model.dataset.UpdateType;
 import nl.knaw.dans.lib.dataverse.model.file.FileMeta;
+import nl.knaw.dans.lib.dataverse.model.search.SearchItemType;
 import org.apache.commons.lang3.StringUtils;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @Builder
@@ -50,42 +52,67 @@ public class DataverseServiceImpl implements DataverseService {
     @Builder.Default
     private Map<String, String> metadataKeys = new HashMap<>();
 
-    public DataverseHttpResponse<DatasetCreationResult> createDataset(Dataset datasetMetadata) throws DataverseException, IOException {
-        return dataverseClient.dataverse("root").createDataset(datasetMetadata, metadataKeys);
+    public String createDataset(Dataset datasetMetadata) throws DataverseException, IOException {
+        var result = dataverseClient.dataverse("root").createDataset(datasetMetadata, metadataKeys);
+        log.debug(result.getEnvelopeAsString());
+        return result.getData().getPersistentId();
     }
 
     @Override
-    public DataverseHttpResponse<FileList> addFile(String persistentId, Path file, FileMeta fileMeta) throws DataverseException, IOException {
-        return dataverseClient.dataset(persistentId).addFile(file, fileMeta);
+    public FileList addFile(String persistentId, Path file, FileMeta fileMeta) throws DataverseException, IOException {
+        var result = dataverseClient.dataset(persistentId).addFile(file, fileMeta);
+        log.debug(result.getEnvelopeAsString());
+        return result.getData();
     }
 
     @Override
-    public DataverseHttpResponse<DatasetPublicationResult> publishDataset(String persistentId) throws DataverseException, IOException {
-        return dataverseClient.dataset(persistentId).publish();
+    public void publishDataset(String persistentId, UpdateType updateType) throws DataverseException, IOException {
+        var result = dataverseClient.dataset(persistentId).publish(updateType, true);
+        log.debug(result.getEnvelopeAsString());
     }
 
     @Override
-    public DataverseHttpResponse<DatasetVersion> updateMetadata(String targetDatasetPid, DatasetVersion datasetMetadata) throws DataverseException, IOException {
-        return dataverseClient.dataset(targetDatasetPid).updateMetadata(datasetMetadata, metadataKeys);
+    public void updateMetadata(String targetDatasetPid, DatasetVersion datasetMetadata) throws DataverseException, IOException {
+        var result = dataverseClient.dataset(targetDatasetPid).updateMetadata(datasetMetadata, metadataKeys);
+        log.debug(result.getEnvelopeAsString());
     }
 
     @Override
-    public DataverseHttpResponse<FileList> replaceFile(String targetDatasetPid, String pathInDataset, Path replacement) throws DataverseException, IOException {
-        var fileToReplace = findFileInDataset(targetDatasetPid, pathInDataset);
+    public void updateFileMetadata(String pid, String pathInDataset, FileMeta newMeta, Map<String, FileMeta> filesInDataset) throws DataverseException, IOException {
+        var id = filesInDataset.get(pathInDataset).getDataFile().getId();
+        var result = dataverseClient.file(id).updateMetadata(newMeta);
+        log.debug(result.getEnvelopeAsString());
+    }
+
+    @Override
+    public List<FileMeta> getFiles(String pid) throws IOException, DataverseException {
+        var result = dataverseClient.dataset(pid).getFiles(Version.LATEST.toString());
+        return result.getData();
+    }
+
+    @Override
+    public void replaceFile(String targetDatasetPid, String pathInDataset, Path replacement, Map<String, FileMeta> filesInDataset) throws DataverseException, IOException {
+        var fileToReplace = filesInDataset.get(pathInDataset);
         log.debug("Replacing file: {}", fileToReplace);
-        return dataverseClient.file(fileToReplace.getDataFile().getId()).replaceFile(replacement, fileToReplace); // Not changing the file metadata
+        var result = dataverseClient.file(fileToReplace.getDataFile().getId()).replaceFile(replacement, fileToReplace); // Not changing the file metadata
+        log.debug(result.getEnvelopeAsString());
     }
 
     @Override
-    public DataverseHttpResponse<Object> deleteFile(String persistentId, String filepath) throws DataverseException, IOException {
-        var fileToDelete = findFileInDataset(persistentId, filepath);
+    public void deleteFile(String persistentId, String filepath, Map<String, FileMeta> filesInDataset) throws DataverseException, IOException {
+        var fileToDelete = filesInDataset.get(filepath);
         log.debug("Deleting file: {}", fileToDelete);
-        return dataverseClient.sword().deleteFile(fileToDelete.getDataFile().getId());
+        var result = dataverseClient.sword().deleteFile(fileToDelete.getDataFile().getId());
+        log.debug(result.getEnvelopeAsString());
     }
 
-    private FileMeta findFileInDataset(String persistentId, String filepath) throws DataverseException, IOException {
-        var result = dataverseClient.dataset(persistentId).getFiles(Version.DRAFT.toString());
-        var optFile = result.getData().stream()
+    public List<FileMeta> getFilesInDataset(String persistentId) throws DataverseException, IOException {
+        var result = dataverseClient.dataset(persistentId).getFiles(Version.LATEST.toString());
+        return result.getData();
+    }
+
+    private FileMeta findFileInDataset(String persistentId, String filepath, List<FileMeta> filesInDataset) throws DataverseException, IOException {
+        var optFile = filesInDataset.stream()
             .filter(file -> {
                 var fp = StringUtils.isBlank(file.getDirectoryLabel()) ?
                     file.getLabel() :

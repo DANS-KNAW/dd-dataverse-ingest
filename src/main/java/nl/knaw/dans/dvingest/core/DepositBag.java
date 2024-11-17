@@ -31,6 +31,10 @@ import java.util.Collections;
 
 public class DepositBag implements Comparable<DepositBag> {
     private static final ObjectMapper MAPPER;
+    public static final String DATASET_YML = "dataset.yml";
+    public static final String EDIT_YML = "edit.yml";
+    public static final String FILES_YML = "files.yml";
+    public static final String UPDATE_STATE_YML = "update-state.yml";
 
     static {
         MAPPER = new ObjectMapper(new YAMLFactory());
@@ -50,17 +54,31 @@ public class DepositBag implements Comparable<DepositBag> {
     }
 
     public Dataset getDatasetMetadata() throws IOException {
-        var dataset = MAPPER.readValue(FileUtils.readFileToString(bagDir.resolve("dataset.yml").toFile(), StandardCharsets.UTF_8), Dataset.class);
+        var dataset = MAPPER.readValue(FileUtils.readFileToString(bagDir.resolve(DATASET_YML).toFile(), StandardCharsets.UTF_8), Dataset.class);
         dataset.getDatasetVersion().setFiles(Collections.emptyList()); // files = null or a list of files is not allowed
         return dataset;
     }
 
     public Edit getEditInstructions() throws IOException {
-        if (!Files.exists(bagDir.resolve("edit.yml"))) {
+        if (!Files.exists(bagDir.resolve(EDIT_YML))) {
             return null;
         }
-        var editInstructions = MAPPER.readValue(FileUtils.readFileToString(bagDir.resolve("edit.yml").toFile(), StandardCharsets.UTF_8), EditInstructions.class);
+        var editInstructions = MAPPER.readValue(FileUtils.readFileToString(bagDir.resolve(EDIT_YML).toFile(), StandardCharsets.UTF_8), EditInstructions.class);
         return editInstructions.getEdit();
+    }
+
+    public FilesInstructions getFilesInstructions() throws IOException {
+        if (!Files.exists(bagDir.resolve(FILES_YML))) {
+            return null;
+        }
+        return MAPPER.readValue(FileUtils.readFileToString(bagDir.resolve(FILES_YML).toFile(), StandardCharsets.UTF_8), FilesInstructions.class);
+    }
+
+    public UpdateState getUpdateState() throws IOException {
+        if (!Files.exists(bagDir.resolve(UPDATE_STATE_YML))) {
+            return null;
+        }
+        return MAPPER.readValue(FileUtils.readFileToString(bagDir.resolve(UPDATE_STATE_YML).toFile(), StandardCharsets.UTF_8), UpdateState.class);
     }
 
     @Override
