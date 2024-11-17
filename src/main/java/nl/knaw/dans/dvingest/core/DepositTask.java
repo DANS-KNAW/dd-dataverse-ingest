@@ -22,11 +22,14 @@ import nl.knaw.dans.dvingest.core.service.PathIterator;
 import nl.knaw.dans.dvingest.core.service.UtilityServices;
 import nl.knaw.dans.lib.dataverse.DataverseException;
 import nl.knaw.dans.lib.dataverse.model.file.FileMeta;
+import org.apache.commons.collections4.IteratorUtils;
 import org.apache.commons.io.FileUtils;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Iterator;
 
 @Slf4j
 public class DepositTask implements Runnable {
@@ -82,11 +85,21 @@ public class DepositTask implements Runnable {
         else {
             updateMetadata(bag, targetPid);
         }
-        // TODO: replaceFiles(bag, targetPid);
-        deleteFiles(bag, targetPid);
+        processEdit(bag, targetPid);
         addFiles(bag, targetPid);
         publishVersion(targetPid);
         return targetPid;
+    }
+
+    private void processEdit(DepositBag bag, String pid) throws IOException, DataverseException {
+        var edit = bag.getEditInstructions();
+        if (edit == null) {
+            log.debug("No edit instructions found. Skipping edit processing.");
+            return;
+        }
+        log.debug("Start processing edit instructions for deposit {}", deposit.getId());
+        deleteFiles(bag, pid, edit);
+        replaceFiles(bag, pid, edit);
     }
 
     private String createNewDataset(DepositBag bag) throws IOException, DataverseException {
@@ -103,12 +116,7 @@ public class DepositTask implements Runnable {
         log.debug("End updating dataset metadata for deposit {}", deposit.getId());
     }
 
-    private void deleteFiles(DepositBag bag, String pid) throws IOException, DataverseException {
-        var edit = bag.getEditInstructions();
-        if (edit == null) {
-            log.debug("No edit instructions found. Skipping file deletion.");
-            return;
-        }
+    private void deleteFiles(DepositBag bag, String pid, Edit edit) throws IOException, DataverseException {
         log.debug("Start deleting files for deposit {}", deposit.getId());
         for (var file : edit.getDeleteFiles()) {
             log.debug("Deleting file: {}", file);
@@ -117,13 +125,29 @@ public class DepositTask implements Runnable {
         log.debug("End deleting files for deposit {}", deposit.getId());
     }
 
+    private void replaceFiles(DepositBag bag, String pid, Edit edit) throws IOException, DataverseException {
+        log.debug("Start replacing files for deposit {}", deposit.getId());
+        for (var file : edit.getReplaceFiles()) {
+            log.debug("Replacing file: {}", file);
+            dataverseService.replaceFile(pid, file, bag.getDataDir().resolve(file));
+        }
+        log.debug("End replacing files for deposit {}", deposit.getId());
+    }
+
     private void addFiles(DepositBag bag, String pid) throws IOException, DataverseException {
-        log.debug("Start uploading files for deposit {}", deposit.getId());
-        var iterator = new PathIterator(FileUtils.iterateFiles(bag.getDataDir().toFile(), null, true));
+        var edit = bag.getEditInstructions();
+        var iterator = new PathIterator(getFilesToUpload(bag, edit));
         while (iterator.hasNext()) {
             uploadFileBatch(iterator, bag.getDataDir(), pid);
         }
         log.debug("End uploading files for deposit {}", deposit.getId());
+    }
+
+    private Iterator<File> getFilesToUpload(DepositBag bag, Edit edit) {
+        return IteratorUtils.filteredIterator(
+            FileUtils.iterateFiles(bag.getDataDir().toFile(), null, true),
+            // Skip files that have been replaced in the edit steps
+            path -> edit == null || !edit.getReplaceFiles().contains(bag.getDataDir().relativize(path.toPath()).toString()));
     }
 
     private void uploadFileBatch(PathIterator iterator, Path dataDir, String pid) throws IOException, DataverseException {

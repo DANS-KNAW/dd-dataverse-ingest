@@ -69,9 +69,23 @@ public class DataverseServiceImpl implements DataverseService {
         return dataverseClient.dataset(targetDatasetPid).updateMetadata(datasetMetadata, metadataKeys);
     }
 
+    @Override
+    public DataverseHttpResponse<FileList> replaceFile(String targetDatasetPid, String pathInDataset, Path replacement) throws DataverseException, IOException {
+        var fileToReplace = findFileInDataset(targetDatasetPid, pathInDataset);
+        log.debug("Replacing file: {}", fileToReplace);
+        return dataverseClient.file(fileToReplace.getDataFile().getId()).replaceFile(replacement, fileToReplace); // Not changing the file metadata
+    }
+
+    @Override
     public DataverseHttpResponse<Object> deleteFile(String persistentId, String filepath) throws DataverseException, IOException {
+        var fileToDelete = findFileInDataset(persistentId, filepath);
+        log.debug("Deleting file: {}", fileToDelete);
+        return dataverseClient.sword().deleteFile(fileToDelete.getDataFile().getId());
+    }
+
+    private FileMeta findFileInDataset(String persistentId, String filepath) throws DataverseException, IOException {
         var result = dataverseClient.dataset(persistentId).getFiles(Version.DRAFT.toString());
-        var optFileToDelete = result.getData().stream()
+        var optFile = result.getData().stream()
             .filter(file -> {
                 var fp = StringUtils.isBlank(file.getDirectoryLabel()) ?
                     file.getLabel() :
@@ -80,11 +94,10 @@ public class DataverseServiceImpl implements DataverseService {
             })
             .findFirst();
 
-        if (optFileToDelete.isEmpty()) {
+        if (optFile.isEmpty()) {
             throw new IllegalArgumentException("File not found: " + filepath);
         }
-        log.debug("Deleting file with id {}", optFileToDelete.get().getDataFile().getId());
-        return dataverseClient.sword().deleteFile(optFileToDelete.get().getDataFile().getId());
+        return optFile.get();
     }
 
     // TODO: move this to dans-dataverse-client-lib; it is similar to awaitLockState.

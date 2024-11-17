@@ -39,5 +39,7 @@ public interface DataverseService {
 
     DataverseHttpResponse<DatasetVersion> updateMetadata(String targetDatasetPid, DatasetVersion datasetMetadata) throws DataverseException, IOException;
 
+    DataverseHttpResponse<FileList> replaceFile(String targetDatasetPid, String pathInDataset, Path replacement) throws DataverseException, IOException;
+
     public DataverseHttpResponse<Object> deleteFile(String persistentId, String filepath) throws DataverseException, IOException;
 }

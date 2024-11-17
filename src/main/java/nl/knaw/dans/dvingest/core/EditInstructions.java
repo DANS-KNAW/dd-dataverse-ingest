@@ -17,10 +17,7 @@ package nl.knaw.dans.dvingest.core;
 
 import lombok.Data;
 
-import java.util.List;
-
 @Data
-public class Edit {
-    private List<String> deleteFiles;
-    private List<String> replaceFiles;
+public class EditInstructions {
+    private Edit edit;
 }

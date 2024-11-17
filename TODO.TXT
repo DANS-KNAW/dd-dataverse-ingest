@@ -22,7 +22,7 @@
 - implement setting embargo
 - implement setting request access permission
 - implement canceling a job
-
+- bag validation
 
 //edit.yml
 deleteFiles: []

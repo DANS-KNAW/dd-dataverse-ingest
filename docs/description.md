@@ -43,7 +43,7 @@ closely follow the JSON that is passed to the Dataverse API.
 | `files.yml`            | File level metadata.                                                                              |
 | `edit.yml`             | Instructions to delete or replace specific files and what state to transition <br>the dataset to. |
 | `role-assignments.yml` | Role assignments to create or delete on the dataset                                               |
-| `transition.yml`       | Instructions to transition the dataset to a specific state.                                       |
+| `update-state.yml`     | Whether to publish the dataset version or submit it for review                                    |
 
 ##### `dataset.yml`
 
@@ -68,11 +68,14 @@ datasetVersion:
       # Add more metadata  fields and blocks as needed
 ```
 
-[createDataset]: {{ dataverse_api_url }}/native-api.html#create-dataset
+[createDataset]: {{ dataverse_api_url }}/native-api.html#create-a-dataset-in-a-dataverse-collection
 
 ##### `files.yml`
 
 <!-- TODO: add option to address file by id ? -->
+
+A list of file metadata objects, as passed to the [updateFileMetadata]{:target=_blank} endpoint of the Dataverse API. The file to be updated is identified by
+its current `label` and `directoryLabel` in the dataset. The `restricted` field is not used, it will be set to `true` by the service.
 
 ```yaml
 files:
@@ -84,26 +87,26 @@ files:
   # Add more files as needed
 ```
 
-[updateFileMetadata]: {{ dataverse_api_url }}/native-api.html#update-file-metadata
+[updateFileMetadata]: {{ dataverse_api_url }}/native-api.html#updating-file-metadata
 
 ##### `edit.yml`
 
 ```yaml
 # The file paths refer to existing files in the dataset. The service will reject the deposit if the files do not exist.
 edit:
-  files:
-    delete:
-      - 'file1.txt'
-      - 'subdirectory/file3.txt'
-    replace:
-      - 'file2.txt'
-  # One of the following actions:
-  # - 'leave-draft' (default)
-  # - 'publish-major-version'
-  # - 'publish-minor-version'
-  # - 'submit-for-review'
-  action: 'leave-draft'  
+  deleteFiles:
+    - 'file1.txt'
+    - 'subdirectory/file3.txt'
+  replaceFiles:
+    - 'file2.txt'
+  # editMetadata: 
+  # deleteMetadata:
+  # addEmbargo:
 ```
+
+The replacement file is looked up in the bag, under the `data` directory under the same path as the original file has in the dataset. Note that files the
+replacement files will automatically be skipped in the add files step, the deleted files, however, will not. In other words, it is also possible to remove a
+file and add a file back to the same location in one deposit. In that case, there will be no continuous history of the file in the dataset.
 
 ##### `role-assignments.yml`
 
@@ -117,7 +120,7 @@ role_assignments:
       assignee: 'user2'      
 ```
 
-##### `transition.yml`
+##### `update-state.yml`
 
 ```yaml
 action: 'submit-for-review'
@@ -212,7 +215,7 @@ The service will do the following:
 4. Executes the actions in `role-assignments.yml` if it exists:
     * Delete the role assignments listed in `delete`.
     * Create the role assignments listed in `create`.
-5. Executes the action in `transition.yml` if it exists.
+5. Executes the action in `update-state.yml` if it exists.
 
 Note that a bag for a new dataset must at least contain a `dataset.yml` file. A bag for an existing dataset will only add the files in the bag to the dataset
 and leave the draft as is.

@@ -59,7 +59,8 @@ public class DepositBag implements Comparable<DepositBag> {
         if (!Files.exists(bagDir.resolve("edit.yml"))) {
             return null;
         }
-        return MAPPER.readValue(FileUtils.readFileToString(bagDir.resolve("edit.yml").toFile(), StandardCharsets.UTF_8), Edit.class);
+        var editInstructions = MAPPER.readValue(FileUtils.readFileToString(bagDir.resolve("edit.yml").toFile(), StandardCharsets.UTF_8), EditInstructions.class);
+        return editInstructions.getEdit();
     }
 
     @Override
