@@ -78,7 +78,7 @@ public class ImportJob implements Runnable {
             }
             else {
                 try (var depositPaths = Files.list(Path.of(importCommand.getPath()))) {
-                    depositPaths.forEach(p -> deposits.add(new Deposit(p)));
+                    depositPaths.filter(Files::isDirectory).forEach(p -> deposits.add(new Deposit(p)));
                 }
             }
 

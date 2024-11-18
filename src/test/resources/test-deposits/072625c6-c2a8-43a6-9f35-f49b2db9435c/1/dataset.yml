@@ -1,0 +1,103 @@
+datasetVersion:
+  license:
+    name: "CC0 1.0"
+    uri: "http://creativecommons.org/publicdomain/zero/1.0"
+  fileAccessRequest: true
+  metadataBlocks:
+    citation:
+      displayName: "Citation Metadata"
+      name: "citation"
+      fields:
+        - typeName: "title"
+          multiple: false
+          typeClass: "primitive"
+          value: "Sample deposit test"
+        - typeName: "author"
+          multiple: true
+          typeClass: "compound"
+          value:
+            - authorName:
+                typeName: "authorName"
+                multiple: false
+                typeClass: "primitive"
+                value: "Admin, Dataverse"
+              authorAffiliation:
+                typeName: "authorAffiliation"
+                multiple: false
+                typeClass: "primitive"
+                value: "Dataverse.org"
+        - typeName: "datasetContact"
+          multiple: true
+          typeClass: "compound"
+          value:
+            - datasetContactName:
+                typeName: "datasetContactName"
+                multiple: false
+                typeClass: "primitive"
+                value: "Admin, Dataverse"
+              datasetContactEmail:
+                typeClass: "primitive"
+                multiple: false
+                typeName: "datasetContactEmail"
+                value: "dataverseAdmin@mailinator.com"
+              datasetContactAffiliation:
+                typeName: "datasetContactAffiliation"
+                multiple: false
+                typeClass: "primitive"
+                value: "Dataverse.org"
+        - typeName: "dsDescription"
+          multiple: true
+          typeClass: "compound"
+          value:
+            - dsDescriptionValue:
+                typeName: "dsDescriptionValue"
+                multiple: false
+                typeClass: "primitive"
+                value: "adipiscing dolor tempor dolor sed tempor ut dolor tempor dolor
+tempor eiusmod incididunt dolor sit sed et et do et
+incididunt aliqua tempor do magna amet consectetur dolor tempor labore
+dolore tempor eiusmod sit dolore sit ut ut amet adipiscing
+magna amet ipsum et ipsum dolor do lorem sed sit"
+        - typeName: "subject"
+          multiple: true
+          typeClass: "controlledVocabulary"
+          value:
+            - "Arts and Humanities"
+        - typeName: "depositor"
+          multiple: false
+          typeClass: "primitive"
+          value: "Admin, Dataverse"
+        - typeName: "dateOfDeposit"
+          multiple: false
+          typeClass: "primitive"
+          value: "2024-11-09"
+    dansRights:
+      displayName: "Rights Metadata"
+      name: "dansRights"
+      fields:
+        - typeName: "dansRightsHolder"
+          multiple: true
+          typeClass: "primitive"
+          value:
+            - "DANS"
+        - typeName: "dansPersonalDataPresent"
+          multiple: false
+          typeClass: "controlledVocabulary"
+          value: "No"
+    dansRelationMetadata:
+      displayName: "Relation Metadata"
+      name: "dansRelationMetadata"
+      fields:
+        - typeName: "dansAudience"
+          multiple: true
+          typeClass: "primitive"
+          value:
+            - "https://www.narcis.nl/classification/D17000"
+    dansArchaeologyMetadata:
+      displayName: "Archaeology-Specific Metadata"
+      name: "dansArchaeologyMetadata"
+      fields: []
+    dansTemporalSpatial:
+      displayName: "Temporal and Spatial Coverage"
+      name: "dansTemporalSpatial"
+      fields: []

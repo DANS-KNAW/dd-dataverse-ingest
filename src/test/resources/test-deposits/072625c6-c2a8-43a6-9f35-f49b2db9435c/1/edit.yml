@@ -1,0 +1,3 @@
+edit:
+  addRestrictedFiles:
+    - 'subdir/file2-restricted.txt'

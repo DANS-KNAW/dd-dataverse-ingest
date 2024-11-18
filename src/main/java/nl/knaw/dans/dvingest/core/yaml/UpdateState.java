@@ -13,14 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package nl.knaw.dans.dvingest.core;
+package nl.knaw.dans.dvingest.core.yaml;
 
 import lombok.Data;
 
-import java.util.List;
-
 @Data
-public class Edit {
-    private List<String> deleteFiles;
-    private List<String> replaceFiles;
+public class UpdateState {
+    // TODO: convert to enum
+    private String action;
 }

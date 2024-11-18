@@ -78,8 +78,7 @@ public class DataverseServiceImpl implements DataverseService {
     }
 
     @Override
-    public void updateFileMetadata(String pid, String pathInDataset, FileMeta newMeta, Map<String, FileMeta> filesInDataset) throws DataverseException, IOException {
-        var id = filesInDataset.get(pathInDataset).getDataFile().getId();
+    public void updateFileMetadata(int id, FileMeta newMeta) throws DataverseException, IOException {
         var result = dataverseClient.file(id).updateMetadata(newMeta);
         log.debug(result.getEnvelopeAsString());
     }
@@ -91,42 +90,17 @@ public class DataverseServiceImpl implements DataverseService {
     }
 
     @Override
-    public void replaceFile(String targetDatasetPid, String pathInDataset, Path replacement, Map<String, FileMeta> filesInDataset) throws DataverseException, IOException {
-        var fileToReplace = filesInDataset.get(pathInDataset);
+    public void replaceFile(String targetDatasetPid, FileMeta fileToReplace, Path replacement) throws DataverseException, IOException {
         log.debug("Replacing file: {}", fileToReplace);
-        var result = dataverseClient.file(fileToReplace.getDataFile().getId()).replaceFile(replacement, fileToReplace); // Not changing the file metadata
+        var result = dataverseClient.file(fileToReplace.getDataFile().getId()).replaceFile(replacement, fileToReplace);
         log.debug(result.getEnvelopeAsString());
     }
 
     @Override
-    public void deleteFile(String persistentId, String filepath, Map<String, FileMeta> filesInDataset) throws DataverseException, IOException {
-        var fileToDelete = filesInDataset.get(filepath);
-        log.debug("Deleting file: {}", fileToDelete);
-        var result = dataverseClient.sword().deleteFile(fileToDelete.getDataFile().getId());
+    public void deleteFile(int id) throws DataverseException, IOException {
+        var result = dataverseClient.sword().deleteFile(id);
         log.debug(result.getEnvelopeAsString());
     }
-
-    public List<FileMeta> getFilesInDataset(String persistentId) throws DataverseException, IOException {
-        var result = dataverseClient.dataset(persistentId).getFiles(Version.LATEST.toString());
-        return result.getData();
-    }
-
-    private FileMeta findFileInDataset(String persistentId, String filepath, List<FileMeta> filesInDataset) throws DataverseException, IOException {
-        var optFile = filesInDataset.stream()
-            .filter(file -> {
-                var fp = StringUtils.isBlank(file.getDirectoryLabel()) ?
-                    file.getLabel() :
-                    file.getDirectoryLabel() + "/" + file.getLabel();
-                return filepath.equals(fp);
-            })
-            .findFirst();
-
-        if (optFile.isEmpty()) {
-            throw new IllegalArgumentException("File not found: " + filepath);
-        }
-        return optFile.get();
-    }
-
     // TODO: move this to dans-dataverse-client-lib; it is similar to awaitLockState.
     public void waitForState(String datasetId, String expectedState) {
         var numberOfTimesTried = 0;

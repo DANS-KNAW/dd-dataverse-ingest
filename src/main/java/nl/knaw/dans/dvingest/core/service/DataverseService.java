@@ -35,15 +35,15 @@ public interface DataverseService {
 
     void publishDataset(String persistentId, UpdateType updateType) throws DataverseException, IOException;
 
-    void replaceFile(String targetDatasetPid, String pathInDataset, Path replacement, Map<String, FileMeta> filesInDataset) throws DataverseException, IOException;
+    void replaceFile(String targetDatasetPid, FileMeta fileToReplace, Path replacement) throws DataverseException, IOException;
 
-    void deleteFile(String persistentId, String filepath, Map<String, FileMeta> filesInDataset) throws DataverseException, IOException;
+    void deleteFile(int id) throws DataverseException, IOException;
 
     void waitForState(String persistentId, String state) throws DataverseException;
 
     void updateMetadata(String targetDatasetPid, DatasetVersion datasetMetadata) throws DataverseException, IOException;
 
-    void updateFileMetadata(String pid, String pathInDataset, FileMeta newMeta, Map<String, FileMeta> filesInDataset) throws DataverseException, IOException;
+    void updateFileMetadata(int id, FileMeta newMeta) throws DataverseException, IOException;
 
     List<FileMeta> getFiles(String pid) throws IOException, DataverseException;
 }

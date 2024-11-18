@@ -13,12 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package nl.knaw.dans.dvingest.core;
+package nl.knaw.dans.dvingest.core.yaml;
 
 import lombok.Data;
+import nl.knaw.dans.lib.dataverse.model.file.FileMeta;
+
+import java.util.List;
 
 @Data
-public class UpdateState {
-    // TODO: convert to enum
-    private String action;
+public class FilesInstructions {
+    private List<FileMeta> files;
 }

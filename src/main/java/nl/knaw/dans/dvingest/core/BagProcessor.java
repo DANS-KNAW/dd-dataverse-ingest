@@ -19,6 +19,9 @@ import lombok.extern.slf4j.Slf4j;
 import nl.knaw.dans.dvingest.core.service.DataverseService;
 import nl.knaw.dans.dvingest.core.service.PathIterator;
 import nl.knaw.dans.dvingest.core.service.UtilityServices;
+import nl.knaw.dans.dvingest.core.yaml.Edit;
+import nl.knaw.dans.dvingest.core.yaml.FilesInstructions;
+import nl.knaw.dans.dvingest.core.yaml.UpdateState;
 import nl.knaw.dans.lib.dataverse.DataverseException;
 import nl.knaw.dans.lib.dataverse.model.dataset.Dataset;
 import nl.knaw.dans.lib.dataverse.model.dataset.UpdateType;
@@ -76,7 +79,7 @@ public class BagProcessor {
         // 2. Process edit instructions
         processEdit();
         // 3. Add files
-        addFiles();
+        addUnrestrictedFiles();
         // 4. Update file metadata
         updateFileMetadata();
         // 5. Role assignments
@@ -105,13 +108,15 @@ public class BagProcessor {
         log.debug("Start processing edit instructions for deposit {}", depositId);
         deleteFiles();
         replaceFiles();
+        addRestrictedFiles();
     }
 
     private void deleteFiles() throws IOException, DataverseException {
         log.debug("Start deleting files for deposit {}", depositId);
         for (var file : edit.getDeleteFiles()) {
             log.debug("Deleting file: {}", file);
-            dataverseService.deleteFile(pid, file, getFilesInDataset());
+            var fileToDelete = getFilesInDataset().get(file);
+            dataverseService.deleteFile(fileToDelete.getDataFile().getId());
             filesInDataset.remove(file);
         }
         log.debug("End deleting files for deposit {}", depositId);
@@ -121,28 +126,49 @@ public class BagProcessor {
         log.debug("Start replacing files for deposit {}", depositId);
         for (var file : edit.getReplaceFiles()) {
             log.debug("Replacing file: {}", file);
-            dataverseService.replaceFile(pid, file, dataDir.resolve(file), getFilesInDataset());
+            var fileMeta = getFilesInDataset().get(file);
+            dataverseService.replaceFile(pid, fileMeta, dataDir.resolve(file));
         }
         log.debug("End replacing files for deposit {}", depositId);
     }
 
-    private void addFiles() throws IOException, DataverseException {
-        log.debug("Start uploading files for deposit {}", depositId);
-        var iterator = new PathIterator(getFilesToUpload());
+    private void addRestrictedFiles() throws IOException, DataverseException {
+        log.debug("Start adding restricted files for deposit {}", depositId);
+        var iterator = new PathIterator(getRestrictedFilesToUpload());
         while (iterator.hasNext()) {
-            uploadFileBatch(iterator);
+            uploadFileBatch(iterator, true);
         }
-        log.debug("End uploading files for deposit {}", depositId);
+        log.debug("End adding restricted files for deposit {}", depositId);
     }
 
-    private Iterator<File> getFilesToUpload() {
+    private void addUnrestrictedFiles() throws IOException, DataverseException {
+        log.debug("Start uploading files for deposit {}", depositId);
+        var iterator = new PathIterator(getUnrestrictedFilesToUpload());
+        while (iterator.hasNext()) {
+            uploadFileBatch(iterator, false);
+        }
+        log.debug("End uploading unrestricted files for deposit {}", depositId);
+    }
+
+    private Iterator<File> getUnrestrictedFilesToUpload() {
         return IteratorUtils.filteredIterator(
             FileUtils.iterateFiles(dataDir.toFile(), null, true),
             // Skip files that have been replaced in the edit steps
-            path -> edit == null || !edit.getReplaceFiles().contains(dataDir.relativize(path.toPath()).toString()));
+            path -> edit == null ||
+                !edit.getReplaceFiles().contains(dataDir.relativize(path.toPath()).toString())
+                    && !edit.getAddRestrictedFiles().contains(dataDir.relativize(path.toPath()).toString()));
     }
 
-    private void uploadFileBatch(PathIterator iterator) throws IOException, DataverseException {
+    private Iterator<File> getRestrictedFilesToUpload() {
+        return IteratorUtils.filteredIterator(
+            FileUtils.iterateFiles(dataDir.toFile(), null, true),
+            // Skip files that have been replaced in the edit steps
+            path -> edit == null ||
+                !edit.getReplaceFiles().contains(dataDir.relativize(path.toPath()).toString())
+                    && edit.getAddRestrictedFiles().contains(dataDir.relativize(path.toPath()).toString()));
+    }
+
+    private void uploadFileBatch(PathIterator iterator, boolean restrict) throws IOException, DataverseException {
         var tempZipFile = utilityServices.createTempZipFile();
         try {
             var zipFile = utilityServices.createPathIteratorZipperBuilder()
@@ -151,7 +177,9 @@ public class BagProcessor {
                 .targetZipFile(tempZipFile)
                 .build()
                 .zip();
-            var fileLIst = dataverseService.addFile(pid, zipFile, new FileMeta());
+            var fileMeta = new FileMeta();
+            fileMeta.setRestricted(restrict);
+            var fileLIst = dataverseService.addFile(pid, zipFile, fileMeta);
             log.debug("Uploaded {} files (cumulative)", iterator.getIteratedCount());
             for (var file : fileLIst.getFiles()) {
                 filesInDataset.put(getPath(file), file);
@@ -192,7 +220,8 @@ public class BagProcessor {
             return;
         }
         for (var file : filesInstructions.getFiles()) {
-            dataverseService.updateFileMetadata(pid, getPath(file), file, filesInDataset);
+            var id = getFilesInDataset().get(getPath(file)).getDataFile().getId();
+            dataverseService.updateFileMetadata(id, file);
         }
         log.debug("End updating file metadata for deposit {}", depositId);
     }

@@ -99,6 +99,9 @@ edit:
     - 'subdirectory/file3.txt'
   replaceFiles:
     - 'file2.txt'
+  addRestrictedFiles:
+    - 'file4.txt'
+    - 'subdirectory/file5.txt'
   # editMetadata: 
   # deleteMetadata:
   # addEmbargo:
@@ -209,9 +212,10 @@ The service will do the following:
 1. If the bag is a first-version bag, creates a dataset in Dataverse using the metadata in `dataset.yml`, otherwise updates the existing dataset metadata
    using the metadata in `dataset.yml`.
 2. Executes the actions in `edit.yml` if it exists:
-    * Delete the files listed in `delete`.
-    * Replace the files listed in `replace`.
-3. Adds files not replaced by `edit.yml` to the dataset.
+    * Delete the files listed in `deleteFiles`.
+    * Replace the files listed in `replaceFiles`.
+    * Add the files listed in `addRestrictedFiles`, with restricted access.
+3. Adds files not replaced or added by `edit.yml` to the dataset.
 4. Updates the metadata of the files in the dataset using the metadata in `files.yml`.
 5. Executes the actions in `role-assignments.yml` if it exists:
     * Delete the role assignments listed in `delete`.
