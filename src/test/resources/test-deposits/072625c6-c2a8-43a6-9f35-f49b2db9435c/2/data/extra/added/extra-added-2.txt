@@ -1,0 +1,1 @@
+This file is to be added as extra file in version 2, too.
