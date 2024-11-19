@@ -68,23 +68,24 @@ public class BagProcessor {
     }
 
     public String run(String targetPid) throws IOException, DataverseException {
-        // 1. Create new dataset or update existing dataset
         if (targetPid == null) {
+            if (dataset == null) {
+                throw new IllegalArgumentException("Must have dataset metadata to create a new dataset.");
+            }
             pid = createNewDataset();
         }
         else {
             pid = targetPid;
             updateDatasetMetadata();
         }
-        // 2. Process edit instructions
-        processEdit();
-        // 3. Add files
+        deleteFiles();
+        replaceFiles();
+        addRestrictedFiles();
         addUnrestrictedFiles();
-        // 4. Update file metadata
         updateFileMetadata();
+        moveFiles();
         // 5. Role assignments
         // TODO: Implement role assignments
-        // 6. Update state
         processUpdateState();
         return pid;
     }
@@ -95,23 +96,20 @@ public class BagProcessor {
     }
 
     private void updateDatasetMetadata() throws IOException, DataverseException {
+        if (dataset == null) {
+            log.debug("No dataset metadata found. Skipping dataset metadata update.");
+            return;
+        }
         log.debug("Start updating dataset metadata for deposit {}", depositId);
         dataverseService.updateMetadata(pid, dataset.getDatasetVersion());
         log.debug("End updating dataset metadata for deposit {}", depositId);
     }
 
-    private void processEdit() throws IOException, DataverseException {
+    private void deleteFiles() throws IOException, DataverseException {
         if (edit == null) {
-            log.debug("No edit instructions found. Skipping edit processing.");
+            log.debug("No edit instructions found. Skipping file deletion.");
             return;
         }
-        log.debug("Start processing edit instructions for deposit {}", depositId);
-        deleteFiles();
-        replaceFiles();
-        addRestrictedFiles();
-    }
-
-    private void deleteFiles() throws IOException, DataverseException {
         log.debug("Start deleting files for deposit {}", depositId);
         for (var file : edit.getDeleteFiles()) {
             log.debug("Deleting file: {}", file);
@@ -123,6 +121,10 @@ public class BagProcessor {
     }
 
     private void replaceFiles() throws IOException, DataverseException {
+        if (edit == null) {
+            log.debug("No edit instructions found. Skipping replacing files.");
+            return;
+        }
         log.debug("Start replacing files for deposit {}", depositId);
         for (var file : edit.getReplaceFiles()) {
             log.debug("Replacing file: {}", file);
@@ -133,6 +135,10 @@ public class BagProcessor {
     }
 
     private void addRestrictedFiles() throws IOException, DataverseException {
+        if (edit == null) {
+            log.debug("No edit instructions found. Skipping adding restricted files.");
+            return;
+        }
         log.debug("Start adding restricted files for deposit {}", depositId);
         var iterator = new PathIterator(getRestrictedFilesToUpload());
         while (iterator.hasNext()) {
@@ -219,11 +225,36 @@ public class BagProcessor {
             log.debug("No file metadata instructions found. Skipping file metadata update.");
             return;
         }
-        for (var file : filesInstructions.getFiles()) {
-            var id = getFilesInDataset().get(getPath(file)).getDataFile().getId();
-            dataverseService.updateFileMetadata(id, file);
+        for (var fileMeta : filesInstructions.getFiles().getUpdateMetadata()) {
+            var id = getFilesInDataset().get(getPath(fileMeta)).getDataFile().getId();
+            dataverseService.updateFileMetadata(id, fileMeta);
         }
         log.debug("End updating file metadata for deposit {}", depositId);
+    }
+
+    private void moveFiles() throws IOException, DataverseException {
+        log.debug("Start moving files for deposit {}", depositId);
+        if (filesInstructions == null) {
+            log.debug("No move instructions found. Skipping file move.");
+            return;
+        }
+        for (var move : filesInstructions.getFiles().getMove()) {
+            var fileMeta = getFilesInDataset().get(move.getFrom());
+            fileMeta.setDirectoryLabel(getDirectoryLabel(move.getTo()));
+            fileMeta.setLabel(getFileName(move.getTo()));
+            dataverseService.updateFileMetadata(fileMeta.getDataFile().getId(), fileMeta);
+        }
+        log.debug("End moving files for deposit {}", depositId);
+    }
+
+    private String getDirectoryLabel(String path) {
+        int lastIndex = path.lastIndexOf('/');
+        return lastIndex == -1 ? "" : path.substring(0, lastIndex);
+    }
+
+    private String getFileName(String path) {
+        int lastIndex = path.lastIndexOf('/');
+        return path.substring(lastIndex + 1);
     }
 
     private void processUpdateState() throws DataverseException, IOException {

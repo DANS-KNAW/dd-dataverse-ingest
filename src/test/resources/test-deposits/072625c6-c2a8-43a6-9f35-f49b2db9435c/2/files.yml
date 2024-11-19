@@ -1,0 +1,10 @@
+files:
+  updateMetadata:
+    - label: 'file3-desc.txt'
+      description: 'New description of file3'
+      categories:
+        - 'Data'
+        - 'Documentation'
+  move:
+    - from: 'subdir/file7-to-be-moved-to-subdir2-in-v2.txt'
+      to: 'subdir2/file7-to-be-moved-to-subdir2-in-v2.txt'

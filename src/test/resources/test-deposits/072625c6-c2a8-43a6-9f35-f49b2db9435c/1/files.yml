@@ -1,3 +1,4 @@
 files:
-  - label: 'file3-desc.txt'
-    description: 'Description of file3'
+  updateMetadata:
+    - label: 'file3-desc.txt'
+      description: 'Description of file3'

@@ -16,11 +16,8 @@
 package nl.knaw.dans.dvingest.core.yaml;
 
 import lombok.Data;
-import nl.knaw.dans.lib.dataverse.model.file.FileMeta;
-
-import java.util.List;
 
 @Data
 public class FilesInstructions {
-    private List<FileMeta> files;
+    private Files files = new Files();
 }

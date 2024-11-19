@@ -18,6 +18,7 @@ package nl.knaw.dans.dvingest.core.yaml;
 import lombok.Data;
 
 @Data
-public class EditInstructions {
-    private Edit edit = new Edit();
+public class Move {
+    private String from;
+    private String to;
 }

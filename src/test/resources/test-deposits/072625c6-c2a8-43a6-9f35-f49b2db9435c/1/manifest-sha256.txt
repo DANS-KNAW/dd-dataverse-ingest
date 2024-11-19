@@ -1,3 +1,0 @@
-c147efcfc2d7ea666a9e4f5187b115c90903f0fc896a56df9a6ef5d8f3fc9f31  data/file1.txt
-223034d104663f674d4ce86cdbe79ffbaecd32983a4e5c953b94a8fd48b6f135  data/file3-desc.txt
-04acdfcf7d49f3b4da612f6943fad7faa3f8d02020eee848f007585e78e2fd90  data/subdir/file2-restricted.txt

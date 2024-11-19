@@ -58,6 +58,9 @@ public class DepositBag implements Comparable<DepositBag> {
     }
 
     public Dataset getDatasetMetadata() throws IOException {
+        if (!Files.exists(bagDir.resolve(DATASET_YML))) {
+            return null;
+        }
         var dataset = MAPPER.readValue(FileUtils.readFileToString(bagDir.resolve(DATASET_YML).toFile(), StandardCharsets.UTF_8), Dataset.class);
         dataset.getDatasetVersion().setFiles(Collections.emptyList()); // files = null or a list of files is not allowed
         return dataset;

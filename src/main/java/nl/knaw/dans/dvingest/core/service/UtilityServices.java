@@ -26,4 +26,6 @@ public interface UtilityServices {
 
     PathIteratorZipperBuilder createPathIteratorZipperBuilder();
 
+//    <T> T readYaml(Path yamlPath, Class<T> expectedStructure) throws IOException;
+
 }

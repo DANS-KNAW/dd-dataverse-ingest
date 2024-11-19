@@ -16,8 +16,13 @@
 package nl.knaw.dans.dvingest.core.yaml;
 
 import lombok.Data;
+import nl.knaw.dans.lib.dataverse.model.file.FileMeta;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Data
-public class EditInstructions {
-    private Edit edit = new Edit();
+public class Files {
+    private List<FileMeta> updateMetadata = new ArrayList<>();
+    private List<Move> move = new ArrayList<>();
 }

@@ -26,6 +26,7 @@ import java.nio.file.Path;
 public class UtilityServicesImpl implements UtilityServices {
     private final Path tempDir;
     private final int maxNumberOfFilesPerUpload;
+    //    private final YamlUtils yamlUtils = new YamlUtils();
 
     @Override
     public Path createTempZipFile() throws IOException {
@@ -42,4 +43,10 @@ public class UtilityServicesImpl implements UtilityServices {
         return PathIteratorZipper.builder()
             .maxNumberOfFiles(maxNumberOfFilesPerUpload);
     }
+
+    //    @Override
+    //    public <T> T readYaml(Path yamlPath, Class<T> targetStructure) throws IOException {
+    //        return yamlUtils.readYaml(yamlPath, targetStructure);
+    //    }
+
 }

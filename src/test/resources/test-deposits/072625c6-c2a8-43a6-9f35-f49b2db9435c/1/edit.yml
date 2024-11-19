@@ -1,3 +1,4 @@
 edit:
   addRestrictedFiles:
     - 'subdir/file2-restricted.txt'
+    - 'file4-restricted.txt'
