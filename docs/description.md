@@ -37,15 +37,15 @@ Instead of one bag multiple bags may be included, see [below](#new-versions-of-e
 In the root of the bag, the following files can be included to provide metadata and instructions for the ingest process. The files are in YAML format and
 closely follow the JSON that is passed to the Dataverse API.
 
-| File                   | Description                                                                                       |
-|------------------------|---------------------------------------------------------------------------------------------------|
-| `dataset.yml`          | Dataset level metadata.                                                                           |
-| `files.yml`            | File level metadata.                                                                              |
-| `edit.yml`             | Instructions to delete or replace specific files and what state to transition <br>the dataset to. |
-| `role-assignments.yml` | Role assignments to create or delete on the dataset                                               |
-| `update-state.yml`     | Whether to publish the dataset version or submit it for review                                    |
+| File                   | Description                                                                                                                              |
+|------------------------|------------------------------------------------------------------------------------------------------------------------------------------|
+| `dataset.yml`          | Dataset level metadata.                                                                                                                  |
+| `edit-files.yml`       | Instructions for deleting, replacing or moving files, or updating the file metadata;<br> also included: restricting and embargoing files |
+| `edit-metadata.yml`    | Edit dataset level metadata, including metadata value deletions                                                                          |
+| `edit-permissions.yml` | Role assignments to create or delete on the dataset                                                                                      |
+| `update-state.yml`     | Whether to publish the dataset version or submit it for review                                                                           |
 
-##### `dataset.yml`
+##### dataset.yml
 
 The format is the same as the JSON that is passed to the [createDataset]{:target=_blank} endpoint of the Dataverse API. Note that the `files` field is not used.
 It will be set to the empty list by the service, because otherwise Dataverse will reject the request.
@@ -70,30 +70,10 @@ datasetVersion:
 
 [createDataset]: {{ dataverse_api_url }}/native-api.html#create-a-dataset-in-a-dataverse-collection
 
-##### `files.yml`
-
-<!-- TODO: add option to address file by id ? -->
-
-A list of file metadata objects, as passed to the [updateFileMetadata]{:target=_blank} endpoint of the Dataverse API. The file to be updated is identified by
-its current `label` and `directoryLabel` in the dataset. The `restricted` field is not used, it will be set to `true` by the service.
+##### edit-files.yml
 
 ```yaml
-files:
-  - description: "This is the first file"
-    label: "file1.txt"
-    directoryLabel: "subdirectory"
-    restricted: false
-    categories: [ ]
-  # Add more files as needed
-```
-
-[updateFileMetadata]: {{ dataverse_api_url }}/native-api.html#updating-file-metadata
-
-##### `edit.yml`
-
-```yaml
-# The file paths refer to existing files in the dataset. The service will reject the deposit if the files do not exist.
-edit:
+editFiles:
   deleteFiles:
     - 'file1.txt'
     - 'subdirectory/file3.txt'
@@ -102,28 +82,85 @@ edit:
   addRestrictedFiles:
     - 'file4.txt'
     - 'subdirectory/file5.txt'
-  # editMetadata: 
-  # deleteMetadata:
-  # addEmbargo:
+  moveFiles:
+    - from: 'file6.txt'
+      to: 'subdirectory/file6.txt'
+  updateFileMetas:
+    - description: "This is the first file"
+      label: "file1.txt"
+      directoryLabel: "subdirectory"
+      restricted: false
+      categories: [ 'Testlabel' ]
+  addEmbargo:
+    - path: 'file1.txt'
+      dateAvailable: '2022-01-01'
+      reason: 'Pending publication'
 ```
+
+The actions specified in this files correspond roughly to the action available in the dropdown menu in the file view of a dataset in Dataverse.
 
 The replacement file is looked up in the bag, under the `data` directory under the same path as the original file has in the dataset. Note that files the
 replacement files will automatically be skipped in the add files step, the deleted files, however, will not. In other words, it is also possible to remove a
 file and add a file back to the same location in one deposit. In that case, there will be no continuous history of the file in the dataset.
 
-##### `role-assignments.yml`
+The `addRestrictedFiles` action is included, because it allows you to add a large number of restricted files in a more efficient way than by updating the file
+metadata of each file individually after adding them unrestricted first. The default action is to add files unrestricted, so there is no explicit action for
+that.
+
+`updateFileMetas` contains items in the format of the JSON that is passed to the [updateFileMetadata]{:target=_blank} endpoint of the Dataverse API.
+
+[updateFileMetadata]: {{ dataverse_api_url }}/native-api.html#updating-file-metadata
+
+##### edit-metadata.yml
 
 ```yaml
-role_assignments:
-  create:
-    - role: 'admin'
-      assignee: 'user1'
-  delete:
-    - role: 'admin'
-      assignee: 'user2'      
+editMetadata:
+  deleteFieldValues:
+    - typeName: "subject"
+      value:
+        - 'Astronomy and Astrophysics'
+  addFieldValues:
+    - typeName: "subject"
+      value:
+        - 'Astronomy and Astrophysics'
+  replaceFieldValues:
+    - typeName: "producer"
+      value:
+        - producerName:
+            typeName: "producerName"
+            value: "John Doe"
+        - producerAffiliation:
+            typeName: "producerAffiliation"
+            value: "University of Somewhere"
 ```
 
-##### `update-state.yml`
+Allows you to selectively delete, add or replace metadata field values. The format is the same as the JSON that is passed to the
+[editDatasetMetadata]{:target=_blank} and [deleteDatasetMetadata]{:target=_blank} endpoints of the Dataverse API. The only difference between `addFieldValues`
+and `replaceFieldValues` is that the latter will pass the `replace=true` parameter to the API. See the API documentation for the exact behavior.
+
+[editDatasetMetadata]: {{ dataverse_api_url }}/native-api.html#edit-dataset-metadata
+[deleteDatasetMetadata]: {{ dataverse_api_url }}/native-api.html#delete-dataset-metadata
+
+##### edit-permissions.yml
+
+```yaml
+editPermissions:
+  deleteRoleAssignments:
+    - role: 'admin'
+      assignee: '@user1'
+  addRoleAssignments:
+    - role: 'admin'
+      assignee: '@user2'      
+```
+
+Allows you to selectively delete or add role assignments on the dataset. The format is the same as the JSON that is passed to the 
+[assignNewRole]{:target=_blank} and [deleteRoleAssignments]{:target=_blank} endpoints of the Dataverse API.
+
+[assignNewRole]: {{ dataverse_api_url }}/native-api.html#assign-a-new-role-on-a-dataset
+[deleteRoleAssignments]: {{ dataverse_api_url }}/native-api.html#delete-role-assignment-on-a-dataset
+
+
+##### update-state.yml
 
 ```yaml
 action: 'submit-for-review'
