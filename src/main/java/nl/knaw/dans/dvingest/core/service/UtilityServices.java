@@ -25,7 +25,4 @@ public interface UtilityServices {
     Path createTempZipFile() throws IOException;
 
     PathIteratorZipperBuilder createPathIteratorZipperBuilder();
-
-//    <T> T readYaml(Path yamlPath, Class<T> expectedStructure) throws IOException;
-
 }

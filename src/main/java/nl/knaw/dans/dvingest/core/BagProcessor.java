@@ -15,6 +15,7 @@
  */
 package nl.knaw.dans.dvingest.core;
 
+import io.dropwizard.configuration.ConfigurationException;
 import lombok.extern.slf4j.Slf4j;
 import nl.knaw.dans.dvingest.core.service.DataverseService;
 import nl.knaw.dans.dvingest.core.service.PathIterator;
@@ -22,6 +23,7 @@ import nl.knaw.dans.dvingest.core.service.UtilityServices;
 import nl.knaw.dans.dvingest.core.yaml.Edit;
 import nl.knaw.dans.dvingest.core.yaml.FilesInstructions;
 import nl.knaw.dans.dvingest.core.yaml.UpdateState;
+import nl.knaw.dans.dvingest.core.yaml.YamlUtils;
 import nl.knaw.dans.lib.dataverse.DataverseException;
 import nl.knaw.dans.lib.dataverse.model.dataset.Dataset;
 import nl.knaw.dans.lib.dataverse.model.dataset.UpdateType;
@@ -55,7 +57,7 @@ public class BagProcessor {
 
     private String pid;
 
-    public BagProcessor(UUID depositId, DepositBag bag, DataverseService dataverseService, UtilityServices utilityServices) throws IOException {
+    public BagProcessor(UUID depositId, DepositBag bag, DataverseService dataverseService, UtilityServices utilityServices) throws IOException, ConfigurationException {
         this.depositId = depositId;
         this.dataDir = bag.getDataDir();
         this.dataverseService = dataverseService;

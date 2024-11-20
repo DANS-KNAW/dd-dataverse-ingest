@@ -13,38 +13,52 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-//package nl.knaw.dans.dvingest.core.yaml;
-//
-//import io.dropwizard.configuration.ConfigurationException;
-//import io.dropwizard.configuration.YamlConfigurationFactory;
-//import nl.knaw.dans.lib.dataverse.model.dataset.Dataset;
-//
-//import javax.validation.Validation;
-//import java.io.IOException;
-//import java.nio.file.Path;
-//
-//public class YamlUtils {
-//    private final YamlConfigurationFactory<Dataset> datasetYamlConfigurationFactory;
-//    private final YamlConfigurationFactory<EditInstructions> editInstructionsYamlConfigurationFactory;
-//
-//
-//
-//    public YamlUtils() {
-//        try (var factory = Validation.buildDefaultValidatorFactory()) {
-//            datasetYamlConfigurationFactory = new YamlConfigurationFactory<>(Dataset.class, factory.getValidator(), null, "dw");
-//            editInstructionsYamlConfigurationFactory = new YamlConfigurationFactory<>(EditInstructions.class, factory.getValidator(), null, "dw");
-//        }
-//    }
-//
-//    public <T> T readYaml(Path yamlFile, Class<T> target) throws IOException, ConfigurationException {
-//        if (target == Dataset.class) {
-//            return datasetYamlConfigurationFactory.build(yamlFile.toFile());
-//        }
-//        else if (target == EditInstructions.class) {
-//            return editInstructionsYamlConfigurationFactory.build(yamlFile.toFile());
-//        }
-//        else {
-//            throw new IllegalArgumentException("Unsupported target class: " + target.getName());
-//        }
-//    }
-//}
+package nl.knaw.dans.dvingest.core.yaml;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.module.SimpleModule;
+import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
+import io.dropwizard.configuration.ConfigurationException;
+import io.dropwizard.configuration.YamlConfigurationFactory;
+import lombok.extern.slf4j.Slf4j;
+import nl.knaw.dans.lib.dataverse.MetadataFieldDeserializer;
+import nl.knaw.dans.lib.dataverse.model.dataset.Dataset;
+import nl.knaw.dans.lib.dataverse.model.dataset.MetadataField;
+
+import javax.validation.Validation;
+import java.io.IOException;
+import java.nio.file.Path;
+import java.util.HashMap;
+import java.util.Map;
+
+@Slf4j
+public class YamlUtils {
+    private final Map<Class<?>, YamlConfigurationFactory<?>> yamlConfigurationFactories = new HashMap<>();
+
+    public YamlUtils() {
+        try (var factory = Validation.buildDefaultValidatorFactory()) {
+            var mapper = new ObjectMapper(new YAMLFactory());
+            SimpleModule module = new SimpleModule();
+            module.addDeserializer(MetadataField.class, new MetadataFieldDeserializer());
+            mapper.registerModule(module);
+            yamlConfigurationFactories.put(Dataset.class, new YamlConfigurationFactory<>(Dataset.class, factory.getValidator(), mapper, "dw"));
+            yamlConfigurationFactories.put(EditInstructions.class, new YamlConfigurationFactory<>(EditInstructions.class, factory.getValidator(), mapper, "dw"));
+            yamlConfigurationFactories.put(FilesInstructions.class, new YamlConfigurationFactory<>(FilesInstructions.class, factory.getValidator(), mapper, "dw"));
+            yamlConfigurationFactories.put(UpdateState.class, new YamlConfigurationFactory<>(UpdateState.class, factory.getValidator(), mapper, "dw"));
+        }
+        catch (Throwable e) {
+            // This ctor is called from a static context, so we log the error to make sure it is not lost
+            log.error("Failed to create YamlUtils", e);
+            throw e;
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    public <T> T readYaml(Path yamlFile, Class<T> target) throws IOException, ConfigurationException {
+        YamlConfigurationFactory<T> factory = (YamlConfigurationFactory<T>) yamlConfigurationFactories.get(target);
+        if (factory == null) {
+            throw new IllegalArgumentException("No factory found for class: " + target.getName());
+        }
+        return factory.build(yamlFile.toFile());
+    }
+}

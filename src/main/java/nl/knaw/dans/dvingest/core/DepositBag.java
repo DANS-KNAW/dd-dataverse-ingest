@@ -15,37 +15,26 @@
  */
 package nl.knaw.dans.dvingest.core;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.module.SimpleModule;
-import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
+import io.dropwizard.configuration.ConfigurationException;
 import nl.knaw.dans.dvingest.core.yaml.Edit;
 import nl.knaw.dans.dvingest.core.yaml.EditInstructions;
 import nl.knaw.dans.dvingest.core.yaml.FilesInstructions;
 import nl.knaw.dans.dvingest.core.yaml.UpdateState;
-import nl.knaw.dans.lib.dataverse.MetadataFieldDeserializer;
+import nl.knaw.dans.dvingest.core.yaml.YamlUtils;
 import nl.knaw.dans.lib.dataverse.model.dataset.Dataset;
-import nl.knaw.dans.lib.dataverse.model.dataset.MetadataField;
-import org.apache.commons.io.FileUtils;
 
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collections;
 
 public class DepositBag implements Comparable<DepositBag> {
-    private static final ObjectMapper MAPPER;
+    private static final YamlUtils YAML_UTILS = new YamlUtils();
+
     public static final String DATASET_YML = "dataset.yml";
     public static final String EDIT_YML = "edit.yml";
     public static final String FILES_YML = "files.yml";
     public static final String UPDATE_STATE_YML = "update-state.yml";
-
-    static {
-        MAPPER = new ObjectMapper(new YAMLFactory());
-        SimpleModule module = new SimpleModule();
-        module.addDeserializer(MetadataField.class, new MetadataFieldDeserializer());
-        MAPPER.registerModule(module);
-    }
 
     private final Path bagDir;
 
@@ -57,35 +46,35 @@ public class DepositBag implements Comparable<DepositBag> {
         }
     }
 
-    public Dataset getDatasetMetadata() throws IOException {
+    public Dataset getDatasetMetadata() throws IOException, ConfigurationException {
         if (!Files.exists(bagDir.resolve(DATASET_YML))) {
             return null;
         }
-        var dataset = MAPPER.readValue(FileUtils.readFileToString(bagDir.resolve(DATASET_YML).toFile(), StandardCharsets.UTF_8), Dataset.class);
+        var dataset = YAML_UTILS.readYaml(bagDir.resolve(DATASET_YML), Dataset.class);
         dataset.getDatasetVersion().setFiles(Collections.emptyList()); // files = null or a list of files is not allowed
         return dataset;
     }
 
-    public Edit getEditInstructions() throws IOException {
+    public Edit getEditInstructions() throws IOException, ConfigurationException {
         if (!Files.exists(bagDir.resolve(EDIT_YML))) {
             return null;
         }
-        var editInstructions = MAPPER.readValue(FileUtils.readFileToString(bagDir.resolve(EDIT_YML).toFile(), StandardCharsets.UTF_8), EditInstructions.class);
+        var editInstructions = YAML_UTILS.readYaml(bagDir.resolve(EDIT_YML), EditInstructions.class);
         return editInstructions.getEdit();
     }
 
-    public FilesInstructions getFilesInstructions() throws IOException {
+    public FilesInstructions getFilesInstructions() throws IOException, ConfigurationException {
         if (!Files.exists(bagDir.resolve(FILES_YML))) {
             return null;
         }
-        return MAPPER.readValue(FileUtils.readFileToString(bagDir.resolve(FILES_YML).toFile(), StandardCharsets.UTF_8), FilesInstructions.class);
+        return YAML_UTILS.readYaml(bagDir.resolve(FILES_YML), FilesInstructions.class);
     }
 
-    public UpdateState getUpdateState() throws IOException {
+    public UpdateState getUpdateState() throws IOException, ConfigurationException {
         if (!Files.exists(bagDir.resolve(UPDATE_STATE_YML))) {
             return null;
         }
-        return MAPPER.readValue(FileUtils.readFileToString(bagDir.resolve(UPDATE_STATE_YML).toFile(), StandardCharsets.UTF_8), UpdateState.class);
+        return YAML_UTILS.readYaml(bagDir.resolve(UPDATE_STATE_YML), UpdateState.class);
     }
 
     @Override
