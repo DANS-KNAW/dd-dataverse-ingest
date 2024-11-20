@@ -16,9 +16,12 @@
 package nl.knaw.dans.dvingest.core;
 
 import io.dropwizard.configuration.ConfigurationException;
-import nl.knaw.dans.dvingest.core.yaml.Edit;
-import nl.knaw.dans.dvingest.core.yaml.EditInstructions;
-import nl.knaw.dans.dvingest.core.yaml.FilesInstructions;
+import nl.knaw.dans.dvingest.core.yaml.EditFiles;
+import nl.knaw.dans.dvingest.core.yaml.EditFilesRoot;
+import nl.knaw.dans.dvingest.core.yaml.EditMetadata;
+import nl.knaw.dans.dvingest.core.yaml.EditMetadataRoot;
+import nl.knaw.dans.dvingest.core.yaml.EditPermissions;
+import nl.knaw.dans.dvingest.core.yaml.EditPermissionsRoot;
 import nl.knaw.dans.dvingest.core.yaml.UpdateState;
 import nl.knaw.dans.dvingest.core.yaml.YamlUtils;
 import nl.knaw.dans.lib.dataverse.model.dataset.Dataset;
@@ -32,8 +35,9 @@ public class DepositBag implements Comparable<DepositBag> {
     private static final YamlUtils YAML_UTILS = new YamlUtils();
 
     public static final String DATASET_YML = "dataset.yml";
-    public static final String EDIT_YML = "edit.yml";
-    public static final String FILES_YML = "files.yml";
+    public static final String EDIT_FILES_YML = "edit-files.yml";
+    public static final String EDIT_METADATA_YML = "edit-metadata.yml";
+    public static final String EDIT_PERMISSIONS_YML = "edit-permissions.yml";
     public static final String UPDATE_STATE_YML = "update-state.yml";
 
     private final Path bagDir;
@@ -55,19 +59,28 @@ public class DepositBag implements Comparable<DepositBag> {
         return dataset;
     }
 
-    public Edit getEditInstructions() throws IOException, ConfigurationException {
-        if (!Files.exists(bagDir.resolve(EDIT_YML))) {
+    public EditFiles getEditFiles() throws IOException, ConfigurationException {
+        if (!Files.exists(bagDir.resolve(EDIT_FILES_YML))) {
             return null;
         }
-        var editInstructions = YAML_UTILS.readYaml(bagDir.resolve(EDIT_YML), EditInstructions.class);
-        return editInstructions.getEdit();
+        var editFilesRoot = YAML_UTILS.readYaml(bagDir.resolve(EDIT_FILES_YML), EditFilesRoot.class);
+        return editFilesRoot.getEditFiles();
     }
 
-    public FilesInstructions getFilesInstructions() throws IOException, ConfigurationException {
-        if (!Files.exists(bagDir.resolve(FILES_YML))) {
+    public EditMetadata getEditMetadata() throws IOException, ConfigurationException {
+        if (!Files.exists(bagDir.resolve(EDIT_METADATA_YML))) {
             return null;
         }
-        return YAML_UTILS.readYaml(bagDir.resolve(FILES_YML), FilesInstructions.class);
+        var editMetadataRoot = YAML_UTILS.readYaml(bagDir.resolve(EDIT_METADATA_YML), EditMetadataRoot.class);
+        return editMetadataRoot.getEditMetadata();
+    }
+
+    public EditPermissions getEditPermissions() throws IOException, ConfigurationException {
+        if (!Files.exists(bagDir.resolve(EDIT_PERMISSIONS_YML))) {
+            return null;
+        }
+        var editPermissionsRoot = YAML_UTILS.readYaml(bagDir.resolve(EDIT_PERMISSIONS_YML), EditPermissionsRoot.class);
+        return editPermissionsRoot.getEditPermissions();
     }
 
     public UpdateState getUpdateState() throws IOException, ConfigurationException {

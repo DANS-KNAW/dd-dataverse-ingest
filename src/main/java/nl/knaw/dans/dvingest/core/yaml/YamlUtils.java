@@ -42,8 +42,9 @@ public class YamlUtils {
             module.addDeserializer(MetadataField.class, new MetadataFieldDeserializer());
             mapper.registerModule(module);
             yamlConfigurationFactories.put(Dataset.class, new YamlConfigurationFactory<>(Dataset.class, factory.getValidator(), mapper, "dw"));
-            yamlConfigurationFactories.put(EditInstructions.class, new YamlConfigurationFactory<>(EditInstructions.class, factory.getValidator(), mapper, "dw"));
-            yamlConfigurationFactories.put(FilesInstructions.class, new YamlConfigurationFactory<>(FilesInstructions.class, factory.getValidator(), mapper, "dw"));
+            yamlConfigurationFactories.put(EditFilesRoot.class, new YamlConfigurationFactory<>(EditFilesRoot.class, factory.getValidator(), mapper, "dw"));
+            yamlConfigurationFactories.put(EditMetadataRoot.class, new YamlConfigurationFactory<>(EditMetadataRoot.class, factory.getValidator(), mapper, "dw"));
+            yamlConfigurationFactories.put(EditPermissionsRoot.class, new YamlConfigurationFactory<>(EditPermissionsRoot.class, factory.getValidator(), mapper, "dw"));
             yamlConfigurationFactories.put(UpdateState.class, new YamlConfigurationFactory<>(UpdateState.class, factory.getValidator(), mapper, "dw"));
         }
         catch (Throwable e) {

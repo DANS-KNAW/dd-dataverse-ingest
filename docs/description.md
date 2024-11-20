@@ -82,6 +82,7 @@ editFiles:
   addRestrictedFiles:
     - 'file4.txt'
     - 'subdirectory/file5.txt'
+  # Unrestricted files are added by default at this point
   moveFiles:
     - from: 'file6.txt'
       to: 'subdirectory/file6.txt'
@@ -91,8 +92,11 @@ editFiles:
       directoryLabel: "subdirectory"
       restricted: false
       categories: [ 'Testlabel' ]
-  addEmbargo:
-    - path: 'file1.txt'
+  addEmbargoes:
+    - includeFiles: [ 'file1.txt' ] # All other files will NOT be embargoed
+      dateAvailable: '2022-01-01'
+      reason: 'Pending publication'
+    - excludeFiles: [ 'file2.txt' ] # All other files will be embargoed
       dateAvailable: '2022-01-01'
       reason: 'Pending publication'
 ```
@@ -153,12 +157,11 @@ editPermissions:
       assignee: '@user2'      
 ```
 
-Allows you to selectively delete or add role assignments on the dataset. The format is the same as the JSON that is passed to the 
+Allows you to selectively delete or add role assignments on the dataset. The format is the same as the JSON that is passed to the
 [assignNewRole]{:target=_blank} and [deleteRoleAssignments]{:target=_blank} endpoints of the Dataverse API.
 
 [assignNewRole]: {{ dataverse_api_url }}/native-api.html#assign-a-new-role-on-a-dataset
 [deleteRoleAssignments]: {{ dataverse_api_url }}/native-api.html#delete-role-assignment-on-a-dataset
-
 
 ##### update-state.yml
 
@@ -244,20 +247,6 @@ deposit.
 
 ### Processing a bag
 
-The service will do the following:
-
-1. If the bag is a first-version bag, creates a dataset in Dataverse using the metadata in `dataset.yml`, otherwise updates the existing dataset metadata
-   using the metadata in `dataset.yml`.
-2. Executes the actions in `edit.yml` if it exists:
-    * Delete the files listed in `deleteFiles`.
-    * Replace the files listed in `replaceFiles`.
-    * Add the files listed in `addRestrictedFiles`, with restricted access.
-3. Adds files not replaced or added by `edit.yml` to the dataset.
-4. Updates the metadata of the files in the dataset using the metadata in `files.yml`.
-5. Executes the actions in `role-assignments.yml` if it exists:
-    * Delete the role assignments listed in `delete`.
-    * Create the role assignments listed in `create`.
-6. Executes the action in `update-state.yml` if it exists.
-
-Note that a bag for a new dataset must at least contain a `dataset.yml` file. A bag for an existing dataset will only add the files in the bag to the dataset
-and leave the draft as is.
+The actions described in the Yaml files will be executed in same order as they are listed above. Note that changing the order of the actions in the Yaml files
+has no effect on the order in which they are executed. All files and all action fields (e.g., `addRestrictedFiles`) are optional, except for `dataset.yml`, when
+creating a new dataset.

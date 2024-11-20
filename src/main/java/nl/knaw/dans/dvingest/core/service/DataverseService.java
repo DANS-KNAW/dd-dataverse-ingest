@@ -16,16 +16,17 @@
 package nl.knaw.dans.dvingest.core.service;
 
 import nl.knaw.dans.lib.dataverse.DataverseException;
+import nl.knaw.dans.lib.dataverse.model.RoleAssignment;
 import nl.knaw.dans.lib.dataverse.model.dataset.Dataset;
 import nl.knaw.dans.lib.dataverse.model.dataset.DatasetVersion;
 import nl.knaw.dans.lib.dataverse.model.dataset.FileList;
+import nl.knaw.dans.lib.dataverse.model.dataset.MetadataField;
 import nl.knaw.dans.lib.dataverse.model.dataset.UpdateType;
 import nl.knaw.dans.lib.dataverse.model.file.FileMeta;
 
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.List;
-import java.util.Map;
 
 public interface DataverseService {
 
@@ -46,4 +47,12 @@ public interface DataverseService {
     void updateFileMetadata(int id, FileMeta newMeta) throws DataverseException, IOException;
 
     List<FileMeta> getFiles(String pid) throws IOException, DataverseException;
+
+    void deleteDatasetMetadata(String pid, List<MetadataField> fields) throws DataverseException, IOException;
+
+    void editMetadata(String pid, List<MetadataField> addFieldValues, boolean b) throws DataverseException, IOException;
+
+    void addRoleAssignment(String pid, RoleAssignment roleAssignment) throws DataverseException, IOException;
+
+    void deleteRoleAssignment(String pid, RoleAssignment roleAssignment) throws DataverseException, IOException;
 }

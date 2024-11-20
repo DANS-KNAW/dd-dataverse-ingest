@@ -1,10 +1,14 @@
-files:
-  updateMetadata:
+editFiles:
+  replaceFiles:
+    - 'file5-to-be-replaced-in-v2.txt'
+  deleteFiles:
+    - 'subdir/file6-to-be-deleted-in-v2.txt'
+  updateFileMetas:
     - label: 'file3-desc.txt'
       description: 'New description of file3'
       categories:
         - 'Data'
         - 'Documentation'
-  move:
+  moveFiles:
     - from: 'subdir/file7-to-be-moved-to-subdir2-in-v2.txt'
       to: 'subdir2/file7-to-be-moved-to-subdir2-in-v2.txt'

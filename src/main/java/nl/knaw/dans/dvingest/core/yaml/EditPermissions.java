@@ -16,12 +16,12 @@
 package nl.knaw.dans.dvingest.core.yaml;
 
 import lombok.Data;
+import nl.knaw.dans.lib.dataverse.model.RoleAssignment;
 
 import java.util.List;
 
 @Data
-public class Edit {
-    private List<String> deleteFiles = List.of();
-    private List<String> replaceFiles = List.of();
-    private List<String> addRestrictedFiles = List.of();
+public class EditPermissions {
+    private List<RoleAssignment> deleteRoleAssignments = List.of();
+    private List<RoleAssignment> addRoleAssignments = List.of();
 }

@@ -1,5 +1,0 @@
-edit:
-  replaceFiles:
-    - 'file5-to-be-replaced-in-v2.txt'
-  deleteFiles:
-    - 'subdir/file6-to-be-deleted-in-v2.txt'

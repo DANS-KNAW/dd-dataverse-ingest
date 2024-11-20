@@ -16,8 +16,10 @@
 package nl.knaw.dans.dvingest.core.yaml;
 
 import lombok.Data;
+import nl.knaw.dans.lib.dataverse.model.dataset.Embargo;
 
 @Data
-public class EditInstructions {
-    private Edit edit = new Edit();
+public class AddEmbargo {
+    private String path;
+    private Embargo embargo;
 }

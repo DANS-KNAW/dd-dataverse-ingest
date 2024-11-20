@@ -18,6 +18,6 @@ package nl.knaw.dans.dvingest.core.yaml;
 import lombok.Data;
 
 @Data
-public class FilesInstructions {
-    private Files files = new Files();
+public class EditFilesRoot {
+    private EditFiles editFiles = new EditFiles();
 }

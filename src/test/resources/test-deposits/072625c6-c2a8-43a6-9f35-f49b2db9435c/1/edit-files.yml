@@ -1,0 +1,7 @@
+editFiles:
+  addRestrictedFiles:
+    - 'subdir/file2-restricted.txt'
+    - 'file4-restricted.txt'
+  updateFileMetas:
+    - label: 'file3-desc.txt'
+      description: 'Description of file3'

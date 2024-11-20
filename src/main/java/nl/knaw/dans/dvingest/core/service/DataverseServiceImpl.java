@@ -20,17 +20,18 @@ import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import nl.knaw.dans.lib.dataverse.DataverseClient;
 import nl.knaw.dans.lib.dataverse.DataverseException;
-import nl.knaw.dans.lib.dataverse.SearchOptions;
 import nl.knaw.dans.lib.dataverse.Version;
+import nl.knaw.dans.lib.dataverse.model.RoleAssignment;
+import nl.knaw.dans.lib.dataverse.model.RoleAssignmentReadOnly;
 import nl.knaw.dans.lib.dataverse.model.dataset.Dataset;
 import nl.knaw.dans.lib.dataverse.model.dataset.DatasetVersion;
+import nl.knaw.dans.lib.dataverse.model.dataset.FieldList;
 import nl.knaw.dans.lib.dataverse.model.dataset.FileList;
+import nl.knaw.dans.lib.dataverse.model.dataset.MetadataField;
 import nl.knaw.dans.lib.dataverse.model.dataset.UpdateType;
+import nl.knaw.dans.lib.dataverse.model.dataset.Embargo;
 import nl.knaw.dans.lib.dataverse.model.file.FileMeta;
-import nl.knaw.dans.lib.dataverse.model.search.SearchItemType;
-import org.apache.commons.lang3.StringUtils;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.HashMap;
@@ -101,6 +102,38 @@ public class DataverseServiceImpl implements DataverseService {
         var result = dataverseClient.sword().deleteFile(id);
         log.debug(result.getEnvelopeAsString());
     }
+
+    @Override
+    public void deleteDatasetMetadata(String pid, List<MetadataField> fieldList) throws DataverseException, IOException {
+        var result = dataverseClient.dataset(pid).deleteMetadata(new FieldList(fieldList), metadataKeys);
+        log.debug(result.getEnvelopeAsString());
+    }
+
+    @Override
+    public void editMetadata(String pid, List<MetadataField> addFieldValues, boolean b) throws DataverseException, IOException {
+        var result = dataverseClient.dataset(pid).editMetadata(new FieldList(addFieldValues), b);
+        log.debug(result.getEnvelopeAsString());
+    }
+
+    @Override
+    public void addRoleAssignment(String pid, RoleAssignment roleAssignment) throws DataverseException, IOException {
+        var result = dataverseClient.dataset(pid).assignRole(roleAssignment);
+        log.debug(result.getEnvelopeAsString());
+    }
+
+    @Override
+    public void deleteRoleAssignment(String pid, RoleAssignment roleAssignment) throws DataverseException, IOException {
+        var listResult = dataverseClient.dataset(pid).listRoleAssignments();
+        var list = listResult.getData();
+        for (RoleAssignmentReadOnly ra : list) {
+            if (ra.getAssignee().equals(roleAssignment.getAssignee()) && ra.get_roleAlias().equals(roleAssignment.getRole())) {
+                log.debug("Deleting role assignment: {}", ra);
+                var deleteResult = dataverseClient.dataset(pid).deleteRoleAssignment(ra.getId());
+                log.debug(deleteResult.getEnvelopeAsString());
+            }
+        }
+    }
+
     // TODO: move this to dans-dataverse-client-lib; it is similar to awaitLockState.
     public void waitForState(String datasetId, String expectedState) {
         var numberOfTimesTried = 0;
