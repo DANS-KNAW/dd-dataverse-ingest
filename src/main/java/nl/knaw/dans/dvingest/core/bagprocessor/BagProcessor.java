@@ -27,14 +27,14 @@ import java.util.UUID;
 
 @Slf4j
 public class BagProcessor {
-    private final DatasetUpdater datasetUpdater;
+    private final DatasetVersionCreator datasetVersionCreator;
     private final FilesEditor filesEditor;
     private final MetadataEditor metadataEditor;
     private final PermissionsEditor permissionsEditor;
     private final StateUpdater stateUpdater;
 
     public BagProcessor(UUID depositId, DepositBag bag, DataverseService dataverseService, UtilityServices utilityServices) throws IOException, ConfigurationException {
-        this.datasetUpdater = new DatasetUpdater(depositId, dataverseService, bag.getDatasetMetadata());
+        this.datasetVersionCreator = new DatasetVersionCreator(depositId, dataverseService, bag.getDatasetMetadata());
         this.filesEditor = new FilesEditor(depositId, bag.getDataDir(), bag.getEditFiles(), dataverseService, utilityServices);
         this.metadataEditor = new MetadataEditor(depositId, bag.getEditMetadata(), dataverseService);
         this.permissionsEditor = new PermissionsEditor(depositId, bag.getEditPermissions(), dataverseService);
@@ -42,7 +42,7 @@ public class BagProcessor {
     }
 
     public String run(String targetPid) throws IOException, DataverseException {
-        targetPid = datasetUpdater.createOrUpdateDataset(targetPid);
+        targetPid = datasetVersionCreator.createDatasetVersion(targetPid);
         filesEditor.editFiles(targetPid);
         metadataEditor.editMetadata(targetPid);
         permissionsEditor.editPermissions(targetPid);

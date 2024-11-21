@@ -16,6 +16,7 @@
 package nl.knaw.dans.dvingest.core.bagprocessor;
 
 import lombok.AllArgsConstructor;
+import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import nl.knaw.dans.dvingest.core.service.DataverseService;
 import nl.knaw.dans.lib.dataverse.DataverseException;
@@ -25,16 +26,19 @@ import java.io.IOException;
 import java.util.UUID;
 
 /**
- * Updates a dataset in Dataverse, or create a new one if it does not exist yet.
+ * Creates a new dataset version in Dataverse. If the target dataset does not exist, a new dataset is created.
  */
 @Slf4j
 @AllArgsConstructor
-public class DatasetUpdater {
+public class DatasetVersionCreator {
+    @NonNull
     private final UUID depositId;
+    @NonNull
     private final DataverseService dataverseService;
+
     private final Dataset dataset;
 
-    public String createOrUpdateDataset(String targetPid) throws IOException, DataverseException {
+    public String createDatasetVersion(String targetPid) throws IOException, DataverseException {
         var pid = targetPid;
         if (targetPid == null) {
             if (dataset == null) {

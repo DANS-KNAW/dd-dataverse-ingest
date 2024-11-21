@@ -15,6 +15,9 @@
  */
 package nl.knaw.dans.dvingest.core.bagprocessor;
 
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import nl.knaw.dans.dvingest.core.service.DataverseService;
@@ -37,13 +40,21 @@ import java.util.UUID;
 @Slf4j
 @RequiredArgsConstructor
 public class FilesEditor {
+    @NonNull
     private final UUID depositId;
+    @NonNull
     private final Path dataDir;
     private final EditFiles editFiles;
+
+    @NonNull
     private final DataverseService dataverseService;
+
+    @NonNull
     private final UtilityServices utilityServices;
 
     private String pid;
+
+    @Getter(AccessLevel.PACKAGE) // Getter for unit testing
     private final Map<String, FileMeta> filesInDataset = new java.util.HashMap<>();
     private boolean filesRetrieved = false;
 
@@ -67,7 +78,10 @@ public class FilesEditor {
         log.debug("Start deleting {} files for deposit {}", depositId, editFiles.getDeleteFiles().size());
         for (var file : editFiles.getDeleteFiles()) {
             log.debug("Deleting file: {}", file);
-            var fileToDelete = getFilesInDataset().get(file);
+            var fileToDelete = filesInDataset().get(file);
+            if (fileToDelete == null) {
+                throw new IllegalArgumentException("File to delete not found in dataset: " + file);
+            }
             dataverseService.deleteFile(fileToDelete.getDataFile().getId());
             filesInDataset.remove(file);
         }
@@ -78,7 +92,7 @@ public class FilesEditor {
         log.debug("Start replacing {} files for deposit {}", depositId, editFiles.getReplaceFiles().size());
         for (var file : editFiles.getReplaceFiles()) {
             log.debug("Replacing file: {}", file);
-            var fileMeta = getFilesInDataset().get(file);
+            var fileMeta = filesInDataset().get(file);
             dataverseService.replaceFile(pid, fileMeta, dataDir.resolve(file));
         }
         log.debug("End replacing files for deposit {}", depositId);
@@ -144,7 +158,7 @@ public class FilesEditor {
     private void moveFiles() throws IOException, DataverseException {
         log.debug("Start moving files {} for deposit {}", depositId, editFiles.getMoveFiles().size());
         for (var move : editFiles.getMoveFiles()) {
-            var fileMeta = getFilesInDataset().get(move.getFrom());
+            var fileMeta = filesInDataset().get(move.getFrom());
             fileMeta.setDirectoryLabel(getDirectoryLabel(move.getTo()));
             fileMeta.setLabel(getFileName(move.getTo()));
             dataverseService.updateFileMetadata(fileMeta.getDataFile().getId(), fileMeta);
@@ -155,7 +169,7 @@ public class FilesEditor {
     private void updateFileMetas() throws IOException, DataverseException {
         log.debug("Start updating {} file metas for deposit {}", depositId, editFiles.getUpdateFileMetas().size());
         for (var fileMeta : editFiles.getUpdateFileMetas()) {
-            var id = getFilesInDataset().get(getPath(fileMeta)).getDataFile().getId();
+            var id = filesInDataset().get(getPath(fileMeta)).getDataFile().getId();
             dataverseService.updateFileMetadata(id, fileMeta);
         }
         log.debug("End updating file metadata for deposit {}", depositId);
@@ -171,7 +185,7 @@ public class FilesEditor {
         return path.substring(lastIndex + 1);
     }
 
-    private Map<String, FileMeta> getFilesInDataset() throws IOException, DataverseException {
+    private Map<String, FileMeta> filesInDataset() throws IOException, DataverseException {
         if (!filesRetrieved) {
             log.debug("Start getting files in dataset for deposit {}", depositId);
             var files = dataverseService.getFiles(pid);
@@ -188,9 +202,7 @@ public class FilesEditor {
     }
 
     private String getPath(FileMeta file) {
-        if (file.getDirectoryLabel() != null) {
-            return file.getDirectoryLabel() + "/" + file.getLabel();
-        }
-        return file.getLabel();
+        var dataversePath = new DataversePath(file.getDirectoryLabel(), file.getLabel());
+        return dataversePath.toString();
     }
 }
