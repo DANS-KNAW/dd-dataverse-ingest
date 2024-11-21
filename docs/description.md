@@ -119,12 +119,6 @@ that.
 
 ```yaml
 editMetadata:
-  deleteFieldValues:
-    - typeName: "subject"
-      typeClass: "controlledVocabulary"
-      multiple: true
-      value:
-        - 'Astronomy and Astrophysics'
   addFieldValues:
     - typeName: "subject"
       typeClass: "controlledVocabulary"
@@ -142,6 +136,12 @@ editMetadata:
         - producerAffiliation:
             typeName: "producerAffiliation"
             value: "University of Somewhere"
+  deleteFieldValues:
+     - typeName: "subject"
+       typeClass: "controlledVocabulary"
+       multiple: true
+       value:
+          - 'Astronomy and Astrophysics'
 ```
 
 Allows you to selectively delete, add or replace metadata field values. The format is the based on the JSON that is passed to the
@@ -151,6 +151,9 @@ a deserializer that was designed to parse the JSON that is returned by the Datav
 
 The only difference between `addFieldValues` and `replaceFieldValues` is that the latter will pass the `replace=true` parameter to the API. See the API
 documentation for the exact behavior.
+
+Unlike in the editing of files, deletion of field values takes place at the end of the process, so that we don't create a situation where a required field is
+temporarily empty and Dataverse refuses to save the metadata.
 
 [editDatasetMetadata]: {{ dataverse_api_url }}/native-api.html#edit-dataset-metadata
 [deleteDatasetMetadata]: {{ dataverse_api_url }}/native-api.html#delete-dataset-metadata
