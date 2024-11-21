@@ -202,9 +202,9 @@ public class BagProcessor {
             return;
         }
         log.debug("Start updating metadata for deposit {}", depositId);
-        deleteFieldValues();
         addFieldValues();
         replaceFieldValues();
+        deleteFieldValues();
         log.debug("End updating metadata for deposit {}", depositId);
     }
 

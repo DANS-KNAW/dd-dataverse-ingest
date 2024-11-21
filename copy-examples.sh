@@ -16,7 +16,9 @@
 #
 
 
-BATCH_NAME=${1:-"example"}
+BATCH_NAME=${1:-"test-deposits"}
 
+rm -rf data/imports/inbox/$BATCH_NAME
+rm -fr data/imports/outbox/$BATCH_NAME
 cp -r src/test/resources/test-deposits data/imports/inbox/$BATCH_NAME
 

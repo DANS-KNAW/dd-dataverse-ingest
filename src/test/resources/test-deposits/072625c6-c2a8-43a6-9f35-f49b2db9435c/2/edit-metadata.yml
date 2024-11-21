@@ -1,0 +1,44 @@
+editMetadata:
+  replaceFieldValues:
+    - typeName: "title"
+      typeClass: "primitive"
+      multiple: false
+      value: 'Replacement Title'
+  addFieldValues:
+    - typeName: "subject"
+      typeClass: "controlledVocabulary"
+      multiple: true
+      value:
+        - 'Chemistry'
+        - 'Engineering'
+        - 'Social Sciences'
+    - typeName: "software"
+      typeClass: "compound"
+      multiple: true
+      value:
+        - softwareName:
+            typeName: "softwareName"
+            typeClass: "primitive"
+            multiple: false
+            value: "R"
+          softwareVersion:
+            typeName: "softwareVersion"
+            typeClass: "primitive"
+            multiple: false
+            value: "3.6.1"
+        - softwareName:
+            typeName: "softwareName"
+            typeClass: "primitive"
+            multiple: false
+            value: "Python"
+          softwareVersion:
+            typeName: "softwareVersion"
+            typeClass: "primitive"
+            multiple: false
+            value: "3.7.4"
+  deleteFieldValues:
+    - typeName: "subject"
+      typeClass: "controlledVocabulary"
+      multiple: true
+      value:
+        - 'Arts and Humanities'

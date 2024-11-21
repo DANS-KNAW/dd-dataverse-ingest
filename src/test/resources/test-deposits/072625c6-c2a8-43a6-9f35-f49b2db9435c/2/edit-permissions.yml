@@ -1,0 +1,4 @@
+editPermissions:
+  deleteRoleAssignments:
+    - role: 'fileDownloader'
+      assignee: '@user002'

@@ -1,0 +1,7 @@
+editPermissions:
+  addRoleAssignments:
+    - role: 'contributorplus'
+      assignee: '@user001'
+    - role: 'fileDownloader'
+      assignee: '@user002'
+

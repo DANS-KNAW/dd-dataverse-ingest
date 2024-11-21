@@ -121,14 +121,20 @@ that.
 editMetadata:
   deleteFieldValues:
     - typeName: "subject"
+      typeClass: "controlledVocabulary"
+      multiple: true
       value:
         - 'Astronomy and Astrophysics'
   addFieldValues:
     - typeName: "subject"
+      typeClass: "controlledVocabulary"
+      multiple: true
       value:
         - 'Astronomy and Astrophysics'
   replaceFieldValues:
     - typeName: "producer"
+      typeClass: "compound"
+      multiple: true
       value:
         - producerName:
             typeName: "producerName"
@@ -138,9 +144,13 @@ editMetadata:
             value: "University of Somewhere"
 ```
 
-Allows you to selectively delete, add or replace metadata field values. The format is the same as the JSON that is passed to the
-[editDatasetMetadata]{:target=_blank} and [deleteDatasetMetadata]{:target=_blank} endpoints of the Dataverse API. The only difference between `addFieldValues`
-and `replaceFieldValues` is that the latter will pass the `replace=true` parameter to the API. See the API documentation for the exact behavior.
+Allows you to selectively delete, add or replace metadata field values. The format is the based on the JSON that is passed to the
+[editDatasetMetadata]{:target=_blank} and [deleteDatasetMetadata]{:target=_blank} endpoints of the Dataverse API. However, unlike in the JSON accepted by
+Dataverse, the `typeClass` and `multiple fields are ___**not optional**___ in the YAML file. This is due to the library used to parse the YAML files, which uses
+a deserializer that was designed to parse the JSON that is returned by the Dataverse API (which does not include these fields).
+
+The only difference between `addFieldValues` and `replaceFieldValues` is that the latter will pass the `replace=true` parameter to the API. See the API
+documentation for the exact behavior.
 
 [editDatasetMetadata]: {{ dataverse_api_url }}/native-api.html#edit-dataset-metadata
 [deleteDatasetMetadata]: {{ dataverse_api_url }}/native-api.html#delete-dataset-metadata
