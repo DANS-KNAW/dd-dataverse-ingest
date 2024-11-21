@@ -17,6 +17,7 @@ package nl.knaw.dans.dvingest.core;
 
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
+import nl.knaw.dans.dvingest.core.bagprocessor.BagProcessor;
 import nl.knaw.dans.dvingest.core.service.DataverseService;
 import nl.knaw.dans.dvingest.core.service.UtilityServices;
 
