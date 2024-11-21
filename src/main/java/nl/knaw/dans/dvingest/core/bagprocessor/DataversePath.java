@@ -18,6 +18,9 @@ package nl.knaw.dans.dvingest.core.bagprocessor;
 import lombok.NonNull;
 import lombok.Value;
 
+/**
+ * A filepath in Dataverse is a combination of file label and directory label. This class converts between a regular representation of a path and the Dataverse representation.
+ */
 @Value
 public class DataversePath {
     String directoryLabel;
