@@ -36,6 +36,7 @@
     <properties>
         <main-class>nl.knaw.dans.dvingest.DdDataverseIngestApplication</main-class>
         <dd-dataverse-ingest-api.version>0.1.0-SNAPSHOT</dd-dataverse-ingest-api.version>
+        <dd-validate-dans-bag-api.version>0.0.1-SNAPSHOT</dd-validate-dans-bag-api.version>
     </properties>
 
     <scm>
@@ -119,6 +120,96 @@
             <scope>test</scope>
         </dependency>
 
+        <!-- dd-ingest-flow -->
+        <dependency>
+            <groupId>io.dropwizard</groupId>
+            <artifactId>dropwizard-hibernate</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.dropwizard</groupId>
+            <artifactId>dropwizard-forms</artifactId>
+        </dependency>
+
+
+        <dependency>
+            <groupId>com.fasterxml.jackson.dataformat</groupId>
+            <artifactId>jackson-dataformat-csv</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.glassfish.jersey.media</groupId>
+            <artifactId>jersey-media-json-jackson</artifactId>
+        </dependency>
+
+
+
+
+        <dependency>
+            <groupId>net.lingala.zip4j</groupId>
+            <artifactId>zip4j</artifactId>
+        </dependency>
+
+        <!-- testing -->
+        <!-- added the inline version for mocking static methods -->
+
+        <dependency>
+            <groupId>joda-time</groupId>
+            <artifactId>joda-time</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.google.code.findbugs</groupId>
+            <artifactId>jsr305</artifactId>
+        </dependency>
+
+
+        <!-- Apache Commons -->
+        <dependency>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-csv</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>commons-codec</groupId>
+            <artifactId>commons-codec</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.tika</groupId>
+            <artifactId>tika-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-configuration2</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>commons-beanutils</groupId>
+            <artifactId>commons-beanutils</artifactId>
+        </dependency>
+
+        <!-- logging -->
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+        </dependency>
+
+        <!-- BagIt -->
+        <dependency>
+            <groupId>nl.knaw.dans</groupId>
+            <artifactId>bagit</artifactId>
+        </dependency>
+        <!-- end: dd-ingest-flow -->
+
+
+
+
+
+
+
+
+
+
+
     </dependencies>
 
     <build>
@@ -157,6 +248,12 @@
                                     <version>${dd-dataverse-ingest-api.version}</version>
                                     <outputDirectory>${project.build.directory}/openapi</outputDirectory>
                                 </artifactItem>
+                                <artifactItem>
+                                    <groupId>nl.knaw.dans</groupId>
+                                    <artifactId>dd-validate-dans-bag-api</artifactId>
+                                    <version>${dd-validate-dans-bag-api.version}</version>
+                                    <outputDirectory>${project.build.directory}/openapi/</outputDirectory>
+                                </artifactItem>
                             </artifactItems>
                         </configuration>
                     </execution>
@@ -177,6 +274,31 @@
                             <modelPackage>nl.knaw.dans.dvingest.api</modelPackage>
                             <invokerPackage>nl.knaw.dans.dvingest.resources</invokerPackage>
                             <templateDirectory>${project.basedir}/src/main/resources/openapi-generator-templates</templateDirectory>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>generate-dd-validate-dans-bag-client</id>
+                        <goals>
+                            <goal>generate</goal>
+                        </goals>
+                        <configuration>
+                            <globalProperties>
+                                <skipFormModel>false</skipFormModel>
+                            </globalProperties>
+                            <inputSpec>${project.build.directory}/openapi/dd-validate-dans-bag-api.yml</inputSpec>
+                            <generatorName>java</generatorName>
+                            <apiPackage>nl.knaw.dans.validatedansbag.client.resources</apiPackage>
+                            <modelPackage>nl.knaw.dans.validatedansbag.client.api</modelPackage>
+                            <invokerPackage>nl.knaw.dans.validatedansbag.client.invoker</invokerPackage>
+                            <configOptions>
+                                <!-- the client does not appear to need annotations so we can remove them -->
+                                <annotationLibrary>none</annotationLibrary>
+                                <!-- this generates jersey2 client -->
+                                <library>jersey2</library>
+                                <!-- remove this optional dependency as it was not used in the generated code anyway  -->
+                                <!-- see https://github.com/OpenAPITools/jackson-databind-nullable -->
+                                <openApiNullable>false</openApiNullable>
+                            </configOptions>
                         </configuration>
                     </execution>
                 </executions>
