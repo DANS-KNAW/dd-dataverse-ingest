@@ -121,28 +121,10 @@
         </dependency>
 
         <!-- dd-ingest-flow -->
-<!--        <dependency>-->
-<!--            <groupId>io.dropwizard</groupId>-->
-<!--            <artifactId>dropwizard-forms</artifactId>-->
-<!--        </dependency>-->
-
-
-        <dependency>
-            <groupId>org.glassfish.jersey.media</groupId>
-            <artifactId>jersey-media-json-jackson</artifactId>
-        </dependency>
-
-
-
-
         <dependency>
             <groupId>net.lingala.zip4j</groupId>
             <artifactId>zip4j</artifactId>
         </dependency>
-
-        <!-- testing -->
-        <!-- added the inline version for mocking static methods -->
-
         <dependency>
             <groupId>joda-time</groupId>
             <artifactId>joda-time</artifactId>
@@ -151,9 +133,6 @@
             <groupId>com.google.code.findbugs</groupId>
             <artifactId>jsr305</artifactId>
         </dependency>
-
-
-        <!-- Apache Commons -->
         <dependency>
             <groupId>commons-io</groupId>
             <artifactId>commons-io</artifactId>
@@ -178,26 +157,15 @@
             <groupId>commons-beanutils</groupId>
             <artifactId>commons-beanutils</artifactId>
         </dependency>
-
-        <!-- logging -->
         <dependency>
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-classic</artifactId>
         </dependency>
-
-        <!-- BagIt -->
         <dependency>
             <groupId>nl.knaw.dans</groupId>
             <artifactId>bagit</artifactId>
         </dependency>
         <!-- end: dd-ingest-flow -->
-
-
-
-
-
-
-
 
 
 
