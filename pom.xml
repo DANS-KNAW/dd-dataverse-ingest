@@ -121,10 +121,10 @@
         </dependency>
 
         <!-- dd-ingest-flow -->
-        <dependency>
-            <groupId>io.dropwizard</groupId>
-            <artifactId>dropwizard-forms</artifactId>
-        </dependency>
+<!--        <dependency>-->
+<!--            <groupId>io.dropwizard</groupId>-->
+<!--            <artifactId>dropwizard-forms</artifactId>-->
+<!--        </dependency>-->
 
 
         <dependency>
