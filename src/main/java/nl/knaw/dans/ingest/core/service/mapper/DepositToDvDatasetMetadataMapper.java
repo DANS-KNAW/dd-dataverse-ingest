@@ -40,7 +40,6 @@ import nl.knaw.dans.ingest.core.service.mapper.mapping.DatesOfCollection;
 import nl.knaw.dans.ingest.core.service.mapper.mapping.DcxDaiAuthor;
 import nl.knaw.dans.ingest.core.service.mapper.mapping.DcxDaiOrganization;
 import nl.knaw.dans.ingest.core.service.mapper.mapping.DepositPropertiesOtherDoi;
-import nl.knaw.dans.ingest.core.service.mapper.mapping.DepositPropertiesVaultMetadata;
 import nl.knaw.dans.ingest.core.service.mapper.mapping.Description;
 import nl.knaw.dans.ingest.core.service.mapper.mapping.Funder;
 import nl.knaw.dans.ingest.core.service.mapper.mapping.HasOrganizationalIdentifier;

@@ -15,9 +15,6 @@
  */
 package nl.knaw.dans.ingest.core.deposit;
 
-import gov.loc.repository.bagit.domain.Metadata;
-import gov.loc.repository.bagit.exceptions.InvalidBagitFileFormatException;
-import gov.loc.repository.bagit.exceptions.UnparsableVersionException;
 import lombok.AllArgsConstructor;
 import nl.knaw.dans.ingest.core.domain.DepositLocation;
 import nl.knaw.dans.ingest.core.exception.InvalidDepositException;

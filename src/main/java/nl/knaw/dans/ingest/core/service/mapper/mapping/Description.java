@@ -16,7 +16,6 @@
 package nl.knaw.dans.ingest.core.service.mapper.mapping;
 
 import nl.knaw.dans.ingest.core.service.mapper.builder.CompoundFieldGenerator;
-import nl.knaw.dans.lib.dataverse.CompoundFieldBuilder;
 import org.apache.commons.lang3.StringUtils;
 import org.w3c.dom.Node;
 
@@ -24,7 +23,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static nl.knaw.dans.ingest.core.service.DepositDatasetFieldNames.DESCRIPTION_VALUE;
 import static nl.knaw.dans.ingest.core.service.DepositDatasetFieldNames.SERIES_INFORMATION;

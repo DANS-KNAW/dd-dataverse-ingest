@@ -15,7 +15,6 @@
  */
 package nl.knaw.dans.ingest.config;
 
-import nl.knaw.dans.ingest.config.IngestFlowConfig;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.io.FileUtils;

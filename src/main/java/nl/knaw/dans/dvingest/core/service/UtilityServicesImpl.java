@@ -15,10 +15,8 @@
  */
 package nl.knaw.dans.dvingest.core.service;
 
-import io.dropwizard.configuration.ConfigurationException;
 import lombok.Builder;
 import nl.knaw.dans.dvingest.core.service.PathIteratorZipper.PathIteratorZipperBuilder;
-import nl.knaw.dans.dvingest.core.yaml.YamlUtils;
 
 import java.io.IOException;
 import java.nio.file.Files;

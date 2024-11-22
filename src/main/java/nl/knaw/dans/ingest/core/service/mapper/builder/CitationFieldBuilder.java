@@ -15,7 +15,6 @@
  */
 package nl.knaw.dans.ingest.core.service.mapper.builder;
 
-import nl.knaw.dans.ingest.core.service.mapper.mapping.Description;
 import nl.knaw.dans.lib.dataverse.model.user.AuthenticatedUser;
 import org.w3c.dom.Node;
 
