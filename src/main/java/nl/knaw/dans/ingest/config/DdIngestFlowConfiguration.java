@@ -16,13 +16,8 @@
 package nl.knaw.dans.ingest.config;
 
 import io.dropwizard.core.Configuration;
-import io.dropwizard.db.DataSourceFactory;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import nl.knaw.dans.ingest.config.DataverseExtra;
-import nl.knaw.dans.ingest.config.IngestAreaConfig;
-import nl.knaw.dans.ingest.config.IngestFlowConfig;
-import nl.knaw.dans.ingest.config.ValidateDansBagConfig;
 import nl.knaw.dans.lib.util.DataverseClientFactory;
 import org.apache.commons.lang3.StringUtils;
 
@@ -44,9 +39,6 @@ public class DdIngestFlowConfiguration extends Configuration {
     @NotNull
     private ValidateDansBagConfig validateDansBag;
 
-    @NotNull
-    private DataSourceFactory taskEventDatabase;
-
     public IngestFlowConfig getIngestFlow() {
         applyDefaults(ingestFlow.getAutoIngest());
         applyDefaults(ingestFlow.getImportConfig());
@@ -61,7 +53,8 @@ public class DdIngestFlowConfiguration extends Configuration {
         var defaultAuthorization = ingestFlow.getAuthorization();
         if (ingestAreaConfig.getAuthorization() == null) {
             ingestAreaConfig.setAuthorization(defaultAuthorization);
-        } else {
+        }
+        else {
             var authorization = ingestAreaConfig.getAuthorization();
             if (StringUtils.isBlank(authorization.getDatasetPublisher())) {
                 authorization.setDatasetPublisher(defaultAuthorization.getDatasetPublisher());
