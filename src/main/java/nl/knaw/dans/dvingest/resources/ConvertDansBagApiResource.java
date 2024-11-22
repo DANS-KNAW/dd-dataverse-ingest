@@ -16,23 +16,17 @@
 package nl.knaw.dans.dvingest.resources;
 
 import lombok.AllArgsConstructor;
-import nl.knaw.dans.dvingest.api.ImportCommandDto;
+import nl.knaw.dans.dvingest.api.ConvertDansBagCommandDto;
 import nl.knaw.dans.dvingest.core.IngestArea;
 
 import javax.ws.rs.core.Response;
 
 @AllArgsConstructor
-public class IngestApiResource implements IngestApi {
+public class ConvertDansBagApiResource implements ConvertDansBagApi {
     private final IngestArea ingestArea;
 
     @Override
-    public Response ingestGet(String path) {
-        return Response.ok(ingestArea.getStatus(path)).build();
-    }
-
-    @Override
-    public Response ingestPost(ImportCommandDto importCommandDto) {
-        ingestArea.submit(importCommandDto);
-        return Response.ok(ingestArea.getStatus(importCommandDto.getPath()).get(0)).build();
+    public Response convertDansBagPost(ConvertDansBagCommandDto convertDansBagCommandDto) {
+        return Response.ok(ingestArea.convertDansBag(convertDansBagCommandDto)).build();
     }
 }

@@ -18,6 +18,9 @@ package nl.knaw.dans.dvingest.core;
 import lombok.Builder;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
+import nl.knaw.dans.dvingest.api.ConversionResultDto;
+import nl.knaw.dans.dvingest.api.ConversionResultDto.StatusEnum;
+import nl.knaw.dans.dvingest.api.ConvertDansBagCommandDto;
 import nl.knaw.dans.dvingest.api.ImportCommandDto;
 import nl.knaw.dans.dvingest.api.ImportJobStatusDto;
 import nl.knaw.dans.dvingest.core.service.DataverseService;
@@ -71,6 +74,12 @@ public class IngestArea {
         importJobs.put(importCommand.getPath(), importJob);
         log.debug("Submitted import job");
         executorService.submit(importJob);
+    }
+
+    public ConversionResultDto convertDansBag(ConvertDansBagCommandDto convertDansBagCommand) {
+        var result = new ConversionResultDto().status(StatusEnum.SUCCESS);
+        // TODO: implement, throw IllegalArgumentException if input is invalid and RutimeException if conversion fails
+        return result;
     }
 
     public List<ImportJobStatusDto> getStatus(String path) {
