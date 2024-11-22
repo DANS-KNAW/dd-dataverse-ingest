@@ -30,7 +30,6 @@ import nl.knaw.dans.ingest.core.exception.InvalidDatasetStateException;
 import nl.knaw.dans.ingest.core.exception.InvalidDepositException;
 import nl.knaw.dans.ingest.core.exception.RejectedDepositException;
 import nl.knaw.dans.ingest.core.exception.TargetBlockedException;
-import nl.knaw.dans.ingest.core.sequencing.TargetedTask;
 import nl.knaw.dans.ingest.core.service.mapper.DepositToDvDatasetMetadataMapper;
 import nl.knaw.dans.ingest.core.service.mapper.DepositToDvDatasetMetadataMapperFactory;
 import nl.knaw.dans.ingest.core.validation.DepositorAuthorizationValidator;
@@ -55,7 +54,7 @@ import java.util.UUID;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-public class DepositIngestTask implements TargetedTask, Comparable<DepositIngestTask> {
+public class DepositIngestTask implements Comparable<DepositIngestTask> {
     private static final DateTimeFormatter yyyymmddPattern = DateTimeFormat.forPattern("YYYY-MM-dd");
     private static final Logger log = LoggerFactory.getLogger(DepositIngestTask.class);
     protected final String depositorRole;
@@ -117,7 +116,6 @@ public class DepositIngestTask implements TargetedTask, Comparable<DepositIngest
         return this.deposit;
     }
 
-    @Override
     public void run() {
         log.info("START processing deposit {}", depositLocation.getDepositId());
         writeEvent(TaskEvent.EventType.START_PROCESSING, TaskEvent.Result.OK, null);
@@ -209,17 +207,14 @@ public class DepositIngestTask implements TargetedTask, Comparable<DepositIngest
         }
     }
 
-    @Override
     public String getTarget() {
         return depositLocation.getTarget();
     }
 
-    @Override
     public Path getDepositPath() {
         return depositLocation.getDir();
     }
 
-    @Override
     public void writeEvent(TaskEvent.EventType eventType, TaskEvent.Result result, String message) {
         eventWriter.write(getDepositId(), eventType, result, message);
     }
