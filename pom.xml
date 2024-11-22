@@ -240,12 +240,6 @@
                                     <version>${dd-dataverse-ingest-api.version}</version>
                                     <outputDirectory>${project.build.directory}/openapi</outputDirectory>
                                 </artifactItem>
-                                <artifactItem>
-                                    <groupId>nl.knaw.dans</groupId>
-                                    <artifactId>dd-validate-dans-bag-api</artifactId>
-                                    <version>${dd-validate-dans-bag-api.version}</version>
-                                    <outputDirectory>${project.build.directory}/openapi/</outputDirectory>
-                                </artifactItem>
                             </artifactItems>
                         </configuration>
                     </execution>
@@ -266,31 +260,6 @@
                             <modelPackage>nl.knaw.dans.dvingest.api</modelPackage>
                             <invokerPackage>nl.knaw.dans.dvingest.resources</invokerPackage>
                             <templateDirectory>${project.basedir}/src/main/resources/openapi-generator-templates</templateDirectory>
-                        </configuration>
-                    </execution>
-                    <execution>
-                        <id>generate-dd-validate-dans-bag-client</id>
-                        <goals>
-                            <goal>generate</goal>
-                        </goals>
-                        <configuration>
-                            <globalProperties>
-                                <skipFormModel>false</skipFormModel>
-                            </globalProperties>
-                            <inputSpec>${project.build.directory}/openapi/dd-validate-dans-bag-api.yml</inputSpec>
-                            <generatorName>java</generatorName>
-                            <apiPackage>nl.knaw.dans.validatedansbag.client.resources</apiPackage>
-                            <modelPackage>nl.knaw.dans.validatedansbag.client.api</modelPackage>
-                            <invokerPackage>nl.knaw.dans.validatedansbag.client.invoker</invokerPackage>
-                            <configOptions>
-                                <!-- the client does not appear to need annotations so we can remove them -->
-                                <annotationLibrary>none</annotationLibrary>
-                                <!-- this generates jersey2 client -->
-                                <library>jersey2</library>
-                                <!-- remove this optional dependency as it was not used in the generated code anyway  -->
-                                <!-- see https://github.com/OpenAPITools/jackson-databind-nullable -->
-                                <openApiNullable>false</openApiNullable>
-                            </configOptions>
                         </configuration>
                     </execution>
                 </executions>
