@@ -20,6 +20,7 @@ import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import nl.knaw.dans.dvingest.api.ImportCommandDto;
 import nl.knaw.dans.dvingest.api.ImportJobStatusDto;
+import nl.knaw.dans.dvingest.api.ImportJobStatusDto.StatusEnum;
 import nl.knaw.dans.dvingest.core.service.DansBagMappingService;
 import nl.knaw.dans.dvingest.core.service.DataverseService;
 import nl.knaw.dans.dvingest.core.service.UtilityServices;
@@ -50,7 +51,7 @@ public class IngestArea {
     private final Path outbox;
 
     private final Map<String, ImportJob> importJobs = new ConcurrentHashMap<>();
-    private final YamlService yamlService = new YamlServiceImpl(); // Does not need to be configurable
+    private final YamlService yamlService = new YamlServiceImpl();
 
     private IngestArea(ExecutorService executorService, DataverseService dataverseService, UtilityServices utilityServices, DansBagMappingService dansBagMappingService, Path inbox, Path outbox) {
         try {
@@ -68,8 +69,9 @@ public class IngestArea {
 
     public void submit(ImportCommandDto importCommand) {
         log.debug("Received import command: {}", importCommand);
-        if (importJobs.containsKey(importCommand.getPath())) {
-            throw new IllegalArgumentException("Already submitted " + importCommand.getPath());
+        var existingJob = importJobs.get(importCommand.getPath());
+        if (existingJob != null && !List.of(StatusEnum.FAILED, StatusEnum.DONE).contains(existingJob.getStatus().getStatus())) {
+            throw new IllegalArgumentException("Already submitted and still pending or running " + importCommand.getPath());
         }
         validatePath(importCommand.getPath());
         log.debug("Path validation successful");
@@ -103,6 +105,7 @@ public class IngestArea {
         return ImportJob.builder()
             .importCommand(importCommand)
             .outputDir(outbox.resolve(relativePath))
+            .onlyConvertDansDeposit(importCommand.getOnlyConvertDansBag())
             .dataverseService(dataverseService)
             .utilityServices(utilityServices)
             .yamlService(yamlService)

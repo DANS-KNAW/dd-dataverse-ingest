@@ -36,19 +36,22 @@ public class DepositTask implements Runnable {
         FAILED
     }
 
-    protected final Deposit deposit;
-    protected final DataverseService dataverseService;
-    protected final UtilityServices utilityServices;
+    private final Deposit deposit;
+    private final Path outputDir;
+    private final boolean onlyConvertDansDeposit;
+    private final DataverseService dataverseService;
+    private final UtilityServices utilityServices;
     private final DansBagMappingService dansBagMappingService;
     private final YamlService yamlService;
-    protected final Path outputDir;
 
     @Getter
-    protected Status status = Status.TODO;
+    private Status status = Status.TODO;
 
-    public DepositTask(Deposit deposit, DataverseService dataverseService, UtilityServices utilityServices, Path outputDir, DansBagMappingService dansBagMappingService, YamlService yamlService) {
+    public DepositTask(Deposit deposit, Path outputDir, boolean onlyConvertDansDeposit, DataverseService dataverseService, UtilityServices utilityServices, DansBagMappingService dansBagMappingService,
+        YamlService yamlService) {
         this.deposit = deposit;
         this.dataverseService = dataverseService;
+        this.onlyConvertDansDeposit = onlyConvertDansDeposit;
         this.utilityServices = utilityServices;
         this.outputDir = outputDir;
         this.dansBagMappingService = dansBagMappingService;
@@ -67,10 +70,22 @@ public class DepositTask implements Runnable {
                     new DansDepositConverter(dansDeposit, dansBagMappingService, yamlService).run();
                     log.info("Generated Dataverse ingest metadata");
                 }
+                else {
+                    log.info("Does not look like a DANS bag, skipping metadata generation");
+                }
+                if (onlyConvertDansDeposit) {
+                    log.info("Only converting DANS deposit, skipping ingest");
+                    continue;
+                }
                 pid = new BagProcessor(deposit.getId(), bag, dataverseService, utilityServices).run(pid);
                 log.info("END processing deposit / bag: {} / {}", deposit.getId(), bag);
             }
-            deposit.moveTo(outputDir.resolve("processed"));
+            if (onlyConvertDansDeposit) {
+                log.info("Only converted DANS deposits, LEAVING CONVERTED DEPOSITS IN PLACE");
+            }
+            else {
+                deposit.moveTo(outputDir.resolve("processed"));
+            }
         }
         catch (Exception e) {
             try {
