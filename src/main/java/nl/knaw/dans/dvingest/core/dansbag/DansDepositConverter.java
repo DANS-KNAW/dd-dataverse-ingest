@@ -20,6 +20,7 @@ import nl.knaw.dans.dvingest.core.service.DansBagMappingService;
 import nl.knaw.dans.dvingest.core.service.YamlService;
 import nl.knaw.dans.dvingest.core.yaml.UpdateState;
 import nl.knaw.dans.ingest.core.domain.Deposit;
+import org.apache.commons.lang3.StringUtils;
 
 import java.io.IOException;
 
@@ -30,11 +31,20 @@ public class DansDepositConverter {
     private final YamlService yamlService;
 
     public void run() throws IOException {
-        // Get dataset metadata from bag
         var dataset = mappingService.getDatasetMetadataFromDansDeposit(dansDeposit);
+        var version = dataset.getDatasetVersion();
+        version.setFileAccessRequest(dansDeposit.allowAccessRequests());
 
-        // Serialize dataset to Yaml
+        // TODO: when processing an update-deposit, retriever terms of access from the previous version
+        if (!dansDeposit.allowAccessRequests() && StringUtils.isBlank(version.getTermsOfAccess())) {
+            version.setTermsOfAccess("N/a");
+        }
         yamlService.writeYaml(dataset, dansDeposit.getBagDir().resolve("dataset.yml"));
+
+
+        // Get the restricted files
+//        var restrictedFiles = mappingService.getRestrictedFiles(dansDeposit);
+
 
 
         var updateState = new UpdateState();

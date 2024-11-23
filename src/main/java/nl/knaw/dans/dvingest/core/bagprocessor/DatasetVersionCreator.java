@@ -46,10 +46,10 @@ public class DatasetVersionCreator {
             }
             pid = createDataset();
         }
-        else {
-            if (dataset != null) {
-                updateDataset(pid);
-            }
+        // Even if we just created the dataset, we still need to update the metadata, because Dataverse ignores some things
+        // in the create request.
+        if (dataset != null) {
+            updateDataset(pid);
         }
         return pid;
     }

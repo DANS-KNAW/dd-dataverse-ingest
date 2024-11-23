@@ -77,7 +77,14 @@ public class DepositTask implements Runnable {
                     log.info("Only converting DANS deposit, skipping ingest");
                     continue;
                 }
-                pid = new BagProcessor(deposit.getId(), bag, dataverseService, utilityServices).run(pid);
+                pid = BagProcessor.builder()
+                    .depositId(deposit.getId())
+                    .bag(bag)
+                    .dataverseService(dataverseService)
+                    .utilityServices(utilityServices)
+                    .build()
+                    .run(pid);
+
                 log.info("END processing deposit / bag: {} / {}", deposit.getId(), bag);
             }
             if (onlyConvertDansDeposit) {

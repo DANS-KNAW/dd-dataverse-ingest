@@ -86,42 +86,34 @@ import static nl.knaw.dans.ingest.core.service.XPathConstants.DDM_PROFILE;
 @RequiredArgsConstructor
 public class DepositToDvDatasetMetadataMapper {
     private final boolean deduplicate;
-    @lombok.NonNull
+    @NonNull
     private final Set<String> activeMetadataBlocks;
-    @lombok.NonNull
+    @NonNull
     private final Map<String, String> iso1ToDataverseLanguage;
-    @lombok.NonNull
+    @NonNull
     private final Map<String, String> iso2ToDataverseLanguage;
 
-    @lombok.NonNull
+    @NonNull
     private final Map<String, String> abrReportCodeToTerm;
-    @lombok.NonNull
+    @NonNull
     private final Map<String, String> abrAcquisitionMethodCodeToTerm;
-    @lombok.NonNull
+    @NonNull
     private final Map<String, String> abrComplexCodeToTerm;
-    @lombok.NonNull
+    @NonNull
     private final Map<String, String> abrArtifactCodeToTerm;
-    @lombok.NonNull
+    @NonNull
     private final Map<String, String> abrPeriodCodeToTerm;
 
-    @lombok.NonNull
+    @NonNull
     private final List<String> spatialCoverageCountryTerms;
 
-    @lombok.NonNull
+    @NonNull
     private final Map<String, String> dataSuppliers;
 
-    @lombok.NonNull
+    @NonNull
     private final List<String> skipFields;
 
     private final boolean isMigration;
-
-
-    private final CitationFieldBuilder citationFields = new CitationFieldBuilder();
-    private final RightsFieldBuilder rightsFields = new RightsFieldBuilder();
-    private final RelationFieldBuilder relationFields = new RelationFieldBuilder();
-    private final ArchaeologyFieldBuilder archaeologyFields = new ArchaeologyFieldBuilder();
-    private final TemporalSpatialFieldBuilder temporalSpatialFields = new TemporalSpatialFieldBuilder();
-    private final DataVaultFieldBuilder dataVaultFieldBuilder = new DataVaultFieldBuilder();
 
     public Dataset toDataverseDataset(
         @NonNull Document ddm,
@@ -135,9 +127,15 @@ public class DepositToDvDatasetMetadataMapper {
         String hasOrganizationalIdentifierVersion
     ) throws MissingRequiredFieldException {
         var termsOfAccess = "";
+        var citationFields = new CitationFieldBuilder();
+        var rightsFields = new RightsFieldBuilder();
+        var relationFields = new RelationFieldBuilder();
+        var archaeologyFields = new ArchaeologyFieldBuilder();
+        var temporalSpatialFields = new TemporalSpatialFieldBuilder();
+        var dataVaultFieldBuilder = new DataVaultFieldBuilder();
 
         if (activeMetadataBlocks.contains("citation")) {
-            var otherTitlesAndAlternativeTitles = getOtherTitles(ddm).collect(Collectors.toList());
+            var otherTitlesAndAlternativeTitles = getOtherTitles(ddm).toList();
             citationFields.addTitle(getTitles(ddm)); // CIT001
             citationFields.addAlternativeTitle(otherTitlesAndAlternativeTitles.stream().map(Node::getTextContent)); // CIT002
 
@@ -264,42 +262,6 @@ public class DepositToDvDatasetMetadataMapper {
             dataVaultFieldBuilder.addDataSupplier(dataSupplier);
         }
 
-        return assembleDataverseDataset(termsOfAccess, skipFields);
-    }
-
-    private Stream<Node> getPersonalData(Document ddm) {
-        return XPathEvaluator.nodes(ddm, DDM_PROFILE + "/ddm:personalData");
-    }
-
-    void processMetadataBlock(boolean deduplicate, Map<String, MetadataBlock> fields, String title, String displayName, FieldBuilder builder, List<String> skipFields) {
-        var compoundFields = builder.getCompoundFields().values()
-            .stream()
-            .map(CompoundFieldBuilder::build);
-
-        var primitiveFields = builder.getPrimitiveFields()
-            .values()
-            .stream()
-            .map(b -> b.build(deduplicate));
-
-        if (deduplicate) {
-            compoundFields = compoundFields.distinct();
-            primitiveFields = primitiveFields.distinct();
-        }
-
-        List<MetadataField> result = Stream.of(compoundFields, primitiveFields)
-            .flatMap(i -> i)
-            .filter(Objects::nonNull)
-            .filter(b -> !skipFields.contains(b.getTypeName()))
-            .collect(Collectors.toList());
-
-        var block = new MetadataBlock();
-        block.setDisplayName(displayName);
-        block.setFields(result);
-
-        fields.put(title, block);
-    }
-
-    private Dataset assembleDataverseDataset(String termsOfAccess, List<String> skipFields) {
         var fields = new HashMap<String, MetadataBlock>();
 
         processMetadataBlock(deduplicate, fields, "citation", "Citation Metadata", citationFields, skipFields);
@@ -332,6 +294,38 @@ public class DepositToDvDatasetMetadataMapper {
         }
 
         return dataset;
+    }
+
+    private Stream<Node> getPersonalData(Document ddm) {
+        return XPathEvaluator.nodes(ddm, DDM_PROFILE + "/ddm:personalData");
+    }
+
+    void processMetadataBlock(boolean deduplicate, Map<String, MetadataBlock> fields, String title, String displayName, FieldBuilder builder, List<String> skipFields) {
+        var compoundFields = builder.getCompoundFields().values()
+            .stream()
+            .map(CompoundFieldBuilder::build);
+
+        var primitiveFields = builder.getPrimitiveFields()
+            .values()
+            .stream()
+            .map(b -> b.build(deduplicate));
+
+        if (deduplicate) {
+            compoundFields = compoundFields.distinct();
+            primitiveFields = primitiveFields.distinct();
+        }
+
+        List<MetadataField> result = Stream.of(compoundFields, primitiveFields)
+            .flatMap(i -> i)
+            .filter(Objects::nonNull)
+            .filter(b -> !skipFields.contains(b.getTypeName()))
+            .collect(Collectors.toList());
+
+        var block = new MetadataBlock();
+        block.setDisplayName(displayName);
+        block.setFields(result);
+
+        fields.put(title, block);
     }
 
     Stream<Node> getProfileDescriptions(Document ddm) {
