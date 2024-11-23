@@ -30,12 +30,14 @@ import nl.knaw.dans.lib.dataverse.model.dataset.FileList;
 import nl.knaw.dans.lib.dataverse.model.dataset.MetadataField;
 import nl.knaw.dans.lib.dataverse.model.dataset.UpdateType;
 import nl.knaw.dans.lib.dataverse.model.file.FileMeta;
+import nl.knaw.dans.lib.dataverse.model.user.AuthenticatedUser;
 
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @Builder
 @Slf4j
@@ -130,6 +132,17 @@ public class DataverseServiceImpl implements DataverseService {
                 var deleteResult = dataverseClient.dataset(pid).deleteRoleAssignment(ra.getId());
                 log.debug(deleteResult.getEnvelopeAsString());
             }
+        }
+    }
+
+    @Override
+    public Optional<AuthenticatedUser> getUserById(String userId) {
+        try {
+            return Optional.of(dataverseClient.admin().listSingleUser(userId).getData());
+        }
+        catch (IOException | DataverseException e) {
+            log.error("Error retrieving user with id {} from dataverse", userId, e);
+            return Optional.empty();
         }
     }
 

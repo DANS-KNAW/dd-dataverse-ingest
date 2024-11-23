@@ -20,6 +20,7 @@ import lombok.Getter;
 import lombok.NonNull;
 import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
+import nl.knaw.dans.dvingest.core.service.YamlService;
 
 import javax.validation.constraints.NotNull;
 import java.io.IOException;
@@ -43,9 +44,11 @@ public class Deposit implements Comparable<Deposit> {
 
     private final Properties depositProperties;
     private final String updatesDataset;
+    private final YamlService yamlService;
 
-    public Deposit(@NonNull Path location) {
+    public Deposit(@NonNull Path location, @NonNull YamlService yamlService) {
         this.location = location;
+        this.yamlService = yamlService;
         this.depositProperties = new Properties();
         try {
             depositProperties.load(Files.newBufferedReader(location.resolve("deposit.properties")));
@@ -62,11 +65,11 @@ public class Deposit implements Comparable<Deposit> {
         }
     }
 
-    public List<DepositBag> getBags() throws IOException {
+    public List<DataverseIngestBag> getBags() throws IOException {
         try (var files = Files.list(location)) {
             return files
                 .filter(Files::isDirectory)
-                .map(DepositBag::new)
+                .map(path -> new DataverseIngestBag(path, yamlService))
                 .sorted()
                 .toList();
         }

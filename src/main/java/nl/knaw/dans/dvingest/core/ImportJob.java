@@ -24,6 +24,7 @@ import nl.knaw.dans.dvingest.api.ImportJobStatusDto;
 import nl.knaw.dans.dvingest.api.ImportJobStatusDto.StatusEnum;
 import nl.knaw.dans.dvingest.core.service.DataverseService;
 import nl.knaw.dans.dvingest.core.service.UtilityServices;
+import nl.knaw.dans.dvingest.core.service.YamlService;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -42,9 +43,8 @@ public class ImportJob implements Runnable {
     private final DataverseService dataverseService;
     @NonNull
     private final UtilityServices utilityServices;
-
     @NonNull
-    private final CompletionHandler completionHandler;
+    private final YamlService yamlService;
 
     @Getter
     private final ImportJobStatusDto status = new ImportJobStatusDto();
@@ -53,16 +53,12 @@ public class ImportJob implements Runnable {
         @NonNull Path outputDir,
         @NonNull DataverseService dataverseService,
         @NonNull UtilityServices utilityServices,
-        @NonNull CompletionHandler completionHandler) {
+        @NonNull YamlService yamlService) {
         this.importCommand = importCommand;
         this.outputDir = outputDir;
         this.dataverseService = dataverseService;
         this.utilityServices = utilityServices;
-        this.completionHandler = completionHandler;
-    }
-
-    public static interface CompletionHandler {
-        void handle(ImportJob job);
+        this.yamlService = yamlService;
     }
 
     @Override
@@ -74,11 +70,11 @@ public class ImportJob implements Runnable {
 
             // Build deposit list, todo: ordered
             if (importCommand.getSingleObject()) {
-                deposits.add(new Deposit(Path.of(importCommand.getPath())));
+                deposits.add(new Deposit(Path.of(importCommand.getPath()), yamlService));
             }
             else {
                 try (var depositPaths = Files.list(Path.of(importCommand.getPath()))) {
-                    depositPaths.filter(Files::isDirectory).forEach(p -> deposits.add(new Deposit(p)));
+                    depositPaths.filter(Files::isDirectory).forEach(p -> deposits.add(new Deposit(p, yamlService)));
                 }
             }
 
@@ -98,9 +94,6 @@ public class ImportJob implements Runnable {
         catch (Exception e) {
             log.error("Failed to process import job", e);
             status.setStatus(StatusEnum.FAILED);
-        }
-        finally {
-            completionHandler.handle(this);
         }
     }
 

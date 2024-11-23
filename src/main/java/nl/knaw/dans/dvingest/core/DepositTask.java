@@ -52,8 +52,11 @@ public class DepositTask implements Runnable {
     public void run() {
         try {
             String pid = deposit.getUpdatesDataset();
-            for (DepositBag bag : deposit.getBags()) {
+            for (DataverseIngestBag bag : deposit.getBags()) {
                 log.info("START processing deposit / bag: {} / {}", deposit.getId(), bag);
+                // if dans-bag -> convert
+                // new DansBagConverter(deposit.getId(), bag, dataverseService, utilityServices).run();
+
                 pid = new BagProcessor(deposit.getId(), bag, dataverseService, utilityServices).run(pid);
                 log.info("END processing deposit / bag: {} / {}", deposit.getId(), bag);
             }

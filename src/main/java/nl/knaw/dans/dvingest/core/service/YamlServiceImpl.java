@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package nl.knaw.dans.dvingest.core.yaml;
+package nl.knaw.dans.dvingest.core.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
@@ -21,6 +21,10 @@ import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import io.dropwizard.configuration.ConfigurationException;
 import io.dropwizard.configuration.YamlConfigurationFactory;
 import lombok.extern.slf4j.Slf4j;
+import nl.knaw.dans.dvingest.core.yaml.EditFilesRoot;
+import nl.knaw.dans.dvingest.core.yaml.EditMetadataRoot;
+import nl.knaw.dans.dvingest.core.yaml.EditPermissionsRoot;
+import nl.knaw.dans.dvingest.core.yaml.UpdateState;
 import nl.knaw.dans.lib.dataverse.MetadataFieldDeserializer;
 import nl.knaw.dans.lib.dataverse.model.dataset.Dataset;
 import nl.knaw.dans.lib.dataverse.model.dataset.MetadataField;
@@ -32,12 +36,12 @@ import java.util.HashMap;
 import java.util.Map;
 
 @Slf4j
-public class YamlUtils {
+public class YamlServiceImpl implements YamlService {
+    private final ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
     private final Map<Class<?>, YamlConfigurationFactory<?>> yamlConfigurationFactories = new HashMap<>();
 
-    public YamlUtils() {
+    public YamlServiceImpl() {
         try (var factory = Validation.buildDefaultValidatorFactory()) {
-            var mapper = new ObjectMapper(new YAMLFactory());
             SimpleModule module = new SimpleModule();
             module.addDeserializer(MetadataField.class, new MetadataFieldDeserializer());
             mapper.registerModule(module);
@@ -55,11 +59,17 @@ public class YamlUtils {
     }
 
     @SuppressWarnings("unchecked")
+    @Override
     public <T> T readYaml(Path yamlFile, Class<T> target) throws IOException, ConfigurationException {
         YamlConfigurationFactory<T> factory = (YamlConfigurationFactory<T>) yamlConfigurationFactories.get(target);
         if (factory == null) {
             throw new IllegalArgumentException("No factory found for class: " + target.getName());
         }
         return factory.build(yamlFile.toFile());
+    }
+
+    @Override
+    public void writeYaml(Object object, Path yamlFile) throws IOException {
+        mapper.writeValue(yamlFile.toFile(), object);
     }
 }

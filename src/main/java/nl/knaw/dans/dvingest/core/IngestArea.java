@@ -25,6 +25,8 @@ import nl.knaw.dans.dvingest.api.ImportCommandDto;
 import nl.knaw.dans.dvingest.api.ImportJobStatusDto;
 import nl.knaw.dans.dvingest.core.service.DataverseService;
 import nl.knaw.dans.dvingest.core.service.UtilityServices;
+import nl.knaw.dans.dvingest.core.service.YamlService;
+import nl.knaw.dans.dvingest.core.service.YamlServiceImpl;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -48,6 +50,7 @@ public class IngestArea {
     private final Path outbox;
 
     private final Map<String, ImportJob> importJobs = new ConcurrentHashMap<>();
+    private final YamlService yamlService = new YamlServiceImpl(); // Does not need to be configurable
 
     private IngestArea(ExecutorService executorService, DataverseService dataverseService, UtilityServices utilityServices, Path inbox, Path outbox) {
         try {
@@ -78,7 +81,7 @@ public class IngestArea {
 
     public ConversionResultDto convertDansBag(ConvertDansBagCommandDto convertDansBagCommand) {
         var result = new ConversionResultDto().status(StatusEnum.SUCCESS);
-        // TODO: implement, throw IllegalArgumentException if input is invalid and RutimeException if conversion fails
+        // TODO: implement, throw IllegalArgumentException if input is invalid and RuntimeException if conversion fails
         return result;
     }
 
@@ -107,7 +110,7 @@ public class IngestArea {
             .outputDir(outbox.resolve(relativePath))
             .dataverseService(dataverseService)
             .utilityServices(utilityServices)
-            .completionHandler(job -> importJobs.remove(job.getImportCommand().getPath()))
+            .yamlService(yamlService)
             .build();
     }
 

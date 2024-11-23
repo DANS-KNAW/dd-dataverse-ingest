@@ -15,8 +15,10 @@
  */
 package nl.knaw.dans.dvingest.core;
 
+import nl.knaw.dans.dvingest.core.service.YamlService;
 import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 
 import java.nio.file.Files;
 import java.util.Properties;
@@ -27,6 +29,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
 
 public class DepositTest extends TestDirFixture {
+    private final YamlService yamlServiceMock = Mockito.mock(YamlService.class);
 
     @Test
     public void ctor_should_throw_IllegalStateException_when_deposit_properties_file_not_found() throws Exception {
@@ -36,7 +39,7 @@ public class DepositTest extends TestDirFixture {
 
         // When
         // Then
-        assertThatIllegalStateException().isThrownBy(() -> new Deposit(depositDir))
+        assertThatIllegalStateException().isThrownBy(() -> new Deposit(depositDir, yamlServiceMock))
             .withMessage("Error loading deposit properties from " + depositDir.resolve("deposit.properties"));
 
     }
@@ -52,7 +55,7 @@ public class DepositTest extends TestDirFixture {
         props.store(Files.newBufferedWriter(depositDir.resolve("deposit.properties")), "");
 
         // When
-        var deposit = new Deposit(depositDir);
+        var deposit = new Deposit(depositDir, yamlServiceMock);
 
         // Then
         assertThat(deposit.getId()).isEqualTo(uuid);
@@ -84,9 +87,9 @@ public class DepositTest extends TestDirFixture {
         props3.setProperty("creation.timestamp", "2023-01-03T10:00:00Z");
         props3.store(Files.newBufferedWriter(dir3.resolve("deposit.properties")), "");
 
-        var deposit1 = new Deposit(dir1);
-        var deposit2 = new Deposit(dir2);
-        var deposit3 = new Deposit(dir3);
+        var deposit1 = new Deposit(dir1, yamlServiceMock);
+        var deposit2 = new Deposit(dir2, yamlServiceMock);
+        var deposit3 = new Deposit(dir3, yamlServiceMock);
 
         // When
         var deposits = new TreeSet<>();

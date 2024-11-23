@@ -16,6 +16,7 @@
 package nl.knaw.dans.dvingest.core;
 
 import io.dropwizard.configuration.ConfigurationException;
+import nl.knaw.dans.dvingest.core.service.YamlService;
 import nl.knaw.dans.dvingest.core.yaml.EditFiles;
 import nl.knaw.dans.dvingest.core.yaml.EditFilesRoot;
 import nl.knaw.dans.dvingest.core.yaml.EditMetadata;
@@ -23,7 +24,7 @@ import nl.knaw.dans.dvingest.core.yaml.EditMetadataRoot;
 import nl.knaw.dans.dvingest.core.yaml.EditPermissions;
 import nl.knaw.dans.dvingest.core.yaml.EditPermissionsRoot;
 import nl.knaw.dans.dvingest.core.yaml.UpdateState;
-import nl.knaw.dans.dvingest.core.yaml.YamlUtils;
+import nl.knaw.dans.dvingest.core.service.YamlServiceImpl;
 import nl.knaw.dans.lib.dataverse.model.dataset.Dataset;
 
 import java.io.IOException;
@@ -31,8 +32,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collections;
 
-public class DepositBag implements Comparable<DepositBag> {
-    private static final YamlUtils YAML_UTILS = new YamlUtils();
+public class DataverseIngestBag implements Comparable<DataverseIngestBag>, IngestBag {
+    private final YamlServiceImpl yamService;
 
     public static final String DATASET_YML = "dataset.yml";
     public static final String EDIT_FILES_YML = "edit-files.yml";
@@ -42,59 +43,67 @@ public class DepositBag implements Comparable<DepositBag> {
 
     private final Path bagDir;
 
-    public DepositBag(Path bagDir) {
+    public DataverseIngestBag(Path bagDir, YamlService yamlService) {
         this.bagDir = bagDir;
+        this.yamService = (YamlServiceImpl) yamlService;
         // Minimal check to see if it is a bag
         if (!Files.exists(bagDir.resolve("bagit.txt"))) {
             throw new IllegalStateException("Not a bag: " + bagDir);
         }
     }
 
+    @Override
     public Dataset getDatasetMetadata() throws IOException, ConfigurationException {
         if (!Files.exists(bagDir.resolve(DATASET_YML))) {
             return null;
         }
-        var dataset = YAML_UTILS.readYaml(bagDir.resolve(DATASET_YML), Dataset.class);
+        var dataset = yamService.readYaml(bagDir.resolve(DATASET_YML), Dataset.class);
         dataset.getDatasetVersion().setFiles(Collections.emptyList()); // files = null or a list of files is not allowed
         return dataset;
     }
 
+    @Override
     public EditFiles getEditFiles() throws IOException, ConfigurationException {
         if (!Files.exists(bagDir.resolve(EDIT_FILES_YML))) {
             return null;
         }
-        var editFilesRoot = YAML_UTILS.readYaml(bagDir.resolve(EDIT_FILES_YML), EditFilesRoot.class);
+        var editFilesRoot = yamService.readYaml(bagDir.resolve(EDIT_FILES_YML), EditFilesRoot.class);
         return editFilesRoot.getEditFiles();
     }
 
+    @Override
     public EditMetadata getEditMetadata() throws IOException, ConfigurationException {
         if (!Files.exists(bagDir.resolve(EDIT_METADATA_YML))) {
             return null;
         }
-        var editMetadataRoot = YAML_UTILS.readYaml(bagDir.resolve(EDIT_METADATA_YML), EditMetadataRoot.class);
+        var editMetadataRoot = yamService.readYaml(bagDir.resolve(EDIT_METADATA_YML), EditMetadataRoot.class);
         return editMetadataRoot.getEditMetadata();
     }
 
+    @Override
     public EditPermissions getEditPermissions() throws IOException, ConfigurationException {
         if (!Files.exists(bagDir.resolve(EDIT_PERMISSIONS_YML))) {
             return null;
         }
-        var editPermissionsRoot = YAML_UTILS.readYaml(bagDir.resolve(EDIT_PERMISSIONS_YML), EditPermissionsRoot.class);
+        var editPermissionsRoot = yamService.readYaml(bagDir.resolve(EDIT_PERMISSIONS_YML), EditPermissionsRoot.class);
         return editPermissionsRoot.getEditPermissions();
     }
 
+    @Override
     public UpdateState getUpdateState() throws IOException, ConfigurationException {
         if (!Files.exists(bagDir.resolve(UPDATE_STATE_YML))) {
             return null;
         }
-        return YAML_UTILS.readYaml(bagDir.resolve(UPDATE_STATE_YML), UpdateState.class);
+        return yamService.readYaml(bagDir.resolve(UPDATE_STATE_YML), UpdateState.class);
     }
 
     @Override
-    public int compareTo(DepositBag depositBag) {
-        return bagDir.getFileName().toString().compareTo(depositBag.bagDir.getFileName().toString());
+    public int compareTo(DataverseIngestBag dataverseIngestBag) {
+        return bagDir.getFileName().toString().compareTo(dataverseIngestBag.bagDir.getFileName().toString());
     }
 
+
+    @Override
     public Path getDataDir() {
         return bagDir.resolve("data");
     }
