@@ -18,9 +18,6 @@ package nl.knaw.dans.dvingest.core;
 import lombok.Builder;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
-import nl.knaw.dans.dvingest.api.ConversionResultDto;
-import nl.knaw.dans.dvingest.api.ConversionResultDto.StatusEnum;
-import nl.knaw.dans.dvingest.api.ConvertDansBagCommandDto;
 import nl.knaw.dans.dvingest.api.ImportCommandDto;
 import nl.knaw.dans.dvingest.api.ImportJobStatusDto;
 import nl.knaw.dans.dvingest.core.service.DansBagMappingService;
@@ -55,7 +52,7 @@ public class IngestArea {
     private final Map<String, ImportJob> importJobs = new ConcurrentHashMap<>();
     private final YamlService yamlService = new YamlServiceImpl(); // Does not need to be configurable
 
-    private IngestArea(ExecutorService executorService, DataverseService dataverseService, UtilityServices utilityServices,  DansBagMappingService dansBagMappingService, Path inbox, Path outbox) {
+    private IngestArea(ExecutorService executorService, DataverseService dataverseService, UtilityServices utilityServices, DansBagMappingService dansBagMappingService, Path inbox, Path outbox) {
         try {
             this.executorService = executorService;
             this.dataverseService = dataverseService;
@@ -81,12 +78,6 @@ public class IngestArea {
         importJobs.put(importCommand.getPath(), importJob);
         log.debug("Submitted import job");
         executorService.submit(importJob);
-    }
-
-    public ConversionResultDto convertDansBag(ConvertDansBagCommandDto convertDansBagCommand) {
-        var result = new ConversionResultDto().status(StatusEnum.SUCCESS);
-        // TODO: implement, throw IllegalArgumentException if input is invalid and RuntimeException if conversion fails
-        return result;
     }
 
     public List<ImportJobStatusDto> getStatus(String path) {

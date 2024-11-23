@@ -27,7 +27,6 @@ import nl.knaw.dans.dvingest.core.service.DansBagMappingServiceImpl;
 import nl.knaw.dans.dvingest.core.service.DataverseService;
 import nl.knaw.dans.dvingest.core.service.DataverseServiceImpl;
 import nl.knaw.dans.dvingest.core.service.UtilityServicesImpl;
-import nl.knaw.dans.dvingest.resources.ConvertDansBagApiResource;
 import nl.knaw.dans.dvingest.resources.DefaultApiResource;
 import nl.knaw.dans.dvingest.resources.IllegalArgumentExceptionMapper;
 import nl.knaw.dans.dvingest.resources.IngestApiResource;
@@ -78,7 +77,6 @@ public class DdDataverseIngestApplication extends Application<DdDataverseIngestC
             .inbox(configuration.getIngest().getImportConfig().getInbox())
             .outbox(configuration.getIngest().getImportConfig().getOutbox()).build();
         environment.jersey().register(new IngestApiResource(importArea));
-        environment.jersey().register(new ConvertDansBagApiResource(importArea));
         environment.jersey().register(new IllegalArgumentExceptionMapper());
     }
 
