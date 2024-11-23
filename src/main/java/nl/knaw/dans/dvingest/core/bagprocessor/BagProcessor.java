@@ -18,7 +18,6 @@ package nl.knaw.dans.dvingest.core.bagprocessor;
 import io.dropwizard.configuration.ConfigurationException;
 import lombok.extern.slf4j.Slf4j;
 import nl.knaw.dans.dvingest.core.DataverseIngestBag;
-import nl.knaw.dans.dvingest.core.IngestBag;
 import nl.knaw.dans.dvingest.core.service.DataverseService;
 import nl.knaw.dans.dvingest.core.service.UtilityServices;
 import nl.knaw.dans.lib.dataverse.DataverseException;
@@ -34,7 +33,7 @@ public class BagProcessor {
     private final PermissionsEditor permissionsEditor;
     private final StateUpdater stateUpdater;
 
-    public BagProcessor(UUID depositId, IngestBag bag, DataverseService dataverseService, UtilityServices utilityServices) throws IOException, ConfigurationException {
+    public BagProcessor(UUID depositId, DataverseIngestBag bag, DataverseService dataverseService, UtilityServices utilityServices) throws IOException, ConfigurationException {
         this.datasetVersionCreator = new DatasetVersionCreator(depositId, dataverseService, bag.getDatasetMetadata());
         this.filesEditor = new FilesEditor(depositId, bag.getDataDir(), bag.getEditFiles(), dataverseService, utilityServices);
         this.metadataEditor = new MetadataEditor(depositId, bag.getEditMetadata(), dataverseService);

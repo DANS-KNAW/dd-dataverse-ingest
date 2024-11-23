@@ -59,6 +59,15 @@ public class FilesEditor {
     private boolean filesRetrieved = false;
 
     public void editFiles(String pid) throws IOException, DataverseException {
+        if (editFiles == null) {
+            try (var stream = Files.list(dataDir)) {
+                if (stream.findAny().isEmpty()) {
+                    log.debug("No files to edit for deposit {}", depositId);
+                    return;
+                }
+            }
+        }
+
         log.debug("Start editing files for deposit {}", depositId);
         this.pid = pid;
         if (editFiles != null) {

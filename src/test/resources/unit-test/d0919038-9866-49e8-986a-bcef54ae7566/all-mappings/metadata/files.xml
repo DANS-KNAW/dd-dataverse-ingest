@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<files xmlns="http://easy.dans.knaw.nl/schemas/bag/metadata/files/" xmlns:dcterms="http://purl.org/dc/terms/">
+    <!-- TRM004 applies because no accessibleToRights NONE is present and ddm:accessRights in dataset.xml is set to OPEN_ACCESS -->
+    <file filepath="data/file1.txt">
+        <!-- FIL004 -->
+        <dcterms:description>A file with a simple description</dcterms:description>
+    </file>
+    <file filepath="data/subdir/file2.txt">
+        <!-- TRM006 (see also TRM006 in dataset.xml) -->
+        <accessibleToRights>RESTRICTED_REQUEST</accessibleToRights>
+    </file>
+    <!-- FIL001, FIL002, FIL003 -->
+    <!-- This is tested in the example 'forbidden-chars-in-filepath', because it requires a file system that supports non-ascii characters in filenames.
+    <file filepath="data/subdir_υποφάκελο/c:a*q?d&quot;l&lt;g&gt;p|s;h#.txt">
+        <dcterms:description>A file with a problematic name</dcterms:description>
+    </file>
+    -->
+    <!-- FIL005, FIL006 see examples 'default-open' and 'default-restricted' -->
+
+    <!-- FIL008 see example 'embargoed' -->
+
+    <!--
+    An extra, unrestricted (FIL007), uncompressed zip file called original-metadata.zip with no embargo (FIL009) is created,
+    containing dataset.xml and files.xml.
+    -->
+</files>
+

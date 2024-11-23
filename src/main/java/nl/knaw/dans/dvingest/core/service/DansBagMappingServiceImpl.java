@@ -15,8 +15,24 @@
  */
 package nl.knaw.dans.dvingest.core.service;
 
+import gov.loc.repository.bagit.reader.BagReader;
 import lombok.AllArgsConstructor;
+import nl.knaw.dans.ingest.core.deposit.BagDirResolver;
+import nl.knaw.dans.ingest.core.deposit.BagDirResolverImpl;
+import nl.knaw.dans.ingest.core.deposit.DepositFileLister;
+import nl.knaw.dans.ingest.core.deposit.DepositFileListerImpl;
+import nl.knaw.dans.ingest.core.deposit.DepositReader;
+import nl.knaw.dans.ingest.core.deposit.DepositReaderImpl;
 import nl.knaw.dans.ingest.core.domain.Deposit;
+import nl.knaw.dans.ingest.core.exception.InvalidDepositException;
+import nl.knaw.dans.ingest.core.io.BagDataManager;
+import nl.knaw.dans.ingest.core.io.BagDataManagerImpl;
+import nl.knaw.dans.ingest.core.io.FileService;
+import nl.knaw.dans.ingest.core.io.FileServiceImpl;
+import nl.knaw.dans.ingest.core.service.ManifestHelper;
+import nl.knaw.dans.ingest.core.service.ManifestHelperImpl;
+import nl.knaw.dans.ingest.core.service.XmlReader;
+import nl.knaw.dans.ingest.core.service.XmlReaderImpl;
 import nl.knaw.dans.ingest.core.service.mapper.DepositToDvDatasetMetadataMapper;
 import nl.knaw.dans.lib.dataverse.model.dataset.Dataset;
 import nl.knaw.dans.lib.dataverse.model.user.AuthenticatedUser;
@@ -25,14 +41,30 @@ import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
+import java.nio.file.Path;
 import java.util.Optional;
 
-@AllArgsConstructor
 public class DansBagMappingServiceImpl implements DansBagMappingService {
     private static final DateTimeFormatter yyyymmddPattern = DateTimeFormat.forPattern("YYYY-MM-dd");
 
     private final DepositToDvDatasetMetadataMapper depositToDvDatasetMetadataMapper;
     private final DataverseService datasetService;
+    private final DepositReader depositReader;
+
+    public DansBagMappingServiceImpl(DepositToDvDatasetMetadataMapper depositToDvDatasetMetadataMapper, DataverseService datasetService) {
+        this.depositToDvDatasetMetadataMapper = depositToDvDatasetMetadataMapper;
+        this.datasetService = datasetService;
+        BagReader bagReader = new BagReader();
+        ManifestHelper manifestHelper = new ManifestHelperImpl();
+        DepositFileLister depositFileLister = new DepositFileListerImpl();
+        BagDataManager bagDataManager = new BagDataManagerImpl(bagReader);
+        XmlReader xmlReader = new XmlReaderImpl();
+        FileService fileService = new FileServiceImpl();
+        BagDirResolver bagDirResolver = new BagDirResolverImpl(fileService);
+
+        depositReader = new DepositReaderImpl(xmlReader, bagDirResolver, fileService, bagDataManager, depositFileLister, manifestHelper);
+    }
+
 
     @Override
     public Dataset getDatasetMetadataFromDansDeposit(Deposit dansDeposit) {
@@ -61,5 +93,10 @@ public class DansBagMappingServiceImpl implements DansBagMappingService {
             .filter(StringUtils::isNotBlank)
             .map(userId -> datasetService.getUserById(userId)
                 .orElseThrow(() -> new RuntimeException("Unable to fetch user with id " + userId)));
+    }
+
+    @Override
+    public Deposit readDansDeposit(Path depositDir) throws InvalidDepositException {
+        return depositReader.readDeposit(depositDir);
     }
 }

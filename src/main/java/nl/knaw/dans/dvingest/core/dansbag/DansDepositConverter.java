@@ -18,6 +18,7 @@ package nl.knaw.dans.dvingest.core.dansbag;
 import lombok.AllArgsConstructor;
 import nl.knaw.dans.dvingest.core.service.DansBagMappingService;
 import nl.knaw.dans.dvingest.core.service.YamlService;
+import nl.knaw.dans.dvingest.core.yaml.UpdateState;
 import nl.knaw.dans.ingest.core.domain.Deposit;
 
 import java.io.IOException;
@@ -33,7 +34,12 @@ public class DansDepositConverter {
         var dataset = mappingService.getDatasetMetadataFromDansDeposit(dansDeposit);
 
         // Serialize dataset to Yaml
-        yamlService.writeYaml(dataset, dansDeposit.getBagDir().resolve("dataset.yaml"));
+        yamlService.writeYaml(dataset, dansDeposit.getBagDir().resolve("dataset.yml"));
+
+
+        var updateState = new UpdateState();
+        updateState.setAction("publish-major");
+        yamlService.writeYaml(updateState, dansDeposit.getBagDir().resolve("update-state.yml"));
     }
 
 }

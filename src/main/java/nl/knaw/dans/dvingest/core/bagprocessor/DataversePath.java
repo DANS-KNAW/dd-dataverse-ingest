@@ -17,6 +17,7 @@ package nl.knaw.dans.dvingest.core.bagprocessor;
 
 import lombok.NonNull;
 import lombok.Value;
+import org.apache.tika.utils.StringUtils;
 
 /**
  * A filepath in Dataverse is a combination of file label and directory label. This class converts between a regular representation of a path and the Dataverse representation.
@@ -26,7 +27,7 @@ public class DataversePath {
     String directoryLabel;
     String label;
 
-    public DataversePath(@NonNull String directoryLabel, @NonNull String label) {
+    public DataversePath(String directoryLabel, @NonNull String label) {
         if (label.contains("/")) {
             throw new IllegalArgumentException("label contains slash");
         }
@@ -42,7 +43,7 @@ public class DataversePath {
 
         var lastSlash = path.lastIndexOf('/');
         if (lastSlash == -1) {
-            directoryLabel = "";
+            directoryLabel = null;
             label = path;
         }
         else {
@@ -52,6 +53,6 @@ public class DataversePath {
     }
 
     public String toString() {
-        return directoryLabel.isEmpty() ? label : directoryLabel + "/" + label;
+        return StringUtils.isBlank(directoryLabel) ? label : directoryLabel + "/" + label;
     }
 }

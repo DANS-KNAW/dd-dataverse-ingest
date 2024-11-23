@@ -1,0 +1,529 @@
+<ddm:DDM
+        xmlns:dc="http://purl.org/dc/elements/1.1/"
+        xmlns:dcx-dai="http://easy.dans.knaw.nl/schemas/dcx/dai/"
+        xmlns:dcx-gml="http://easy.dans.knaw.nl/schemas/dcx/gml/"
+        xmlns:ddm="http://schemas.dans.knaw.nl/dataset/ddm-v2/"
+        xmlns:dcterms="http://purl.org/dc/terms/"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns:id-type="http://easy.dans.knaw.nl/schemas/vocab/identifier-type/">
+
+    <ddm:profile>
+        <!-- CIT001 -->
+        <dc:title>A bag containing examples for each mapping rule</dc:title>
+        <!-- CIT002: see dcmiMetadata -->
+        <!-- CIT003: see bag-info.txt -->
+        <!-- CIT004: see dcmiMetadata -->
+
+        <!-- CIT009 -->
+        <dcterms:description>
+            This bags contains one or more examples of each mapping rule.
+        </dcterms:description>
+        <!-- CIT009 -->
+        <dcterms:description>
+            A second description
+        </dcterms:description>
+        <!-- CIT005 -->
+        <dc:creator>
+            Unformatted Creator
+        </dc:creator>
+        <dcterms:creator>
+            Another Unformatted Creator
+        </dcterms:creator>
+        <!-- CIT006 -->
+        <dcx-dai:creatorDetails>
+            <dcx-dai:author>
+                <dcx-dai:titles>Dr</dcx-dai:titles>
+                <dcx-dai:initials>I</dcx-dai:initials>
+                <dcx-dai:surname>Lastname</dcx-dai:surname>
+                <dcx-dai:ISNI>0000 0001 2281 955X</dcx-dai:ISNI>
+                <dcx-dai:ORCID>https://orcid.org/0000-0001-9183-9538</dcx-dai:ORCID>
+                <dcx-dai:organization>
+                    <dcx-dai:name xml:lang="en">Example Org</dcx-dai:name>
+                </dcx-dai:organization>
+            </dcx-dai:author>
+        </dcx-dai:creatorDetails>
+        <!-- CIT007 -->
+        <dcx-dai:creatorDetails>
+            <dcx-dai:organization>
+                <dcx-dai:name xml:lang="en">Creator Organization</dcx-dai:name>
+                <dcx-dai:identifier scheme="VIAF" value="http://viaf.org/viaf/75121530"/>
+            </dcx-dai:organization>
+        </dcx-dai:creatorDetails>
+        <!-- CIT008: contact is created from Dataverse account of depositing user -->
+
+        <!-- CIT019 -->
+        <ddm:created>2015-09-09</ddm:created>
+        <!-- CIT025 -->
+        <ddm:available>2015-09-09</ddm:available>
+        <!-- CIT013 and REL001 -->
+        <ddm:audience>D13400</ddm:audience>
+        <ddm:audience>D16300</ddm:audience>
+        <ddm:audience>D16100</ddm:audience>
+        <ddm:audience>D16200</ddm:audience>
+        <ddm:audience>D16400</ddm:audience>
+        <ddm:audience>D16500</ddm:audience>
+        <ddm:audience>E16000</ddm:audience> <!-- NB CIT013 will map this to the subject 'Other', but drop that because it is not the only subject found -->
+
+        <!-- If changed to NO_ACCESS, demonstrates TRM003 -->
+        <ddm:accessRights>OPEN_ACCESS</ddm:accessRights>
+        <!-- RIG002 -->
+        <ddm:personalData present="No"/>
+    </ddm:profile>
+    <ddm:dcmiMetadata>
+        <!-- CIT002 -->
+        <dcterms:title>DCTERMS title 1</dcterms:title>
+        <dc:title>DC title 2</dc:title>
+        <dcterms:alternative>DCTERMS alt title 1</dcterms:alternative>
+        <dcterms:alternative>DCTERMS alt title 2</dcterms:alternative>
+
+        <!-- CIT004 -->
+        <dcterms:identifier>DCTERMS_ID001</dcterms:identifier>
+        <dc:identifier>DC_ID002</dc:identifier>
+        <dcterms:identifier>DCTERMS_ID003</dcterms:identifier>
+
+        <!-- CIT011 -->
+        <dcterms:date>some date</dcterms:date>
+        <dc:date>some other date</dc:date>
+        <dcterms:dateAccepted>some acceptance date</dcterms:dateAccepted>
+        <dcterms:dateCopyrighted>some copyright date</dcterms:dateCopyrighted>
+        <dcterms:dateSubmitted>some submission date</dcterms:dateSubmitted>
+        <dcterms:modified>some modified date</dcterms:modified>
+        <dcterms:issued>some issuing date</dcterms:issued>
+        <dcterms:valid>some validation date</dcterms:valid>
+        <dcterms:coverage>some coverage description</dcterms:coverage>
+        <dc:coverage>some other coverage description</dc:coverage>
+
+        <!-- CIT012 -->
+        <dcterms:description>Even more descriptions</dcterms:description>
+        <dc:description>And yet more</dc:description>
+
+        <!-- CIT014 -->
+        <dcterms:subject>keyword1</dcterms:subject>
+        <dcterms:subject>keyword2</dcterms:subject>
+
+        <!-- CIT015 -->
+        <ddm:subject schemeURI="https://data.cultureelerfgoed.nl/term/id/pan/PAN"
+                     subjectScheme="PAN thesaurus ideaaltypes"
+                     valueURI="https://data.cultureelerfgoed.nl/term/id/pan/08-01-08"
+                     xml:lang="en">non-military uniform button
+        </ddm:subject>
+        <ddm:subject schemeURI="http://vocab.getty.edu/aat/"
+                     subjectScheme="Art and Architecture Thesaurus"
+                     valueURI="http://vocab.getty.edu/aat/300239261"
+                     xml:lang="en">Broader Match: buttons (fasteners)
+        </ddm:subject>
+
+        <!-- CIT016 -->
+        <dcterms:language>Old School Latin</dcterms:language>
+        <dc:language>Ithkuil</dc:language>
+
+        <!-- CIT017 -->
+        <dcterms:identifier xsi:type="id-type:ISSN">0317-8471</dcterms:identifier>
+        <dc:identifier xsi:type="id-type:ISBN">123456789X</dc:identifier>
+
+        <!-- CIT018 -->
+        <ddm:language encodingScheme="ISO639-1" code="fy">West-Fries</ddm:language>
+        <ddm:language encodingScheme="ISO639-2" code="kal">Groenlands</ddm:language>
+        <ddm:language encodingScheme="ISO639-2" code="baq">Baskisch</ddm:language>
+
+        <!-- CIT019 see profile -->
+
+        <!-- CIT020 -->
+        <dcx-dai:contributorDetails>
+            <dcx-dai:author>
+                <dcx-dai:titles>Prof Dr</dcx-dai:titles>
+                <dcx-dai:initials>CON</dcx-dai:initials>
+                <dcx-dai:insertions>van</dcx-dai:insertions>
+                <dcx-dai:surname>Tributor</dcx-dai:surname>
+                <dcx-dai:role>ProjectMember</dcx-dai:role>
+                <dcx-dai:organization>
+                    <dcx-dai:name xml:lang="en">Contributing Org</dcx-dai:name>
+                </dcx-dai:organization>
+            </dcx-dai:author>
+        </dcx-dai:contributorDetails>
+
+        <!-- CIT021 -->
+        <dcx-dai:contributorDetails>
+            <dcx-dai:organization>
+                <dcx-dai:name xml:lang="en">Contributing Org - DataCollector</dcx-dai:name>
+                <dcx-dai:role>DataCollector</dcx-dai:role>
+            </dcx-dai:organization>
+        </dcx-dai:contributorDetails>
+
+        <dcx-dai:contributorDetails>
+            <dcx-dai:organization>
+                <dcx-dai:name xml:lang="en">Contributing Org - DataCurator</dcx-dai:name>
+                <dcx-dai:role>DataCurator</dcx-dai:role>
+            </dcx-dai:organization>
+        </dcx-dai:contributorDetails>
+
+        <dcx-dai:contributorDetails>
+            <dcx-dai:organization>
+                <dcx-dai:name xml:lang="en">Contributing Org - DataManager</dcx-dai:name>
+                <dcx-dai:role>DataManager</dcx-dai:role>
+            </dcx-dai:organization>
+        </dcx-dai:contributorDetails>
+
+        <dcx-dai:contributorDetails>
+            <dcx-dai:organization>
+                <dcx-dai:name xml:lang="en">Contributing Org - Editor</dcx-dai:name>
+                <dcx-dai:role>Editor</dcx-dai:role>
+            </dcx-dai:organization>
+        </dcx-dai:contributorDetails>
+
+        <dcx-dai:contributorDetails>
+            <dcx-dai:organization>
+                <dcx-dai:name xml:lang="en">Contributing Org - HostingInstitution</dcx-dai:name>
+                <dcx-dai:role>HostingInstitution</dcx-dai:role>
+            </dcx-dai:organization>
+        </dcx-dai:contributorDetails>
+
+        <dcx-dai:contributorDetails>
+            <dcx-dai:organization>
+                <dcx-dai:name xml:lang="en">Contributing Org - ProjectLeader</dcx-dai:name>
+                <dcx-dai:role>ProjectLeader</dcx-dai:role>
+            </dcx-dai:organization>
+        </dcx-dai:contributorDetails>
+
+        <dcx-dai:contributorDetails>
+            <dcx-dai:organization>
+                <dcx-dai:name xml:lang="en">Contributing Org - ProjectManager</dcx-dai:name>
+                <dcx-dai:role>ProjectManager</dcx-dai:role>
+            </dcx-dai:organization>
+        </dcx-dai:contributorDetails>
+
+        <dcx-dai:contributorDetails>
+            <dcx-dai:organization>
+                <dcx-dai:name xml:lang="en">Contributing Org - ProjectMember</dcx-dai:name>
+                <dcx-dai:role>ProjectMember</dcx-dai:role>
+            </dcx-dai:organization>
+        </dcx-dai:contributorDetails>
+
+        <dcx-dai:contributorDetails>
+            <dcx-dai:organization>
+                <dcx-dai:name xml:lang="en">Contributing Org - RelatedPerson</dcx-dai:name>
+                <dcx-dai:role>RelatedPerson</dcx-dai:role>
+            </dcx-dai:organization>
+        </dcx-dai:contributorDetails>
+
+        <dcx-dai:contributorDetails>
+            <dcx-dai:organization>
+                <dcx-dai:name xml:lang="en">Contributing Org - ResearchGroup</dcx-dai:name>
+                <dcx-dai:role>ResearchGroup</dcx-dai:role>
+            </dcx-dai:organization>
+        </dcx-dai:contributorDetails>
+
+        <dcx-dai:contributorDetails>
+            <dcx-dai:organization>
+                <dcx-dai:name xml:lang="en">Contributing Org - Researcher</dcx-dai:name>
+                <dcx-dai:role>Researcher</dcx-dai:role>
+            </dcx-dai:organization>
+        </dcx-dai:contributorDetails>
+
+        <dcx-dai:contributorDetails>
+            <dcx-dai:organization>
+                <dcx-dai:name xml:lang="en">Contributing Org - Sponsor</dcx-dai:name>
+                <dcx-dai:role>Sponsor</dcx-dai:role>
+            </dcx-dai:organization>
+        </dcx-dai:contributorDetails>
+
+        <dcx-dai:contributorDetails>
+            <dcx-dai:organization>
+                <dcx-dai:name xml:lang="en">Contributing Org - Supervisor</dcx-dai:name>
+                <dcx-dai:role>Supervisor</dcx-dai:role>
+            </dcx-dai:organization>
+        </dcx-dai:contributorDetails>
+
+        <dcx-dai:contributorDetails>
+            <dcx-dai:organization>
+                <dcx-dai:name xml:lang="en">Contributing Org - WorkPackageLeader</dcx-dai:name>
+                <dcx-dai:role>WorkPackageLeader</dcx-dai:role>
+            </dcx-dai:organization>
+        </dcx-dai:contributorDetails>
+
+        <!-- The following are mapped to Other -->
+        <dcx-dai:contributorDetails>
+            <dcx-dai:organization>
+                <dcx-dai:name xml:lang="en">Contributing Org - Producer</dcx-dai:name>
+                <dcx-dai:role>Producer</dcx-dai:role>
+            </dcx-dai:organization>
+        </dcx-dai:contributorDetails>
+
+        <dcx-dai:contributorDetails>
+            <dcx-dai:organization>
+                <dcx-dai:name xml:lang="en">Contributing Org - Other</dcx-dai:name>
+                <dcx-dai:role>Other</dcx-dai:role>
+            </dcx-dai:organization>
+        </dcx-dai:contributorDetails>
+
+        <dcx-dai:contributorDetails>
+            <dcx-dai:organization>
+                <dcx-dai:name xml:lang="en">Contributing Org - RegistrationAuthority</dcx-dai:name>
+                <dcx-dai:role>RegistrationAuthority</dcx-dai:role>
+            </dcx-dai:organization>
+        </dcx-dai:contributorDetails>
+
+        <dcx-dai:contributorDetails>
+            <dcx-dai:organization>
+                <dcx-dai:name xml:lang="en">Contributing Org - RegistrationAgency</dcx-dai:name>
+                <dcx-dai:role>RegistrationAgency</dcx-dai:role>
+            </dcx-dai:organization>
+        </dcx-dai:contributorDetails>
+
+        <dcx-dai:contributorDetails>
+            <dcx-dai:organization>
+                <dcx-dai:name xml:lang="en">Contributing Org - ContactPerson</dcx-dai:name>
+                <dcx-dai:role>ContactPerson</dcx-dai:role>
+            </dcx-dai:organization>
+        </dcx-dai:contributorDetails>
+
+        <!-- CIT022 -->
+        <!-- Rule under revision -->
+
+        <!-- CIT023 -->
+        <dcterms:identifier xsi:type="id-type:NWO-PROJECTNR">54321</dcterms:identifier>
+
+        <!-- CIT024 -->
+        <dcterms:publisher>D. I. Stributor</dcterms:publisher>
+        <dc:publisher>P. Ublisher</dc:publisher>
+        <!-- Special values: skipped -->
+        <dcterms:publisher>DANS</dcterms:publisher>
+        <dc:publisher>DANS-KNAW</dc:publisher>
+        <dcterms:publisher>DANS/KNAW</dcterms:publisher>
+
+        <!-- CIT025 see profile -->
+
+        <!-- CIT026 -->
+        <ddm:datesOfCollection>2015-06-01/2016-12-31</ddm:datesOfCollection>
+
+        <!-- CIT027 -->
+        <ddm:description descriptionType="SeriesInformation">Information about a series: first</ddm:description>
+        <ddm:description descriptionType="SeriesInformation">Information about a series: second</ddm:description>
+
+        <!-- CIT028 --> <!-- RIG003 Any element can add a metadata language -->
+        <dcterms:source xml:lang="ht">Sous an ayisyen</dcterms:source>
+        <dc:source>Source 2</dc:source>
+        <dcterms:source>Source 3</dcterms:source>
+
+        <!-- RIG001 -->
+        <dcterms:rightsHolder>I Lastname</dcterms:rightsHolder>
+
+        <!-- RIG002 see profile -->
+
+        <!-- RIG003 Any element can add a metadata language -->
+        <dcterms:abstract xml:lang="ka">Georgian</dcterms:abstract>
+
+
+        <!-- REL001 see profile -->
+
+        <!-- REL002 -->
+        <ddm:inCollection
+                subjectScheme="DANS Collection"
+                schemeURI="https://vocabularies.dans.knaw.nl/collections"
+                valueURI="https://vocabularies.dans.knaw.nl/collections/ssh/ce21b6fb-4283-4194-9369-b3ff4c3d76e7"/>
+
+        <!-- REL003. N.B. hrefs do not resolve -->
+        <ddm:relation href="https://example.com/relation">Test relation</ddm:relation>
+        <ddm:conformsTo href="https://example.com/conformsTo">Test conforms to</ddm:conformsTo>
+        <ddm:hasFormat href="https://example.com/hasFormat">Test has format</ddm:hasFormat>
+        <ddm:hasPart href="https://example.com/hasPart">Test has part</ddm:hasPart>
+        <ddm:references href="https://example.com/references">Test references</ddm:references>
+        <ddm:replaces href="https://example.com/replaces">Test replaces</ddm:replaces>
+        <ddm:requires href="https://example.com/requires">Test requires</ddm:requires>
+        <ddm:hasVersion href="https://example.com/hasVersion">Test has version</ddm:hasVersion>
+        <ddm:isFormatOf href="https://example.com/isFormatOf">Test is format of</ddm:isFormatOf>
+        <ddm:isPartOf href="https://example.com/isPartOf">Test is part of</ddm:isPartOf>
+        <ddm:isReferencedBy href="https://example.com/isReferencedBy">Test is referenced by</ddm:isReferencedBy>
+        <ddm:isRequiredBy href="https://example.com/isRequiredBy">Test is required by</ddm:isRequiredBy>
+        <ddm:isVersionOf href="https://example.com/isVersionOf">Test is version of</ddm:isVersionOf>
+
+        <!-- AR001 -->
+        <dcterms:identifier xsi:type="id-type:ARCHIS-ZAAK-IDENTIFICATIE">12345</dcterms:identifier>
+
+        <!-- AR002 -->
+        <dcterms:identifier xsi:type="id-type:ARCHIS-ONDERZOEK">12345</dcterms:identifier>
+        <dcterms:identifier xsi:type="id-type:ARCHIS-VONDSTMELDING">67890</dcterms:identifier>
+        <dcterms:identifier xsi:type="id-type:ARCHIS-MONUMENT">12345</dcterms:identifier>
+        <dcterms:identifier xsi:type="id-type:ARCHIS-WAARNEMING">67890</dcterms:identifier>
+
+        <!-- AR003 and AR004 -->
+        <!-- Preferred: selection by term URI -->
+        <ddm:reportNumber
+                subjectScheme="ABR Rapporten"
+                schemeURI="https://data.cultureelerfgoed.nl/term/id/abr/7a99aaba-c1e7-49a4-9dd8-d295dbcc870e"
+                valueURI="https://data.cultureelerfgoed.nl/term/id/abr/d6b2e162-3f49-4027-8f03-28194db2905e"
+                reportNo="123-A">
+            BAAC 123-A
+        </ddm:reportNumber>
+
+        <!-- Legacy support: selection by "hasCode" attribute instead of the term URI -->
+        <ddm:reportNumber
+                subjectScheme="ABR Rapporten"
+                schemeURI="https://data.cultureelerfgoed.nl/term/id/abr/7a99aaba-c1e7-49a4-9dd8-d295dbcc870e"
+                valueCode="RCERAMZ"
+                reportNo="123-A">
+            RCE Rapportage Archeologische Monumentenzorg
+        </ddm:reportNumber>
+
+        <!-- AR005 -->
+        <!-- Preferred: selection by term URI -->
+        <ddm:acquisitionMethod
+                subjectScheme="ABR verwervingswijzen"
+                schemeURI="https://data.cultureelerfgoed.nl/term/id/abr/554ca1ec-3ed8-42d3-ae4b-47bcb848b238"
+                valueURI="https://data.cultureelerfgoed.nl/term/id/abr/967bfdf8-c44d-4c69-8318-34ed1ab1e784">
+            archeologisch: onderwaterarcheologie
+        </ddm:acquisitionMethod>
+
+        <!-- Legacy support: selection by "hasCode" attribute instead of the term URI -->
+        <ddm:acquisitionMethod
+                subjectScheme="ABR verwervingswijzen"
+                schemeURI="https://data.cultureelerfgoed.nl/term/id/abr/554ca1ec-3ed8-42d3-ae4b-47bcb848b238"
+                valueCode="LUC">
+            luchtfoto/remote sensing
+        </ddm:acquisitionMethod>
+
+
+        <!-- AR006 -->
+        <!-- Preferred: selection by term URI -->
+        <ddm:subject
+                subjectScheme="ABR Complextypen"
+                schemeURI="https://data.cultureelerfgoed.nl/term/id/abr/e9546020-4b28-4819-b0c2-29e7c864c5c0"
+                valueURI="https://data.cultureelerfgoed.nl/term/id/abr/9a758542-8d0d-4afa-b664-104b938fe13e">
+            houtwinning
+        </ddm:subject>
+
+        <!-- Preferred: selection by term URI -->
+        <ddm:subject
+                subjectScheme="ABR Complextypen"
+                schemeURI="https://data.cultureelerfgoed.nl/term/id/abr/e9546020-4b28-4819-b0c2-29e7c864c5c0"
+                valueURI="https://data.cultureelerfgoed.nl/term/id/rn/60bc20cd-0010-48ea-8d6f-42d333bfb39d">
+            vaartuig, houten huid en houten spanten
+        </ddm:subject>
+
+        <!-- Legacy support: selection by "hasCode" attribute instead of the term URI -->
+        <ddm:subject
+                subjectScheme="ABR Complextypen"
+                schemeURI="https://data.cultureelerfgoed.nl/term/id/abr/e9546020-4b28-4819-b0c2-29e7c864c5c0"
+                valueCode="CTHD.KPL">
+            kapel
+        </ddm:subject>
+
+        <!-- AR007 -->
+        <!-- Preferred: selection by term URI -->
+        <ddm:subject
+                subjectScheme="ABR Artefacten"
+                schemeURI="https://data.cultureelerfgoed.nl/term/id/abr/22cbb070-6542-48f0-8afe-7d98d398cc0b"
+                valueURI="https://data.cultureelerfgoed.nl/term/id/abr/5bd97bc0-697c-4128-b7b2-d2324bc4a2e1">
+            rammelaar
+        </ddm:subject>
+
+        <!-- Legacy support: selection by "hasCode" attribute instead of the term URI -->
+        <ddm:subject
+                subjectScheme="ABR Artefacten"
+                schemeURI="https://data.cultureelerfgoed.nl/term/id/abr/22cbb070-6542-48f0-8afe-7d98d398cc0b"
+                valueCode="SPEELGD.SCHAAKST">
+            schaakstuk
+        </ddm:subject>
+
+        <!-- Legacy term URI (with "rn") will be converted to new term URI-->
+        <ddm:subject
+                subjectScheme="ABR Artefacten"
+                schemeURI="https://data.cultureelerfgoed.nl/term/id/abr/22cbb070-6542-48f0-8afe-7d98d398cc0b"
+                valueURI="https://data.cultureelerfgoed.nl/term/id/rn/84bccabd-a463-4fda-8a7c-60390699436b">
+            aambeeld
+        </ddm:subject>
+
+        <!-- AR007A -->
+        <!-- Legacy subjectScheme/schemeURI for overall ABR will be taken as artifact -->
+        <ddm:subject
+                subjectScheme="Archeologisch Basis Register"
+                schemeURI="https://data.cultureelerfgoed.nl/term/id/rn/a4a7933c-e096-4bcf-a921-4f70a78749fe"
+                valueURI="https://data.cultureelerfgoed.nl/term/id/rn/88d17503-7f04-4310-843d-e9e6005a163b">
+            beitel
+        </ddm:subject>
+
+        <!-- AR008 -->
+        <!-- Preferred: selection by term URI -->
+        <ddm:temporal
+                subjectScheme="ABR Periodes"
+                schemeURI="https://data.cultureelerfgoed.nl/term/id/abr/9b688754-1315-484b-9c89-8817e87c1e84"
+                valueURI="https://data.cultureelerfgoed.nl/term/id/abr/5b253754-ddd0-4ae0-a5bb-555176bca858">
+            Midden Romeinse Tijd A
+        </ddm:temporal>
+
+        <!-- Legacy support: selection by "hasCode" attribute instead of the term URI -->
+        <ddm:temporal
+                subjectScheme="ABR Periodes"
+                schemeURI="https://data.cultureelerfgoed.nl/term/id/abr/9b688754-1315-484b-9c89-8817e87c1e84"
+                valueCode="BRONSV">
+            Vroege Bronstijd
+        </ddm:temporal>
+
+        <!-- TS001 -->
+        <dcterms:temporal>Het Romeinse Rijk</dcterms:temporal>
+        <dcterms:temporal>De Oudheid</dcterms:temporal>
+
+        <!-- TS002 -->
+        <dcx-gml:spatial srsName="http://www.opengis.net/def/crs/EPSG/0/28992">
+            <Point xmlns="http://www.opengis.net/gml">
+                <pos>126466 529006</pos>
+            </Point>
+        </dcx-gml:spatial>
+
+        <!-- TS003, defaults to latitude/longitude-->
+        <dcx-gml:spatial>
+            <Point xmlns="http://www.opengis.net/gml">
+                <pos>52.078663 4.288788</pos>
+            </Point>
+        </dcx-gml:spatial>
+
+        <!-- TS004 -->
+        <dcx-gml:spatial>
+            <boundedBy xmlns="http://www.opengis.net/gml">
+                <Envelope srsName="http://www.opengis.net/def/crs/EPSG/0/28992">
+                    <lowerCorner>102000 335000</lowerCorner>
+                    <upperCorner>140000 628000</upperCorner>
+                </Envelope>
+            </boundedBy>
+        </dcx-gml:spatial>
+
+        <!-- TS005 -->
+        <dcx-gml:spatial>
+            <boundedBy xmlns="http://www.opengis.net/gml">
+                <Envelope srsName="http://www.opengis.net/def/crs/EPSG/0/4326">
+                    <lowerCorner>51.46343658020442 3.5621054065986075</lowerCorner>
+                    <upperCorner>53.23074335194507 6.563118076315912</upperCorner>
+                </Envelope>
+            </boundedBy>
+        </dcx-gml:spatial>
+
+        <!-- Not RD or lat/lon, so should be ignored -->
+        <dcx-gml:spatial>
+            <boundedBy xmlns="http://www.opengis.net/gml">
+                <Envelope srsName="XXX">
+                    <lowerCorner>1 2</lowerCorner>
+                    <upperCorner>3 4</upperCorner>
+                </Envelope>
+            </boundedBy>
+        </dcx-gml:spatial>
+
+        <!-- TS006, note that the text must exactly match the vocabulary term, so South-Africa will be handled by TS007 -->
+        <dcterms:spatial>South Africa</dcterms:spatial>
+        <dcterms:spatial>Japan</dcterms:spatial>
+
+        <!-- TS007, not in the controlled list, so mapped to the free text field -->
+        <dcterms:spatial>Roman Empire</dcterms:spatial>
+
+        <!--TRM001 -->
+        <dcterms:license xsi:type="dcterms:URI">http://opensource.org/licenses/MIT</dcterms:license>
+
+        <!-- TRM002 see example restricted-files-no-access-request -->
+
+        <!-- TRM005 and TRM006 -->
+        <dcterms:accessRights>Restricted files accessible under the following conditions: ...</dcterms:accessRights>
+
+        <!-- VLT005A -->
+        <dcterms:identifier xsi:type="id-type:DOI">10.17026/dans-z6y-5y2e</dcterms:identifier>
+
+    </ddm:dcmiMetadata>
+</ddm:DDM>

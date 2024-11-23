@@ -1,0 +1,2 @@
+a5c5c4051724b655863c517a15c56e45753c3e5a  data/file1.txt
+0d57a5bc9f5af7e8edcc90d64fd3c24dfc23e727  data/subdir/file2.txt

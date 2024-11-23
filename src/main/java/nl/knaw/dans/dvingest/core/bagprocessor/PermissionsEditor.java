@@ -34,6 +34,11 @@ public class PermissionsEditor {
     private String pid;
 
     public void editPermissions(String pid) throws IOException, DataverseException {
+        if (editPermissions == null) {
+            log.debug("No permissions to edit for deposit {}", depositId);
+            return;
+        }
+
         this.pid = pid;
         log.debug("Start updating permissions for deposit {}", depositId);
         deleteRoleAssignments();

@@ -23,6 +23,7 @@ import nl.knaw.dans.dvingest.api.ConversionResultDto.StatusEnum;
 import nl.knaw.dans.dvingest.api.ConvertDansBagCommandDto;
 import nl.knaw.dans.dvingest.api.ImportCommandDto;
 import nl.knaw.dans.dvingest.api.ImportJobStatusDto;
+import nl.knaw.dans.dvingest.core.service.DansBagMappingService;
 import nl.knaw.dans.dvingest.core.service.DataverseService;
 import nl.knaw.dans.dvingest.core.service.UtilityServices;
 import nl.knaw.dans.dvingest.core.service.YamlService;
@@ -45,6 +46,8 @@ public class IngestArea {
     @NonNull
     private final UtilityServices utilityServices;
     @NonNull
+    private final DansBagMappingService dansBagMappingService;
+    @NonNull
     private final Path inbox;
     @NonNull
     private final Path outbox;
@@ -52,11 +55,12 @@ public class IngestArea {
     private final Map<String, ImportJob> importJobs = new ConcurrentHashMap<>();
     private final YamlService yamlService = new YamlServiceImpl(); // Does not need to be configurable
 
-    private IngestArea(ExecutorService executorService, DataverseService dataverseService, UtilityServices utilityServices, Path inbox, Path outbox) {
+    private IngestArea(ExecutorService executorService, DataverseService dataverseService, UtilityServices utilityServices,  DansBagMappingService dansBagMappingService, Path inbox, Path outbox) {
         try {
             this.executorService = executorService;
             this.dataverseService = dataverseService;
             this.utilityServices = utilityServices;
+            this.dansBagMappingService = dansBagMappingService;
             this.inbox = inbox.toAbsolutePath().toRealPath();
             this.outbox = outbox.toAbsolutePath().toRealPath();
         }
@@ -111,6 +115,7 @@ public class IngestArea {
             .dataverseService(dataverseService)
             .utilityServices(utilityServices)
             .yamlService(yamlService)
+            .dansBagMappingService(dansBagMappingService)
             .build();
     }
 

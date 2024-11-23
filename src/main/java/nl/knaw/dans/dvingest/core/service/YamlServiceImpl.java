@@ -15,6 +15,7 @@
  */
 package nl.knaw.dans.dvingest.core.service;
 
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
@@ -37,13 +38,14 @@ import java.util.Map;
 
 @Slf4j
 public class YamlServiceImpl implements YamlService {
-    private final ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
+    private ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
     private final Map<Class<?>, YamlConfigurationFactory<?>> yamlConfigurationFactories = new HashMap<>();
 
     public YamlServiceImpl() {
         try (var factory = Validation.buildDefaultValidatorFactory()) {
             SimpleModule module = new SimpleModule();
             module.addDeserializer(MetadataField.class, new MetadataFieldDeserializer());
+            mapper.setSerializationInclusion(Include.NON_NULL);
             mapper.registerModule(module);
             yamlConfigurationFactories.put(Dataset.class, new YamlConfigurationFactory<>(Dataset.class, factory.getValidator(), mapper, "dw"));
             yamlConfigurationFactories.put(EditFilesRoot.class, new YamlConfigurationFactory<>(EditFilesRoot.class, factory.getValidator(), mapper, "dw"));

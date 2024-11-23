@@ -25,7 +25,7 @@ public class DataversePathTest {
     @Test
     public void ctor_creates_path_without_directory() {
         var path = new DataversePath("file");
-        assertThat(path.getDirectoryLabel()).isEmpty();
+        assertThat(path.getDirectoryLabel()).isBlank();
         assertThat(path.getLabel()).isEqualTo("file");
         assertThat(path.toString()).isEqualTo("file");
     }

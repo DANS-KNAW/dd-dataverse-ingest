@@ -17,6 +17,7 @@ package nl.knaw.dans.dvingest.core;
 
 import io.dropwizard.configuration.ConfigurationException;
 import nl.knaw.dans.dvingest.core.service.YamlService;
+import nl.knaw.dans.dvingest.core.service.YamlServiceImpl;
 import nl.knaw.dans.dvingest.core.yaml.EditFiles;
 import nl.knaw.dans.dvingest.core.yaml.EditFilesRoot;
 import nl.knaw.dans.dvingest.core.yaml.EditMetadata;
@@ -24,7 +25,6 @@ import nl.knaw.dans.dvingest.core.yaml.EditMetadataRoot;
 import nl.knaw.dans.dvingest.core.yaml.EditPermissions;
 import nl.knaw.dans.dvingest.core.yaml.EditPermissionsRoot;
 import nl.knaw.dans.dvingest.core.yaml.UpdateState;
-import nl.knaw.dans.dvingest.core.service.YamlServiceImpl;
 import nl.knaw.dans.lib.dataverse.model.dataset.Dataset;
 
 import java.io.IOException;
@@ -32,7 +32,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collections;
 
-public class DataverseIngestBag implements Comparable<DataverseIngestBag>, IngestBag {
+public class DataverseIngestBag implements Comparable<DataverseIngestBag> {
     private final YamlServiceImpl yamService;
 
     public static final String DATASET_YML = "dataset.yml";
@@ -52,7 +52,10 @@ public class DataverseIngestBag implements Comparable<DataverseIngestBag>, Inges
         }
     }
 
-    @Override
+    public boolean looksLikeDansBag() {
+        return Files.exists(bagDir.resolve("metadata/dataset.xml"));
+    }
+
     public Dataset getDatasetMetadata() throws IOException, ConfigurationException {
         if (!Files.exists(bagDir.resolve(DATASET_YML))) {
             return null;
@@ -62,7 +65,6 @@ public class DataverseIngestBag implements Comparable<DataverseIngestBag>, Inges
         return dataset;
     }
 
-    @Override
     public EditFiles getEditFiles() throws IOException, ConfigurationException {
         if (!Files.exists(bagDir.resolve(EDIT_FILES_YML))) {
             return null;
@@ -71,7 +73,6 @@ public class DataverseIngestBag implements Comparable<DataverseIngestBag>, Inges
         return editFilesRoot.getEditFiles();
     }
 
-    @Override
     public EditMetadata getEditMetadata() throws IOException, ConfigurationException {
         if (!Files.exists(bagDir.resolve(EDIT_METADATA_YML))) {
             return null;
@@ -80,7 +81,6 @@ public class DataverseIngestBag implements Comparable<DataverseIngestBag>, Inges
         return editMetadataRoot.getEditMetadata();
     }
 
-    @Override
     public EditPermissions getEditPermissions() throws IOException, ConfigurationException {
         if (!Files.exists(bagDir.resolve(EDIT_PERMISSIONS_YML))) {
             return null;
@@ -89,7 +89,6 @@ public class DataverseIngestBag implements Comparable<DataverseIngestBag>, Inges
         return editPermissionsRoot.getEditPermissions();
     }
 
-    @Override
     public UpdateState getUpdateState() throws IOException, ConfigurationException {
         if (!Files.exists(bagDir.resolve(UPDATE_STATE_YML))) {
             return null;
@@ -102,8 +101,6 @@ public class DataverseIngestBag implements Comparable<DataverseIngestBag>, Inges
         return bagDir.getFileName().toString().compareTo(dataverseIngestBag.bagDir.getFileName().toString());
     }
 
-
-    @Override
     public Path getDataDir() {
         return bagDir.resolve("data");
     }

@@ -22,6 +22,7 @@ import lombok.extern.slf4j.Slf4j;
 import nl.knaw.dans.dvingest.api.ImportCommandDto;
 import nl.knaw.dans.dvingest.api.ImportJobStatusDto;
 import nl.knaw.dans.dvingest.api.ImportJobStatusDto.StatusEnum;
+import nl.knaw.dans.dvingest.core.service.DansBagMappingService;
 import nl.knaw.dans.dvingest.core.service.DataverseService;
 import nl.knaw.dans.dvingest.core.service.UtilityServices;
 import nl.knaw.dans.dvingest.core.service.YamlService;
@@ -45,6 +46,8 @@ public class ImportJob implements Runnable {
     private final UtilityServices utilityServices;
     @NonNull
     private final YamlService yamlService;
+    @NonNull
+    private final DansBagMappingService dansBagMappingService;
 
     @Getter
     private final ImportJobStatusDto status = new ImportJobStatusDto();
@@ -53,12 +56,14 @@ public class ImportJob implements Runnable {
         @NonNull Path outputDir,
         @NonNull DataverseService dataverseService,
         @NonNull UtilityServices utilityServices,
-        @NonNull YamlService yamlService) {
+        @NonNull YamlService yamlService,
+        @NonNull DansBagMappingService dansBagMappingService) {
         this.importCommand = importCommand;
         this.outputDir = outputDir;
         this.dataverseService = dataverseService;
         this.utilityServices = utilityServices;
         this.yamlService = yamlService;
+        this.dansBagMappingService = dansBagMappingService;
     }
 
     @Override
@@ -83,7 +88,7 @@ public class ImportJob implements Runnable {
             // Process deposits
             for (Deposit deposit : deposits) {
                 log.info("START Processing deposit: {}", deposit.getId());
-                var task = new DepositTask(deposit, dataverseService, utilityServices, outputDir);
+                var task = new DepositTask(deposit, dataverseService, utilityServices, outputDir, dansBagMappingService, yamlService);
                 task.run();
                 log.info("END Processing deposit: {}", deposit.getId());
                 // TODO: record number of processed/rejected/failed deposits in ImportJob status

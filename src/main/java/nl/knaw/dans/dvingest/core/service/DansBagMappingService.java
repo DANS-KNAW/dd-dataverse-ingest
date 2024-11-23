@@ -16,9 +16,13 @@
 package nl.knaw.dans.dvingest.core.service;
 
 import nl.knaw.dans.ingest.core.domain.Deposit;
+import nl.knaw.dans.ingest.core.exception.InvalidDepositException;
 import nl.knaw.dans.lib.dataverse.model.dataset.Dataset;
 
+import java.nio.file.Path;
+
 public interface DansBagMappingService {
+    Deposit readDansDeposit(Path depositDir) throws InvalidDepositException;
 
     Dataset getDatasetMetadataFromDansDeposit(Deposit dansDeposit);
 }

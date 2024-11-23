@@ -15,7 +15,7 @@
  */
 package nl.knaw.dans.ingest.core.exception;
 
-public class InvalidDepositException extends Throwable {
+public class InvalidDepositException extends Exception {
     public InvalidDepositException(String msg) {
         super(msg);
     }

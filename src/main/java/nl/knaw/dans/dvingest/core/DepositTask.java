@@ -18,8 +18,11 @@ package nl.knaw.dans.dvingest.core;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import nl.knaw.dans.dvingest.core.bagprocessor.BagProcessor;
+import nl.knaw.dans.dvingest.core.dansbag.DansDepositConverter;
+import nl.knaw.dans.dvingest.core.service.DansBagMappingService;
 import nl.knaw.dans.dvingest.core.service.DataverseService;
 import nl.knaw.dans.dvingest.core.service.UtilityServices;
+import nl.knaw.dans.dvingest.core.service.YamlService;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -36,16 +39,20 @@ public class DepositTask implements Runnable {
     protected final Deposit deposit;
     protected final DataverseService dataverseService;
     protected final UtilityServices utilityServices;
+    private final DansBagMappingService dansBagMappingService;
+    private final YamlService yamlService;
     protected final Path outputDir;
 
     @Getter
     protected Status status = Status.TODO;
 
-    public DepositTask(Deposit deposit, DataverseService dataverseService, UtilityServices utilityServices, Path outputDir) {
+    public DepositTask(Deposit deposit, DataverseService dataverseService, UtilityServices utilityServices, Path outputDir, DansBagMappingService dansBagMappingService, YamlService yamlService) {
         this.deposit = deposit;
         this.dataverseService = dataverseService;
         this.utilityServices = utilityServices;
         this.outputDir = outputDir;
+        this.dansBagMappingService = dansBagMappingService;
+        this.yamlService = yamlService;
     }
 
     @Override
@@ -54,9 +61,12 @@ public class DepositTask implements Runnable {
             String pid = deposit.getUpdatesDataset();
             for (DataverseIngestBag bag : deposit.getBags()) {
                 log.info("START processing deposit / bag: {} / {}", deposit.getId(), bag);
-                // if dans-bag -> convert
-                // new DansBagConverter(deposit.getId(), bag, dataverseService, utilityServices).run();
-
+                if (bag.looksLikeDansBag()) {
+                    log.info("Looks like a DANS bag, generating Dataverse ingest metadata");
+                    var dansDeposit = dansBagMappingService.readDansDeposit(deposit.getLocation());
+                    new DansDepositConverter(dansDeposit, dansBagMappingService, yamlService).run();
+                    log.info("Generated Dataverse ingest metadata");
+                }
                 pid = new BagProcessor(deposit.getId(), bag, dataverseService, utilityServices).run(pid);
                 log.info("END processing deposit / bag: {} / {}", deposit.getId(), bag);
             }
