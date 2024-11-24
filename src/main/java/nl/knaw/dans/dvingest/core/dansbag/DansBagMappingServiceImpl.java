@@ -18,6 +18,7 @@ package nl.knaw.dans.dvingest.core.dansbag;
 import gov.loc.repository.bagit.reader.BagReader;
 import nl.knaw.dans.dvingest.core.service.DataverseService;
 import nl.knaw.dans.dvingest.core.yaml.EditFiles;
+import nl.knaw.dans.dvingest.core.yaml.EditPermissions;
 import nl.knaw.dans.ingest.core.deposit.BagDirResolver;
 import nl.knaw.dans.ingest.core.deposit.BagDirResolverImpl;
 import nl.knaw.dans.ingest.core.deposit.DepositFileLister;
@@ -37,6 +38,7 @@ import nl.knaw.dans.ingest.core.service.XmlReader;
 import nl.knaw.dans.ingest.core.service.XmlReaderImpl;
 import nl.knaw.dans.ingest.core.service.mapper.DepositToDvDatasetMetadataMapper;
 import nl.knaw.dans.ingest.core.service.mapper.mapping.FileElement;
+import nl.knaw.dans.lib.dataverse.model.RoleAssignment;
 import nl.knaw.dans.lib.dataverse.model.dataset.Dataset;
 import nl.knaw.dans.lib.dataverse.model.file.FileMeta;
 import nl.knaw.dans.lib.dataverse.model.user.AuthenticatedUser;
@@ -46,6 +48,7 @@ import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
 import java.nio.file.Path;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.regex.Pattern;
@@ -118,6 +121,17 @@ public class DansBagMappingServiceImpl implements DansBagMappingService {
             .toList());
 
         return editFiles;
+    }
+
+    @Override
+    public EditPermissions getEditPermissionsFromDansDeposit(Deposit dansDeposit) {
+        var userId = dansDeposit.getDepositorUserId();
+        var editPermissions = new EditPermissions();
+        var roleAssignment = new RoleAssignment();
+        roleAssignment.setAssignee("@" + userId);
+        roleAssignment.setRole("contributorplus"); // TODO: make this configurable
+        editPermissions.setAddRoleAssignments(List.of(roleAssignment));
+        return editPermissions;
     }
 
     private boolean hasAttributes(FileMeta fileMeta) {

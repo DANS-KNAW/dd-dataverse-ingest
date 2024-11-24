@@ -18,6 +18,7 @@ package nl.knaw.dans.dvingest.core.dansbag;
 import lombok.AllArgsConstructor;
 import nl.knaw.dans.dvingest.core.service.YamlService;
 import nl.knaw.dans.dvingest.core.yaml.EditFilesRoot;
+import nl.knaw.dans.dvingest.core.yaml.EditPermissionsRoot;
 import nl.knaw.dans.dvingest.core.yaml.UpdateState;
 import nl.knaw.dans.ingest.core.domain.Deposit;
 import org.apache.commons.lang3.StringUtils;
@@ -38,6 +39,9 @@ public class DansDepositConverter {
 
         var editFiles = mappingService.getEditFilesFromDansDeposit(dansDeposit);
         yamlService.writeYaml(new EditFilesRoot(editFiles), dansDeposit.getBagDir().resolve("edit-files.yml"));
+
+        var editPermissions = mappingService.getEditPermissionsFromDansDeposit(dansDeposit);
+        yamlService.writeYaml(new EditPermissionsRoot(editPermissions), dansDeposit.getBagDir().resolve("edit-permissions.yml"));
 
         var updateState = new UpdateState();
         updateState.setAction("publish-major");
