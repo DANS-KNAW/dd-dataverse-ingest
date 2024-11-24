@@ -38,6 +38,7 @@ import nl.knaw.dans.ingest.core.service.XmlReaderImpl;
 import nl.knaw.dans.ingest.core.service.mapper.DepositToDvDatasetMetadataMapper;
 import nl.knaw.dans.ingest.core.service.mapper.mapping.FileElement;
 import nl.knaw.dans.lib.dataverse.model.dataset.Dataset;
+import nl.knaw.dans.lib.dataverse.model.file.FileMeta;
 import nl.knaw.dans.lib.dataverse.model.user.AuthenticatedUser;
 import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
@@ -109,7 +110,17 @@ public class DansBagMappingServiceImpl implements DansBagMappingService {
             .map(Map.Entry::getKey)
             .map(Path::toString).toList());
 
+        editFiles.setUpdateFileMetas(pathFileInfoMap.values().stream()
+            .map(FileInfo::getMetadata)
+            .filter(this::hasAttributes)
+            .toList());
+
         return editFiles;
+    }
+
+    private boolean hasAttributes(FileMeta fileMeta) {
+        return (fileMeta.getCategories() != null && !fileMeta.getCategories().isEmpty()) ||
+            (fileMeta.getDescription() != null && !fileMeta.getDescription().isBlank());
     }
 
     Map<Path, FileInfo> getFileInfo(Deposit dansDeposit) {

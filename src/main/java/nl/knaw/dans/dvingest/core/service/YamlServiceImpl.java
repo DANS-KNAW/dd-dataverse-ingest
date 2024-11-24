@@ -15,12 +15,14 @@
  */
 package nl.knaw.dans.dvingest.core.service;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import io.dropwizard.configuration.ConfigurationException;
 import io.dropwizard.configuration.YamlConfigurationFactory;
+import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import nl.knaw.dans.dvingest.core.yaml.EditFilesRoot;
 import nl.knaw.dans.dvingest.core.yaml.EditMetadataRoot;
@@ -29,6 +31,7 @@ import nl.knaw.dans.dvingest.core.yaml.UpdateState;
 import nl.knaw.dans.lib.dataverse.MetadataFieldDeserializer;
 import nl.knaw.dans.lib.dataverse.model.dataset.Dataset;
 import nl.knaw.dans.lib.dataverse.model.dataset.MetadataField;
+import nl.knaw.dans.lib.dataverse.model.file.FileMeta;
 
 import javax.validation.Validation;
 import java.io.IOException;
@@ -41,11 +44,28 @@ public class YamlServiceImpl implements YamlService {
     private ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
     private final Map<Class<?>, YamlConfigurationFactory<?>> yamlConfigurationFactories = new HashMap<>();
 
+    /**
+     * Mixin to ignore fields in FileMeta that are not needed in the YAML files. Note, that  we are not ignoring the "restrict" field. In theory, we could accidentally expose restricted files if we
+     * did ignore it. It seems in practise this does not happen, but for clarity and safety we do not ignore it.
+     */
+    @Data
+    private static class FileMetaMixin {
+        @JsonIgnore
+        private int version;
+
+        @JsonIgnore
+        private int datasetVersionId;
+
+        @JsonIgnore
+        Boolean restricted;
+    }
+
     public YamlServiceImpl() {
         try (var factory = Validation.buildDefaultValidatorFactory()) {
             SimpleModule module = new SimpleModule();
             module.addDeserializer(MetadataField.class, new MetadataFieldDeserializer());
             mapper.setSerializationInclusion(Include.NON_NULL);
+            mapper.addMixIn(FileMeta.class, FileMetaMixin.class);
             mapper.registerModule(module);
             yamlConfigurationFactories.put(Dataset.class, new YamlConfigurationFactory<>(Dataset.class, factory.getValidator(), mapper, "dw"));
             yamlConfigurationFactories.put(EditFilesRoot.class, new YamlConfigurationFactory<>(EditFilesRoot.class, factory.getValidator(), mapper, "dw"));
