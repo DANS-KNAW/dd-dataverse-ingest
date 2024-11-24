@@ -29,32 +29,7 @@ import java.util.List;
 import java.util.Optional;
 
 public interface DatasetService {
-
-    Optional<String> getDatasetUrnNbn(String datasetId) throws IOException, DataverseException;
-
-    String getDatasetState(String datasetId) throws IOException, DataverseException;
-
     void setEmbargo(String datasetId, Instant dateAvailable, Collection<Integer> fileIds) throws IOException, DataverseException;
-
-    void waitForState(String datasetId, String state) throws InvalidDatasetStateException;
-
-    void releaseMigrated(String datasetId, String date) throws IOException, DataverseException;
-
-    void publishDataset(String datasetId) throws IOException, DataverseException;
-
-    Optional<AuthenticatedUser> getUserById(String userId);
-
-    List<String> getDatasetRoleAssignments(String userId, String datasetId) throws IOException, DataverseException;
-
-    List<String> getDataverseRoleAssignments(String userId) throws IOException, DataverseException;
-
     DataverseClient _getClient();
-
-    List<DatasetResultItem> searchDatasets(String key, String value) throws IOException, DataverseException;
-
     List<URI> getLicenses() throws IOException, DataverseException;
-
-    void submitForReview(String persitentId) throws IOException, DataverseException;
-
-    boolean isDatasetInReview(String persitentId) throws IOException, DataverseException;
 }
