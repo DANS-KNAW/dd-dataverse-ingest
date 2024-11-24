@@ -22,8 +22,9 @@ import io.dropwizard.core.setup.Environment;
 import nl.knaw.dans.dvingest.config.DdDataverseIngestConfiguration;
 import nl.knaw.dans.dvingest.core.IngestArea;
 import nl.knaw.dans.dvingest.core.MappingLoader;
-import nl.knaw.dans.dvingest.core.service.DansBagMappingService;
-import nl.knaw.dans.dvingest.core.service.DansBagMappingServiceImpl;
+import nl.knaw.dans.dvingest.core.dansbag.DansBagMappingService;
+import nl.knaw.dans.dvingest.core.dansbag.DansBagMappingServiceImpl;
+import nl.knaw.dans.dvingest.core.dansbag.SupportedLicenses;
 import nl.knaw.dans.dvingest.core.service.DataverseService;
 import nl.knaw.dans.dvingest.core.service.DataverseServiceImpl;
 import nl.knaw.dans.dvingest.core.service.UtilityServicesImpl;
@@ -31,6 +32,7 @@ import nl.knaw.dans.dvingest.resources.DefaultApiResource;
 import nl.knaw.dans.dvingest.resources.IllegalArgumentExceptionMapper;
 import nl.knaw.dans.dvingest.resources.IngestApiResource;
 import nl.knaw.dans.ingest.core.service.mapper.DepositToDvDatasetMetadataMapper;
+import nl.knaw.dans.lib.dataverse.DataverseException;
 import org.apache.commons.io.FileUtils;
 
 import java.io.IOException;
@@ -96,10 +98,13 @@ public class DdDataverseIngestApplication extends Application<DdDataverseIngestC
                 Collections.emptyMap(),
                 List.of(),
                 false);
-            return new DansBagMappingServiceImpl(mapper, dataverseService);
+            return new DansBagMappingServiceImpl(mapper, dataverseService, new SupportedLicenses(dataverseService));
         }
         catch (IOException e) {
             throw new IllegalStateException("Failed to read configuration files", e);
+        }
+        catch (DataverseException e) {
+            throw new IllegalStateException("Failed to read supported licenses", e);
         }
     }
 

@@ -21,11 +21,10 @@ import org.w3c.dom.Node;
 
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.List;
 import java.util.Optional;
 
 @Slf4j
-public class License extends Base {
+public class LicenseElem extends Base {
 
     public static boolean isLicenseUri(Node node) {
         if (!"license".equals(node.getLocalName())) {
@@ -51,29 +50,17 @@ public class License extends Base {
         }
     }
 
-    public static URI getLicenseUri(List<URI> supportedLicenses, Node licenseNode) {
+    public static URI getLicenseUri(Node licenseNode) {
         // TRM001
         var licenseText = Optional.ofNullable(licenseNode)
             .map(Node::getTextContent)
             .map(String::trim)
             .orElseThrow(() -> new IllegalArgumentException("License node is null"));
 
-        try {
-            if (!isLicenseUri(licenseNode)) {
-                throw new IllegalArgumentException("Not a valid license node");
-            }
-
-            var licenseUri = new URI(licenseText);
-
-            if (!supportedLicenses.contains(licenseUri)) {
-                throw new IllegalArgumentException(String.format("Unsupported license: %s", licenseUri));
-            }
-
-            return licenseUri;
+        if (!isLicenseUri(licenseNode)) {
+            throw new IllegalArgumentException("Not a valid license node");
         }
-        catch (URISyntaxException e) {
-            log.error("Invalid license URI: {}", licenseText, e);
-            throw new IllegalArgumentException("Not a valid license URI", e);
-        }
+
+        return URI.create(licenseText);
     }
 }

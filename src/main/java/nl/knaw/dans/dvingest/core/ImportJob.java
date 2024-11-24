@@ -22,7 +22,7 @@ import lombok.extern.slf4j.Slf4j;
 import nl.knaw.dans.dvingest.api.ImportCommandDto;
 import nl.knaw.dans.dvingest.api.ImportJobStatusDto;
 import nl.knaw.dans.dvingest.api.ImportJobStatusDto.StatusEnum;
-import nl.knaw.dans.dvingest.core.service.DansBagMappingService;
+import nl.knaw.dans.dvingest.core.dansbag.DansBagMappingService;
 import nl.knaw.dans.dvingest.core.service.DataverseService;
 import nl.knaw.dans.dvingest.core.service.UtilityServices;
 import nl.knaw.dans.dvingest.core.service.YamlService;

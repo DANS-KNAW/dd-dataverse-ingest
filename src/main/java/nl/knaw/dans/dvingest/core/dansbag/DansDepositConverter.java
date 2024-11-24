@@ -16,7 +16,6 @@
 package nl.knaw.dans.dvingest.core.dansbag;
 
 import lombok.AllArgsConstructor;
-import nl.knaw.dans.dvingest.core.service.DansBagMappingService;
 import nl.knaw.dans.dvingest.core.service.YamlService;
 import nl.knaw.dans.dvingest.core.yaml.UpdateState;
 import nl.knaw.dans.ingest.core.domain.Deposit;

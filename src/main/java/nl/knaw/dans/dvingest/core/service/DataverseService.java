@@ -20,12 +20,14 @@ import nl.knaw.dans.lib.dataverse.model.RoleAssignment;
 import nl.knaw.dans.lib.dataverse.model.dataset.Dataset;
 import nl.knaw.dans.lib.dataverse.model.dataset.DatasetVersion;
 import nl.knaw.dans.lib.dataverse.model.dataset.FileList;
+import nl.knaw.dans.lib.dataverse.model.dataset.License;
 import nl.knaw.dans.lib.dataverse.model.dataset.MetadataField;
 import nl.knaw.dans.lib.dataverse.model.dataset.UpdateType;
 import nl.knaw.dans.lib.dataverse.model.file.FileMeta;
 import nl.knaw.dans.lib.dataverse.model.user.AuthenticatedUser;
 
 import java.io.IOException;
+import java.net.URI;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Optional;
@@ -59,4 +61,6 @@ public interface DataverseService {
     void deleteRoleAssignment(String pid, RoleAssignment roleAssignment) throws DataverseException, IOException;
 
     Optional<AuthenticatedUser> getUserById(String userId);
+
+    List<License> getSupportedLicenses() throws IOException, DataverseException;
 }

@@ -13,10 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package nl.knaw.dans.dvingest.core.service;
+package nl.knaw.dans.dvingest.core.dansbag;
 
 import gov.loc.repository.bagit.reader.BagReader;
-import lombok.AllArgsConstructor;
+import nl.knaw.dans.dvingest.core.service.DataverseService;
 import nl.knaw.dans.ingest.core.deposit.BagDirResolver;
 import nl.knaw.dans.ingest.core.deposit.BagDirResolverImpl;
 import nl.knaw.dans.ingest.core.deposit.DepositFileLister;
@@ -50,10 +50,11 @@ public class DansBagMappingServiceImpl implements DansBagMappingService {
     private final DepositToDvDatasetMetadataMapper depositToDvDatasetMetadataMapper;
     private final DataverseService datasetService;
     private final DepositReader depositReader;
+    private final SupportedLicenses supportedLicenses;
 
-    public DansBagMappingServiceImpl(DepositToDvDatasetMetadataMapper depositToDvDatasetMetadataMapper, DataverseService datasetService) {
+    public DansBagMappingServiceImpl(DepositToDvDatasetMetadataMapper depositToDvDatasetMetadataMapper, DataverseService dataverseService, SupportedLicenses supportedLicenses) {
         this.depositToDvDatasetMetadataMapper = depositToDvDatasetMetadataMapper;
-        this.datasetService = datasetService;
+        this.datasetService = dataverseService;
         BagReader bagReader = new BagReader();
         ManifestHelper manifestHelper = new ManifestHelperImpl();
         DepositFileLister depositFileLister = new DepositFileListerImpl();
@@ -63,12 +64,12 @@ public class DansBagMappingServiceImpl implements DansBagMappingService {
         BagDirResolver bagDirResolver = new BagDirResolverImpl(fileService);
 
         depositReader = new DepositReaderImpl(xmlReader, bagDirResolver, fileService, bagDataManager, depositFileLister, manifestHelper);
+        this.supportedLicenses = supportedLicenses;
     }
-
 
     @Override
     public Dataset getDatasetMetadataFromDansDeposit(Deposit dansDeposit) {
-        return depositToDvDatasetMetadataMapper.toDataverseDataset(dansDeposit.getDdm(),
+        var dataset = depositToDvDatasetMetadataMapper.toDataverseDataset(dansDeposit.getDdm(),
             dansDeposit.getOtherDoiId(),
             getDateOfDeposit(dansDeposit).orElse(null),
             getDatasetContact(dansDeposit).orElse(null), // But null is never actually used, because an exception is thrown if contact is not found
@@ -77,6 +78,8 @@ public class DansBagMappingServiceImpl implements DansBagMappingService {
             dansDeposit.restrictedFilesPresent(),
             dansDeposit.getHasOrganizationalIdentifier(),
             dansDeposit.getHasOrganizationalIdentifierVersion());
+        dataset.getDatasetVersion().setLicense(supportedLicenses.getLicenseFromDansDeposit(dansDeposit));
+        return dataset;
     }
 
     Optional<String> getDateOfDeposit(Deposit dansDeposit) {

@@ -27,12 +27,14 @@ import nl.knaw.dans.lib.dataverse.model.dataset.Dataset;
 import nl.knaw.dans.lib.dataverse.model.dataset.DatasetVersion;
 import nl.knaw.dans.lib.dataverse.model.dataset.FieldList;
 import nl.knaw.dans.lib.dataverse.model.dataset.FileList;
+import nl.knaw.dans.lib.dataverse.model.dataset.License;
 import nl.knaw.dans.lib.dataverse.model.dataset.MetadataField;
 import nl.knaw.dans.lib.dataverse.model.dataset.UpdateType;
 import nl.knaw.dans.lib.dataverse.model.file.FileMeta;
 import nl.knaw.dans.lib.dataverse.model.user.AuthenticatedUser;
 
 import java.io.IOException;
+import java.net.URI;
 import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.List;
@@ -144,6 +146,13 @@ public class DataverseServiceImpl implements DataverseService {
             log.error("Error retrieving user with id {} from dataverse", userId, e);
             return Optional.empty();
         }
+    }
+
+    @Override
+    public List<License> getSupportedLicenses() throws IOException, DataverseException {
+        return dataverseClient.license().getLicenses().getData().stream()
+            // We need to map from one license class to another, because they have different fields
+            .map(license -> new License(license.getName(), URI.create(license.getUri()), URI.create(license.getIconUrl()))).toList();
     }
 
     // TODO: move this to dans-dataverse-client-lib; it is similar to awaitLockState.

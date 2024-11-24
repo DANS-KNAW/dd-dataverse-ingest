@@ -21,9 +21,7 @@ import lombok.extern.slf4j.Slf4j;
 import nl.knaw.dans.ingest.core.dataverse.DatasetService;
 import nl.knaw.dans.ingest.core.domain.Deposit;
 import nl.knaw.dans.ingest.core.domain.FileInfo;
-import nl.knaw.dans.ingest.core.exception.RejectedDepositException;
 import nl.knaw.dans.ingest.core.service.mapper.mapping.FileElement;
-import nl.knaw.dans.ingest.core.service.mapper.mapping.License;
 import nl.knaw.dans.lib.dataverse.DataverseClient;
 import nl.knaw.dans.lib.dataverse.DataverseException;
 import nl.knaw.dans.lib.dataverse.Version;
@@ -51,8 +49,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-
-import static nl.knaw.dans.ingest.core.service.XPathConstants.DDM_DCMI_METADATA;
 
 @Slf4j
 public abstract class DatasetEditor {
@@ -167,12 +163,13 @@ public abstract class DatasetEditor {
     }
 
     protected String getLicense(Node node) {
-        return XPathEvaluator.nodes(node, DDM_DCMI_METADATA + "/dcterms:license")
-            .filter(License::isLicenseUri)
-            .findFirst()
-            .map(n -> License.getLicenseUri(supportedLicenses, n))
-            .map(URI::toASCIIString)
-            .orElseThrow(() -> new RejectedDepositException(deposit, "no license specified"));
+//        return XPathEvaluator.nodes(node, DDM_DCMI_METADATA + "/dcterms:license")
+//            .filter(Licenses::isLicenseUri)
+//            .findFirst()
+//            .map(n -> Licenses.getLicenseUri(supportedLicenses, n))
+//            .map(URI::toASCIIString)
+//            .orElseThrow(() -> new RejectedDepositException(deposit, "no license specified"));
+        return null;
     }
 
     protected String toJson(Map<String, String> input) throws JsonProcessingException {

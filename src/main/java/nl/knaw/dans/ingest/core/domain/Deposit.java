@@ -126,7 +126,7 @@ public class Deposit {
         var numberOfFiles = files.size();
         var explicitAccessibleToValues = XPathEvaluator
             .strings(filesXml, FILES_FILE + "/files:accessibleToRights")
-            .map(String::trim).collect(Collectors.toList());
+            .map(String::trim).toList();
         var explicitlyRestrictedFilesPresent = explicitAccessibleToValues.stream()
             .anyMatch(a -> !"ANONYMOUS".equals(a));
         var accessRights = XPathEvaluator.nodes(ddm, "/ddm:DDM/ddm:profile/ddm:accessRights")

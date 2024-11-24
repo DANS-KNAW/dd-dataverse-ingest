@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package nl.knaw.dans.dvingest.core.service;
+package nl.knaw.dans.dvingest.core.dansbag;
 
 import nl.knaw.dans.ingest.core.domain.Deposit;
 import nl.knaw.dans.ingest.core.exception.InvalidDepositException;
