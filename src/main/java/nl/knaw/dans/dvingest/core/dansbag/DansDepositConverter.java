@@ -17,6 +17,7 @@ package nl.knaw.dans.dvingest.core.dansbag;
 
 import lombok.AllArgsConstructor;
 import nl.knaw.dans.dvingest.core.service.YamlService;
+import nl.knaw.dans.dvingest.core.yaml.EditFilesRoot;
 import nl.knaw.dans.dvingest.core.yaml.UpdateState;
 import nl.knaw.dans.ingest.core.domain.Deposit;
 import org.apache.commons.lang3.StringUtils;
@@ -30,21 +31,13 @@ public class DansDepositConverter {
     private final YamlService yamlService;
 
     public void run() throws IOException {
-        var dataset = mappingService.getDatasetMetadataFromDansDeposit(dansDeposit);
-        var version = dataset.getDatasetVersion();
-        version.setFileAccessRequest(dansDeposit.allowAccessRequests());
+        // TODO: Create original-metadata.zip
 
-        // TODO: when processing an update-deposit, retriever terms of access from the previous version
-        if (!dansDeposit.allowAccessRequests() && StringUtils.isBlank(version.getTermsOfAccess())) {
-            version.setTermsOfAccess("N/a");
-        }
+        var dataset = mappingService.getDatasetMetadataFromDansDeposit(dansDeposit);
         yamlService.writeYaml(dataset, dansDeposit.getBagDir().resolve("dataset.yml"));
 
-
-        // Get the restricted files
-//        var restrictedFiles = mappingService.getRestrictedFiles(dansDeposit);
-
-
+        var editFiles = mappingService.getEditFilesFromDansDeposit(dansDeposit);
+        yamlService.writeYaml(new EditFilesRoot(editFiles), dansDeposit.getBagDir().resolve("edit-files.yml"));
 
         var updateState = new UpdateState();
         updateState.setAction("publish-major");

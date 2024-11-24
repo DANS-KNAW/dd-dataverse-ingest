@@ -41,6 +41,7 @@ import java.nio.file.Path;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
+import java.util.regex.Pattern;
 
 public class DdDataverseIngestApplication extends Application<DdDataverseIngestConfiguration> {
     public static void main(final String[] args) throws Exception {
@@ -98,7 +99,7 @@ public class DdDataverseIngestApplication extends Application<DdDataverseIngestC
                 Collections.emptyMap(),
                 List.of(),
                 false);
-            return new DansBagMappingServiceImpl(mapper, dataverseService, new SupportedLicenses(dataverseService));
+            return new DansBagMappingServiceImpl(mapper, dataverseService, new SupportedLicenses(dataverseService), Pattern.compile("a^"));
         }
         catch (IOException e) {
             throw new IllegalStateException("Failed to read configuration files", e);

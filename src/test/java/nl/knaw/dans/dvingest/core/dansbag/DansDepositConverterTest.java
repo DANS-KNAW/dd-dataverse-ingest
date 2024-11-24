@@ -52,6 +52,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.regex.Pattern;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -90,7 +91,7 @@ public class DansDepositConverterTest extends TestDirFixture {
             List.of(),
             false);
         var supportedLicenses = new SupportedLicenses(licenses("http://opensource.org/licenses/MIT"));
-        mappingService = new DansBagMappingServiceImpl(mapper, dataverseServiceMock, supportedLicenses);
+        mappingService = new DansBagMappingServiceImpl(mapper, dataverseServiceMock, supportedLicenses, Pattern.compile("a^")); // never match
 
         Mockito.reset(dataverseServiceMock);
     }
