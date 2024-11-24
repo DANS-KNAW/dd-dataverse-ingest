@@ -25,12 +25,14 @@ import nl.knaw.dans.lib.dataverse.model.dataset.MetadataField;
 import nl.knaw.dans.lib.dataverse.model.dataset.UpdateType;
 import nl.knaw.dans.lib.dataverse.model.file.FileMeta;
 import nl.knaw.dans.lib.dataverse.model.user.AuthenticatedUser;
+import org.checkerframework.checker.nullness.qual.NonNull;
 
 import java.io.IOException;
 import java.net.URI;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 public interface DataverseService {
 
@@ -63,4 +65,6 @@ public interface DataverseService {
     Optional<AuthenticatedUser> getUserById(String userId);
 
     List<License> getSupportedLicenses() throws IOException, DataverseException;
+
+    Set<String> getActiveMetadataBlockNames() throws IOException, DataverseException;
 }

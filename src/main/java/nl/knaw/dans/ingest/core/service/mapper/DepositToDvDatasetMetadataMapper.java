@@ -113,9 +113,8 @@ public class DepositToDvDatasetMetadataMapper {
     @NonNull
     private final List<String> skipFields;
 
-    private final boolean isMigration;
-
     public Dataset toDataverseDataset(
+        boolean isMigration,
         @NonNull Document ddm,
         @Nullable String otherDoiId,
         @Nullable String dateOfDeposit,

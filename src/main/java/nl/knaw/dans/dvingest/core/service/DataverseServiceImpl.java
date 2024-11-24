@@ -28,6 +28,7 @@ import nl.knaw.dans.lib.dataverse.model.dataset.DatasetVersion;
 import nl.knaw.dans.lib.dataverse.model.dataset.FieldList;
 import nl.knaw.dans.lib.dataverse.model.dataset.FileList;
 import nl.knaw.dans.lib.dataverse.model.dataset.License;
+import nl.knaw.dans.lib.dataverse.model.dataset.MetadataBlockSummary;
 import nl.knaw.dans.lib.dataverse.model.dataset.MetadataField;
 import nl.knaw.dans.lib.dataverse.model.dataset.UpdateType;
 import nl.knaw.dans.lib.dataverse.model.file.FileMeta;
@@ -40,6 +41,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Builder
 @Slf4j
@@ -153,6 +156,16 @@ public class DataverseServiceImpl implements DataverseService {
         return dataverseClient.license().getLicenses().getData().stream()
             // We need to map from one license class to another, because they have different fields
             .map(license -> new License(license.getName(), URI.create(license.getUri()), URI.create(license.getIconUrl()))).toList();
+    }
+
+    @Override
+    public Set<String> getActiveMetadataBlockNames() throws IOException, DataverseException {
+        return dataverseClient.dataverse("root")
+            .listMetadataBlocks()
+            .getData()
+            .stream()
+            .map(MetadataBlockSummary::getName)
+            .collect(Collectors.toSet());
     }
 
     // TODO: move this to dans-dataverse-client-lib; it is similar to awaitLockState.

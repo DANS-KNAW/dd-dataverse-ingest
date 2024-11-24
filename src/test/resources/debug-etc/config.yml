@@ -1,4 +1,10 @@
+#
+# dd-dataverse-ingest configuration file
+#
 
+#
+# See https://www.dropwizard.io/en/latest/manual/configuration.html#server
+#
 server:
   applicationContextPath: /
   adminContextPath: /
@@ -9,6 +15,9 @@ server:
     - type: http
       port: 20361
 
+#
+# Parameters related to communication with the Dataverse instance
+#
 dataverse:
   baseUrl: 'http://dev.archaeology.datastations.nl:8080'
   apiKey: 'changeme'
@@ -22,15 +31,71 @@ dataverse:
     timeToLive: 1h
     retries: 2
     userAgent: dd-dataverse-ingest
-
+#
+# Settings related to ingest services.
+#
 ingest:
+  # Deposits dropped in the inbox will automatically be picked up and processed by the ingest service.
+  autoIngest:
+    inbox: data/auto-ingest/inbox
+    outbox: data/auto-ingest/outbox
+  # Import of migration deposits. This area is used to migrate datasets from EASY to Dataverse and differs from import only in the way the DANS deposits are converted
+  # to Dataverse Ingest deposits.
+  migration:
+    inbox: data/migration/deposits
+    outbox: data/tmp/migration/out
+  # Import of deposits. This area is used for manual bulk imports of deposits.
   import:
-    inbox: data/imports/inbox
-    outbox: data/imports/outbox
+    inbox: data/import/inbox
+    outbox: data/import/outbox
   tempDir: data/tmp
+  #
+  # If some of the metadata blocks are secured with a secret key, the key must be included in the metadataKeys map below, as follows:
+  #
+  # metadataKeys:
+  #    <metadata-block-name>: '<secret-key-value>'
+  #
+  metadataKeys:
+    dansDataVaultMetadata: password_vault_metadata
+  #
+  # The maximum number of files that the service will upload in a single batch. If :ZipUploadFilesLimit is set to a lower number than this,
+  # the lower number will be used, so that Dataverse will not include the batch as one zip file in the dataset instead of unpacking it.
+  #
+  # See: https://guides.dataverse.org/en/latest/installation/config.html#zipuploadfileslimit
+  #
+  maxNumberOfFilesPerUploadBatch: 1000
   waitForReleasedState:
-    maxNumberOfRetries: 30
-    timeBetweenChecks: 3s
+    # 10s * 360 = 1 hour
+    maxNumberOfRetries: 360
+    timeBetweenChecks: 2s
+
+#
+# Settings related to the conversion of deposits from the legacy format to the format used by the ingest service. Set to null to disable.
+#
+dansDepositConversion:
+  #
+  # Filtering. Files with a path matching the pattern will not be added to the dataset. Renaming/moving files is not affected.
+  # By default, no files are excluded.
+  #
+  fileExclusionPattern:
+
+  #
+  # Map from depositor.userId to organization name. Used to fill in the dansDataSupplier metadata field. If there is no
+  # entry for a depositor, dansDataSupplier will be left empty.
+  #
+  dataSuppliers:
+  # user001: The Organization Name
+
+  #
+  # If true, try to deduplicate multi-value metadata fields. If false, do not deduplicate.
+  #
+  deduplicate: false
+
+  #
+  # The directory where various metadata term mappings are stored.
+  #
+  mappingDefsDir: etc/
+
 
 #
 # See https://www.dropwizard.io/en/latest/manual/configuration.html#logging
@@ -43,7 +108,8 @@ logging:
 
     - type: file
       archive: false
+      timeZone: system
       currentLogFilename: data/dd-dataverse-ingest.log
   loggers:
-    'nl.knaw.dans': DEBUG
+    'nl.knaw.dans.dvingest': 'DEBUG'
     'org.hibernate.engine.internal.StatisticalLoggingSessionEventListener': 'OFF'

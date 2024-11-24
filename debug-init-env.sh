@@ -15,10 +15,15 @@
 # limitations under the License.
 #
 
-echo -n "Pre-creating log..."
+echo -n "Creating directories..."
 TEMPDIR=data
-mkdir -p $TEMPDIR/imports/inbox
-mkdir -p $TEMPDIR/imports/outbox
-mkdir -p $TEMPDIR/temp
+mkdir -p $TEMPDIR/auto-ingest/inbox
+mkdir -p $TEMPDIR/auto-ingest/outbox
+mkdir -p $TEMPDIR/migration/deposits
+mkdir -p $TEMPDIR/migration/out
+mkdir -p $TEMPDIR/import/inbox
+mkdir -p $TEMPDIR/import/outbox
+mkdir -p $TEMPDIR/tmp
+echo -n "Pre-creating log..."
 touch $TEMPDIR/dd-dataverse-ingest.log
 echo "OK"

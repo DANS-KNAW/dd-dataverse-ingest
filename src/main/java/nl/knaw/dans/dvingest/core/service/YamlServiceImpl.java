@@ -31,6 +31,7 @@ import nl.knaw.dans.dvingest.core.yaml.EditPermissionsRoot;
 import nl.knaw.dans.dvingest.core.yaml.UpdateState;
 import nl.knaw.dans.lib.dataverse.MetadataFieldDeserializer;
 import nl.knaw.dans.lib.dataverse.model.dataset.Dataset;
+import nl.knaw.dans.lib.dataverse.model.dataset.MetadataBlockSummary;
 import nl.knaw.dans.lib.dataverse.model.dataset.MetadataField;
 import nl.knaw.dans.lib.dataverse.model.file.FileMeta;
 
@@ -42,7 +43,7 @@ import java.util.Map;
 
 @Slf4j
 public class YamlServiceImpl implements YamlService {
-    private ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
+    private final ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
     private final Map<Class<?>, YamlConfigurationFactory<?>> yamlConfigurationFactories = new HashMap<>();
 
     /**

@@ -28,10 +28,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 public class DdDataverseIngestConfigurationTest {
 
-    @Test
-    public void default_configuration_can_be_parsed() throws Exception {
-        var defaultConfigFile = Path.of("src/main/assembly/dist/cfg/config.yml").toFile();
-
+    private DdDataverseIngestConfiguration parseConfigurationFile(String configFile) throws Exception {
         try (var validatorFactory = Validation.buildDefaultValidatorFactory()) {
             ConfigurationFactory<DdDataverseIngestConfiguration> factory =
                 new YamlConfigurationFactory<>(DdDataverseIngestConfiguration.class,
@@ -39,8 +36,21 @@ public class DdDataverseIngestConfigurationTest {
                     Jackson.newObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, true),
                     "dw");
 
-            DdDataverseIngestConfiguration configuration = factory.build(defaultConfigFile);
-            assertNotNull(configuration);
+            return factory.build(Path.of(configFile).toFile());
         }
+    }
+
+    @Test
+    public void default_configuration_can_be_parsed() throws Exception {
+        var defaultConfigFile = Path.of("src/main/assembly/dist/cfg/config.yml").toFile();
+        DdDataverseIngestConfiguration configuration = parseConfigurationFile(defaultConfigFile.getAbsolutePath());
+        assertNotNull(configuration);
+    }
+
+    @Test
+    public void debug_etc_configuration_can_be_parsed() throws Exception {
+        var devConfigFile = Path.of("src/test/resources/debug-etc/config.yml").toFile();
+        DdDataverseIngestConfiguration configuration = parseConfigurationFile(devConfigFile.getAbsolutePath());
+        assertNotNull(configuration);
     }
 }

@@ -88,8 +88,7 @@ public class DansDepositConverterTest extends TestDirFixture {
             MappingLoader.builder().csvFile(defaultConfigDir.resolve("abr-period-code-to-term.csv")).keyColumn("code").valueColumn("subject").build().load(),
             FileUtils.readLines(defaultConfigDir.resolve("spatial-coverage-country-terms.txt").toFile(), StandardCharsets.UTF_8),
             Collections.emptyMap(),
-            List.of(),
-            false);
+            List.of());
         var supportedLicenses = new SupportedLicenses(licenses("http://opensource.org/licenses/MIT"));
         mappingService = new DansBagMappingServiceImpl(mapper, dataverseServiceMock, supportedLicenses, Pattern.compile("a^")); // never match
 

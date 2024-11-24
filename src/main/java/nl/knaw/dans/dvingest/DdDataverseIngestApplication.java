@@ -19,6 +19,8 @@ package nl.knaw.dans.dvingest;
 import io.dropwizard.core.Application;
 import io.dropwizard.core.setup.Bootstrap;
 import io.dropwizard.core.setup.Environment;
+import lombok.extern.slf4j.Slf4j;
+import nl.knaw.dans.dvingest.config.DansDepositConversionConfig;
 import nl.knaw.dans.dvingest.config.DdDataverseIngestConfiguration;
 import nl.knaw.dans.dvingest.core.IngestArea;
 import nl.knaw.dans.dvingest.core.MappingLoader;
@@ -37,20 +39,19 @@ import org.apache.commons.io.FileUtils;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Path;
-import java.util.Collections;
 import java.util.List;
-import java.util.Set;
 import java.util.regex.Pattern;
 
+@Slf4j
 public class DdDataverseIngestApplication extends Application<DdDataverseIngestConfiguration> {
+
     public static void main(final String[] args) throws Exception {
         new DdDataverseIngestApplication().run(args);
     }
 
     @Override
     public String getName() {
-        return "Dd Dataverse Ingest";
+        return "DD Dataverse Ingest";
     }
 
     @Override
@@ -71,34 +72,41 @@ public class DdDataverseIngestApplication extends Application<DdDataverseIngestC
             .tempDir(configuration.getIngest().getTempDir())
             .maxNumberOfFilesPerUpload(configuration.getIngest().getMaxNumberOfFilesPerUploadBatch())
             .build();
-        var importArea = IngestArea.builder()
+        var importAreaBuilder = IngestArea.builder()
             .executorService(environment.lifecycle().executorService("import").minThreads(1).maxThreads(1).build())
             .dataverseService(dataverseService)
             .utilityServices(utilityServices)
-            // TODO: read config dir from configuration
-            .dansBagMappingService(createDansBagMappingService(Path.of("src/main/assembly/dist/cfg"), dataverseService))
             .inbox(configuration.getIngest().getImportConfig().getInbox())
-            .outbox(configuration.getIngest().getImportConfig().getOutbox()).build();
+            .outbox(configuration.getIngest().getImportConfig().getOutbox());
+        if (configuration.getDansDepositConversion() == null) {
+            log.info("DANS Deposit conversion is disabled");
+        }
+        else {
+            importAreaBuilder.dansBagMappingService(createDansBagMappingService(configuration.getDansDepositConversion(), dataverseService));
+        }
+        var importArea = importAreaBuilder.build();
         environment.jersey().register(new IngestApiResource(importArea));
         environment.jersey().register(new IllegalArgumentExceptionMapper());
     }
 
-    private DansBagMappingService createDansBagMappingService(Path defaultConfigDir, DataverseService dataverseService) {
+    private DansBagMappingService createDansBagMappingService(DansDepositConversionConfig dansDepositConversionConfig, DataverseService dataverseService) {
+        log.info("Configuring DANS Deposit conversion");
         try {
+            var mappingDefsDir = dansDepositConversionConfig.getMappingDefsDir();
+
             var mapper = new DepositToDvDatasetMetadataMapper(
-                false, // Always false ?
-                Set.of("citation", "dansRights", "dansRelationMetadata", "dansArchaeologyMetadata", "dansTemporalSpatial", "dansDataVaultMetadata"),
-                MappingLoader.builder().csvFile(defaultConfigDir.resolve("iso639-1-to-dv.csv")).keyColumn("ISO639-1").valueColumn("Dataverse-language").build().load(),
-                MappingLoader.builder().csvFile(defaultConfigDir.resolve("iso639-2-to-dv.csv")).keyColumn("ISO639-2").valueColumn("Dataverse-language").build().load(),
-                MappingLoader.builder().csvFile(defaultConfigDir.resolve("abr-report-code-to-term.csv")).keyColumn("code").valueColumn("subject").build().load(),
-                MappingLoader.builder().csvFile(defaultConfigDir.resolve("verwervingswijzen-code-to-term.csv")).keyColumn("code").valueColumn("subject").build().load(),
-                MappingLoader.builder().csvFile(defaultConfigDir.resolve("abr-complextype-code-to-term.csv")).keyColumn("code").valueColumn("subject").build().load(),
-                MappingLoader.builder().csvFile(defaultConfigDir.resolve("abr-artifact-code-to-term.csv")).keyColumn("code").valueColumn("subject").build().load(),
-                MappingLoader.builder().csvFile(defaultConfigDir.resolve("abr-period-code-to-term.csv")).keyColumn("code").valueColumn("subject").build().load(),
-                FileUtils.readLines(defaultConfigDir.resolve("spatial-coverage-country-terms.txt").toFile(), StandardCharsets.UTF_8),
-                Collections.emptyMap(),
-                List.of(),
-                false);
+                dansDepositConversionConfig.isDeduplicate(),
+                dataverseService.getActiveMetadataBlockNames(),
+                MappingLoader.builder().csvFile(mappingDefsDir.resolve("iso639-1-to-dv.csv")).keyColumn("ISO639-1").valueColumn("Dataverse-language").build().load(),
+                MappingLoader.builder().csvFile(mappingDefsDir.resolve("iso639-2-to-dv.csv")).keyColumn("ISO639-2").valueColumn("Dataverse-language").build().load(),
+                MappingLoader.builder().csvFile(mappingDefsDir.resolve("abr-report-code-to-term.csv")).keyColumn("code").valueColumn("subject").build().load(),
+                MappingLoader.builder().csvFile(mappingDefsDir.resolve("verwervingswijzen-code-to-term.csv")).keyColumn("code").valueColumn("subject").build().load(),
+                MappingLoader.builder().csvFile(mappingDefsDir.resolve("abr-complextype-code-to-term.csv")).keyColumn("code").valueColumn("subject").build().load(),
+                MappingLoader.builder().csvFile(mappingDefsDir.resolve("abr-artifact-code-to-term.csv")).keyColumn("code").valueColumn("subject").build().load(),
+                MappingLoader.builder().csvFile(mappingDefsDir.resolve("abr-period-code-to-term.csv")).keyColumn("code").valueColumn("subject").build().load(),
+                FileUtils.readLines(mappingDefsDir.resolve("spatial-coverage-country-terms.txt").toFile(), StandardCharsets.UTF_8),
+                dansDepositConversionConfig.getDataSuppliers(),
+                dansDepositConversionConfig.getSkipFields());
             return new DansBagMappingServiceImpl(mapper, dataverseService, new SupportedLicenses(dataverseService), Pattern.compile("a^"));
         }
         catch (IOException e) {
@@ -108,5 +116,4 @@ public class DdDataverseIngestApplication extends Application<DdDataverseIngestC
             throw new IllegalStateException("Failed to read supported licenses", e);
         }
     }
-
 }

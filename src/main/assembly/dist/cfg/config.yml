@@ -81,7 +81,7 @@ dansDepositConversion:
   # Map from depositor.userId to organization name. Used to fill in the dansDataSupplier metadata field. If there is no
   # entry for a depositor, dansDataSupplier will be left empty.
   #
-  dataSuppliers:
+  dataSuppliers: { }
   # user001: The Organization Name
 
   #
@@ -93,6 +93,13 @@ dansDepositConversion:
   # The directory where various metadata term mappings are stored.
   #
   mappingDefsDir: /etc/opt/dans.knaw.nl/dd-dataverse-ingest
+
+  #
+  # List of fields to skip, even when they are in active metadata blocks. This can be used if hidden fields in active metadata blocks are the target of a mapping. Normally, the mapping
+  # would be applied to the hidden field. This leads to values that are displayed but cannot be edited (the normal Dataverse behavior for hidden fields). In cases where this is not desired,
+  # the field can be skipped by adding it to the list below.
+  #
+  skipFields: [ ]
 
 
 #

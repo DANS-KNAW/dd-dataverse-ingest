@@ -79,7 +79,9 @@ public class DansBagMappingServiceImpl implements DansBagMappingService {
 
     @Override
     public Dataset getDatasetMetadataFromDansDeposit(Deposit dansDeposit) {
-        var dataset = depositToDvDatasetMetadataMapper.toDataverseDataset(dansDeposit.getDdm(),
+        var dataset = depositToDvDatasetMetadataMapper.toDataverseDataset(
+            false, // TODO: handle migration case
+            dansDeposit.getDdm(),
             dansDeposit.getOtherDoiId(),
             getDateOfDeposit(dansDeposit).orElse(null),
             getDatasetContact(dansDeposit).orElse(null), // But null is never actually used, because an exception is thrown if contact is not found

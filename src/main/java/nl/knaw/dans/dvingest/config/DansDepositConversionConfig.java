@@ -20,6 +20,7 @@ import lombok.NonNull;
 
 import javax.validation.constraints.NotNull;
 import java.nio.file.Path;
+import java.util.List;
 import java.util.Map;
 
 @Data
@@ -32,4 +33,6 @@ public class DansDepositConversionConfig {
 
     @NotNull
     private Path mappingDefsDir;
+
+    private List<String> skipFields = List.of();
 }
