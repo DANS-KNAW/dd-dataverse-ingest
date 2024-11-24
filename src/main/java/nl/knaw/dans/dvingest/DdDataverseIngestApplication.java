@@ -69,7 +69,7 @@ public class DdDataverseIngestApplication extends Application<DdDataverseIngestC
             .build();
         var utilityServices = UtilityServicesImpl.builder()
             .tempDir(configuration.getIngest().getTempDir())
-            .maxNumberOfFilesPerUpload(configuration.getIngest().getMaxNumberOfFilesPerUpload())
+            .maxNumberOfFilesPerUpload(configuration.getIngest().getMaxNumberOfFilesPerUploadBatch())
             .build();
         var importArea = IngestArea.builder()
             .executorService(environment.lifecycle().executorService("import").minThreads(1).maxThreads(1).build())

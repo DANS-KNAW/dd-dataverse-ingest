@@ -28,13 +28,19 @@ import java.util.Map;
 public class IngestConfig {
 
     @Valid
+    private IngestAreaConfig autoIngest;
+
+    @Valid
+    private IngestAreaConfig migration;
+
+    @Valid
     @JsonProperty("import")
     private IngestAreaConfig importConfig;
 
     // If null, use the standard temp directory
     private Path tempDir;
 
-    private int maxNumberOfFilesPerUpload = 1000;
+    private int maxNumberOfFilesPerUploadBatch = 1000;
 
     private Map<String, String> metadataKeys = new HashMap<>();
 

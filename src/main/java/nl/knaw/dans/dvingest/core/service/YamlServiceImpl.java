@@ -17,6 +17,7 @@ package nl.knaw.dans.dvingest.core.service;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
@@ -65,6 +66,7 @@ public class YamlServiceImpl implements YamlService {
             SimpleModule module = new SimpleModule();
             module.addDeserializer(MetadataField.class, new MetadataFieldDeserializer());
             mapper.setSerializationInclusion(Include.NON_NULL);
+            mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, true);
             mapper.addMixIn(FileMeta.class, FileMetaMixin.class);
             mapper.registerModule(module);
             yamlConfigurationFactories.put(Dataset.class, new YamlConfigurationFactory<>(Dataset.class, factory.getValidator(), mapper, "dw"));
