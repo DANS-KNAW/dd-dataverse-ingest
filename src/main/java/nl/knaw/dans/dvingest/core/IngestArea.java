@@ -15,6 +15,7 @@
  */
 package nl.knaw.dans.dvingest.core;
 
+import io.dropwizard.lifecycle.Managed;
 import lombok.Builder;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
@@ -26,8 +27,8 @@ import nl.knaw.dans.dvingest.core.service.DataverseService;
 import nl.knaw.dans.dvingest.core.service.UtilityServices;
 import nl.knaw.dans.dvingest.core.service.YamlService;
 import nl.knaw.dans.dvingest.core.service.YamlServiceImpl;
+import nl.knaw.dans.lib.util.inbox.Inbox;
 
-import java.io.IOException;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
@@ -35,8 +36,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 
 @Slf4j
-@Builder
-public class IngestArea {
+public class IngestArea  {
     @NonNull
     private final ExecutorService executorService;
     @NonNull
@@ -48,24 +48,29 @@ public class IngestArea {
     @NonNull
     private final Path inbox;
     @NonNull
-    private final Path outbox;
+    protected final Path outbox;
 
     private final Map<String, ImportJob> importJobs = new ConcurrentHashMap<>();
-    private final YamlService yamlService = new YamlServiceImpl();
 
-    private IngestArea(ExecutorService executorService, DataverseService dataverseService, UtilityServices utilityServices, DansBagMappingService dansBagMappingService, Path inbox, Path outbox) {
+    @NonNull
+    private final YamlService yamlService;
+
+    @Builder
+    protected IngestArea(ExecutorService executorService, DataverseService dataverseService, UtilityServices utilityServices, DansBagMappingService dansBagMappingService, YamlService yamlService, Path inbox, Path outbox) {
         try {
             this.executorService = executorService;
             this.dataverseService = dataverseService;
             this.utilityServices = utilityServices;
             this.dansBagMappingService = dansBagMappingService;
+            this.yamlService = yamlService;
             this.inbox = inbox.toAbsolutePath().toRealPath();
             this.outbox = outbox.toAbsolutePath().toRealPath();
         }
-        catch (IOException e) {
+        catch (Exception e) {
             throw new IllegalStateException("Failed to create ingest area", e);
         }
     }
+
 
     public void submit(ImportCommandDto importCommand) {
         log.debug("Received import command: {}", importCommand);

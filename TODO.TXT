@@ -14,10 +14,8 @@
     limitations under the License.
 ====
 
-- log updateMetadata begin/einde apart.
 - regel de upload-batch grootte naar beneden als :ZipUploadFilesLimit kleiner is dan de ingest batch grootte
 - implement setting embargo
-- implement setting request access permission
 - implement canceling a job
 - bag validation
 - health check: Dataverse

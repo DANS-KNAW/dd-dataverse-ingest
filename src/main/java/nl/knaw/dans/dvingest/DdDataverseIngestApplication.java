@@ -22,6 +22,8 @@ import io.dropwizard.core.setup.Environment;
 import lombok.extern.slf4j.Slf4j;
 import nl.knaw.dans.dvingest.config.DansDepositConversionConfig;
 import nl.knaw.dans.dvingest.config.DdDataverseIngestConfiguration;
+import nl.knaw.dans.dvingest.config.IngestAreaConfig;
+import nl.knaw.dans.dvingest.core.AutoIngestArea;
 import nl.knaw.dans.dvingest.core.IngestArea;
 import nl.knaw.dans.dvingest.core.MappingLoader;
 import nl.knaw.dans.dvingest.core.dansbag.DansBagMappingService;
@@ -30,6 +32,7 @@ import nl.knaw.dans.dvingest.core.dansbag.SupportedLicenses;
 import nl.knaw.dans.dvingest.core.service.DataverseService;
 import nl.knaw.dans.dvingest.core.service.DataverseServiceImpl;
 import nl.knaw.dans.dvingest.core.service.UtilityServicesImpl;
+import nl.knaw.dans.dvingest.core.service.YamlServiceImpl;
 import nl.knaw.dans.dvingest.resources.DefaultApiResource;
 import nl.knaw.dans.dvingest.resources.IllegalArgumentExceptionMapper;
 import nl.knaw.dans.dvingest.resources.IngestApiResource;
@@ -39,7 +42,6 @@ import org.apache.commons.io.FileUtils;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.util.List;
 import java.util.regex.Pattern;
 
 @Slf4j
@@ -60,7 +62,7 @@ public class DdDataverseIngestApplication extends Application<DdDataverseIngestC
 
     @Override
     public void run(final DdDataverseIngestConfiguration configuration, final Environment environment) {
-        environment.jersey().register(new DefaultApiResource());
+        // Create service components
         var dataverseClient = configuration.getDataverse().build();
         var dataverseService = DataverseServiceImpl.builder()
             .dataverseClient(dataverseClient)
@@ -72,24 +74,39 @@ public class DdDataverseIngestApplication extends Application<DdDataverseIngestC
             .tempDir(configuration.getIngest().getTempDir())
             .maxNumberOfFilesPerUpload(configuration.getIngest().getMaxNumberOfFilesPerUploadBatch())
             .build();
-        var importAreaBuilder = IngestArea.builder()
+        var dansBagMappingService = createDansBagMappingService(configuration.getDansDepositConversion(), dataverseService);
+        var yamlService = new YamlServiceImpl();
+        IngestAreaConfig ingestAreaConfig = configuration.getIngest().getImportConfig();
+        var importArea = IngestArea.builder()
             .executorService(environment.lifecycle().executorService("import").minThreads(1).maxThreads(1).build())
             .dataverseService(dataverseService)
             .utilityServices(utilityServices)
-            .inbox(configuration.getIngest().getImportConfig().getInbox())
-            .outbox(configuration.getIngest().getImportConfig().getOutbox());
-        if (configuration.getDansDepositConversion() == null) {
-            log.info("DANS Deposit conversion is disabled");
-        }
-        else {
-            importAreaBuilder.dansBagMappingService(createDansBagMappingService(configuration.getDansDepositConversion(), dataverseService));
-        }
-        var importArea = importAreaBuilder.build();
+            .yamlService(yamlService)
+            .inbox(ingestAreaConfig.getInbox())
+            .outbox(ingestAreaConfig.getOutbox())
+            .dansBagMappingService(dansBagMappingService).build();
+        var autoIngestArea = AutoIngestArea.autoIngestAreaBuilder()
+            .inbox(configuration.getIngest().getAutoIngest().getInbox())
+            .outbox(configuration.getIngest().getAutoIngest().getOutbox())
+            .dansBagMappingService(dansBagMappingService)
+            .dataverseService(dataverseService)
+            .utilityServices(utilityServices)
+            .yamlService(yamlService)
+            .executorService(environment.lifecycle().executorService("auto-ingest").minThreads(1).maxThreads(1).build())
+            .build();
+
+        // Connect components
+        environment.jersey().register(new DefaultApiResource());
         environment.jersey().register(new IngestApiResource(importArea));
+        environment.lifecycle().manage(autoIngestArea);
         environment.jersey().register(new IllegalArgumentExceptionMapper());
     }
 
     private DansBagMappingService createDansBagMappingService(DansDepositConversionConfig dansDepositConversionConfig, DataverseService dataverseService) {
+        if (dansDepositConversionConfig == null) {
+            log.info("DANS Deposit conversion is disabled");
+            return null;
+        }
         log.info("Configuring DANS Deposit conversion");
         try {
             var mappingDefsDir = dansDepositConversionConfig.getMappingDefsDir();
