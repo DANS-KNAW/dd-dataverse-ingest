@@ -120,6 +120,12 @@
             <artifactId>mockito-core</artifactId>
             <scope>test</scope>
         </dependency>
+        <!-- Include OpenAPI definition as depencency, so that Maven will check for release version during release process -->
+        <dependency>
+            <groupId>nl.knaw.dans</groupId>
+            <artifactId>dd-dataverse-ingest-api</artifactId>
+            <version>${dd-dataverse-ingest-api.version}</version>
+        </dependency>
 
         <!-- dd-ingest-flow -->
         <dependency>
