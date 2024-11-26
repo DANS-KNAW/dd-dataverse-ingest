@@ -76,24 +76,24 @@ public class ImportJob implements Runnable {
             status.setStatus(StatusEnum.RUNNING);
             status.setPath(importCommand.getPath());
             status.setSingleObject(importCommand.getSingleObject());
-            var deposits = new TreeSet<Deposit>();
+            var deposits = new TreeSet<DataverseIngestDeposit>();
 
             if (importCommand.getSingleObject()) {
-                deposits.add(new Deposit(Path.of(importCommand.getPath()), yamlService));
+                deposits.add(new DataverseIngestDeposit(Path.of(importCommand.getPath()), yamlService));
             }
             else {
                 try (var depositPaths = Files.list(Path.of(importCommand.getPath()))) {
-                    depositPaths.filter(Files::isDirectory).sorted().forEach(p -> deposits.add(new Deposit(p, yamlService)));
+                    depositPaths.filter(Files::isDirectory).sorted().forEach(p -> deposits.add(new DataverseIngestDeposit(p, yamlService)));
                 }
             }
 
             initOutputDir();
 
-            for (Deposit deposit : deposits) {
-                log.info("START Processing deposit: {}", deposit.getId());
-                var task = new DepositTask(deposit, outputDir, onlyConvertDansDeposit, dataverseService, utilityServices, dansBagMappingService, yamlService);
+            for (DataverseIngestDeposit dataverseIngestDeposit : deposits) {
+                log.info("START Processing deposit: {}", dataverseIngestDeposit.getId());
+                var task = new DepositTask(dataverseIngestDeposit, outputDir, onlyConvertDansDeposit, dataverseService, utilityServices, dansBagMappingService, yamlService);
                 task.run();
-                log.info("END Processing deposit: {}", deposit.getId());
+                log.info("END Processing deposit: {}", dataverseIngestDeposit.getId());
                 // TODO: record number of processed/rejected/failed deposits in ImportJob status
             }
 

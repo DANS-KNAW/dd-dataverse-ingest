@@ -18,8 +18,8 @@ package nl.knaw.dans.dvingest.core;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import nl.knaw.dans.dvingest.core.bagprocessor.BagProcessor;
-import nl.knaw.dans.dvingest.core.dansbag.DansDepositConverter;
 import nl.knaw.dans.dvingest.core.dansbag.DansBagMappingService;
+import nl.knaw.dans.dvingest.core.dansbag.DansDepositSupport;
 import nl.knaw.dans.dvingest.core.service.DataverseService;
 import nl.knaw.dans.dvingest.core.service.UtilityServices;
 import nl.knaw.dans.dvingest.core.service.YamlService;
@@ -41,42 +41,33 @@ public class DepositTask implements Runnable {
     private final boolean onlyConvertDansDeposit;
     private final DataverseService dataverseService;
     private final UtilityServices utilityServices;
-    private final DansBagMappingService dansBagMappingService;
-    private final YamlService yamlService;
 
     @Getter
     private Status status = Status.TODO;
 
-    public DepositTask(Deposit deposit, Path outputDir, boolean onlyConvertDansDeposit, DataverseService dataverseService, UtilityServices utilityServices, DansBagMappingService dansBagMappingService,
+    public DepositTask(DataverseIngestDeposit dataverseIngestDeposit, Path outputDir, boolean onlyConvertDansDeposit, DataverseService dataverseService, UtilityServices utilityServices,
+        DansBagMappingService dansBagMappingService,
         YamlService yamlService) {
-        this.deposit = deposit;
+        this.deposit = dansBagMappingService == null ? dataverseIngestDeposit : new DansDepositSupport(dataverseIngestDeposit, dansBagMappingService, yamlService);
         this.dataverseService = dataverseService;
         this.onlyConvertDansDeposit = onlyConvertDansDeposit;
         this.utilityServices = utilityServices;
         this.outputDir = outputDir;
-        this.dansBagMappingService = dansBagMappingService;
-        this.yamlService = yamlService;
     }
 
     @Override
     public void run() {
+        nl.knaw.dans.ingest.core.domain.Deposit dansDeposit = null;
         try {
-            String pid = deposit.getUpdatesDataset();
+            if (deposit.convertDansDepositIfNeeded() && onlyConvertDansDeposit) {
+                log.info("Only converting DANS deposit, LEAVING CONVERTED DEPOSIT IN PLACE");
+                return;
+            }
+
+            String pid = deposit.getUpdatesDataset(); // This will trigger the conversion of the deposit to a Dataverse ingest deposit if it is a DANS deposit
+
             for (DataverseIngestBag bag : deposit.getBags()) {
                 log.info("START processing deposit / bag: {} / {}", deposit.getId(), bag);
-                if (bag.looksLikeDansBag()) {
-                    log.info("Looks like a DANS bag, generating Dataverse ingest metadata");
-                    var dansDeposit = dansBagMappingService.readDansDeposit(deposit.getLocation());
-                    new DansDepositConverter(dansDeposit, dansBagMappingService, yamlService).run();
-                    log.info("Generated Dataverse ingest metadata");
-                }
-                else {
-                    log.info("Does not look like a DANS bag, skipping metadata generation");
-                }
-                if (onlyConvertDansDeposit) {
-                    log.info("Only converting DANS deposit, skipping ingest");
-                    continue;
-                }
                 pid = BagProcessor.builder()
                     .depositId(deposit.getId())
                     .bag(bag)
@@ -84,19 +75,15 @@ public class DepositTask implements Runnable {
                     .utilityServices(utilityServices)
                     .build()
                     .run(pid);
-
                 log.info("END processing deposit / bag: {} / {}", deposit.getId(), bag);
             }
-            if (onlyConvertDansDeposit) {
-                log.info("Only converted DANS deposits, LEAVING CONVERTED DEPOSITS IN PLACE");
-            }
-            else {
-                deposit.moveTo(outputDir.resolve("processed"));
-            }
+            deposit.onSuccess();
+            deposit.moveTo(outputDir.resolve("processed"));
         }
         catch (Exception e) {
             try {
                 log.error("Failed to ingest deposit", e);
+                deposit.onFailed();
                 deposit.moveTo(outputDir.resolve("failed"));
                 status = Status.FAILED;
             }

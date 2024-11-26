@@ -16,7 +16,6 @@
 package nl.knaw.dans.dvingest.core;
 
 import nl.knaw.dans.dvingest.core.service.YamlService;
-import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
@@ -28,7 +27,7 @@ import java.util.UUID;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
 
-public class DepositTest extends TestDirFixture {
+public class DataverseIngestDepositTest extends TestDirFixture {
     private final YamlService yamlServiceMock = Mockito.mock(YamlService.class);
 
     @Test
@@ -39,7 +38,7 @@ public class DepositTest extends TestDirFixture {
 
         // When
         // Then
-        assertThatIllegalStateException().isThrownBy(() -> new Deposit(depositDir, yamlServiceMock))
+        assertThatIllegalStateException().isThrownBy(() -> new DataverseIngestDeposit(depositDir, yamlServiceMock))
             .withMessage("Error loading deposit properties from " + depositDir.resolve("deposit.properties"));
 
     }
@@ -55,7 +54,7 @@ public class DepositTest extends TestDirFixture {
         props.store(Files.newBufferedWriter(depositDir.resolve("deposit.properties")), "");
 
         // When
-        var deposit = new Deposit(depositDir, yamlServiceMock);
+        var deposit = new DataverseIngestDeposit(depositDir, yamlServiceMock);
 
         // Then
         assertThat(deposit.getId()).isEqualTo(uuid);
@@ -87,9 +86,9 @@ public class DepositTest extends TestDirFixture {
         props3.setProperty("creation.timestamp", "2023-01-03T10:00:00Z");
         props3.store(Files.newBufferedWriter(dir3.resolve("deposit.properties")), "");
 
-        var deposit1 = new Deposit(dir1, yamlServiceMock);
-        var deposit2 = new Deposit(dir2, yamlServiceMock);
-        var deposit3 = new Deposit(dir3, yamlServiceMock);
+        var deposit1 = new DataverseIngestDeposit(dir1, yamlServiceMock);
+        var deposit2 = new DataverseIngestDeposit(dir2, yamlServiceMock);
+        var deposit3 = new DataverseIngestDeposit(dir3, yamlServiceMock);
 
         // When
         var deposits = new TreeSet<>();

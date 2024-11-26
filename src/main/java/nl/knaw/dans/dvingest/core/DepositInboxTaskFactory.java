@@ -35,7 +35,7 @@ public class DepositInboxTaskFactory implements InboxTaskFactory {
 
     @Override
     public Runnable createInboxTask(Path path) {
-        var deposit = new Deposit(path, yamlService);
+        var deposit = new DataverseIngestDeposit(path, yamlService);
         return new DepositTask(deposit, outputDir, onlyConvertDansDeposit, dataverseService, utilityServices, dansBagMappingService, yamlService);
     }
 }

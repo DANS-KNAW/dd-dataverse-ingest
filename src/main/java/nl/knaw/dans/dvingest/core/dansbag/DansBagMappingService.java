@@ -18,6 +18,7 @@ package nl.knaw.dans.dvingest.core.dansbag;
 import nl.knaw.dans.dvingest.core.yaml.EditFiles;
 import nl.knaw.dans.dvingest.core.yaml.EditPermissions;
 import nl.knaw.dans.ingest.core.domain.Deposit;
+import nl.knaw.dans.ingest.core.domain.DepositState;
 import nl.knaw.dans.ingest.core.exception.InvalidDepositException;
 import nl.knaw.dans.lib.dataverse.model.dataset.Dataset;
 
@@ -31,4 +32,6 @@ public interface DansBagMappingService {
     EditFiles getEditFilesFromDansDeposit(Deposit dansDeposit);
 
     EditPermissions getEditPermissionsFromDansDeposit(Deposit dansDeposit);
+
+    void updateDepositStatus(Deposit deposit, DepositState state);
 }

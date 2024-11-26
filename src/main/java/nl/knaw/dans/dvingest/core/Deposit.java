@@ -15,74 +15,25 @@
  */
 package nl.knaw.dans.dvingest.core;
 
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.NonNull;
-import lombok.ToString;
-import lombok.extern.slf4j.Slf4j;
-import nl.knaw.dans.dvingest.core.service.YamlService;
-
-import javax.validation.constraints.NotNull;
 import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
-import java.time.OffsetDateTime;
 import java.util.List;
-import java.util.Properties;
 import java.util.UUID;
 
-@Getter
-@Slf4j
-@EqualsAndHashCode(onlyExplicitlyIncluded = true)
-@ToString
-public class Deposit implements Comparable<Deposit> {
-    private final OffsetDateTime creationTimestamp;
+public interface Deposit {
+    boolean convertDansDepositIfNeeded();
 
-    private final UUID id;
+    String getUpdatesDataset();
 
-    private Path location;
+    List<DataverseIngestBag> getBags() throws IOException;
 
-    private final Properties depositProperties;
-    private final String updatesDataset;
-    private final YamlService yamlService;
+    UUID getId();
 
-    public Deposit(@NonNull Path location, @NonNull YamlService yamlService) {
-        this.location = location;
-        this.yamlService = yamlService;
-        this.depositProperties = new Properties();
-        try {
-            depositProperties.load(Files.newBufferedReader(location.resolve("deposit.properties")));
-            var creationTimestamp = depositProperties.getProperty("creation.timestamp");
-            if (creationTimestamp == null) {
-                throw new IllegalStateException("Deposit " + location + " does not contain a creation timestamp");
-            }
-            this.creationTimestamp = OffsetDateTime.parse(creationTimestamp);
-            this.id = UUID.fromString(location.getFileName().toString());
-            this.updatesDataset = depositProperties.getProperty("updates.dataset");
-        }
-        catch (IOException e) {
-            throw new IllegalStateException("Error loading deposit properties from " + location.resolve("deposit.properties"), e);
-        }
-    }
+    Path getLocation();
 
-    public List<DataverseIngestBag> getBags() throws IOException {
-        try (var files = Files.list(location)) {
-            return files
-                .filter(Files::isDirectory)
-                .map(path -> new DataverseIngestBag(path, yamlService))
-                .sorted()
-                .toList();
-        }
-    }
+    void onSuccess();
 
-    public void moveTo(Path targetDir) throws IOException {
-        log.debug("Moving deposit {} to {}", location, targetDir);
-        Files.move(location, targetDir.resolve(location.getFileName()));
-        location = targetDir.resolve(location.getFileName());
-    }
+    void onFailed();
 
-    @Override
-    public int compareTo(@NotNull Deposit deposit) {
-        return getCreationTimestamp().compareTo(deposit.getCreationTimestamp());
-    }
+    void moveTo(Path processed) throws IOException;
 }

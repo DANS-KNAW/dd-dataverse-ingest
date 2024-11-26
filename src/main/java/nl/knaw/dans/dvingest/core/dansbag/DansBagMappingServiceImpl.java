@@ -25,7 +25,10 @@ import nl.knaw.dans.ingest.core.deposit.DepositFileLister;
 import nl.knaw.dans.ingest.core.deposit.DepositFileListerImpl;
 import nl.knaw.dans.ingest.core.deposit.DepositReader;
 import nl.knaw.dans.ingest.core.deposit.DepositReaderImpl;
+import nl.knaw.dans.ingest.core.deposit.DepositWriter;
+import nl.knaw.dans.ingest.core.deposit.DepositWriterImpl;
 import nl.knaw.dans.ingest.core.domain.Deposit;
+import nl.knaw.dans.ingest.core.domain.DepositState;
 import nl.knaw.dans.ingest.core.domain.FileInfo;
 import nl.knaw.dans.ingest.core.exception.InvalidDepositException;
 import nl.knaw.dans.ingest.core.io.BagDataManager;
@@ -60,6 +63,7 @@ public class DansBagMappingServiceImpl implements DansBagMappingService {
     private final DepositToDvDatasetMetadataMapper depositToDvDatasetMetadataMapper;
     private final DataverseService datasetService;
     private final DepositReader depositReader;
+    private final DepositWriter depositWriter;
     private final SupportedLicenses supportedLicenses;
     private final Pattern fileExclusionPattern;
 
@@ -76,6 +80,7 @@ public class DansBagMappingServiceImpl implements DansBagMappingService {
         BagDirResolver bagDirResolver = new BagDirResolverImpl(fileService);
 
         depositReader = new DepositReaderImpl(xmlReader, bagDirResolver, fileService, bagDataManager, depositFileLister, manifestHelper);
+        depositWriter = new DepositWriterImpl(bagDataManager);
         this.supportedLicenses = supportedLicenses;
         this.fileExclusionPattern = fileExclusionPattern;
     }
@@ -132,6 +137,16 @@ public class DansBagMappingServiceImpl implements DansBagMappingService {
         roleAssignment.setRole("contributorplus"); // TODO: make this configurable
         editPermissions.setAddRoleAssignments(List.of(roleAssignment));
         return editPermissions;
+    }
+
+    @Override
+    public void updateDepositStatus(Deposit deposit, DepositState state) {
+        try {
+            deposit.setState(state);
+            depositWriter.saveDeposit(deposit);
+        } catch (InvalidDepositException e) {
+            throw new RuntimeException("Failed to update deposit status", e);
+        }
     }
 
     private boolean hasAttributes(FileMeta fileMeta) {
