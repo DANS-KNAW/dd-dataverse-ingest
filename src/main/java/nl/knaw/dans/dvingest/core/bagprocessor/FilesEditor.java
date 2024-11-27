@@ -108,12 +108,12 @@ public class FilesEditor {
     }
 
     private void addRestrictedFiles() throws IOException, DataverseException {
-        log.debug("Start adding restricted {} files for deposit {}", depositId, editFiles.getAddRestrictedFiles().size());
+        log.debug("Start adding {} restricted files for deposit {}", editFiles.getAddRestrictedFiles().size(), depositId);
         var iterator = new PathIterator(getRestrictedFilesToUpload());
         while (iterator.hasNext()) {
             uploadFileBatch(iterator, true);
         }
-        log.debug("End adding restricted files for deposit {}", depositId);
+        log.debug("End adding {} restricted files for deposit {}", iterator.getIteratedCount(), depositId);
     }
 
     private void addUnrestrictedFiles() throws IOException, DataverseException {
@@ -122,7 +122,7 @@ public class FilesEditor {
         while (iterator.hasNext()) {
             uploadFileBatch(iterator, false);
         }
-        log.debug("End uploading {} unrestricted files for deposit {}", depositId, iterator.getIteratedCount());
+        log.debug("End uploading {} unrestricted files for deposit {}", iterator.getIteratedCount(), depositId);
     }
 
     private Iterator<File> getUnrestrictedFilesToUpload() {
@@ -153,9 +153,9 @@ public class FilesEditor {
                 .zip();
             var fileMeta = new FileMeta();
             fileMeta.setRestricted(restrict);
-            var fileLIst = dataverseService.addFile(pid, zipFile, fileMeta);
-            log.debug("Uploaded {} files (cumulative)", iterator.getIteratedCount());
-            for (var file : fileLIst.getFiles()) {
+            var fileList = dataverseService.addFile(pid, zipFile, fileMeta);
+            log.debug("Uploaded {} files, {} cumulative)", fileList.getFiles().size(), iterator.getIteratedCount());
+            for (var file : fileList.getFiles()) {
                 filesInDataset.put(getPath(file), file);
             }
         }
@@ -165,7 +165,7 @@ public class FilesEditor {
     }
 
     private void moveFiles() throws IOException, DataverseException {
-        log.debug("Start moving files {} for deposit {}", depositId, editFiles.getMoveFiles().size());
+        log.debug("Start moving files {} for deposit {}", editFiles.getMoveFiles().size(), depositId);
         for (var move : editFiles.getMoveFiles()) {
             var fileMeta = filesInDataset().get(move.getFrom());
             fileMeta.setDirectoryLabel(getDirectoryLabel(move.getTo()));
@@ -176,7 +176,7 @@ public class FilesEditor {
     }
 
     private void updateFileMetas() throws IOException, DataverseException {
-        log.debug("Start updating {} file metas for deposit {}", depositId, editFiles.getUpdateFileMetas().size());
+        log.debug("Start updating {} file metas for deposit {}", editFiles.getUpdateFileMetas().size(), depositId);
         for (var fileMeta : editFiles.getUpdateFileMetas()) {
             var id = filesInDataset().get(getPath(fileMeta)).getDataFile().getId();
             dataverseService.updateFileMetadata(id, fileMeta);

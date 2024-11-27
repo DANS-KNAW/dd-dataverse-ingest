@@ -63,15 +63,15 @@ public class PathIteratorZipper {
         try (OutputStream outputStream = Files.newOutputStream(targetZipFile)) {
             BufferedOutputStream bufferedOutputStream = new BufferedOutputStream(outputStream);
             try (ZipArchiveOutputStream zipArchiveOutputStream = new ZipArchiveOutputStream(bufferedOutputStream)) {
-                int fileCount = 0;
-                long byteCount = 0;
-                while (sourceIterator.hasNext() && fileCount < maxNumberOfFiles && byteCount < maxNumberOfBytes) {
+                int numberOfFilesAdded = 0;
+                long numberOfBytesAdded = 0;
+                while (sourceIterator.hasNext() && numberOfFilesAdded < maxNumberOfFiles && numberOfBytesAdded < maxNumberOfBytes) {
                     Path path = sourceIterator.next();
                     if (Files.isRegularFile(path)) {
                         try {
                             addFileToZipStream(zipArchiveOutputStream, path);
-                            fileCount++;
-                            byteCount += Files.size(path);
+                            numberOfFilesAdded++;
+                            numberOfBytesAdded += Files.size(path);
                         }
                         catch (IOException e) {
                             throw new RuntimeException(e);

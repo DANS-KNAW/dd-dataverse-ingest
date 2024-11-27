@@ -62,7 +62,7 @@ ingest:
   # See: https://guides.dataverse.org/en/latest/installation/config.html#zipuploadfileslimit
   #
   maxNumberOfFilesPerUploadBatch: 1000
-  maxByteSizePerUploadBatch: 500M
+  maxByteSizePerUploadBatch: 500MiB
   waitForReleasedState:
     # 10s * 360 = 1 hour
     maxNumberOfRetries: 360
