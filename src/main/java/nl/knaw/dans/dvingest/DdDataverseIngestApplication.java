@@ -73,6 +73,7 @@ public class DdDataverseIngestApplication extends Application<DdDataverseIngestC
         var utilityServices = UtilityServicesImpl.builder()
             .tempDir(configuration.getIngest().getTempDir())
             .maxNumberOfFilesPerUpload(configuration.getIngest().getMaxNumberOfFilesPerUploadBatch())
+            .maxUploadSize(configuration.getIngest().getMaxByteSizePerUploadBatch().toBytes())
             .build();
         var dansBagMappingForImport = createDansBagMappingService(false, configuration.getDansDepositConversion(), dataverseService);
         var dansBagMappingForMigration = createDansBagMappingService(true, configuration.getDansDepositConversion(), dataverseService);

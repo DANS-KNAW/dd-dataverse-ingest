@@ -17,6 +17,7 @@ package nl.knaw.dans.dvingest.config;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
+import io.dropwizard.util.DataSize;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
@@ -41,6 +42,8 @@ public class IngestConfig {
     private Path tempDir;
 
     private int maxNumberOfFilesPerUploadBatch = 1000;
+
+    DataSize maxByteSizePerUploadBatch = DataSize.gibibytes(1);
 
     private Map<String, String> metadataKeys = new HashMap<>();
 

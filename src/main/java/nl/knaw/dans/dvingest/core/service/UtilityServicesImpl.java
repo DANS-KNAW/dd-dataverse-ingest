@@ -26,6 +26,7 @@ import java.nio.file.Path;
 public class UtilityServicesImpl implements UtilityServices {
     private final Path tempDir;
     private final int maxNumberOfFilesPerUpload;
+    private final long maxUploadSize;
 
 
     @Override
@@ -41,6 +42,7 @@ public class UtilityServicesImpl implements UtilityServices {
     @Override
     public PathIteratorZipperBuilder createPathIteratorZipperBuilder() {
         return PathIteratorZipper.builder()
-            .maxNumberOfFiles(maxNumberOfFilesPerUpload);
+            .maxNumberOfFiles(maxNumberOfFilesPerUpload)
+            .maxNumberOfBytes(maxUploadSize);
     }
 }

@@ -47,11 +47,14 @@ public class PathIteratorZipper {
     private final boolean compress = false;
     @Builder.Default
     private final int maxNumberOfFiles = Integer.MAX_VALUE;
+    @Builder.Default
+    private final long maxNumberOfBytes = 1073741824; // 1 GB
 
     public Path zip() throws IOException {
         if (overwrite && Files.exists(targetZipFile)) {
             Files.delete(targetZipFile);
-        } else {
+        }
+        else {
             if (Files.exists(targetZipFile)) {
                 throw new IOException("Target zip file already exists: " + targetZipFile);
             }
@@ -60,14 +63,17 @@ public class PathIteratorZipper {
         try (OutputStream outputStream = Files.newOutputStream(targetZipFile)) {
             BufferedOutputStream bufferedOutputStream = new BufferedOutputStream(outputStream);
             try (ZipArchiveOutputStream zipArchiveOutputStream = new ZipArchiveOutputStream(bufferedOutputStream)) {
-                int count = 0;
-                while (sourceIterator.hasNext() && count < maxNumberOfFiles) {
+                int fileCount = 0;
+                long byteCount = 0;
+                while (sourceIterator.hasNext() && fileCount < maxNumberOfFiles && byteCount < maxNumberOfBytes) {
                     Path path = sourceIterator.next();
                     if (Files.isRegularFile(path)) {
                         try {
                             addFileToZipStream(zipArchiveOutputStream, path);
-                            count++;
-                        } catch (IOException e) {
+                            fileCount++;
+                            byteCount += Files.size(path);
+                        }
+                        catch (IOException e) {
                             throw new RuntimeException(e);
                         }
                     }

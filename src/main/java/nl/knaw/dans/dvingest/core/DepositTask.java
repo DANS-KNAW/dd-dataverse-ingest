@@ -57,7 +57,6 @@ public class DepositTask implements Runnable {
 
     @Override
     public void run() {
-        nl.knaw.dans.ingest.core.domain.Deposit dansDeposit = null;
         try {
             if (deposit.convertDansDepositIfNeeded() && onlyConvertDansDeposit) {
                 log.info("Only converting DANS deposit, LEAVING CONVERTED DEPOSIT IN PLACE");

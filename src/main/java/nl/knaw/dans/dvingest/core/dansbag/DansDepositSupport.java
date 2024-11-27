@@ -57,6 +57,7 @@ public class DansDepositSupport implements Deposit {
             try {
                 dansDeposit = dansBagMappingService.readDansDeposit(ingestDataverseIngestDeposit.getLocation());
                 new DansDepositConverter(dansDeposit, dansBagMappingService, yamlService).run();
+                log.info("Conversion successful");
                 return true;
             }
             catch (IOException | InvalidDepositException e) {

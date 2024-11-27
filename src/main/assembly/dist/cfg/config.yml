@@ -24,7 +24,7 @@ dataverse:
   awaitLockStateMaxNumberOfRetries: 30
   awaitLockStateMillisecondsBetweenRetries: 500
   httpClient:
-    timeout: 30s
+    timeout: 5min
     connectionTimeout: 15s
     connectionRequestTimeout: 15s
     timeToLive: 1h
@@ -62,6 +62,7 @@ ingest:
   # See: https://guides.dataverse.org/en/latest/installation/config.html#zipuploadfileslimit
   #
   maxNumberOfFilesPerUploadBatch: 1000
+  maxByteSizePerUploadBatch: 500M
   waitForReleasedState:
     # 10s * 360 = 1 hour
     maxNumberOfRetries: 360
