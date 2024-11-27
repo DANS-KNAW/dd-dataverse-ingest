@@ -88,7 +88,6 @@ public class DansBagMappingServiceImpl implements DansBagMappingService {
     @Override
     public Dataset getDatasetMetadataFromDansDeposit(Deposit dansDeposit) {
         var dataset = depositToDvDatasetMetadataMapper.toDataverseDataset(
-            false, // TODO: handle migration case
             dansDeposit.getDdm(),
             dansDeposit.getOtherDoiId(),
             getDateOfDeposit(dansDeposit).orElse(null),

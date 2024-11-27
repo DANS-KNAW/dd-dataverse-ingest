@@ -43,7 +43,7 @@ ingest:
   # to Dataverse Ingest deposits.
   migration:
     inbox: data/migration/deposits
-    outbox: data/tmp/migration/out
+    outbox: data/migration/out
   # Import of deposits. This area is used for manual bulk imports of deposits.
   import:
     inbox: data/import/inbox

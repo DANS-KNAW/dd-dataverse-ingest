@@ -77,6 +77,7 @@ public class DansDepositConverterTest extends TestDirFixture {
         depositReader = new DepositReaderImpl(xmlReader, bagDirResolver, fileService, bagDataManager, depositFileLister, manifestHelper);
         var defaultConfigDir = Paths.get("src/main/assembly/dist/cfg");
         var mapper = new DepositToDvDatasetMetadataMapper(
+            false,
             false, // Always false ?
             Set.of("citation", "dansRights", "dansRelationMetadata", "dansArchaeologyMetadata", "dansTemporalSpatial", "dansDataVaultMetadata"),
             MappingLoader.builder().csvFile(defaultConfigDir.resolve("iso639-1-to-dv.csv")).keyColumn("ISO639-1").valueColumn("Dataverse-language").build().load(),

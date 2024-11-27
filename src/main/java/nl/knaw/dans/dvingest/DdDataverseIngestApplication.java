@@ -74,7 +74,8 @@ public class DdDataverseIngestApplication extends Application<DdDataverseIngestC
             .tempDir(configuration.getIngest().getTempDir())
             .maxNumberOfFilesPerUpload(configuration.getIngest().getMaxNumberOfFilesPerUploadBatch())
             .build();
-        var dansBagMappingService = createDansBagMappingService(configuration.getDansDepositConversion(), dataverseService);
+        var dansBagMappingForImport = createDansBagMappingService(false, configuration.getDansDepositConversion(), dataverseService);
+        var dansBagMappingForMigration = createDansBagMappingService(true, configuration.getDansDepositConversion(), dataverseService);
         var yamlService = new YamlServiceImpl();
         IngestAreaConfig ingestAreaConfig = configuration.getIngest().getImportConfig();
         var importArea = IngestArea.builder()
@@ -84,11 +85,20 @@ public class DdDataverseIngestApplication extends Application<DdDataverseIngestC
             .yamlService(yamlService)
             .inbox(ingestAreaConfig.getInbox())
             .outbox(ingestAreaConfig.getOutbox())
-            .dansBagMappingService(dansBagMappingService).build();
+            .dansBagMappingService(dansBagMappingForImport).build();
+        IngestAreaConfig migrationAreaConfig = configuration.getIngest().getMigration();
+        var migrationArea = IngestArea.builder()
+            .executorService(environment.lifecycle().executorService("migration").minThreads(1).maxThreads(1).build())
+            .dataverseService(dataverseService)
+            .utilityServices(utilityServices)
+            .yamlService(yamlService)
+            .inbox(migrationAreaConfig.getInbox())
+            .outbox(migrationAreaConfig.getOutbox())
+            .dansBagMappingService(dansBagMappingForMigration).build();
         var autoIngestArea = AutoIngestArea.autoIngestAreaBuilder()
             .inbox(configuration.getIngest().getAutoIngest().getInbox())
             .outbox(configuration.getIngest().getAutoIngest().getOutbox())
-            .dansBagMappingService(dansBagMappingService)
+            .dansBagMappingService(dansBagMappingForImport)
             .dataverseService(dataverseService)
             .utilityServices(utilityServices)
             .yamlService(yamlService)
@@ -97,21 +107,34 @@ public class DdDataverseIngestApplication extends Application<DdDataverseIngestC
 
         // Connect components
         environment.jersey().register(new DefaultApiResource());
-        environment.jersey().register(new IngestApiResource(importArea));
+        environment.jersey().register(new IngestApiResource(importArea, migrationArea));
         environment.lifecycle().manage(autoIngestArea);
         environment.jersey().register(new IllegalArgumentExceptionMapper());
     }
 
-    private DansBagMappingService createDansBagMappingService(DansDepositConversionConfig dansDepositConversionConfig, DataverseService dataverseService) {
+    private DansBagMappingService createDansBagMappingService(boolean isMigration, DansDepositConversionConfig dansDepositConversionConfig, DataverseService dataverseService) {
         if (dansDepositConversionConfig == null) {
             log.info("DANS Deposit conversion is disabled");
             return null;
         }
         log.info("Configuring DANS Deposit conversion");
         try {
-            var mappingDefsDir = dansDepositConversionConfig.getMappingDefsDir();
+            var mapper = createMapper(isMigration, dansDepositConversionConfig, dataverseService);
+            return new DansBagMappingServiceImpl(mapper, dataverseService, new SupportedLicenses(dataverseService), Pattern.compile("a^"));
+        }
+        catch (IOException e) {
+            throw new IllegalStateException("Failed to read configuration files", e);
+        }
+        catch (DataverseException e) {
+            throw new IllegalStateException("Failed to read supported licenses", e);
+        }
+    }
 
-            var mapper = new DepositToDvDatasetMetadataMapper(
+    private DepositToDvDatasetMetadataMapper createMapper(boolean isMigration, DansDepositConversionConfig dansDepositConversionConfig, DataverseService dataverseService) {
+        var mappingDefsDir = dansDepositConversionConfig.getMappingDefsDir();
+        try {
+            return new DepositToDvDatasetMetadataMapper(
+                isMigration,
                 dansDepositConversionConfig.isDeduplicate(),
                 dataverseService.getActiveMetadataBlockNames(),
                 MappingLoader.builder().csvFile(mappingDefsDir.resolve("iso639-1-to-dv.csv")).keyColumn("ISO639-1").valueColumn("Dataverse-language").build().load(),
@@ -124,7 +147,6 @@ public class DdDataverseIngestApplication extends Application<DdDataverseIngestC
                 FileUtils.readLines(mappingDefsDir.resolve("spatial-coverage-country-terms.txt").toFile(), StandardCharsets.UTF_8),
                 dansDepositConversionConfig.getDataSuppliers(),
                 dansDepositConversionConfig.getSkipFields());
-            return new DansBagMappingServiceImpl(mapper, dataverseService, new SupportedLicenses(dataverseService), Pattern.compile("a^"));
         }
         catch (IOException e) {
             throw new IllegalStateException("Failed to read configuration files", e);

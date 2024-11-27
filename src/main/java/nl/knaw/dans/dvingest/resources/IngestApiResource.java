@@ -24,6 +24,7 @@ import javax.ws.rs.core.Response;
 @AllArgsConstructor
 public class IngestApiResource implements IngestApi {
     private final IngestArea ingestArea;
+    private final IngestArea migrationArea;
 
     @Override
     public Response ingestGet(String path) {
@@ -32,7 +33,13 @@ public class IngestApiResource implements IngestApi {
 
     @Override
     public Response ingestPost(ImportCommandDto importCommandDto) {
-        ingestArea.submit(importCommandDto);
-        return Response.ok(ingestArea.getStatus(importCommandDto.getPath()).get(0)).build();
+        if (importCommandDto.getMigration()) {
+            migrationArea.submit(importCommandDto);
+            return Response.ok(migrationArea.getStatus(importCommandDto.getPath()).get(0)).build();
+        }
+        else {
+            ingestArea.submit(importCommandDto);
+            return Response.ok(ingestArea.getStatus(importCommandDto.getPath()).get(0)).build();
+        }
     }
 }

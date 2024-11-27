@@ -85,6 +85,8 @@ import static nl.knaw.dans.ingest.core.service.XPathConstants.DDM_PROFILE;
 @Slf4j
 @RequiredArgsConstructor
 public class DepositToDvDatasetMetadataMapper {
+    private final boolean isMigration;
+
     private final boolean deduplicate;
     @NonNull
     private final Set<String> activeMetadataBlocks;
@@ -113,8 +115,9 @@ public class DepositToDvDatasetMetadataMapper {
     @NonNull
     private final List<String> skipFields;
 
+
+
     public Dataset toDataverseDataset(
-        boolean isMigration,
         @NonNull Document ddm,
         @Nullable String otherDoiId,
         @Nullable String dateOfDeposit,
