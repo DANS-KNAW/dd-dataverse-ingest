@@ -168,8 +168,9 @@ public class FilesEditor {
         log.debug("Start moving files {} for deposit {}", editFiles.getMoveFiles().size(), depositId);
         for (var move : editFiles.getMoveFiles()) {
             var fileMeta = filesInDataset().get(move.getFrom());
-            fileMeta.setDirectoryLabel(getDirectoryLabel(move.getTo()));
-            fileMeta.setLabel(getFileName(move.getTo()));
+            var dvToPath = new DataversePath(move.getTo());
+            fileMeta.setDirectoryLabel(dvToPath.getDirectoryLabel());
+            fileMeta.setLabel(dvToPath.getLabel());
             dataverseService.updateFileMetadata(fileMeta.getDataFile().getId(), fileMeta);
         }
         log.debug("End moving files for deposit {}", depositId);
@@ -182,16 +183,6 @@ public class FilesEditor {
             dataverseService.updateFileMetadata(id, fileMeta);
         }
         log.debug("End updating file metadata for deposit {}", depositId);
-    }
-
-    private String getDirectoryLabel(String path) {
-        int lastIndex = path.lastIndexOf('/');
-        return lastIndex == -1 ? "" : path.substring(0, lastIndex);
-    }
-
-    private String getFileName(String path) {
-        int lastIndex = path.lastIndexOf('/');
-        return path.substring(lastIndex + 1);
     }
 
     private Map<String, FileMeta> filesInDataset() throws IOException, DataverseException {
