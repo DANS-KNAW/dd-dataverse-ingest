@@ -145,6 +145,7 @@ public class DansBagMappingServiceImpl implements DansBagMappingService {
             var addEmbargo = new AddEmbargo();
             addEmbargo.setDateAvailable(yyyymmddFormat.format(Date.from(dateAvailable)));
             addEmbargo.setFilePaths(filePathsToEmbargo.stream().map(Path::toString).toList());
+            editFiles.setAddEmbargoes(List.of(addEmbargo));
         }
         return editFiles;
     }

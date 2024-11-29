@@ -23,6 +23,6 @@ import java.util.List;
 @Data
 public class AddEmbargo {
     private String dateAvailable;
-    private String reason;
-    private List<String> filePaths;
+    private String reason = "";
+    private List<String> filePaths = List.of();
 }
