@@ -25,6 +25,7 @@ import nl.knaw.dans.lib.dataverse.model.RoleAssignment;
 import nl.knaw.dans.lib.dataverse.model.RoleAssignmentReadOnly;
 import nl.knaw.dans.lib.dataverse.model.dataset.Dataset;
 import nl.knaw.dans.lib.dataverse.model.dataset.DatasetVersion;
+import nl.knaw.dans.lib.dataverse.model.dataset.Embargo;
 import nl.knaw.dans.lib.dataverse.model.dataset.FieldList;
 import nl.knaw.dans.lib.dataverse.model.dataset.FileList;
 import nl.knaw.dans.lib.dataverse.model.dataset.License;
@@ -166,6 +167,12 @@ public class DataverseServiceImpl implements DataverseService {
             .stream()
             .map(MetadataBlockSummary::getName)
             .collect(Collectors.toSet());
+    }
+
+    @Override
+    public void addEmbargo(String pid, Embargo embargo) throws IOException, DataverseException {
+        var result = dataverseClient.dataset(pid).setEmbargo(embargo);
+        log.debug(result.getEnvelopeAsString());
     }
 
     // TODO: move this to dans-dataverse-client-lib; it is similar to awaitLockState.

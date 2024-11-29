@@ -121,7 +121,7 @@ public class DdDataverseIngestApplication extends Application<DdDataverseIngestC
         log.info("Configuring DANS Deposit conversion");
         try {
             var mapper = createMapper(isMigration, dansDepositConversionConfig, dataverseService);
-            return new DansBagMappingServiceImpl(mapper, dataverseService, new SupportedLicenses(dataverseService), Pattern.compile("a^"));
+            return new DansBagMappingServiceImpl(mapper, dataverseService, new SupportedLicenses(dataverseService), Pattern.compile("a^"), dansDepositConversionConfig.getEmbargoExclusions());
         }
         catch (IOException e) {
             throw new IllegalStateException("Failed to read configuration files", e);

@@ -25,6 +25,7 @@ import nl.knaw.dans.dvingest.core.service.PathIterator;
 import nl.knaw.dans.dvingest.core.service.UtilityServices;
 import nl.knaw.dans.dvingest.core.yaml.EditFiles;
 import nl.knaw.dans.lib.dataverse.DataverseException;
+import nl.knaw.dans.lib.dataverse.model.dataset.Embargo;
 import nl.knaw.dans.lib.dataverse.model.file.FileMeta;
 import org.apache.commons.collections4.IteratorUtils;
 import org.apache.commons.io.FileUtils;
@@ -79,6 +80,7 @@ public class FilesEditor {
         if (editFiles != null) {
             moveFiles();
             updateFileMetas();
+            addEmbargoes();
         }
         log.debug("End editing files for deposit {}", depositId);
     }
@@ -205,5 +207,18 @@ public class FilesEditor {
     private String getPath(FileMeta file) {
         var dataversePath = new DataversePath(file.getDirectoryLabel(), file.getLabel());
         return dataversePath.toString();
+    }
+
+    private void addEmbargoes() throws IOException, DataverseException {
+        log.debug("Start adding {} embargoes for deposit {}", editFiles.getAddEmbargoes().size(), depositId);
+        for (var addEmbargo : editFiles.getAddEmbargoes()) {
+            var embargo = new Embargo();
+            embargo.setDateAvailable(addEmbargo.getDateAvailable());
+            embargo.setReason(addEmbargo.getReason());
+            var fileIds = addEmbargo.getFilePaths().stream().map(filesInDataset::get).mapToInt(file -> file.getDataFile().getId()).toArray();
+            embargo.setFileIds(fileIds);
+            dataverseService.addEmbargo(pid, embargo);
+        }
+        log.debug("End adding embargoes for deposit {}", depositId);
     }
 }

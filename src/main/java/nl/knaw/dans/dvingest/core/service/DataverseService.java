@@ -19,6 +19,7 @@ import nl.knaw.dans.lib.dataverse.DataverseException;
 import nl.knaw.dans.lib.dataverse.model.RoleAssignment;
 import nl.knaw.dans.lib.dataverse.model.dataset.Dataset;
 import nl.knaw.dans.lib.dataverse.model.dataset.DatasetVersion;
+import nl.knaw.dans.lib.dataverse.model.dataset.Embargo;
 import nl.knaw.dans.lib.dataverse.model.dataset.FileList;
 import nl.knaw.dans.lib.dataverse.model.dataset.License;
 import nl.knaw.dans.lib.dataverse.model.dataset.MetadataField;
@@ -67,4 +68,6 @@ public interface DataverseService {
     List<License> getSupportedLicenses() throws IOException, DataverseException;
 
     Set<String> getActiveMetadataBlockNames() throws IOException, DataverseException;
+
+    void addEmbargo(String pid, Embargo embargo) throws IOException, DataverseException;
 }

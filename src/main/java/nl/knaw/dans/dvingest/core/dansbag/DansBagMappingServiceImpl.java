@@ -16,7 +16,9 @@
 package nl.knaw.dans.dvingest.core.dansbag;
 
 import gov.loc.repository.bagit.reader.BagReader;
+import lombok.extern.slf4j.Slf4j;
 import nl.knaw.dans.dvingest.core.service.DataverseService;
+import nl.knaw.dans.dvingest.core.yaml.AddEmbargo;
 import nl.knaw.dans.dvingest.core.yaml.EditFiles;
 import nl.knaw.dans.dvingest.core.yaml.EditPermissions;
 import nl.knaw.dans.ingest.core.deposit.BagDirResolver;
@@ -37,6 +39,7 @@ import nl.knaw.dans.ingest.core.io.FileService;
 import nl.knaw.dans.ingest.core.io.FileServiceImpl;
 import nl.knaw.dans.ingest.core.service.ManifestHelper;
 import nl.knaw.dans.ingest.core.service.ManifestHelperImpl;
+import nl.knaw.dans.ingest.core.service.XPathEvaluator;
 import nl.knaw.dans.ingest.core.service.XmlReader;
 import nl.knaw.dans.ingest.core.service.XmlReaderImpl;
 import nl.knaw.dans.ingest.core.service.mapper.DepositToDvDatasetMetadataMapper;
@@ -51,14 +54,24 @@ import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
 import java.nio.file.Path;
+import java.text.SimpleDateFormat;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeParseException;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+@Slf4j
 public class DansBagMappingServiceImpl implements DansBagMappingService {
     private static final DateTimeFormatter yyyymmddPattern = DateTimeFormat.forPattern("YYYY-MM-dd");
+    private static final SimpleDateFormat yyyymmddFormat = new SimpleDateFormat("YYYY-MM-dd");
 
     private final DepositToDvDatasetMetadataMapper depositToDvDatasetMetadataMapper;
     private final DataverseService datasetService;
@@ -66,9 +79,10 @@ public class DansBagMappingServiceImpl implements DansBagMappingService {
     private final DepositWriter depositWriter;
     private final SupportedLicenses supportedLicenses;
     private final Pattern fileExclusionPattern;
+    private final List<String> embargoExclusions;
 
     public DansBagMappingServiceImpl(DepositToDvDatasetMetadataMapper depositToDvDatasetMetadataMapper, DataverseService dataverseService, SupportedLicenses supportedLicenses,
-        Pattern fileExclusionPattern) {
+        Pattern fileExclusionPattern, List<String> embargoExclusions) {
         this.depositToDvDatasetMetadataMapper = depositToDvDatasetMetadataMapper;
         this.datasetService = dataverseService;
         BagReader bagReader = new BagReader();
@@ -83,6 +97,7 @@ public class DansBagMappingServiceImpl implements DansBagMappingService {
         depositWriter = new DepositWriterImpl(bagDataManager);
         this.supportedLicenses = supportedLicenses;
         this.fileExclusionPattern = fileExclusionPattern;
+        this.embargoExclusions = embargoExclusions;
     }
 
     @Override
@@ -124,7 +139,51 @@ public class DansBagMappingServiceImpl implements DansBagMappingService {
             .filter(this::hasAttributes)
             .toList());
 
+        var dateAvailable = getDateAvailable(dansDeposit);
+        var filePathsToEmbargo = getEmbargoedFiles(pathFileInfoMap, dateAvailable);
+        if (!filePathsToEmbargo.isEmpty()) {
+            var addEmbargo = new AddEmbargo();
+            addEmbargo.setDateAvailable(yyyymmddFormat.format(Date.from(dateAvailable)));
+            addEmbargo.setFilePaths(filePathsToEmbargo.stream().map(Path::toString).toList());
+        }
         return editFiles;
+    }
+
+    private List<Path> getEmbargoedFiles(Map<Path, FileInfo> files, Instant dateAvailable) {
+        var now = Instant.now();
+        if (dateAvailable.isAfter(now)) {
+            return files.keySet().stream()
+                .filter(f -> !embargoExclusions.contains(f.toString())).toList();
+        }
+        else {
+            log.debug("Date available in the past, no embargo: {}", dateAvailable);
+            return List.of();
+        }
+    }
+
+    private Instant getDateAvailable(Deposit deposit) {
+        return XPathEvaluator.strings(deposit.getDdm(), "/ddm:DDM/ddm:profile/ddm:available")
+            .map(DansBagMappingServiceImpl::parseDate)
+            .findFirst()
+            .orElseThrow(() -> new IllegalArgumentException("Deposit without a ddm:available element"));
+    }
+
+    private static Instant parseDate(String value) {
+        try {
+            log.debug("Trying to parse {} as LocalDate", value);
+            return LocalDate.parse(value).atStartOfDay(ZoneId.systemDefault()).toInstant();
+        }
+        catch (DateTimeParseException e) {
+            try {
+                log.debug("Trying to parse {} as ZonedDateTime", value);
+                return ZonedDateTime.parse(value).toInstant();
+            }
+            catch (DateTimeParseException ee) {
+                log.debug("Trying to parse {} as LocalDateTime", value);
+                var id = ZoneId.systemDefault().getRules().getOffset(Instant.now());
+                return LocalDateTime.parse(value).toInstant(id);
+            }
+        }
     }
 
     @Override
@@ -143,7 +202,8 @@ public class DansBagMappingServiceImpl implements DansBagMappingService {
         try {
             deposit.setState(state);
             depositWriter.saveDeposit(deposit);
-        } catch (InvalidDepositException e) {
+        }
+        catch (InvalidDepositException e) {
             throw new RuntimeException("Failed to update deposit status", e);
         }
     }

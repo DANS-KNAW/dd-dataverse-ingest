@@ -91,7 +91,7 @@ public class DansDepositConverterTest extends TestDirFixture {
             Collections.emptyMap(),
             List.of());
         var supportedLicenses = new SupportedLicenses(licenses("http://opensource.org/licenses/MIT"));
-        mappingService = new DansBagMappingServiceImpl(mapper, dataverseServiceMock, supportedLicenses, Pattern.compile("a^")); // never match
+        mappingService = new DansBagMappingServiceImpl(mapper, dataverseServiceMock, supportedLicenses, Pattern.compile("a^"), List.of()); // never match
 
         Mockito.reset(dataverseServiceMock);
     }

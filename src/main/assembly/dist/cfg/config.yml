@@ -24,7 +24,7 @@ dataverse:
   awaitLockStateMaxNumberOfRetries: 30
   awaitLockStateMillisecondsBetweenRetries: 500
   httpClient:
-    timeout: 5min
+    timeout: 45min
     connectionTimeout: 15s
     connectionRequestTimeout: 15s
     timeToLive: 1h
@@ -64,8 +64,8 @@ ingest:
   maxNumberOfFilesPerUploadBatch: 1000
   maxByteSizePerUploadBatch: 500MiB
   waitForReleasedState:
-    # 10s * 360 = 1 hour
-    maxNumberOfRetries: 360
+    # 10s * 720 = 2 hours
+    maxNumberOfRetries: 720
     timeBetweenChecks: 10s
 
 #
@@ -77,6 +77,13 @@ dansDepositConversion:
   # By default, no files are excluded.
   #
   fileExclusionPattern: a^
+
+  #
+  # File paths to exclude from embargoes.
+  #
+  embargoExclusions:
+    - original-metadata.zip
+    - easy-migration.zip
 
   #
   # Map from depositor.userId to organization name. Used to fill in the dansDataSupplier metadata field. If there is no

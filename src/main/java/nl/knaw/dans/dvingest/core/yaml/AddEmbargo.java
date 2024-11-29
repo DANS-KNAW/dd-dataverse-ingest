@@ -18,8 +18,11 @@ package nl.knaw.dans.dvingest.core.yaml;
 import lombok.Data;
 import nl.knaw.dans.lib.dataverse.model.dataset.Embargo;
 
+import java.util.List;
+
 @Data
 public class AddEmbargo {
-    private String path;
-    private Embargo embargo;
+    private String dateAvailable;
+    private String reason;
+    private List<String> filePaths;
 }

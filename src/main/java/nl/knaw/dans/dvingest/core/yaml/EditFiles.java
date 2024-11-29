@@ -27,5 +27,5 @@ public class EditFiles {
     private List<String> addRestrictedFiles = List.of();
     private List<Move> moveFiles = List.of();
     private List<FileMeta> updateFileMetas = List.of();
-//    private List<AddEmbargo> addEmbargoes = List.of();
+    private List<AddEmbargo> addEmbargoes = List.of();
 }
