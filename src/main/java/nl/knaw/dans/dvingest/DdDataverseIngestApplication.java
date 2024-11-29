@@ -63,7 +63,7 @@ public class DdDataverseIngestApplication extends Application<DdDataverseIngestC
     @Override
     public void run(final DdDataverseIngestConfiguration configuration, final Environment environment) {
         // Create service components
-        var dataverseClient = configuration.getDataverse().build();
+        var dataverseClient = configuration.getDataverse().build(environment, "dataverse");
         var dataverseService = DataverseServiceImpl.builder()
             .dataverseClient(dataverseClient)
             .metadataKeys(configuration.getIngest().getMetadataKeys())
