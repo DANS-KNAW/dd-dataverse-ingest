@@ -153,6 +153,7 @@ public class FilesEditor {
                 .zip();
             var fileMeta = new FileMeta();
             fileMeta.setRestricted(restrict);
+            log.debug("Start uploading zip file at {} for deposit {}", zipFile, depositId);
             var fileList = dataverseService.addFile(pid, zipFile, fileMeta);
             log.debug("Uploaded {} files, {} cumulative)", fileList.getFiles().size(), iterator.getIteratedCount());
             for (var file : fileList.getFiles()) {
