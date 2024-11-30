@@ -134,7 +134,7 @@ public abstract class DatasetEditor {
         var checksum = DigestUtils.sha1Hex(new FileInputStream(path.toFile()));
         var fileMeta = new FileMeta();
         fileMeta.setLabel(ORIGINAL_METADATA_ZIP);
-        return new FileInfo(path, path, checksum, fileMeta);
+        return new FileInfo(path, path, checksum, false, fileMeta);
     }
 
     private Integer addFile(String persistentId, FileInfo fileInfo) throws IOException, DataverseException {

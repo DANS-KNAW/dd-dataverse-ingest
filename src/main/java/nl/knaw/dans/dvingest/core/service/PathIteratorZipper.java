@@ -30,6 +30,7 @@ import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Iterator;
+import java.util.Map;
 
 // TODO: move to dans-java-utils
 @Builder
@@ -49,6 +50,9 @@ public class PathIteratorZipper {
     private final int maxNumberOfFiles = Integer.MAX_VALUE;
     @Builder.Default
     private final long maxNumberOfBytes = 1073741824; // 1 GB
+    @Builder.Default
+    private final Map<String, String> renameMap = Map.of();
+
 
     public Path zip() throws IOException {
         if (overwrite && Files.exists(targetZipFile)) {
@@ -88,6 +92,9 @@ public class PathIteratorZipper {
             throw new IllegalArgumentException("File to zip is not a descendant of root directory: " + fileToZip);
         }
         String entryName = rootDir.relativize(fileToZip).toString();
+        if (renameMap.containsKey(entryName)) {
+            entryName = renameMap.get(entryName);
+        }
         ZipArchiveEntry zipArchiveEntry = new ZipArchiveEntry(fileToZip, entryName);
         zipArchiveEntry.setMethod(compress ? ZipArchiveEntry.STORED : ZipArchiveEntry.DEFLATED);
         zipArchiveOutputStream.putArchiveEntry(zipArchiveEntry);

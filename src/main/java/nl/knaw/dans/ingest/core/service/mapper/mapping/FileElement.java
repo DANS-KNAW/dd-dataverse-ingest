@@ -15,6 +15,7 @@
  */
 package nl.knaw.dans.ingest.core.service.mapper.mapping;
 
+import lombok.Value;
 import lombok.extern.slf4j.Slf4j;
 import nl.knaw.dans.ingest.core.domain.Deposit;
 import nl.knaw.dans.ingest.core.domain.FileInfo;
@@ -43,7 +44,13 @@ public class FileElement extends Base {
         "ANONYMOUS", false
     );
 
-    public static FileMeta toFileMeta(Node node, boolean defaultRestrict, boolean isMigration) {
+    @Value
+    private static class FileMetaResult {
+        boolean sanitized;
+        FileMeta fileMeta;
+    }
+
+    public static FileMetaResult toFileMeta(Node node, boolean defaultRestrict, boolean isMigration) {
         var filepathAttribute = getAttribute(node, "filepath")
             .map(Node::getTextContent)
             .orElseThrow(() -> new RuntimeException("File node without a filepath attribute"));
@@ -69,7 +76,8 @@ public class FileElement extends Base {
             .map(accessibilityToRestrict::get)
             .orElse(defaultRestrict);
 
-        var originalFilePath = !StringUtils.equals(filename, sanitizedFilename) || !StringUtils.equals(dirPath, sanitizedDirLabel)
+        boolean isSanitized = !StringUtils.equals(filename, sanitizedFilename) || !StringUtils.equals(dirPath, sanitizedDirLabel);
+        var originalFilePath = isSanitized
             ? pathInDataset.toString()
             : null;
 
@@ -83,7 +91,7 @@ public class FileElement extends Base {
         fm.setDescription(description);
         fm.setRestricted(restricted);
 
-        return fm;
+        return new FileMetaResult(isSanitized, fm);
     }
 
     private static String getDescription(Map<String, List<String>> kv) {
@@ -127,10 +135,13 @@ public class FileElement extends Base {
             "mapprojection",
             "analytic_units");
 
-        var result = new HashMap<String, List<String>>(){
-            void addValue(String key, String value){
+        var result = new HashMap<String, List<String>>() {
+
+            void addValue(String key, String value) {
                 computeIfAbsent(key, k -> new ArrayList<>()).add(value);
-            };
+            }
+
+            ;
         };
         if (isMigration) {
 
@@ -152,7 +163,7 @@ public class FileElement extends Base {
 
             // FIL002B
             for (var key : fixedKeys) {
-                var child = getChildNodes(node, "dcterms:"+ key)
+                var child = getChildNodes(node, "dcterms:" + key)
                     .map(Node::getTextContent)
                     .collect(Collectors.toList());
 
@@ -166,7 +177,7 @@ public class FileElement extends Base {
 
         // FIL003
         if (originalFilePath != null) {
-            result.addValue( "original_filepath", originalFilePath);
+            result.addValue("original_filepath", originalFilePath);
         }
 
         if (isMigration) {
@@ -212,12 +223,14 @@ public class FileElement extends Base {
         var bagDir = deposit.getBagDir();
 
         deposit.getFiles().forEach(depositFile -> {
+            var fileMetaResult = toFileMeta(depositFile.getXmlNode(), defaultRestrict, isMigration);
             result.put(depositFile.getPath(), new FileInfo(
                 bagDir.resolve(depositFile.getPath()),
                 bagDir.resolve(depositFile.getPhysicalPath()),
                 depositFile.getChecksum(),
-                toFileMeta(depositFile.getXmlNode(), defaultRestrict, isMigration))
-            );
+                fileMetaResult.isSanitized(),
+                fileMetaResult.getFileMeta()
+            ));
         });
 
         return result;

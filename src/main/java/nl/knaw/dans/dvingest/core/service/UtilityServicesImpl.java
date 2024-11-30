@@ -21,13 +21,13 @@ import nl.knaw.dans.dvingest.core.service.PathIteratorZipper.PathIteratorZipperB
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Map;
 
 @Builder
 public class UtilityServicesImpl implements UtilityServices {
     private final Path tempDir;
     private final int maxNumberOfFilesPerUpload;
     private final long maxUploadSize;
-
 
     @Override
     public Path createTempZipFile() throws IOException {
@@ -41,7 +41,13 @@ public class UtilityServicesImpl implements UtilityServices {
 
     @Override
     public PathIteratorZipperBuilder createPathIteratorZipperBuilder() {
+        return createPathIteratorZipperBuilder(Map.of());
+    }
+
+    @Override
+    public PathIteratorZipperBuilder createPathIteratorZipperBuilder(Map<String, String> renameMap) {
         return PathIteratorZipper.builder()
+            .renameMap(renameMap)
             .maxNumberOfFiles(maxNumberOfFilesPerUpload)
             .maxNumberOfBytes(maxUploadSize);
     }

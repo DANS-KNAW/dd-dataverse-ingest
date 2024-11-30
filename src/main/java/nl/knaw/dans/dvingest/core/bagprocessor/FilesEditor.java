@@ -16,7 +16,6 @@
 package nl.knaw.dans.dvingest.core.bagprocessor;
 
 import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
@@ -29,7 +28,6 @@ import nl.knaw.dans.lib.dataverse.DataverseException;
 import nl.knaw.dans.lib.dataverse.model.dataset.Embargo;
 import nl.knaw.dans.lib.dataverse.model.file.FileMeta;
 import org.apache.commons.collections4.IteratorUtils;
-import org.apache.commons.collections4.Predicate;
 import org.apache.commons.io.FileUtils;
 
 import java.io.File;
@@ -39,6 +37,7 @@ import java.nio.file.Path;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -62,6 +61,13 @@ public class FilesEditor {
     private boolean filesRetrieved = false;
 
     public void editFiles(String pid) throws IOException, DataverseException {
+        /*
+         * TODO:
+         *  Validations ?
+         *  - replaceFiles must exist in bag (+ must be update-deposit)
+         *  - addRestrictedFiles must exist in bag
+         *  - updateFileMetas must exist in bag if first version deposit
+         */
         if (editFiles == null) {
             try (var stream = Files.list(dataDir)) {
                 if (stream.findAny().isEmpty()) {
@@ -141,10 +147,16 @@ public class FilesEditor {
             new FileUploadInclusionPredicate(editFiles, dataDir, true));
     }
 
+    private Map<String, String> getRenameMap() {
+        return editFiles.getRenameAtUploadFiles().stream()
+            .map(rename -> Map.entry(rename.getFrom(), rename.getTo()))
+            .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+    }
+
     private void uploadFileBatch(PathIterator iterator, boolean restrict) throws IOException, DataverseException {
         var tempZipFile = utilityServices.createTempZipFile();
         try {
-            var zipFile = utilityServices.createPathIteratorZipperBuilder()
+            var zipFile = utilityServices.createPathIteratorZipperBuilder(getRenameMap())
                 .rootDir(dataDir)
                 .sourceIterator(iterator)
                 .targetZipFile(tempZipFile)

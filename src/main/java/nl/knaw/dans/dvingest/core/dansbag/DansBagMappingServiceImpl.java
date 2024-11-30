@@ -17,10 +17,12 @@ package nl.knaw.dans.dvingest.core.dansbag;
 
 import gov.loc.repository.bagit.reader.BagReader;
 import lombok.extern.slf4j.Slf4j;
+import nl.knaw.dans.dvingest.core.bagprocessor.DataversePath;
 import nl.knaw.dans.dvingest.core.service.DataverseService;
 import nl.knaw.dans.dvingest.core.yaml.AddEmbargo;
 import nl.knaw.dans.dvingest.core.yaml.EditFiles;
 import nl.knaw.dans.dvingest.core.yaml.EditPermissions;
+import nl.knaw.dans.dvingest.core.yaml.FromTo;
 import nl.knaw.dans.ingest.core.deposit.BagDirResolver;
 import nl.knaw.dans.ingest.core.deposit.BagDirResolverImpl;
 import nl.knaw.dans.ingest.core.deposit.DepositFileLister;
@@ -61,6 +63,7 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeParseException;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -129,10 +132,13 @@ public class DansBagMappingServiceImpl implements DansBagMappingService {
 
         var pathFileInfoMap = getFileInfo(dansDeposit);
 
+        // TODO: in update also ignore any files that have not changed (content or metadata)
         var ignoredFiles = getIgnoredFiles(pathFileInfoMap).stream().map(Path::toString).toList();
         editFiles.setIgnoreFiles(ignoredFiles);
 
         pathFileInfoMap = removeIgnoredFiles(pathFileInfoMap, ignoredFiles);
+
+        editFiles.setRenameAtUploadFiles(getRenameAtUpload(pathFileInfoMap));
 
         editFiles.setAddRestrictedFiles(pathFileInfoMap.entrySet().stream()
             .filter(entry -> entry.getValue().getMetadata().getRestricted())
@@ -153,6 +159,18 @@ public class DansBagMappingServiceImpl implements DansBagMappingService {
             editFiles.setAddEmbargoes(List.of(addEmbargo));
         }
         return editFiles;
+    }
+
+    private List<FromTo> getRenameAtUpload(Map<Path, FileInfo> files) {
+        ArrayList<FromTo> fromTos = new ArrayList<>();
+        for (var entry : files.entrySet()) {
+            if (entry.getValue().isSanitized()) {
+                var from = entry.getKey().toString();
+                var to = new DataversePath(entry.getValue().getMetadata().getDirectoryLabel(), entry.getValue().getMetadata().getLabel()).toString();
+                fromTos.add(new FromTo(from, to));
+            }
+        }
+        return fromTos;
     }
 
     private List<Path> getIgnoredFiles(Map<Path, FileInfo> files) {

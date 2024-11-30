@@ -29,6 +29,7 @@ public class FileInfo {
     private Path path;
     private Path physicalPath;
     private String checksum;
+    private boolean sanitized;
     private FileMeta metadata;
 
 }

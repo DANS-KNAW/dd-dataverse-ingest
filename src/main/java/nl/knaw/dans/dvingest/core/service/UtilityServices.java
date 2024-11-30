@@ -19,10 +19,13 @@ import nl.knaw.dans.dvingest.core.service.PathIteratorZipper.PathIteratorZipperB
 
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.Map;
 
 public interface UtilityServices {
 
     Path createTempZipFile() throws IOException;
 
     PathIteratorZipperBuilder createPathIteratorZipperBuilder();
+
+    PathIteratorZipperBuilder createPathIteratorZipperBuilder(Map<String, String> renameMap);
 }
