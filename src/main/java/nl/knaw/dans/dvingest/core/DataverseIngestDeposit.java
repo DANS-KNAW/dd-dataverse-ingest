@@ -80,12 +80,12 @@ public class DataverseIngestDeposit implements Comparable<DataverseIngestDeposit
     }
 
     @Override
-    public void onSuccess() {
+    public void onSuccess(String pid) {
 
     }
 
     @Override
-    public void onFailed() {
+    public void onFailed(String pid) {
 
     }
 

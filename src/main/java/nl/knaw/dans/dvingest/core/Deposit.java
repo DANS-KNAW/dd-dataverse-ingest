@@ -31,9 +31,9 @@ public interface Deposit {
 
     Path getLocation();
 
-    void onSuccess();
+    void onSuccess(String pid);
 
-    void onFailed();
+    void onFailed(String pid);
 
     void moveTo(Path processed) throws IOException;
 }

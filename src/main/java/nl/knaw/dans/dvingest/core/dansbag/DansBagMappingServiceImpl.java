@@ -238,9 +238,10 @@ public class DansBagMappingServiceImpl implements DansBagMappingService {
     }
 
     @Override
-    public void updateDepositStatus(Deposit deposit, DepositState state) {
+    public void updateDepositStatus(Deposit deposit, DepositState state, String pid) {
         try {
             deposit.setState(state);
+            deposit.setDoi(pid);
             depositWriter.saveDeposit(deposit);
         }
         catch (InvalidDepositException e) {

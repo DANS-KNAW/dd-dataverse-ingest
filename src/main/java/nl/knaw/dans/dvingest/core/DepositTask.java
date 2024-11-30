@@ -57,13 +57,12 @@ public class DepositTask implements Runnable {
 
     @Override
     public void run() {
+        String pid = deposit.getUpdatesDataset();
         try {
             if (deposit.convertDansDepositIfNeeded() && onlyConvertDansDeposit) {
                 log.info("Only converting DANS deposit, LEAVING CONVERTED DEPOSIT IN PLACE");
                 return;
             }
-
-            String pid = deposit.getUpdatesDataset(); // This will trigger the conversion of the deposit to a Dataverse ingest deposit if it is a DANS deposit
 
             for (DataverseIngestBag bag : deposit.getBags()) {
                 log.info("START processing deposit / bag: {} / {}", deposit.getId(), bag);
@@ -76,13 +75,13 @@ public class DepositTask implements Runnable {
                     .run(pid);
                 log.info("END processing deposit / bag: {} / {}", deposit.getId(), bag);
             }
-            deposit.onSuccess();
+            deposit.onSuccess(pid);
             deposit.moveTo(outputDir.resolve("processed"));
         }
         catch (Exception e) {
             try {
                 log.error("Failed to ingest deposit", e);
-                deposit.onFailed();
+                deposit.onFailed(pid);
                 deposit.moveTo(outputDir.resolve("failed"));
                 status = Status.FAILED;
             }

@@ -88,7 +88,7 @@ public class DansDepositSupport implements Deposit {
     }
 
     @Override
-    public void onSuccess() {
+    public void onSuccess(String pid) {
         if (dansDeposit == null) {
             return;
         }
@@ -96,14 +96,15 @@ public class DansDepositSupport implements Deposit {
             var bag = ingestDataverseIngestDeposit.getBags().get(0);
             var action = bag.getUpdateState().getAction();
             if (action.startsWith("publish")) {
-                dansBagMappingService.updateDepositStatus(dansDeposit, DepositState.PUBLISHED);
+                dansBagMappingService.updateDepositStatus(dansDeposit, DepositState.PUBLISHED, pid);
             }
             else if (action.equals("submit-for-review")) {
-                dansBagMappingService.updateDepositStatus(dansDeposit, DepositState.SUBMITTED);
+                dansBagMappingService.updateDepositStatus(dansDeposit, DepositState.SUBMITTED, pid);
             }
             else {
                 throw new RuntimeException("Unknown update action: " + action);
             }
+
         }
         catch (IOException e) {
             throw new RuntimeException("Error reading bag", e);
@@ -114,8 +115,8 @@ public class DansDepositSupport implements Deposit {
     }
 
     @Override
-    public void onFailed() {
-        dansBagMappingService.updateDepositStatus(dansDeposit, DepositState.FAILED);
+    public void onFailed(String pid) {
+        dansBagMappingService.updateDepositStatus(dansDeposit, DepositState.FAILED, pid);
     }
 
     @Override

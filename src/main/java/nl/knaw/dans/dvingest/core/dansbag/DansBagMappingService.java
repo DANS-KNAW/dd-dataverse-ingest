@@ -34,7 +34,7 @@ public interface DansBagMappingService {
 
     EditPermissions getEditPermissionsFromDansDeposit(Deposit dansDeposit);
 
-    void updateDepositStatus(Deposit deposit, DepositState state);
+    void updateDepositStatus(Deposit deposit, DepositState state, String pid);
 
     String packageOriginalMetadata(Deposit dansDeposit) throws IOException;
 }
