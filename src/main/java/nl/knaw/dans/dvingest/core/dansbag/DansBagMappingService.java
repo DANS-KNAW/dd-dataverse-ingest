@@ -22,6 +22,7 @@ import nl.knaw.dans.ingest.core.domain.DepositState;
 import nl.knaw.dans.ingest.core.exception.InvalidDepositException;
 import nl.knaw.dans.lib.dataverse.model.dataset.Dataset;
 
+import java.io.IOException;
 import java.nio.file.Path;
 
 public interface DansBagMappingService {
@@ -34,4 +35,6 @@ public interface DansBagMappingService {
     EditPermissions getEditPermissionsFromDansDeposit(Deposit dansDeposit);
 
     void updateDepositStatus(Deposit deposit, DepositState state);
+
+    String packageOriginalMetadata(Deposit dansDeposit) throws IOException;
 }

@@ -21,7 +21,6 @@ import nl.knaw.dans.dvingest.core.yaml.EditFilesRoot;
 import nl.knaw.dans.dvingest.core.yaml.EditPermissionsRoot;
 import nl.knaw.dans.dvingest.core.yaml.UpdateState;
 import nl.knaw.dans.ingest.core.domain.Deposit;
-import org.apache.commons.lang3.StringUtils;
 
 import java.io.IOException;
 
@@ -32,7 +31,8 @@ public class DansDepositConverter {
     private final YamlService yamlService;
 
     public void run() throws IOException {
-        // TODO: Create original-metadata.zip
+        // TODO: pass to getEditFilesFromDansDeposit so that update-deposit can register it as a replaced file
+        var originalMetadataPath = mappingService.packageOriginalMetadata(dansDeposit);
 
         var dataset = mappingService.getDatasetMetadataFromDansDeposit(dansDeposit);
         yamlService.writeYaml(dataset, dansDeposit.getBagDir().resolve("dataset.yml"));

@@ -106,7 +106,7 @@ editFiles:
       reason: 'Pending publication'
 ```
 
-The actions specified in this files correspond roughly to the action available in the dropdown menu in the file view of a dataset in Dataverse.
+The actions specified in this file correspond roughly to the action available in the dropdown menu in the file view of a dataset in Dataverse.
 
 The replacement file is looked up in the bag, under the `data` directory under the same path as the original file has in the dataset. Note that files the
 replacement files will automatically be skipped in the add files step, the deleted files, however, will not. In other words, it is also possible to remove a
@@ -142,11 +142,11 @@ editMetadata:
             typeName: "producerAffiliation"
             value: "University of Somewhere"
   deleteFieldValues:
-     - typeName: "subject"
-       typeClass: "controlledVocabulary"
-       multiple: true
-       value:
-          - 'Astronomy and Astrophysics'
+    - typeName: "subject"
+      typeClass: "controlledVocabulary"
+      multiple: true
+      value:
+        - 'Astronomy and Astrophysics'
 ```
 
 Allows you to selectively delete, add or replace metadata field values. The format is the based on the JSON that is passed to the

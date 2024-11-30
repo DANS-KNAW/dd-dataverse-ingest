@@ -50,11 +50,13 @@ import nl.knaw.dans.lib.dataverse.model.RoleAssignment;
 import nl.knaw.dans.lib.dataverse.model.dataset.Dataset;
 import nl.knaw.dans.lib.dataverse.model.file.FileMeta;
 import nl.knaw.dans.lib.dataverse.model.user.AuthenticatedUser;
+import nl.knaw.dans.lib.util.ZipUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
+import java.io.IOException;
 import java.nio.file.Path;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
@@ -244,6 +246,15 @@ public class DansBagMappingServiceImpl implements DansBagMappingService {
         catch (InvalidDepositException e) {
             throw new RuntimeException("Failed to update deposit status", e);
         }
+    }
+
+    @Override
+    public String packageOriginalMetadata(Deposit dansDeposit) throws IOException {
+        // Zip the contents of the metadata directory of the bag
+        var metadataDir = dansDeposit.getBagDir().resolve("metadata");
+        var zipFile = dansDeposit.getBagDir().resolve("data/original-metadata.zip");
+        ZipUtil.zipDirectory(metadataDir, zipFile, false);
+        return zipFile.toString();
     }
 
     private boolean hasAttributes(FileMeta fileMeta) {
