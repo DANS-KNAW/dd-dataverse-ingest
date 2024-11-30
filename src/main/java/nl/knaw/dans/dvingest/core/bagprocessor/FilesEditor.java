@@ -16,6 +16,7 @@
 package nl.knaw.dans.dvingest.core.bagprocessor;
 
 import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
@@ -28,6 +29,7 @@ import nl.knaw.dans.lib.dataverse.DataverseException;
 import nl.knaw.dans.lib.dataverse.model.dataset.Embargo;
 import nl.knaw.dans.lib.dataverse.model.file.FileMeta;
 import org.apache.commons.collections4.IteratorUtils;
+import org.apache.commons.collections4.Predicate;
 import org.apache.commons.io.FileUtils;
 
 import java.io.File;
@@ -130,18 +132,13 @@ public class FilesEditor {
     private Iterator<File> getUnrestrictedFilesToUpload() {
         return IteratorUtils.filteredIterator(
             FileUtils.iterateFiles(dataDir.toFile(), null, true),
-            path -> editFiles == null ||
-                !editFiles.getReplaceFiles().contains(dataDir.relativize(path.toPath()).toString())
-                    && !editFiles.getAddRestrictedFiles().contains(dataDir.relativize(path.toPath()).toString()));
+            new FileUploadInclusionPredicate(editFiles, dataDir, false));
     }
 
     private Iterator<File> getRestrictedFilesToUpload() {
         return IteratorUtils.filteredIterator(
             FileUtils.iterateFiles(dataDir.toFile(), null, true),
-            // Skip files that have been replaced in the edit steps
-            path -> editFiles == null ||
-                !editFiles.getReplaceFiles().contains(dataDir.relativize(path.toPath()).toString())
-                    && editFiles.getAddRestrictedFiles().contains(dataDir.relativize(path.toPath()).toString()));
+            new FileUploadInclusionPredicate(editFiles, dataDir, true));
     }
 
     private void uploadFileBatch(PathIterator iterator, boolean restrict) throws IOException, DataverseException {

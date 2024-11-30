@@ -84,20 +84,25 @@ editFiles:
     - 'subdirectory/file5.txt'
   # Unrestricted files are added by default at this point
   moveFiles:
-    - from: 'file6.txt'
-      to: 'subdirectory/file6.txt'
+    - from: 'file6.txt' # Old location in the dataset
+      to: 'subdirectory/file6.txt' # New location in the dataset
   updateFileMetas:
     - description: "This is the first file"
       label: "file1.txt"
       directoryLabel: "subdirectory"
       restricted: false
       categories: [ 'Testlabel' ]
+  ignoreFiles:
+    - 'file7.txt' # This file will NOT be added to the dataset     
+  renameAtUploadFiles:
+    - from: 'file8.txt' # Local file name
+      to: 'file9.txt' # The file name assigned in the dataset
   addEmbargoes:
-    - includeFiles: [ 'file1.txt' ] # All other files will NOT be embargoed
-      dateAvailable: '2022-01-01'
+    - filePaths: [ 'file1.txt' ] # All other files will NOT be embargoed
+      dateAvailable: '2030-01-01'
       reason: 'Pending publication'
-    - excludeFiles: [ 'file2.txt' ] # All other files will be embargoed
-      dateAvailable: '2022-01-01'
+    - filePaths: [ 'file2.txt' ] # All other files will be embargoed
+      dateAvailable: '2040-01-01'
       reason: 'Pending publication'
 ```
 

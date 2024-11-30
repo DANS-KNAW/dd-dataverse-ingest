@@ -115,7 +115,7 @@ public class DansBagMappingServiceImpl implements DansBagMappingService {
         var version = dataset.getDatasetVersion();
         version.setFileAccessRequest(dansDeposit.allowAccessRequests());
 
-        // TODO: when processing an update-deposit, retriever terms of access from the previous version
+        // TODO: when processing an update-deposit, retrieve terms of access from the previous version
         if (!dansDeposit.allowAccessRequests() && StringUtils.isBlank(version.getTermsOfAccess())) {
             version.setTermsOfAccess("N/a");
         }
@@ -128,6 +128,11 @@ public class DansBagMappingServiceImpl implements DansBagMappingService {
         var editFiles = new EditFiles();
 
         var pathFileInfoMap = getFileInfo(dansDeposit);
+
+        var ignoredFiles = getIgnoredFiles(pathFileInfoMap).stream().map(Path::toString).toList();
+        editFiles.setIgnoreFiles(ignoredFiles);
+
+        pathFileInfoMap = removeIgnoredFiles(pathFileInfoMap, ignoredFiles);
 
         editFiles.setAddRestrictedFiles(pathFileInfoMap.entrySet().stream()
             .filter(entry -> entry.getValue().getMetadata().getRestricted())
@@ -148,6 +153,20 @@ public class DansBagMappingServiceImpl implements DansBagMappingService {
             editFiles.setAddEmbargoes(List.of(addEmbargo));
         }
         return editFiles;
+    }
+
+    private List<Path> getIgnoredFiles(Map<Path, FileInfo> files) {
+        if (fileExclusionPattern == null) {
+            return List.of();
+        }
+        return files.keySet().stream()
+            .filter(f -> fileExclusionPattern.matcher(f.toString()).matches()).toList();
+    }
+
+    private Map<Path, FileInfo> removeIgnoredFiles(Map<Path, FileInfo> files, List<String> ignoredFiles) {
+        return files.entrySet().stream()
+            .filter(entry -> !ignoredFiles.contains(entry.getKey().toString()))
+            .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
     }
 
     private List<Path> getEmbargoedFiles(Map<Path, FileInfo> files, Instant dateAvailable) {
@@ -225,12 +244,6 @@ public class DansBagMappingServiceImpl implements DansBagMappingService {
                 var newKey = Path.of("data").relativize(bagPath);
 
                 return Map.entry(newKey, fileInfo);
-            })
-            .filter(entry -> {
-                // remove entries that match the file exclusion pattern
-                var path = entry.getKey().toString();
-
-                return (fileExclusionPattern == null || !fileExclusionPattern.matcher(path).matches());
             })
             .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
     }

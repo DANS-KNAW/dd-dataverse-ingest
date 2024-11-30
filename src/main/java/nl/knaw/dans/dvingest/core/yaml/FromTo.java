@@ -18,7 +18,7 @@ package nl.knaw.dans.dvingest.core.yaml;
 import lombok.Data;
 
 @Data
-public class Move {
+public class FromTo {
     private String from;
     private String to;
 }

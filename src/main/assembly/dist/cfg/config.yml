@@ -64,6 +64,10 @@ ingest:
   maxNumberOfFilesPerUploadBatch: 1000
   maxByteSizePerUploadBatch: 500MiB
   waitForReleasedState:
+    # maxWaitTime = 5h
+    # # It is not useful to check directly after sending the publication request. The publication will verify all checksums.
+    # initialWaitTimePerMegaByte = 10s (or initialWaitTimePerFile = 10s)
+    # timeBetweenChecks = 10s
     # 10s * 720 = 2 hours
     maxNumberOfRetries: 720
     timeBetweenChecks: 10s
