@@ -13,29 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package nl.knaw.dans.dvingest.core;
+package nl.knaw.dans.dvingest.config;
 
-import java.io.IOException;
-import java.nio.file.Path;
-import java.util.List;
-import java.util.UUID;
+import io.dropwizard.client.HttpClientConfiguration;
+import io.dropwizard.client.JerseyClientConfiguration;
+import lombok.Data;
 
-public interface Deposit {
-    boolean convertDansDepositIfNeeded();
+import javax.validation.constraints.NotNull;
+import java.net.URI;
 
-    String getUpdatesDataset();
+@Data
+public class ValidateDansBagConfig {
+    @NotNull
+    private URI url;
 
-    List<DataverseIngestBag> getBags() throws IOException;
-
-    UUID getId();
-
-    Path getLocation();
-
-    void onSuccess(String pid);
-
-    void onFailed(String pid);
-
-    void moveTo(Path processed) throws IOException;
-
-    void validate();
+    @NotNull
+    private JerseyClientConfiguration httpClient;
 }

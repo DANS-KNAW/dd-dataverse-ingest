@@ -16,7 +16,8 @@
     limitations under the License.
 
 -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
@@ -36,7 +37,7 @@
     <properties>
         <main-class>nl.knaw.dans.dvingest.DdDataverseIngestApplication</main-class>
         <dd-dataverse-ingest-api.version>0.2.0</dd-dataverse-ingest-api.version>
-<!--        <dd-validate-dans-bag-api.version>0.0.1-SNAPSHOT</dd-validate-dans-bag-api.version>-->
+        <dd-validate-dans-bag-api.version>0.5.1-SNAPSHOT</dd-validate-dans-bag-api.version>
     </properties>
 
     <scm>
@@ -52,6 +53,10 @@
         <dependency>
             <groupId>io.dropwizard</groupId>
             <artifactId>dropwizard-client</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.dropwizard</groupId>
+            <artifactId>dropwizard-forms</artifactId>
         </dependency>
         <dependency>
             <groupId>org.projectlombok</groupId>
@@ -90,6 +95,10 @@
             <!-- todo: add to parent pom -->
         </dependency>
         <dependency>
+            <groupId>org.glassfish.jersey.media</groupId>
+            <artifactId>jersey-media-json-jackson</artifactId>
+        </dependency>
+        <dependency>
             <groupId>io.dropwizard</groupId>
             <artifactId>dropwizard-testing</artifactId>
             <scope>test</scope>
@@ -126,6 +135,12 @@
             <artifactId>dd-dataverse-ingest-api</artifactId>
             <version>${dd-dataverse-ingest-api.version}</version>
         </dependency>
+        <dependency>
+            <groupId>nl.knaw.dans</groupId>
+            <artifactId>dd-validate-dans-bag-api</artifactId>
+            <version>${dd-validate-dans-bag-api.version}</version>
+        </dependency>
+
 
         <!-- dd-ingest-flow -->
         <dependency>
@@ -176,7 +191,6 @@
 
 
 
-
     </dependencies>
 
     <build>
@@ -215,6 +229,12 @@
                                     <version>${dd-dataverse-ingest-api.version}</version>
                                     <outputDirectory>${project.build.directory}/openapi</outputDirectory>
                                 </artifactItem>
+                                <artifactItem>
+                                    <groupId>nl.knaw.dans</groupId>
+                                    <artifactId>dd-validate-dans-bag-api</artifactId>
+                                    <version>${dd-validate-dans-bag-api.version}</version>
+                                    <outputDirectory>${project.build.directory}/openapi</outputDirectory>
+                                </artifactItem>
                             </artifactItems>
                         </configuration>
                     </execution>
@@ -235,6 +255,31 @@
                             <modelPackage>nl.knaw.dans.dvingest.api</modelPackage>
                             <invokerPackage>nl.knaw.dans.dvingest.resources</invokerPackage>
                             <templateDirectory>${project.basedir}/src/main/resources/openapi-generator-templates</templateDirectory>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>generate-dd-validate-dans-bag-client</id>
+                        <goals>
+                            <goal>generate</goal>
+                        </goals>
+                        <configuration>
+                            <globalProperties>
+                                <skipFormModel>false</skipFormModel>
+                            </globalProperties>
+                            <inputSpec>${project.build.directory}/openapi/dd-validate-dans-bag-api.yml</inputSpec>
+                            <generatorName>java</generatorName>
+                            <configOptions>
+                                <apiPackage>nl.knaw.dans.validatedansbag.client.resources</apiPackage>
+                                <modelPackage>nl.knaw.dans.validatedansbag.client.api</modelPackage>
+                                <invokerPackage>nl.knaw.dans.validatedansbag.invoker</invokerPackage>
+                                <!-- the client does not appear to need annotations so we can remove them -->
+                                <annotationLibrary>none</annotationLibrary>
+                                <!-- this generates jersey2 client -->
+                                <library>jersey2</library>
+                                <!-- remove this optional dependency as it was not used in the generated code anyway  -->
+                                <!-- see https://github.com/OpenAPITools/jackson-databind-nullable -->
+                                <openApiNullable>false</openApiNullable>
+                            </configOptions>
                         </configuration>
                     </execution>
                 </executions>

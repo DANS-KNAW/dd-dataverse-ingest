@@ -90,6 +90,11 @@ public class DataverseIngestDeposit implements Comparable<DataverseIngestDeposit
     }
 
     @Override
+    public void validate() {
+        log.debug("No validation implemented for DataverseIngestDeposit");
+    }
+
+    @Override
     public void moveTo(Path targetDir) throws IOException {
         log.debug("Moving deposit {} to {}", location, targetDir);
         Files.move(location, targetDir.resolve(location.getFileName()));

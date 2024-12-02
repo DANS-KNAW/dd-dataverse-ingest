@@ -16,6 +16,7 @@
 package nl.knaw.dans.dvingest.core;
 
 import lombok.AllArgsConstructor;
+import nl.knaw.dans.dvingest.client.ValidateDansBagService;
 import nl.knaw.dans.dvingest.core.dansbag.DansBagMappingService;
 import nl.knaw.dans.dvingest.core.service.DataverseService;
 import nl.knaw.dans.dvingest.core.service.UtilityServices;
@@ -30,12 +31,13 @@ public class DepositInboxTaskFactory implements InboxTaskFactory {
     private final boolean onlyConvertDansDeposit;
     private final DataverseService dataverseService;
     private final UtilityServices utilityServices;
+    private final ValidateDansBagService validateDansBagService;
     private final DansBagMappingService dansBagMappingService;
     private final YamlService yamlService;
 
     @Override
     public Runnable createInboxTask(Path path) {
         var deposit = new DataverseIngestDeposit(path, yamlService);
-        return new DepositTask(deposit, outputDir, onlyConvertDansDeposit, dataverseService, utilityServices, dansBagMappingService, yamlService);
+        return new DepositTask(deposit, outputDir, onlyConvertDansDeposit, validateDansBagService, dataverseService, utilityServices, dansBagMappingService, yamlService);
     }
 }

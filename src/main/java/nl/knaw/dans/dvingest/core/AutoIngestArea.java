@@ -19,6 +19,7 @@ import io.dropwizard.lifecycle.Managed;
 import lombok.Builder;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
+import nl.knaw.dans.dvingest.client.ValidateDansBagService;
 import nl.knaw.dans.dvingest.core.dansbag.DansBagMappingService;
 import nl.knaw.dans.dvingest.core.service.DataverseService;
 import nl.knaw.dans.dvingest.core.service.UtilityServices;
@@ -33,11 +34,12 @@ public class AutoIngestArea extends IngestArea implements Managed {
     private final Inbox autoIngestInbox;
 
     @Builder(builderMethodName = "autoIngestAreaBuilder")
-    public AutoIngestArea(@NonNull ExecutorService executorService, @NonNull DataverseService dataverseService, @NonNull UtilityServices utilityServices,
+    public AutoIngestArea(@NonNull ExecutorService executorService, @NonNull ValidateDansBagService validateDansBagService, @NonNull DataverseService dataverseService,
+        @NonNull UtilityServices utilityServices,
         DansBagMappingService dansBagMappingService /* may be null if disabled !*/, @NonNull YamlService yamlService,
         Path inbox, Path outbox) {
-        super(executorService, dataverseService, utilityServices, dansBagMappingService, yamlService, inbox, outbox);
-        var inboxTaskFactory = new DepositInboxTaskFactory(outbox, false, dataverseService, utilityServices, dansBagMappingService, yamlService);
+        super(executorService, validateDansBagService, dataverseService, utilityServices, dansBagMappingService, yamlService, inbox, outbox);
+        var inboxTaskFactory = new DepositInboxTaskFactory(outbox, false, dataverseService, utilityServices, validateDansBagService, dansBagMappingService, yamlService);
         autoIngestInbox = Inbox.builder()
             .inbox(inbox)
             .taskFactory(inboxTaskFactory)

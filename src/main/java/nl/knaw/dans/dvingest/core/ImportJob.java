@@ -22,6 +22,7 @@ import lombok.extern.slf4j.Slf4j;
 import nl.knaw.dans.dvingest.api.ImportCommandDto;
 import nl.knaw.dans.dvingest.api.ImportJobStatusDto;
 import nl.knaw.dans.dvingest.api.ImportJobStatusDto.StatusEnum;
+import nl.knaw.dans.dvingest.client.ValidateDansBagService;
 import nl.knaw.dans.dvingest.core.dansbag.DansBagMappingService;
 import nl.knaw.dans.dvingest.core.service.DataverseService;
 import nl.knaw.dans.dvingest.core.service.UtilityServices;
@@ -49,6 +50,8 @@ public class ImportJob implements Runnable {
     private final YamlService yamlService;
     @NonNull
     private final DansBagMappingService dansBagMappingService;
+    @NonNull
+    private final ValidateDansBagService validateDansBagService;
 
     @Getter
     private final ImportJobStatusDto status = new ImportJobStatusDto();
@@ -59,7 +62,7 @@ public class ImportJob implements Runnable {
         @NonNull DataverseService dataverseService,
         @NonNull UtilityServices utilityServices,
         @NonNull YamlService yamlService,
-        @NonNull DansBagMappingService dansBagMappingService) {
+        @NonNull DansBagMappingService dansBagMappingService, @NonNull ValidateDansBagService validateDansBagService) {
         this.importCommand = importCommand;
         this.outputDir = outputDir;
         this.onlyConvertDansDeposit = onlyConvertDansDeposit;
@@ -67,6 +70,7 @@ public class ImportJob implements Runnable {
         this.utilityServices = utilityServices;
         this.yamlService = yamlService;
         this.dansBagMappingService = dansBagMappingService;
+        this.validateDansBagService = validateDansBagService;
     }
 
     @Override
@@ -91,7 +95,7 @@ public class ImportJob implements Runnable {
 
             for (DataverseIngestDeposit dataverseIngestDeposit : deposits) {
                 log.info("START Processing deposit: {}", dataverseIngestDeposit.getId());
-                var task = new DepositTask(dataverseIngestDeposit, outputDir, onlyConvertDansDeposit, dataverseService, utilityServices, dansBagMappingService, yamlService);
+                var task = new DepositTask(dataverseIngestDeposit, outputDir, onlyConvertDansDeposit, validateDansBagService, dataverseService, utilityServices, dansBagMappingService, yamlService);
                 task.run();
                 log.info("END Processing deposit: {}", dataverseIngestDeposit.getId());
                 // TODO: record number of processed/rejected/failed deposits in ImportJob status

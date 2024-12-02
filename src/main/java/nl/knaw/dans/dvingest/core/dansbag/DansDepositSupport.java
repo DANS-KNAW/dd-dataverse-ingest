@@ -15,14 +15,18 @@
  */
 package nl.knaw.dans.dvingest.core.dansbag;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.dropwizard.configuration.ConfigurationException;
 import lombok.extern.slf4j.Slf4j;
+import nl.knaw.dans.dvingest.client.ValidateDansBagService;
 import nl.knaw.dans.dvingest.core.DataverseIngestBag;
 import nl.knaw.dans.dvingest.core.DataverseIngestDeposit;
 import nl.knaw.dans.dvingest.core.Deposit;
 import nl.knaw.dans.dvingest.core.service.YamlService;
 import nl.knaw.dans.ingest.core.domain.DepositState;
 import nl.knaw.dans.ingest.core.exception.InvalidDepositException;
+import nl.knaw.dans.ingest.core.exception.RejectedDepositException;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -31,6 +35,9 @@ import java.util.UUID;
 
 @Slf4j
 public class DansDepositSupport implements Deposit {
+    private static final ObjectMapper objectMapper = new ObjectMapper();
+
+    private final ValidateDansBagService validateDansBagService;
     private final DansBagMappingService dansBagMappingService;
     private final YamlService yamlService;
     private final DataverseIngestDeposit ingestDataverseIngestDeposit;
@@ -38,7 +45,8 @@ public class DansDepositSupport implements Deposit {
 
     private nl.knaw.dans.ingest.core.domain.Deposit dansDeposit;
 
-    public DansDepositSupport(DataverseIngestDeposit dataverseIngestDeposit, DansBagMappingService dansBagMappingService, YamlService yamlService) {
+    public DansDepositSupport(ValidateDansBagService validateDansBagService, DataverseIngestDeposit dataverseIngestDeposit, DansBagMappingService dansBagMappingService, YamlService yamlService) {
+        this.validateDansBagService = validateDansBagService;
         this.ingestDataverseIngestDeposit = dataverseIngestDeposit;
         this.dansBagMappingService = dansBagMappingService;
         this.yamlService = yamlService;
@@ -123,4 +131,29 @@ public class DansDepositSupport implements Deposit {
     public void moveTo(Path processed) throws IOException {
         ingestDataverseIngestDeposit.moveTo(processed);
     }
+
+    @Override
+    public void validate() {
+        if (isDansDeposit) {
+            log.debug("Validating DANS deposit");
+            try {
+                // TODO: get the bag from the deposit, but we cannot use dansDeposit yet, because conversion can only happen after validation
+
+                var depositLocation = ingestDataverseIngestDeposit.getLocation();
+                var result = validateDansBagService.validate(bag.);
+
+                var isCompliant = result.getIsCompliant();
+                if (isCompliant == null) {
+                    throw new RuntimeException("Validation result is null");
+                }
+                if (!result.getIsCompliant()) {
+                    throw new RejectedDepositException(dansDeposit, objectMapper.writeValueAsString(result));
+                }
+            }
+            catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
+    }
+
 }

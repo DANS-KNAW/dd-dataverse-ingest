@@ -18,6 +18,7 @@ package nl.knaw.dans.dvingest.config;
 import lombok.Data;
 import lombok.NonNull;
 
+import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import java.nio.file.Path;
 import java.util.List;
@@ -37,4 +38,8 @@ public class DansDepositConversionConfig {
     private Path mappingDefsDir;
 
     private List<String> skipFields = List.of();
+
+    @NotNull
+    @Valid
+    private ValidateDansBagConfig validateDansBag;
 }

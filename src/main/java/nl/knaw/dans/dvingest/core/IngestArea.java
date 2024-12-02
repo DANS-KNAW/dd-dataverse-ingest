@@ -22,6 +22,7 @@ import lombok.extern.slf4j.Slf4j;
 import nl.knaw.dans.dvingest.api.ImportCommandDto;
 import nl.knaw.dans.dvingest.api.ImportJobStatusDto;
 import nl.knaw.dans.dvingest.api.ImportJobStatusDto.StatusEnum;
+import nl.knaw.dans.dvingest.client.ValidateDansBagService;
 import nl.knaw.dans.dvingest.core.dansbag.DansBagMappingService;
 import nl.knaw.dans.dvingest.core.service.DataverseService;
 import nl.knaw.dans.dvingest.core.service.UtilityServices;
@@ -46,6 +47,8 @@ public class IngestArea  {
     @NonNull
     private final DansBagMappingService dansBagMappingService;
     @NonNull
+    private final ValidateDansBagService validateDansBagService;
+    @NonNull
     private final Path inbox;
     @NonNull
     protected final Path outbox;
@@ -56,9 +59,10 @@ public class IngestArea  {
     private final YamlService yamlService;
 
     @Builder
-    protected IngestArea(ExecutorService executorService, DataverseService dataverseService, UtilityServices utilityServices, DansBagMappingService dansBagMappingService, YamlService yamlService, Path inbox, Path outbox) {
+    protected IngestArea(ExecutorService executorService, ValidateDansBagService validateDansBagService, DataverseService dataverseService, UtilityServices utilityServices, DansBagMappingService dansBagMappingService, YamlService yamlService, Path inbox, Path outbox) {
         try {
             this.executorService = executorService;
+            this.validateDansBagService = validateDansBagService;
             this.dataverseService = dataverseService;
             this.utilityServices = utilityServices;
             this.dansBagMappingService = dansBagMappingService;
@@ -115,6 +119,7 @@ public class IngestArea  {
             .utilityServices(utilityServices)
             .yamlService(yamlService)
             .dansBagMappingService(dansBagMappingService)
+            .validateDansBagService(validateDansBagService)
             .build();
     }
 

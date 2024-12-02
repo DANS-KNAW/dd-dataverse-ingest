@@ -114,6 +114,19 @@ dansDepositConversion:
   skipFields: [ ]
 
 
+  validateDansBag:
+    url: 'http://localhost:20330/'
+    httpClient:
+      timeout: 45min
+      connectionTimeout: 15s
+      connectionRequestTimeout: 15s
+      timeToLive: 1h
+      retries: 2
+      userAgent: dd-dataverse-ingest
+
+
+
+
 #
 # See https://www.dropwizard.io/en/latest/manual/configuration.html#logging
 #

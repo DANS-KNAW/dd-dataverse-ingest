@@ -13,29 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package nl.knaw.dans.dvingest.core;
+package nl.knaw.dans.dvingest.client;
 
-import java.io.IOException;
+import nl.knaw.dans.ingest.core.exception.RejectedDepositException;
+import nl.knaw.dans.validatedansbag.client.api.ValidateOkDto;
+import nl.knaw.dans.validatedansbag.client.api.ValidateOkDto.InformationPackageTypeEnum;
+
 import java.nio.file.Path;
-import java.util.List;
-import java.util.UUID;
 
-public interface Deposit {
-    boolean convertDansDepositIfNeeded();
+public interface ValidateDansBagService {
 
-    String getUpdatesDataset();
+    ValidateOkDto validate(Path bag);
 
-    List<DataverseIngestBag> getBags() throws IOException;
-
-    UUID getId();
-
-    Path getLocation();
-
-    void onSuccess(String pid);
-
-    void onFailed(String pid);
-
-    void moveTo(Path processed) throws IOException;
-
-    void validate();
 }
