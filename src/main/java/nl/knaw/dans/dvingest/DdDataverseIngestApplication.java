@@ -23,10 +23,8 @@ import lombok.extern.slf4j.Slf4j;
 import nl.knaw.dans.dvingest.client.ValidateDansBagServiceImpl;
 import nl.knaw.dans.dvingest.config.DansDepositConversionConfig;
 import nl.knaw.dans.dvingest.config.DdDataverseIngestConfiguration;
-import nl.knaw.dans.dvingest.config.IngestAreaConfig;
 import nl.knaw.dans.dvingest.core.AutoIngestArea;
 import nl.knaw.dans.dvingest.core.IngestArea;
-import nl.knaw.dans.dvingest.core.MappingLoader;
 import nl.knaw.dans.dvingest.core.dansbag.DansBagMappingService;
 import nl.knaw.dans.dvingest.core.dansbag.DansBagMappingServiceImpl;
 import nl.knaw.dans.dvingest.core.dansbag.SupportedLicenses;
@@ -39,6 +37,7 @@ import nl.knaw.dans.dvingest.resources.IllegalArgumentExceptionMapper;
 import nl.knaw.dans.dvingest.resources.IngestApiResource;
 import nl.knaw.dans.ingest.core.service.mapper.DepositToDvDatasetMetadataMapper;
 import nl.knaw.dans.lib.dataverse.DataverseException;
+import nl.knaw.dans.lib.util.MappingLoader;
 import org.apache.commons.io.FileUtils;
 
 import java.io.IOException;
@@ -63,7 +62,9 @@ public class DdDataverseIngestApplication extends Application<DdDataverseIngestC
 
     @Override
     public void run(final DdDataverseIngestConfiguration configuration, final Environment environment) {
-        // Create service components
+        /*
+         * Create service components
+         */
         var dataverseClient = configuration.getDataverse().build(environment, "dataverse");
         var dataverseService = DataverseServiceImpl.builder()
             .dataverseClient(dataverseClient)
@@ -79,7 +80,7 @@ public class DdDataverseIngestApplication extends Application<DdDataverseIngestC
         var dansBagMappingForImport = createDansBagMappingService(false, configuration.getDansDepositConversion(), dataverseService);
         var dansBagMappingForMigration = createDansBagMappingService(true, configuration.getDansDepositConversion(), dataverseService);
         var yamlService = new YamlServiceImpl();
-        IngestAreaConfig ingestAreaConfig = configuration.getIngest().getImportConfig();
+        var importAreaConfig = configuration.getIngest().getImportConfig();
         var validateDansBagMigration = new ValidateDansBagServiceImpl(configuration.getDansDepositConversion().getValidateDansBag(), true);
         var validateDansBagImport = new ValidateDansBagServiceImpl(configuration.getDansDepositConversion().getValidateDansBag(), false);
         var importArea = IngestArea.builder()
@@ -87,11 +88,11 @@ public class DdDataverseIngestApplication extends Application<DdDataverseIngestC
             .dataverseService(dataverseService)
             .utilityServices(utilityServices)
             .yamlService(yamlService)
-            .inbox(ingestAreaConfig.getInbox())
-            .outbox(ingestAreaConfig.getOutbox())
+            .inbox(importAreaConfig.getInbox())
+            .outbox(importAreaConfig.getOutbox())
             .validateDansBagService(validateDansBagImport)
             .dansBagMappingService(dansBagMappingForImport).build();
-        IngestAreaConfig migrationAreaConfig = configuration.getIngest().getMigration();
+        var migrationAreaConfig = configuration.getIngest().getMigration();
         var migrationArea = IngestArea.builder()
             .executorService(environment.lifecycle().executorService("migration").minThreads(1).maxThreads(1).build())
             .dataverseService(dataverseService)
@@ -101,9 +102,10 @@ public class DdDataverseIngestApplication extends Application<DdDataverseIngestC
             .outbox(migrationAreaConfig.getOutbox())
             .validateDansBagService(validateDansBagMigration)
             .dansBagMappingService(dansBagMappingForMigration).build();
+        var autoIngestConfig = configuration.getIngest().getAutoIngest();
         var autoIngestArea = AutoIngestArea.autoIngestAreaBuilder()
-            .inbox(configuration.getIngest().getAutoIngest().getInbox())
-            .outbox(configuration.getIngest().getAutoIngest().getOutbox())
+            .inbox(autoIngestConfig.getInbox())
+            .outbox(autoIngestConfig.getOutbox())
             .dansBagMappingService(dansBagMappingForImport)
             .dataverseService(dataverseService)
             .utilityServices(utilityServices)
@@ -112,7 +114,9 @@ public class DdDataverseIngestApplication extends Application<DdDataverseIngestC
             .executorService(environment.lifecycle().executorService("auto-ingest").minThreads(1).maxThreads(1).build())
             .build();
 
-        // Connect components
+        /*
+         * Register components with Dropwizard
+         */
         environment.jersey().register(new DefaultApiResource());
         environment.jersey().register(new IngestApiResource(importArea, migrationArea));
         environment.lifecycle().manage(autoIngestArea);

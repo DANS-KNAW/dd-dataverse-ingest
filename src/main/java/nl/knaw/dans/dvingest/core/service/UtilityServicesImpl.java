@@ -16,7 +16,8 @@
 package nl.knaw.dans.dvingest.core.service;
 
 import lombok.Builder;
-import nl.knaw.dans.dvingest.core.service.PathIteratorZipper.PathIteratorZipperBuilder;
+import nl.knaw.dans.lib.util.PathIteratorZipper;
+import nl.knaw.dans.lib.util.PathIteratorZipper.PathIteratorZipperBuilder;
 
 import java.io.IOException;
 import java.nio.file.Files;

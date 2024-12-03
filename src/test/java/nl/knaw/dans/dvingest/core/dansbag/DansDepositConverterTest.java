@@ -16,7 +16,7 @@
 package nl.knaw.dans.dvingest.core.dansbag;
 
 import gov.loc.repository.bagit.reader.BagReader;
-import nl.knaw.dans.dvingest.core.MappingLoader;
+import nl.knaw.dans.lib.util.MappingLoader;
 import nl.knaw.dans.dvingest.core.TestDirFixture;
 import nl.knaw.dans.dvingest.core.service.DataverseService;
 import nl.knaw.dans.dvingest.core.service.YamlService;

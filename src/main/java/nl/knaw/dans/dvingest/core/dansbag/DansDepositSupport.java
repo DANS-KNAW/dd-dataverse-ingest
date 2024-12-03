@@ -140,7 +140,7 @@ public class DansDepositSupport implements Deposit {
                 // TODO: get the bag from the deposit, but we cannot use dansDeposit yet, because conversion can only happen after validation
 
                 var depositLocation = ingestDataverseIngestDeposit.getLocation();
-                var result = validateDansBagService.validate(bag.);
+                var result = validateDansBagService.validate(null);
 
                 var isCompliant = result.getIsCompliant();
                 if (isCompliant == null) {
