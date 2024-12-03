@@ -15,6 +15,8 @@
  */
 package nl.knaw.dans.dvingest.core;
 
+import lombok.NonNull;
+
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.List;
@@ -31,9 +33,11 @@ public interface Deposit {
 
     Path getLocation();
 
-    void onSuccess(String pid);
+    void onSuccess(@NonNull String pid, String message);
 
-    void onFailed(String pid);
+    void onFailed(String pid, String message);
+
+    void onRejected(String pid, String message);
 
     void moveTo(Path processed) throws IOException;
 

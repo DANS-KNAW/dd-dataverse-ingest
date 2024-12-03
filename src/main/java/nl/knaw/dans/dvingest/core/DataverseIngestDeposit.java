@@ -26,7 +26,9 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.OffsetDateTime;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 import java.util.UUID;
 
@@ -79,14 +81,44 @@ public class DataverseIngestDeposit implements Comparable<DataverseIngestDeposit
         }
     }
 
-    @Override
-    public void onSuccess(String pid) {
-
+    public void updateProperties(Map<String, String> properties) {
+        properties.forEach(depositProperties::setProperty);
+        // Save the updated properties
+        try (var writer = Files.newBufferedWriter(location.resolve("deposit.properties"))) {
+            depositProperties.store(writer, "Updated by DANS Dataverse Ingest");
+        }
+        catch (IOException e) {
+            log.error("Error updating deposit properties", e);
+        }
     }
 
     @Override
-    public void onFailed(String pid) {
+    public void onSuccess(@NonNull String pid, String message) {
+        var map = new HashMap<String, String>();
+        map.put("identifier.doi", pid);
+        updateProperties(map);
+    }
 
+    @Override
+    public void onFailed(String pid, String message) {
+        var map = new HashMap<String, String>();
+        map.put("state.label", "FAILED");
+        map.put("state.description", message);
+        if (pid != null) {
+            map.put("identifier.doi", pid);
+        }
+        updateProperties(map);
+    }
+
+    @Override
+    public void onRejected(String pid, String message) {
+        var map = new HashMap<String, String>();
+        map.put("state.label", "REJECTED");
+        map.put("state.description", message);
+        if (pid != null) {
+            map.put("identifier.doi", pid);
+        }
+        updateProperties(map);
     }
 
     @Override

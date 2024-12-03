@@ -21,4 +21,8 @@ public class RejectedDepositException extends RuntimeException {
     public RejectedDepositException(Deposit deposit, String message) {
         super(String.format("Rejected %s: %s", deposit.getDir(), message));
     }
+
+    public RejectedDepositException(nl.knaw.dans.dvingest.core.Deposit deposit, String message) {
+        super(String.format("Rejected %s: %s", deposit.getLocation(), message));
+    }
 }

@@ -108,4 +108,8 @@ public class DataverseIngestBag implements Comparable<DataverseIngestBag> {
     public String toString() {
         return bagDir.getFileName().toString();
     }
+
+    public Path getLocation() {
+        return bagDir;
+    }
 }

@@ -78,23 +78,24 @@ public class DepositTask implements Runnable {
                     .run(pid);
                 log.info("END processing deposit / bag: {} / {}", deposit.getId(), bag);
             }
-            deposit.onSuccess(pid);
+            deposit.onSuccess(pid, "Deposit processed successfully");
             deposit.moveTo(outputDir.resolve("processed"));
         }
         catch (RejectedDepositException e) {
             try {
                 log.error("Deposit rejected", e);
+                deposit.onRejected(pid, e.getMessage());
                 deposit.moveTo(outputDir.resolve("rejected"));
                 status = Status.REJECTED;
             }
-            catch (IOException ioException) {
-                log.error("Failed to move deposit to rejected directory", ioException);
+            catch (Exception e2) {
+                log.error("Failed to move deposit to rejected directory", e2);
             }
         }
         catch (Exception e) {
             try {
                 log.error("Failed to ingest deposit", e);
-                deposit.onFailed(pid);
+                deposit.onFailed(pid, e.getMessage());
                 deposit.moveTo(outputDir.resolve("failed"));
                 status = Status.FAILED;
             }

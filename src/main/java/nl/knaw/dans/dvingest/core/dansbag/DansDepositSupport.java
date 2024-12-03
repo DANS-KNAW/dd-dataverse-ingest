@@ -15,22 +15,23 @@
  */
 package nl.knaw.dans.dvingest.core.dansbag;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.dropwizard.configuration.ConfigurationException;
+import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import nl.knaw.dans.dvingest.client.ValidateDansBagService;
 import nl.knaw.dans.dvingest.core.DataverseIngestBag;
 import nl.knaw.dans.dvingest.core.DataverseIngestDeposit;
 import nl.knaw.dans.dvingest.core.Deposit;
 import nl.knaw.dans.dvingest.core.service.YamlService;
-import nl.knaw.dans.ingest.core.domain.DepositState;
 import nl.knaw.dans.ingest.core.exception.InvalidDepositException;
 import nl.knaw.dans.ingest.core.exception.RejectedDepositException;
 
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 @Slf4j
@@ -96,23 +97,29 @@ public class DansDepositSupport implements Deposit {
     }
 
     @Override
-    public void onSuccess(String pid) {
-        if (dansDeposit == null) {
-            return;
-        }
+    public void onSuccess(@NonNull String pid, String message) {
         try {
             var bag = ingestDataverseIngestDeposit.getBags().get(0);
             var action = bag.getUpdateState().getAction();
             if (action.startsWith("publish")) {
-                dansBagMappingService.updateDepositStatus(dansDeposit, DepositState.PUBLISHED, pid);
+                ingestDataverseIngestDeposit.updateProperties(Map.of(
+                        "state.label", "PUBLISHED",
+                        "state.description", "The dataset is published",
+                        "identifier.doi", pid
+                    )
+                );
             }
             else if (action.equals("submit-for-review")) {
-                dansBagMappingService.updateDepositStatus(dansDeposit, DepositState.SUBMITTED, pid);
+                ingestDataverseIngestDeposit.updateProperties(Map.of(
+                        "state.label", "ACCEPTED",
+                        "state.description", "The dataset is submitted for review",
+                        "identifier.doi", pid
+                    )
+                );
             }
             else {
                 throw new RuntimeException("Unknown update action: " + action);
             }
-
         }
         catch (IOException e) {
             throw new RuntimeException("Error reading bag", e);
@@ -123,8 +130,13 @@ public class DansDepositSupport implements Deposit {
     }
 
     @Override
-    public void onFailed(String pid) {
-        dansBagMappingService.updateDepositStatus(dansDeposit, DepositState.FAILED, pid);
+    public void onFailed(String pid, String message) {
+        ingestDataverseIngestDeposit.onFailed(pid, message);
+    }
+
+    @Override
+    public void onRejected(String pid, String message) {
+        ingestDataverseIngestDeposit.onRejected(pid, message);
     }
 
     @Override
@@ -137,17 +149,14 @@ public class DansDepositSupport implements Deposit {
         if (isDansDeposit) {
             log.debug("Validating DANS deposit");
             try {
-                // TODO: get the bag from the deposit, but we cannot use dansDeposit yet, because conversion can only happen after validation
-
-                var depositLocation = ingestDataverseIngestDeposit.getLocation();
-                var result = validateDansBagService.validate(null);
+                var result = validateDansBagService.validate(ingestDataverseIngestDeposit.getBags().get(0).getLocation().toAbsolutePath());
 
                 var isCompliant = result.getIsCompliant();
                 if (isCompliant == null) {
                     throw new RuntimeException("Validation result is null");
                 }
                 if (!result.getIsCompliant()) {
-                    throw new RejectedDepositException(dansDeposit, objectMapper.writeValueAsString(result));
+                    throw new RejectedDepositException(ingestDataverseIngestDeposit, objectMapper.writeValueAsString(result));
                 }
             }
             catch (IOException e) {
