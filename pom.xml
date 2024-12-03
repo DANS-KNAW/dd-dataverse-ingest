@@ -37,7 +37,7 @@
     <properties>
         <main-class>nl.knaw.dans.dvingest.DdDataverseIngestApplication</main-class>
         <dd-dataverse-ingest-api.version>0.2.0</dd-dataverse-ingest-api.version>
-        <dd-validate-dans-bag-api.version>0.5.1-SNAPSHOT</dd-validate-dans-bag-api.version>
+        <dd-validate-dans-bag-api.version>1.0.0</dd-validate-dans-bag-api.version>
     </properties>
 
     <scm>
@@ -70,7 +70,7 @@
         <dependency>
             <groupId>nl.knaw.dans</groupId>
             <artifactId>dans-java-utils</artifactId>
-            <version>1.3.0-SNAPSHOT</version>
+            <version>1.3.0</version>
         </dependency>
         <dependency>
             <groupId>nl.knaw.dans</groupId>
