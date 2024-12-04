@@ -1,0 +1,4 @@
+9002fadbf0f10e5a58ebd4d66f8d54a2e41c9214  metadata/dataset.xml
+e5d5ae25938cfa37c70a7d948453d69d4d5eeae1  manifest-sha1.txt
+24b520e80fbc6dbad56a1149470af3638a8d0e7c  metadata/files.xml
+e2924b081506bac23f5fffe650ad1848a1c8ac1d  bagit.txt

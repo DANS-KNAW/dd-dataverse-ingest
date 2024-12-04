@@ -1,0 +1,8 @@
+912dcd8724d99d2ecef62f089ef1b81032845db8  data/file1.txt
+02f1b44559a4a4e4d213e694fc082f039732ba5d  data/file2.txt
+5f0de8456a3e55bc316fdde3c10f10b35e69ddf3  data/file3.txt
+27d811fcc8a62981486f473f172e201543178146  data/file4.txt
+cfb9ed217d610ad6a32487889f6fe5319056ce6c  data/subdir/fileA.txt
+4e6867e27887a3df45412b557f561a081e516555  data/subdir/fileB.txt
+c9ea1142a3c51817bcc163f6efc23dfdb9b195cd  data/subdir/fileC.txt
+a58371604201655035ff49711e58a4891536f1d6  data/subdir/fileD.txt
