@@ -29,10 +29,7 @@ import nl.knaw.dans.ingest.core.deposit.DepositFileLister;
 import nl.knaw.dans.ingest.core.deposit.DepositFileListerImpl;
 import nl.knaw.dans.ingest.core.deposit.DepositReader;
 import nl.knaw.dans.ingest.core.deposit.DepositReaderImpl;
-import nl.knaw.dans.ingest.core.deposit.DepositWriter;
-import nl.knaw.dans.ingest.core.deposit.DepositWriterImpl;
 import nl.knaw.dans.ingest.core.domain.Deposit;
-import nl.knaw.dans.ingest.core.domain.DepositState;
 import nl.knaw.dans.ingest.core.domain.FileInfo;
 import nl.knaw.dans.ingest.core.exception.InvalidDepositException;
 import nl.knaw.dans.ingest.core.io.BagDataManager;
@@ -57,6 +54,7 @@ import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
@@ -81,7 +79,6 @@ public class DansBagMappingServiceImpl implements DansBagMappingService {
     private final DepositToDvDatasetMetadataMapper depositToDvDatasetMetadataMapper;
     private final DataverseService datasetService;
     private final DepositReader depositReader;
-    private final DepositWriter depositWriter;
     private final SupportedLicenses supportedLicenses;
     private final Pattern fileExclusionPattern;
     private final List<String> embargoExclusions;
@@ -99,10 +96,27 @@ public class DansBagMappingServiceImpl implements DansBagMappingService {
         BagDirResolver bagDirResolver = new BagDirResolverImpl(fileService);
 
         depositReader = new DepositReaderImpl(xmlReader, bagDirResolver, fileService, bagDataManager, depositFileLister, manifestHelper);
-        depositWriter = new DepositWriterImpl(bagDataManager);
         this.supportedLicenses = supportedLicenses;
         this.fileExclusionPattern = fileExclusionPattern;
         this.embargoExclusions = embargoExclusions;
+    }
+
+    @Override
+    public String getUpdatesDataset(Path depositDir) throws IOException {
+        var isVersionOf = getIsVersionOf(depositDir);
+        if (StringUtils.isBlank(isVersionOf)) {
+            return null;
+        }
+        return null;
+    }
+
+    private String getIsVersionOf(Path depositDir) throws IOException {
+        try (var subDirStream = Files.list(depositDir)) {
+            var subDir = subDirStream.filter(Files::isDirectory).findFirst()
+                .orElseThrow(() -> new IOException("No subdirectory found in " + depositDir));
+            var bagInfoTxt = subDir.resolve("bag-info.txt");
+            return new LightweightBagInfo(bagInfoTxt).get("Is-Version-Of");
+        }
     }
 
     @Override
@@ -235,18 +249,6 @@ public class DansBagMappingServiceImpl implements DansBagMappingService {
         roleAssignment.setRole("contributorplus"); // TODO: make this configurable
         editPermissions.setAddRoleAssignments(List.of(roleAssignment));
         return editPermissions;
-    }
-
-    @Override
-    public void updateDepositStatus(Deposit deposit, DepositState state, String pid) {
-        try {
-            deposit.setState(state);
-            deposit.setDoi(pid);
-            depositWriter.saveDeposit(deposit);
-        }
-        catch (InvalidDepositException e) {
-            throw new RuntimeException("Failed to update deposit status", e);
-        }
     }
 
     @Override

@@ -50,7 +50,7 @@ public class DepositTask implements Runnable {
     public DepositTask(DataverseIngestDeposit dataverseIngestDeposit, Path outputDir, boolean onlyConvertDansDeposit, ValidateDansBagService validateDansBagService, DataverseService dataverseService, UtilityServices utilityServices,
         DansBagMappingService dansBagMappingService,
         YamlService yamlService) {
-        this.deposit = dansBagMappingService == null ? dataverseIngestDeposit : new DansDepositSupport(validateDansBagService, dataverseIngestDeposit, dansBagMappingService, yamlService);
+        this.deposit = dansBagMappingService == null ? dataverseIngestDeposit : new DansDepositSupport(dataverseIngestDeposit, validateDansBagService, dansBagMappingService, yamlService);
         this.dataverseService = dataverseService;
         this.onlyConvertDansDeposit = onlyConvertDansDeposit;
         this.utilityServices = utilityServices;
@@ -59,13 +59,14 @@ public class DepositTask implements Runnable {
 
     @Override
     public void run() {
-        String pid = deposit.getUpdatesDataset();
+        String pid = null;
         try {
             deposit.validate();
             if (deposit.convertDansDepositIfNeeded() && onlyConvertDansDeposit) {
                 log.info("Only converting DANS deposit, LEAVING CONVERTED DEPOSIT IN PLACE");
                 return;
             }
+            pid = deposit.getUpdatesDataset();
 
             for (DataverseIngestBag bag : deposit.getBags()) {
                 log.info("START processing deposit / bag: {} / {}", deposit.getId(), bag);

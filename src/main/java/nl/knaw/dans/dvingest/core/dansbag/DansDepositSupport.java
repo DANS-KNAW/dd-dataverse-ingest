@@ -29,7 +29,6 @@ import nl.knaw.dans.ingest.core.exception.RejectedDepositException;
 
 import java.io.IOException;
 import java.nio.file.Path;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -46,7 +45,7 @@ public class DansDepositSupport implements Deposit {
 
     private nl.knaw.dans.ingest.core.domain.Deposit dansDeposit;
 
-    public DansDepositSupport(ValidateDansBagService validateDansBagService, DataverseIngestDeposit dataverseIngestDeposit, DansBagMappingService dansBagMappingService, YamlService yamlService) {
+    public DansDepositSupport(DataverseIngestDeposit dataverseIngestDeposit, ValidateDansBagService validateDansBagService, DansBagMappingService dansBagMappingService, YamlService yamlService) {
         this.validateDansBagService = validateDansBagService;
         this.ingestDataverseIngestDeposit = dataverseIngestDeposit;
         this.dansBagMappingService = dansBagMappingService;
