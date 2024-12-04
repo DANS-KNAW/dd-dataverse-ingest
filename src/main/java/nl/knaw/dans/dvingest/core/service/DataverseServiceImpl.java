@@ -33,6 +33,7 @@ import nl.knaw.dans.lib.dataverse.model.dataset.MetadataBlockSummary;
 import nl.knaw.dans.lib.dataverse.model.dataset.MetadataField;
 import nl.knaw.dans.lib.dataverse.model.dataset.UpdateType;
 import nl.knaw.dans.lib.dataverse.model.file.FileMeta;
+import nl.knaw.dans.lib.dataverse.model.search.DatasetResultItem;
 import nl.knaw.dans.lib.dataverse.model.user.AuthenticatedUser;
 
 import java.io.IOException;
@@ -173,6 +174,21 @@ public class DataverseServiceImpl implements DataverseService {
     public void addEmbargo(String pid, Embargo embargo) throws IOException, DataverseException {
         var result = dataverseClient.dataset(pid).setEmbargo(embargo);
         log.debug(result.getEnvelopeAsString());
+    }
+
+    @Override
+    public List<String> findDoiByMetadataField(String key, String value) throws IOException, DataverseException {
+        var query = String.format("%s:\"%s\"", key, value);
+
+        log.trace("Searching datasets with query '{}'", query);
+        var results = dataverseClient.search().find(query);
+        var items = results.getData().getItems();
+
+        return items.stream()
+            .filter(r -> r instanceof DatasetResultItem)
+            .map(r -> (DatasetResultItem) r)
+            .map(DatasetResultItem::getGlobalId)
+            .collect(Collectors.toList());
     }
 
     // TODO: move this to dans-dataverse-client-lib; it is similar to awaitLockState.

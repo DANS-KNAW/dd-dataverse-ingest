@@ -26,6 +26,7 @@ import nl.knaw.dans.dvingest.core.Deposit;
 import nl.knaw.dans.dvingest.core.service.YamlService;
 import nl.knaw.dans.ingest.core.exception.InvalidDepositException;
 import nl.knaw.dans.ingest.core.exception.RejectedDepositException;
+import nl.knaw.dans.lib.dataverse.DataverseException;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -63,12 +64,16 @@ public class DansDepositSupport implements Deposit {
         if (isDansDeposit && dansDeposit == null) {
             log.info("Converting deposit to Dataverse ingest metadata");
             try {
+                var updatesDataset = dansBagMappingService.getUpdatesDataset(ingestDataverseIngestDeposit.getLocation());
+                if (updatesDataset != null) {
+                    ingestDataverseIngestDeposit.updateProperties(Map.of("updatesDataset", updatesDataset));
+                }
                 dansDeposit = dansBagMappingService.readDansDeposit(ingestDataverseIngestDeposit.getLocation());
                 new DansDepositConverter(dansDeposit, dansBagMappingService, yamlService).run();
                 log.info("Conversion successful");
                 return true;
             }
-            catch (IOException | InvalidDepositException e) {
+            catch (IOException | InvalidDepositException | DataverseException e) {
                 throw new RuntimeException("Error converting deposit to Dataverse ingest metadata", e);
             }
         }

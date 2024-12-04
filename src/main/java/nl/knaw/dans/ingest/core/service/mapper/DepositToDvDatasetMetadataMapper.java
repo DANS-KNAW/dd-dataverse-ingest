@@ -17,6 +17,7 @@ package nl.knaw.dans.ingest.core.service.mapper;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import nl.knaw.dans.ingest.core.domain.VaultMetadata;
@@ -85,6 +86,7 @@ import static nl.knaw.dans.ingest.core.service.XPathConstants.DDM_PROFILE;
 @Slf4j
 @RequiredArgsConstructor
 public class DepositToDvDatasetMetadataMapper {
+    @Getter
     private final boolean isMigration;
 
     private final boolean deduplicate;

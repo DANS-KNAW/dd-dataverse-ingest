@@ -19,13 +19,14 @@ import nl.knaw.dans.dvingest.core.yaml.EditFiles;
 import nl.knaw.dans.dvingest.core.yaml.EditPermissions;
 import nl.knaw.dans.ingest.core.domain.Deposit;
 import nl.knaw.dans.ingest.core.exception.InvalidDepositException;
+import nl.knaw.dans.lib.dataverse.DataverseException;
 import nl.knaw.dans.lib.dataverse.model.dataset.Dataset;
 
 import java.io.IOException;
 import java.nio.file.Path;
 
 public interface DansBagMappingService {
-    String getUpdatesDataset(Path depositDir) throws IOException;
+    String getUpdatesDataset(Path depositDir) throws IOException, DataverseException;
 
     Deposit readDansDeposit(Path depositDir) throws InvalidDepositException;
 

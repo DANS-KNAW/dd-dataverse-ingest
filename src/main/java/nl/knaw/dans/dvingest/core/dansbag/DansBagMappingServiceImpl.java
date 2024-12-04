@@ -43,6 +43,7 @@ import nl.knaw.dans.ingest.core.service.XmlReader;
 import nl.knaw.dans.ingest.core.service.XmlReaderImpl;
 import nl.knaw.dans.ingest.core.service.mapper.DepositToDvDatasetMetadataMapper;
 import nl.knaw.dans.ingest.core.service.mapper.mapping.FileElement;
+import nl.knaw.dans.lib.dataverse.DataverseException;
 import nl.knaw.dans.lib.dataverse.model.RoleAssignment;
 import nl.knaw.dans.lib.dataverse.model.dataset.Dataset;
 import nl.knaw.dans.lib.dataverse.model.file.FileMeta;
@@ -77,7 +78,7 @@ public class DansBagMappingServiceImpl implements DansBagMappingService {
     private static final SimpleDateFormat yyyymmddFormat = new SimpleDateFormat("YYYY-MM-dd");
 
     private final DepositToDvDatasetMetadataMapper depositToDvDatasetMetadataMapper;
-    private final DataverseService datasetService;
+    private final DataverseService dataverseService;
     private final DepositReader depositReader;
     private final SupportedLicenses supportedLicenses;
     private final Pattern fileExclusionPattern;
@@ -86,7 +87,7 @@ public class DansBagMappingServiceImpl implements DansBagMappingService {
     public DansBagMappingServiceImpl(DepositToDvDatasetMetadataMapper depositToDvDatasetMetadataMapper, DataverseService dataverseService, SupportedLicenses supportedLicenses,
         Pattern fileExclusionPattern, List<String> embargoExclusions) {
         this.depositToDvDatasetMetadataMapper = depositToDvDatasetMetadataMapper;
-        this.datasetService = dataverseService;
+        this.dataverseService = dataverseService;
         BagReader bagReader = new BagReader();
         ManifestHelper manifestHelper = new ManifestHelperImpl();
         DepositFileLister depositFileLister = new DepositFileListerImpl();
@@ -102,20 +103,39 @@ public class DansBagMappingServiceImpl implements DansBagMappingService {
     }
 
     @Override
-    public String getUpdatesDataset(Path depositDir) throws IOException {
-        var isVersionOf = getIsVersionOf(depositDir);
-        if (StringUtils.isBlank(isVersionOf)) {
-            return null;
-        }
-        return null;
-    }
+    public String getUpdatesDataset(Path depositDir) throws IOException, DataverseException {
+        var dansDepositProperties = new DansDepositProperties(depositDir.resolve("deposit.properties"));
+        try (var stream = Files.list(depositDir)) {
+            var bag = stream.filter(Files::isDirectory)
+                .findFirst().orElseThrow(() -> new IllegalArgumentException("No bag found in deposit"));
+            var bagInfo = new LightweightBagInfo(bag.resolve("bag-info.txt"));
+            var isVersionOf = bagInfo.get("Is-Version-Of");
+            if (isVersionOf != null) {
+                log.debug("Found Is-Version-Of in bag-info.txt, so this is an update-deposit: {}", isVersionOf);
+                List<String> results;
+                if (dansDepositProperties.getSwordToken() != null) {
+                    log.debug("Found sword token in deposit.properties, looking for target dataset by sword token");
+                    results = dataverseService.findDoiByMetadataField("dansSwordToken", dansDepositProperties.getSwordToken());
+                }
+                else if (depositToDvDatasetMetadataMapper.isMigration()) {
+                    log.debug("This is a migration deposit, looking for target dataset by dansBagIt. Note that this will only work for two versions of the same dataset");
+                    results = dataverseService.findDoiByMetadataField("dansBagId", isVersionOf);
 
-    private String getIsVersionOf(Path depositDir) throws IOException {
-        try (var subDirStream = Files.list(depositDir)) {
-            var subDir = subDirStream.filter(Files::isDirectory).findFirst()
-                .orElseThrow(() -> new IOException("No subdirectory found in " + depositDir));
-            var bagInfoTxt = subDir.resolve("bag-info.txt");
-            return new LightweightBagInfo(bagInfoTxt).get("Is-Version-Of");
+                }
+                else {
+                    throw new IllegalArgumentException("Update deposit should have either a sword token or be a migration deposit");
+                }
+                if (results.size() == 1) {
+                    return results.get(0);
+                }
+                else {
+                    throw new IllegalArgumentException("Update deposit should update exactly one dataset, found " + results.size());
+                }
+            }
+            else {
+                log.debug("No Is-Version-Of found in bag-info.txt, so this is a deposit of a new dataset");
+                return null;
+            }
         }
     }
 
@@ -292,7 +312,7 @@ public class DansBagMappingServiceImpl implements DansBagMappingService {
     Optional<AuthenticatedUser> getDatasetContact(Deposit dansDeposit) {
         return Optional.ofNullable(dansDeposit.getDepositorUserId())
             .filter(StringUtils::isNotBlank)
-            .map(userId -> datasetService.getUserById(userId)
+            .map(userId -> dataverseService.getUserById(userId)
                 .orElseThrow(() -> new RuntimeException("Unable to fetch user with id " + userId)));
     }
 

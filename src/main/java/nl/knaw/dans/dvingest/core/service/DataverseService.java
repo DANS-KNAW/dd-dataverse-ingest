@@ -70,4 +70,6 @@ public interface DataverseService {
     Set<String> getActiveMetadataBlockNames() throws IOException, DataverseException;
 
     void addEmbargo(String pid, Embargo embargo) throws IOException, DataverseException;
+
+    List<String> findDoiByMetadataField(String dansSwordToken, String swordToken) throws IOException, DataverseException;
 }
