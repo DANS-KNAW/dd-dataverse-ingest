@@ -35,7 +35,7 @@ import nl.knaw.dans.dvingest.core.service.YamlServiceImpl;
 import nl.knaw.dans.dvingest.resources.DefaultApiResource;
 import nl.knaw.dans.dvingest.resources.IllegalArgumentExceptionMapper;
 import nl.knaw.dans.dvingest.resources.IngestApiResource;
-import nl.knaw.dans.ingest.core.service.mapper.DepositToDvDatasetMetadataMapper;
+import nl.knaw.dans.dvingest.core.dansbag.mapper.DepositToDvDatasetMetadataMapper;
 import nl.knaw.dans.lib.dataverse.DataverseException;
 import nl.knaw.dans.lib.util.MappingLoader;
 import org.apache.commons.io.FileUtils;

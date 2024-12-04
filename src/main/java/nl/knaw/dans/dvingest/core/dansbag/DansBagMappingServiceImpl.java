@@ -17,12 +17,9 @@ package nl.knaw.dans.dvingest.core.dansbag;
 
 import gov.loc.repository.bagit.reader.BagReader;
 import lombok.extern.slf4j.Slf4j;
-import nl.knaw.dans.dvingest.core.bagprocessor.DataversePath;
 import nl.knaw.dans.dvingest.core.service.DataverseService;
-import nl.knaw.dans.dvingest.core.yaml.AddEmbargo;
 import nl.knaw.dans.dvingest.core.yaml.EditFiles;
 import nl.knaw.dans.dvingest.core.yaml.EditPermissions;
-import nl.knaw.dans.dvingest.core.yaml.FromTo;
 import nl.knaw.dans.ingest.core.deposit.BagDirResolver;
 import nl.knaw.dans.ingest.core.deposit.BagDirResolverImpl;
 import nl.knaw.dans.ingest.core.deposit.DepositFileLister;
@@ -38,11 +35,10 @@ import nl.knaw.dans.ingest.core.io.FileService;
 import nl.knaw.dans.ingest.core.io.FileServiceImpl;
 import nl.knaw.dans.ingest.core.service.ManifestHelper;
 import nl.knaw.dans.ingest.core.service.ManifestHelperImpl;
-import nl.knaw.dans.ingest.core.service.XPathEvaluator;
 import nl.knaw.dans.ingest.core.service.XmlReader;
 import nl.knaw.dans.ingest.core.service.XmlReaderImpl;
-import nl.knaw.dans.ingest.core.service.mapper.DepositToDvDatasetMetadataMapper;
-import nl.knaw.dans.ingest.core.service.mapper.mapping.FileElement;
+import nl.knaw.dans.dvingest.core.dansbag.mapper.DepositToDvDatasetMetadataMapper;
+import nl.knaw.dans.dvingest.core.dansbag.mapper.mapping.FileElement;
 import nl.knaw.dans.lib.dataverse.DataverseException;
 import nl.knaw.dans.lib.dataverse.model.RoleAssignment;
 import nl.knaw.dans.lib.dataverse.model.dataset.Dataset;
@@ -58,14 +54,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.text.SimpleDateFormat;
-import java.time.Instant;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
-import java.time.format.DateTimeParseException;
-import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -164,100 +152,7 @@ public class DansBagMappingServiceImpl implements DansBagMappingService {
 
     @Override
     public EditFiles getEditFilesFromDansDeposit(Deposit dansDeposit) {
-        var editFiles = new EditFiles();
-
-        var pathFileInfoMap = getFileInfo(dansDeposit);
-
-        // TODO: in update also ignore any files that have not changed (content or metadata)
-        var ignoredFiles = getIgnoredFiles(pathFileInfoMap).stream().map(Path::toString).toList();
-        editFiles.setIgnoreFiles(ignoredFiles);
-
-        pathFileInfoMap = removeIgnoredFiles(pathFileInfoMap, ignoredFiles);
-
-        editFiles.setRenameAtUploadFiles(getRenameAtUpload(pathFileInfoMap));
-
-        editFiles.setAddRestrictedFiles(pathFileInfoMap.entrySet().stream()
-            .filter(entry -> entry.getValue().getMetadata().getRestricted())
-            .map(Map.Entry::getKey)
-            .map(Path::toString).toList());
-
-        editFiles.setUpdateFileMetas(pathFileInfoMap.values().stream()
-            .map(FileInfo::getMetadata)
-            .filter(this::hasAttributes)
-            .toList());
-
-        var dateAvailable = getDateAvailable(dansDeposit);
-        var filePathsToEmbargo = getEmbargoedFiles(pathFileInfoMap, dateAvailable);
-        if (!filePathsToEmbargo.isEmpty()) {
-            var addEmbargo = new AddEmbargo();
-            addEmbargo.setDateAvailable(yyyymmddFormat.format(Date.from(dateAvailable)));
-            addEmbargo.setFilePaths(filePathsToEmbargo.stream().map(Path::toString).toList());
-            editFiles.setAddEmbargoes(List.of(addEmbargo));
-        }
-        return editFiles;
-    }
-
-    private List<FromTo> getRenameAtUpload(Map<Path, FileInfo> files) {
-        ArrayList<FromTo> fromTos = new ArrayList<>();
-        for (var entry : files.entrySet()) {
-            if (entry.getValue().isSanitized()) {
-                var from = entry.getKey().toString();
-                var to = new DataversePath(entry.getValue().getMetadata().getDirectoryLabel(), entry.getValue().getMetadata().getLabel()).toString();
-                fromTos.add(new FromTo(from, to));
-            }
-        }
-        return fromTos;
-    }
-
-    private List<Path> getIgnoredFiles(Map<Path, FileInfo> files) {
-        if (fileExclusionPattern == null) {
-            return List.of();
-        }
-        return files.keySet().stream()
-            .filter(f -> fileExclusionPattern.matcher(f.toString()).matches()).toList();
-    }
-
-    private Map<Path, FileInfo> removeIgnoredFiles(Map<Path, FileInfo> files, List<String> ignoredFiles) {
-        return files.entrySet().stream()
-            .filter(entry -> !ignoredFiles.contains(entry.getKey().toString()))
-            .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
-    }
-
-    private List<Path> getEmbargoedFiles(Map<Path, FileInfo> files, Instant dateAvailable) {
-        var now = Instant.now();
-        if (dateAvailable.isAfter(now)) {
-            return files.keySet().stream()
-                .filter(f -> !embargoExclusions.contains(f.toString())).toList();
-        }
-        else {
-            log.debug("Date available in the past, no embargo: {}", dateAvailable);
-            return List.of();
-        }
-    }
-
-    private Instant getDateAvailable(Deposit deposit) {
-        return XPathEvaluator.strings(deposit.getDdm(), "/ddm:DDM/ddm:profile/ddm:available")
-            .map(DansBagMappingServiceImpl::parseDate)
-            .findFirst()
-            .orElseThrow(() -> new IllegalArgumentException("Deposit without a ddm:available element"));
-    }
-
-    private static Instant parseDate(String value) {
-        try {
-            log.debug("Trying to parse {} as LocalDate", value);
-            return LocalDate.parse(value).atStartOfDay(ZoneId.systemDefault()).toInstant();
-        }
-        catch (DateTimeParseException e) {
-            try {
-                log.debug("Trying to parse {} as ZonedDateTime", value);
-                return ZonedDateTime.parse(value).toInstant();
-            }
-            catch (DateTimeParseException ee) {
-                log.debug("Trying to parse {} as LocalDateTime", value);
-                var id = ZoneId.systemDefault().getRules().getOffset(Instant.now());
-                return LocalDateTime.parse(value).toInstant(id);
-            }
-        }
+        return new EditFilesComposer(dansDeposit, fileExclusionPattern, embargoExclusions).composeEditFiles();
     }
 
     @Override

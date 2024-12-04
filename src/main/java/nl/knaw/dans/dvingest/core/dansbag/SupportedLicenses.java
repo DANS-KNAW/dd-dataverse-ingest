@@ -15,12 +15,11 @@
  */
 package nl.knaw.dans.dvingest.core.dansbag;
 
-import lombok.AllArgsConstructor;
 import nl.knaw.dans.dvingest.core.service.DataverseService;
 import nl.knaw.dans.ingest.core.domain.Deposit;
 import nl.knaw.dans.ingest.core.exception.RejectedDepositException;
 import nl.knaw.dans.ingest.core.service.XPathEvaluator;
-import nl.knaw.dans.ingest.core.service.mapper.mapping.LicenseElem;
+import nl.knaw.dans.dvingest.core.dansbag.mapper.mapping.LicenseElem;
 import nl.knaw.dans.lib.dataverse.DataverseException;
 import nl.knaw.dans.lib.dataverse.model.dataset.License;
 

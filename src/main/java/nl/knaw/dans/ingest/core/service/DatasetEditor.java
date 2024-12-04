@@ -21,7 +21,7 @@ import lombok.extern.slf4j.Slf4j;
 import nl.knaw.dans.ingest.core.dataverse.DatasetService;
 import nl.knaw.dans.ingest.core.domain.Deposit;
 import nl.knaw.dans.ingest.core.domain.FileInfo;
-import nl.knaw.dans.ingest.core.service.mapper.mapping.FileElement;
+import nl.knaw.dans.dvingest.core.dansbag.mapper.mapping.FileElement;
 import nl.knaw.dans.lib.dataverse.DataverseClient;
 import nl.knaw.dans.lib.dataverse.DataverseException;
 import nl.knaw.dans.lib.dataverse.Version;
