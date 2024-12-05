@@ -21,6 +21,7 @@ import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import nl.knaw.dans.dvingest.core.service.DataverseService;
+import nl.knaw.dans.dvingest.core.service.FilesInDataset;
 import nl.knaw.dans.dvingest.core.service.UtilityServices;
 import nl.knaw.dans.dvingest.core.yaml.EditFiles;
 import nl.knaw.dans.lib.dataverse.DataverseException;
@@ -40,7 +41,7 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Slf4j
-@RequiredArgsConstructor
+
 public class FilesEditor {
     @NonNull
     private final UUID depositId;
@@ -57,8 +58,18 @@ public class FilesEditor {
     private String pid;
 
     @Getter(AccessLevel.PACKAGE) // Getter for unit testing
-    private final Map<String, FileMeta> filesInDataset = new java.util.HashMap<>();
+//    private final Map<String, FileMeta> filesInDataset = new java.util.HashMap<>();
     private boolean filesRetrieved = false;
+
+    private FilesInDataset filesInDataset;
+
+    public FilesEditor(UUID depositId, Path dataDir, EditFiles editFiles, DataverseService dataverseService, UtilityServices utilityServices) {
+        this.depositId = depositId;
+        this.dataDir = dataDir;
+        this.editFiles = editFiles;
+        this.dataverseService = dataverseService;
+        this.utilityServices = utilityServices;
+    }
 
     public void editFiles(String pid) throws IOException, DataverseException {
         /*
@@ -76,6 +87,8 @@ public class FilesEditor {
                 }
             }
         }
+
+        filesInDataset = dataverseService.getFilesInDataset(pid);
 
         log.debug("Start editing files for deposit {}", depositId);
         this.pid = pid;
@@ -97,7 +110,7 @@ public class FilesEditor {
         log.debug("Start deleting {} files for deposit {}", depositId, editFiles.getDeleteFiles().size());
         for (var file : editFiles.getDeleteFiles()) {
             log.debug("Deleting file: {}", file);
-            var fileToDelete = filesInDataset().get(file);
+            var fileToDelete = filesInDataset.get(file);
             if (fileToDelete == null) {
                 throw new IllegalArgumentException("File to delete not found in dataset: " + file);
             }

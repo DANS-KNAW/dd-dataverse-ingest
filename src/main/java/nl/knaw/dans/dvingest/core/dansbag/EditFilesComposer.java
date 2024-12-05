@@ -18,13 +18,13 @@ package nl.knaw.dans.dvingest.core.dansbag;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import nl.knaw.dans.dvingest.core.bagprocessor.DataversePath;
+import nl.knaw.dans.dvingest.core.dansbag.mapper.mapping.FileElement;
 import nl.knaw.dans.dvingest.core.yaml.AddEmbargo;
 import nl.knaw.dans.dvingest.core.yaml.EditFiles;
 import nl.knaw.dans.dvingest.core.yaml.FromTo;
 import nl.knaw.dans.ingest.core.domain.Deposit;
 import nl.knaw.dans.ingest.core.domain.FileInfo;
 import nl.knaw.dans.ingest.core.service.XPathEvaluator;
-import nl.knaw.dans.dvingest.core.dansbag.mapper.mapping.FileElement;
 import nl.knaw.dans.lib.dataverse.model.file.FileMeta;
 
 import java.nio.file.Path;
@@ -56,8 +56,6 @@ public class EditFilesComposer {
 
     public EditFiles composeEditFiles() {
         var editFiles = new EditFiles();
-
-        // Get file information from files.xml
         var pathFileInfoMap = getFileInfo(dansDeposit);
 
         // TODO: in update also ignore any files that have not changed (content or metadata)
@@ -69,6 +67,7 @@ public class EditFilesComposer {
         editFiles.setAddRestrictedFiles(getRestrictedFilesToAdd(pathFileInfoMap));
         editFiles.setUpdateFileMetas(getUpdatedFileMetas(pathFileInfoMap));
         editFiles.setDeleteFiles(getDeleteFiles(pathFileInfoMap));
+        editFiles.setMoveFiles(getFileMovements());
 
         var dateAvailable = getDateAvailable(dansDeposit);
         var filePathsToEmbargo = getEmbargoedFiles(pathFileInfoMap, dateAvailable);
@@ -133,6 +132,15 @@ public class EditFilesComposer {
         return List.of();
     }
 
+    /**
+     * Get the files that should be moved.
+     *
+     * @return a list of FromTo objects that specify the files to move and their new location
+     */
+    protected List<FromTo> getFileMovements() {
+        return List.of();
+    }
+
     private List<Path> getEmbargoedFiles(Map<Path, FileInfo> files, Instant dateAvailable) {
         var now = Instant.now();
         if (dateAvailable.isAfter(now)) {
@@ -182,8 +190,6 @@ public class EditFilesComposer {
         }
         return fromTos;
     }
-
-
 
     // TODO: move to mapping package
     private Instant getDateAvailable(Deposit deposit) {

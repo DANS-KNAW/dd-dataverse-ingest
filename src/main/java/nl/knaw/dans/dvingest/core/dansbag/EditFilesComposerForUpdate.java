@@ -15,6 +15,7 @@
  */
 package nl.knaw.dans.dvingest.core.dansbag;
 
+import nl.knaw.dans.dvingest.core.service.DataverseService;
 import nl.knaw.dans.ingest.core.domain.Deposit;
 import nl.knaw.dans.ingest.core.domain.FileInfo;
 import nl.knaw.dans.lib.dataverse.model.file.FileMeta;
@@ -28,14 +29,22 @@ import java.util.regex.Pattern;
  * Overrides the methods in EditFilesComposer to handle the case of an update to an existing dataset.
  */
 public class EditFilesComposerForUpdate extends EditFilesComposer {
+    private final DataverseService dataverseService;
 
-    public EditFilesComposerForUpdate(Deposit dansDeposit, Pattern fileExclusionPattern, List<String> embargoExclusions) {
+    public EditFilesComposerForUpdate(Deposit dansDeposit, Pattern fileExclusionPattern, List<String> embargoExclusions, DataverseService dataverseService) {
         super(dansDeposit, fileExclusionPattern, embargoExclusions);
+        this.dataverseService = dataverseService;
     }
 
     @Override
     protected List<String> getFilesToIgnore(Map<Path, FileInfo> files) {
-        return super.getFilesToIgnore(files);
+        super.getFilesToIgnore(files);
+
+
+
+
+
+
     }
 
     @Override
