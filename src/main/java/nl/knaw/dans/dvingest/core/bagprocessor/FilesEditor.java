@@ -60,6 +60,8 @@ public class FilesEditor {
     private final Map<String, FileMeta> filesInDataset = new java.util.HashMap<>();
     private boolean filesRetrieved = false;
 
+    private Map<String, String> renameMap;
+
     public void editFiles(String pid) throws IOException, DataverseException {
         /*
          * TODO:
@@ -69,16 +71,15 @@ public class FilesEditor {
          *  - updateFileMetas must exist in bag if first version deposit
          */
         if (editFiles == null) {
-            try (var stream = Files.list(dataDir)) {
-                if (stream.findAny().isEmpty()) {
-                    log.debug("No files to edit for deposit {}", depositId);
-                    return;
-                }
+            if (isEmptyDir(dataDir)) {
+                log.debug("No files to edit for deposit {}", depositId);
+                return;
             }
         }
 
         log.debug("Start editing files for deposit {}", depositId);
         this.pid = pid;
+        this.renameMap = getRenameMap();
         if (editFiles != null) {
             deleteFiles();
             replaceFiles();
@@ -91,6 +92,12 @@ public class FilesEditor {
             addEmbargoes();
         }
         log.debug("End editing files for deposit {}", depositId);
+    }
+
+    private boolean isEmptyDir(Path dir) throws IOException {
+        try (var stream = Files.list(dir)) {
+            return stream.findAny().isEmpty();
+        }
     }
 
     private void deleteFiles() throws IOException, DataverseException {
@@ -156,7 +163,7 @@ public class FilesEditor {
     private void uploadFileBatch(PathIterator iterator, boolean restrict) throws IOException, DataverseException {
         var tempZipFile = utilityServices.createTempZipFile();
         try {
-            var zipFile = utilityServices.createPathIteratorZipperBuilder(getRenameMap())
+            var zipFile = utilityServices.createPathIteratorZipperBuilder(renameMap)
                 .rootDir(dataDir)
                 .sourceIterator(iterator)
                 .targetZipFile(tempZipFile)
@@ -224,10 +231,26 @@ public class FilesEditor {
             var embargo = new Embargo();
             embargo.setDateAvailable(addEmbargo.getDateAvailable());
             embargo.setReason(addEmbargo.getReason());
-            var fileIds = addEmbargo.getFilePaths().stream().map(filesInDataset::get).mapToInt(file -> file.getDataFile().getId()).toArray();
+            var fileIds = addEmbargo.getFilePaths()
+                .stream()
+                .map(this::renameFile)
+                .map(this::throwIfFileNotInDataset)
+                .map(filesInDataset::get)
+                .mapToInt(file -> file.getDataFile().getId()).toArray();
             embargo.setFileIds(fileIds);
             dataverseService.addEmbargo(pid, embargo);
         }
         log.debug("End adding embargoes for deposit {}", depositId);
+    }
+
+    private String renameFile(String file) {
+        return renameMap.getOrDefault(file, file);
+    }
+
+    private String throwIfFileNotInDataset(String file) {
+        if (!filesInDataset.containsKey(file)) {
+            throw new IllegalArgumentException("File not found in dataset: " + file);
+        }
+        return file;
     }
 }
