@@ -59,7 +59,7 @@ public class FilesEditor {
         this.editFiles = editFiles;
         this.dataverseService = dataverseService;
         this.utilityServices = utilityServices;
-        this.filesInDatasetCache = new FilesInDatasetCache(dataverseService, getRenameMap(editFiles.getRenameAtUploadFiles()));
+        this.filesInDatasetCache = new FilesInDatasetCache(dataverseService, getRenameMap(editFiles.getAutoRenameFiles()));
     }
 
     private static Map<String, String> getRenameMap(List<FromTo> renames) {

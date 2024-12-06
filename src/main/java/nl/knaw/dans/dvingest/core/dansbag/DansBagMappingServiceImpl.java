@@ -140,7 +140,7 @@ public class DansBagMappingServiceImpl implements DansBagMappingService {
 
         pathFileInfoMap = removeIgnoredFiles(pathFileInfoMap, ignoredFiles);
 
-        editFiles.setRenameAtUploadFiles(getRenameAtUpload(pathFileInfoMap));
+        editFiles.setAutoRenameFiles(getRenameAtUpload(pathFileInfoMap));
 
         editFiles.setAddRestrictedFiles(pathFileInfoMap.entrySet().stream()
             .filter(entry -> entry.getValue().getMetadata().getRestricted())
