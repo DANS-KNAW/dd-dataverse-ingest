@@ -26,7 +26,7 @@
     </parent>
 
     <artifactId>dd-dataverse-ingest</artifactId>
-    <version>0.9.1</version>
+    <version>0.9.2-SNAPSHOT</version>
 
     <name>DD Dataverse Ingest</name>
     <url>https://github.com/DANS-KNAW/dd-dataverse-ingest</url>
@@ -41,7 +41,7 @@
 
     <scm>
         <developerConnection>scm:git:ssh://github.com/DANS-KNAW/dd-dataverse-ingest</developerConnection>
-        <tag>v0.9.1</tag>
+        <tag>HEAD</tag>
     </scm>
 
     <dependencies>
