@@ -106,10 +106,10 @@ editFiles:
       reason: 'Pending publication'
 ```
 
-The actions specified in this file correspond roughly to the action available in the dropdown menu in the file view of a dataset in Dataverse.
+The actions specified in this file correspond roughly to the actions available in the dropdown menu in the file view of a dataset in Dataverse.
 
-The replacement file is looked up in the bag, under the `data` directory under the same path as the original file has in the dataset. Note that files the
-replacement files will automatically be skipped in the add files step, the deleted files, however, will not. In other words, it is also possible to remove a
+The replacement file is looked up in the bag, under the `data` directory under the same path as the original file has in the dataset. Note that files in 
+`replaceFiles` will automatically be skipped in the add files step, the deleted files, however, will not. In other words, it is also possible to remove a
 file and add a file back to the same location in one deposit. In that case, there will be no continuous history of the file in the dataset.
 
 The `addRestrictedFiles` action is included, because it allows you to add a large number of restricted files in a more efficient way than by updating the file
