@@ -231,7 +231,12 @@ public class FilesEditor {
             var embargo = new Embargo();
             embargo.setDateAvailable(addEmbargo.getDateAvailable());
             embargo.setReason(addEmbargo.getReason());
-            var fileIds = addEmbargo.getFilePaths().stream().map(this::renameFile).map(filesInDataset::get).mapToInt(file -> file.getDataFile().getId()).toArray();
+            var fileIds = addEmbargo.getFilePaths()
+                .stream()
+                .map(this::renameFile)
+                .map(this::throwIfFileNotInDataset)
+                .map(filesInDataset::get)
+                .mapToInt(file -> file.getDataFile().getId()).toArray();
             embargo.setFileIds(fileIds);
             dataverseService.addEmbargo(pid, embargo);
         }
@@ -240,5 +245,12 @@ public class FilesEditor {
 
     private String renameFile(String file) {
         return renameMap.getOrDefault(file, file);
+    }
+
+    private String throwIfFileNotInDataset(String file) {
+        if (!filesInDataset.containsKey(file)) {
+            throw new IllegalArgumentException("File not found in dataset: " + file);
+        }
+        return file;
     }
 }
