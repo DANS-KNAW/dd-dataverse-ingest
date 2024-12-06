@@ -187,7 +187,7 @@ public class FilesEditor {
         log.debug("Start moving files {} for deposit {}", editFiles.getMoveFiles().size(), depositId);
         for (var move : editFiles.getMoveFiles()) {
             var fileMeta = filesInDatasetCache.get(move.getFrom());
-            fileMeta = filesInDatasetCache.getMovedFile(move.getTo(), fileMeta);
+            fileMeta = filesInDatasetCache.createFileMetaForMovedFile(move.getTo(), fileMeta);
             dataverseService.updateFileMetadata(fileMeta.getDataFile().getId(), fileMeta);
             filesInDatasetCache.remove(move.getFrom());
             filesInDatasetCache.put(fileMeta); // auto-rename is done by getMovedFile

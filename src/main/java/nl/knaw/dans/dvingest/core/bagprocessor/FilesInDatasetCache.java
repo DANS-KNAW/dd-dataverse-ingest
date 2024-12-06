@@ -28,8 +28,7 @@ import java.util.Map;
 
 /**
  * <p>
- * Keeps track of the FileMeta objects of files in a dataset. The cache is initialized by downloading the files from the dataset. If you try to initialize the cache again, an IllegalStateException is
- * thrown. The client is responsible for adding, removing, and updating the cache.
+ * Keeps track of the FileMeta objects of files in a dataset. The cache is initialized by downloading the files from the dataset.
  * </p>
  */
 @Slf4j
@@ -72,7 +71,15 @@ public class FilesInDatasetCache {
         filesInDataset.put(getPath(fileMeta), fileMeta);
     }
 
-    public FileMeta getMovedFile(@NonNull String toPath, @NonNull FileMeta fileMeta) {
+    /**
+     * A move operation is in fact a file metadata update operation in which the directory label and label are updated. This method allows to calculate the file metadata for the moved file in the
+     * dataset. The filepath will be auto-renamed if it is in the renamedFiles map, so the local path from the bag is used.
+     *
+     * @param toPath   new filepath before auto-rename
+     * @param fileMeta the FileMeta object for the file in the dataset after the move
+     * @return the FileMeta object for the moved file in the dataset
+     */
+    public FileMeta createFileMetaForMovedFile(@NonNull String toPath, @NonNull FileMeta fileMeta) {
         var newPath = autoRenamePath(toPath);
         var dataversePath = new DataversePath(newPath);
         fileMeta.setDirectoryLabel(dataversePath.getDirectoryLabel());
@@ -80,22 +87,23 @@ public class FilesInDatasetCache {
         return fileMeta;
     }
 
-    private String autoRename(@NonNull FileMeta fileMeta) {
-        var filepath = getPath(fileMeta);
-        var renamedFilepath = autoRenamedFiles.get(filepath);
-        if (renamedFilepath != null) {
-            filepath = renamedFilepath;
-            var dataversePath = new DataversePath(renamedFilepath);
-            fileMeta.setDirectoryLabel(dataversePath.getDirectoryLabel());
-            fileMeta.setLabel(dataversePath.getLabel());
-        }
-        return filepath;
-    }
-
+    /**
+     * Removes the FileMeta object for the given filepath. The filepath will be auto-renamed if it is in the renamedFiles map, so the local path from the bag is used.
+     *
+     * @param filepath before auto-rename
+     */
     public void remove(@NonNull String filepath) {
         filesInDataset.remove(autoRenamePath(filepath));
     }
 
+    /**
+     * Download the file metadata from the dataset with the given persistent identifier, initializing the cache. This method can only be called once. Subsequent calls will throw an exception.
+     *
+     * @param pid the persistent identifier of the dataset
+     * @throws IOException           if an I/O error occurs
+     * @throws DataverseException    if the Dataverse API returns an error
+     * @throws IllegalStateException if the cache is already initialized
+     */
     public void downloadFromDataset(@NonNull String pid) throws IOException, DataverseException {
         if (initialized) {
             throw new IllegalStateException("Cache already initialized");
