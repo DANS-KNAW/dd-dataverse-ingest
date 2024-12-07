@@ -25,7 +25,6 @@ import java.nio.file.Path;
 @AllArgsConstructor
 public class DepositFile {
     Path path;
-    Path physicalPath;
     String checksum;
     Node xmlNode;
 }

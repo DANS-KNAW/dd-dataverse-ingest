@@ -17,18 +17,14 @@ package nl.knaw.dans.dvingest.core.dansbag.deposit;
 
 import nl.knaw.dans.dvingest.core.dansbag.domain.DansBagDeposit;
 import nl.knaw.dans.dvingest.core.dansbag.domain.DepositFile;
-import nl.knaw.dans.dvingest.core.dansbag.domain.OriginalFilePathMapping;
 import nl.knaw.dans.dvingest.core.dansbag.service.ManifestHelperImpl;
 import nl.knaw.dans.dvingest.core.dansbag.service.XPathEvaluator;
 import org.w3c.dom.Node;
 
 import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 import static nl.knaw.dans.dvingest.core.dansbag.service.XPathConstants.FILES_FILE;
@@ -37,9 +33,7 @@ public class DepositFileListerImpl implements DepositFileLister {
     @Override
     public List<DepositFile> getDepositFiles(DansBagDeposit dansBagDeposit) throws IOException {
         var bag = dansBagDeposit.getBag();
-        var bagDir = bag.getRootDir();
         var filePathToSha1 = ManifestHelperImpl.getFilePathToSha1(bag);
-        var originalFilePathMappings = getOriginalFilePathMapping(bagDir);
 
         return XPathEvaluator.nodes(dansBagDeposit.getFilesXml(), FILES_FILE)
             .map(node -> {
@@ -48,38 +42,10 @@ public class DepositFileListerImpl implements DepositFileLister {
                     .map(Path::of)
                     .orElseThrow(() -> new IllegalArgumentException("File element without filepath attribute"));
 
-                var physicalFile = originalFilePathMappings.getPhysicalPath(filePath);
-                var sha1 = filePathToSha1.get(physicalFile);
+                var sha1 = filePathToSha1.get(filePath);
 
-                return new DepositFile(filePath, physicalFile, sha1, node);
+                return new DepositFile(filePath, sha1, node);
             })
             .collect(Collectors.toList());
-    }
-
-    private OriginalFilePathMapping getOriginalFilePathMapping(Path bagDir) throws IOException {
-        var originalFilepathsFile = bagDir.resolve("original-filepaths.txt");
-
-        if (Files.exists(originalFilepathsFile)) {
-            var lines = Files.readAllLines(originalFilepathsFile);
-            var mappings = lines.stream().map(line -> {
-                    var parts = line.split("\\s+", 2);
-
-                    if (parts.length == 2) {
-                        return new OriginalFilePathMapping.Mapping(
-                            Path.of(parts[0].trim()),
-                            Path.of(parts[1].trim())
-                        );
-                    }
-
-                    return null;
-                })
-                .filter(Objects::nonNull)
-                .collect(Collectors.toSet());
-
-            return new OriginalFilePathMapping(mappings);
-        }
-        else {
-            return new OriginalFilePathMapping(Set.of());
-        }
     }
 }

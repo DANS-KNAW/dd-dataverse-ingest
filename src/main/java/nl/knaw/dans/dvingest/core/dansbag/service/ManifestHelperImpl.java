@@ -70,7 +70,7 @@ public class ManifestHelperImpl implements ManifestHelper {
                 /*
                  * Fix for EASY-1306: a tag manifest must not contain an entry for itself, as this is practically
                  * impossible to calculate. It could in theory contain entries for other tag manifests. However,
-                 * the CreateTagManifestsVistor, once it finds an entry for a tag file in ONE of the tag manifests,
+                 * the CreateTagManifestsVisitor, once it finds an entry for a tag file in ONE of the tag manifests,
                  * will add an entry in ALL tag manifests.
                  *
                  * Therefore, we adopt the strategy NOT to calculate any checksums for the tag manifests themselves.

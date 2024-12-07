@@ -22,7 +22,6 @@ import lombok.NoArgsConstructor;
 import nl.knaw.dans.dvingest.core.dansbag.service.XPathEvaluator;
 import org.apache.commons.lang3.StringUtils;
 import org.w3c.dom.Document;
-import org.w3c.dom.Node;
 
 import java.nio.file.Path;
 import java.time.Instant;
@@ -31,7 +30,6 @@ import java.util.List;
 
 import static nl.knaw.dans.dvingest.core.dansbag.service.XPathConstants.DDM_PROFILE;
 import static nl.knaw.dans.dvingest.core.dansbag.service.XPathConstants.FILES_FILE;
-import static nl.knaw.dans.dvingest.core.dansbag.service.XmlNamespaces.NAMESPACE_XSI;
 
 @Data
 @NoArgsConstructor
@@ -74,11 +72,6 @@ public class DansBagDeposit {
 
     public VaultMetadata getVaultMetadata() {
         return new VaultMetadata(getDataversePid(), getDataverseBagId(), getDataverseNbn(), getDataverseOtherId(), getDataverseSwordToken());
-    }
-
-    private static boolean hasTypeDoi(Node n) {
-        Node type = n.getAttributes().getNamedItemNS(NAMESPACE_XSI, "type");
-        return type != null && type.getTextContent().contains("DOI");
     }
 
     public String getDataversePid() {
