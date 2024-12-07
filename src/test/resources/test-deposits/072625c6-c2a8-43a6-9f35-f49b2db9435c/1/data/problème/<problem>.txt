@@ -1,0 +1,2 @@
+A problematic name: problème/<problem>.txt
+The sanitized name: probl_me/_problem_.txt

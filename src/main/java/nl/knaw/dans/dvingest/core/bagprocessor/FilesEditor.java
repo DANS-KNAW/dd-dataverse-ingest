@@ -18,12 +18,12 @@ package nl.knaw.dans.dvingest.core.bagprocessor;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import nl.knaw.dans.dvingest.core.service.DataverseService;
 import nl.knaw.dans.dvingest.core.service.FilesInDataset;
 import nl.knaw.dans.dvingest.core.service.UtilityServices;
 import nl.knaw.dans.dvingest.core.yaml.EditFiles;
+import nl.knaw.dans.dvingest.core.yaml.FromTo;
 import nl.knaw.dans.lib.dataverse.DataverseException;
 import nl.knaw.dans.lib.dataverse.model.dataset.Embargo;
 import nl.knaw.dans.lib.dataverse.model.file.FileMeta;
@@ -36,6 +36,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -43,32 +44,30 @@ import java.util.stream.Collectors;
 @Slf4j
 
 public class FilesEditor {
-    @NonNull
     private final UUID depositId;
-    @NonNull
     private final Path dataDir;
     private final EditFiles editFiles;
-
-    @NonNull
     private final DataverseService dataverseService;
-
-    @NonNull
     private final UtilityServices utilityServices;
+    @Getter(AccessLevel.PACKAGE) // for testing
+    private final FilesInDatasetCache filesInDatasetCache;
 
     private String pid;
 
-    @Getter(AccessLevel.PACKAGE) // Getter for unit testing
-//    private final Map<String, FileMeta> filesInDataset = new java.util.HashMap<>();
-    private boolean filesRetrieved = false;
-
-    private FilesInDataset filesInDataset;
-
-    public FilesEditor(UUID depositId, Path dataDir, EditFiles editFiles, DataverseService dataverseService, UtilityServices utilityServices) {
+    public FilesEditor(@NonNull UUID depositId, @NonNull Path dataDir, @NonNull EditFiles editFiles, @NonNull DataverseService dataverseService,
+        @NonNull UtilityServices utilityServices) {
         this.depositId = depositId;
         this.dataDir = dataDir;
         this.editFiles = editFiles;
         this.dataverseService = dataverseService;
         this.utilityServices = utilityServices;
+        this.filesInDatasetCache = new FilesInDatasetCache(dataverseService, getRenameMap(editFiles.getAutoRenameFiles()));
+    }
+
+    private static Map<String, String> getRenameMap(List<FromTo> renames) {
+        return renames.stream()
+            .map(rename -> Map.entry(rename.getFrom(), rename.getTo()))
+            .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
     }
 
     public void editFiles(String pid) throws IOException, DataverseException {
@@ -80,18 +79,15 @@ public class FilesEditor {
          *  - updateFileMetas must exist in bag if first version deposit
          */
         if (editFiles == null) {
-            try (var stream = Files.list(dataDir)) {
-                if (stream.findAny().isEmpty()) {
-                    log.debug("No files to edit for deposit {}", depositId);
-                    return;
-                }
+            if (isEmptyDir(dataDir)) {
+                log.debug("No files to edit for deposit {}", depositId);
+                return;
             }
         }
 
-        filesInDataset = dataverseService.getFilesInDataset(pid);
-
         log.debug("Start editing files for deposit {}", depositId);
         this.pid = pid;
+        filesInDatasetCache.downloadFromDataset(pid);
         if (editFiles != null) {
             deleteFiles();
             replaceFiles();
@@ -106,26 +102,32 @@ public class FilesEditor {
         log.debug("End editing files for deposit {}", depositId);
     }
 
+    private boolean isEmptyDir(Path dir) throws IOException {
+        try (var stream = Files.list(dir)) {
+            return stream.findAny().isEmpty();
+        }
+    }
+
     private void deleteFiles() throws IOException, DataverseException {
         log.debug("Start deleting {} files for deposit {}", depositId, editFiles.getDeleteFiles().size());
-        for (var file : editFiles.getDeleteFiles()) {
-            log.debug("Deleting file: {}", file);
-            var fileToDelete = filesInDataset.get(file);
+        for (var filepath : editFiles.getDeleteFiles()) {
+            log.debug("Deleting file: {}", filepath);
+            var fileToDelete = filesInDatasetCache.get(filepath);
             if (fileToDelete == null) {
-                throw new IllegalArgumentException("File to delete not found in dataset: " + file);
+                throw new IllegalArgumentException("File to delete not found in dataset: " + filepath);
             }
             dataverseService.deleteFile(fileToDelete.getDataFile().getId());
-            filesInDataset.remove(file);
+            filesInDatasetCache.remove(filepath);
         }
         log.debug("End deleting files for deposit {}", depositId);
     }
 
     private void replaceFiles() throws IOException, DataverseException {
         log.debug("Start replacing {} files for deposit {}", depositId, editFiles.getReplaceFiles().size());
-        for (var file : editFiles.getReplaceFiles()) {
-            log.debug("Replacing file: {}", file);
-            var fileMeta = filesInDataset().get(file);
-            dataverseService.replaceFile(pid, fileMeta, dataDir.resolve(file));
+        for (var filepath : editFiles.getReplaceFiles()) {
+            log.debug("Replacing file: {}", filepath);
+            var fileMeta = filesInDatasetCache.get(filepath);
+            dataverseService.replaceFile(pid, fileMeta, dataDir.resolve(filepath));
         }
         log.debug("End replacing files for deposit {}", depositId);
     }
@@ -160,16 +162,10 @@ public class FilesEditor {
             new FileUploadInclusionPredicate(editFiles, dataDir, true));
     }
 
-    private Map<String, String> getRenameMap() {
-        return editFiles.getRenameAtUploadFiles().stream()
-            .map(rename -> Map.entry(rename.getFrom(), rename.getTo()))
-            .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
-    }
-
     private void uploadFileBatch(PathIterator iterator, boolean restrict) throws IOException, DataverseException {
         var tempZipFile = utilityServices.createTempZipFile();
         try {
-            var zipFile = utilityServices.createPathIteratorZipperBuilder(getRenameMap())
+            var zipFile = utilityServices.createPathIteratorZipperBuilder(filesInDatasetCache.getAutoRenamedFiles())
                 .rootDir(dataDir)
                 .sourceIterator(iterator)
                 .targetZipFile(tempZipFile)
@@ -178,10 +174,10 @@ public class FilesEditor {
             var fileMeta = new FileMeta();
             fileMeta.setRestricted(restrict);
             log.debug("Start uploading zip file at {} for deposit {}", zipFile, depositId);
-            var fileList = dataverseService.addFile(pid, zipFile, fileMeta);
-            log.debug("Uploaded {} files, {} cumulative)", fileList.getFiles().size(), iterator.getIteratedCount());
-            for (var file : fileList.getFiles()) {
-                filesInDataset.put(getPath(file), file);
+            var addedFileMetaList = dataverseService.addFile(pid, zipFile, fileMeta);
+            log.debug("Uploaded {} files, {} cumulative)", addedFileMetaList.getFiles().size(), iterator.getIteratedCount());
+            for (var fm : addedFileMetaList.getFiles()) {
+                filesInDatasetCache.put(fm); // auto-rename is done by PathIteratorZipper
             }
         }
         finally {
@@ -192,11 +188,11 @@ public class FilesEditor {
     private void moveFiles() throws IOException, DataverseException {
         log.debug("Start moving files {} for deposit {}", editFiles.getMoveFiles().size(), depositId);
         for (var move : editFiles.getMoveFiles()) {
-            var fileMeta = filesInDataset().get(move.getFrom());
-            var dvToPath = new DataversePath(move.getTo());
-            fileMeta.setDirectoryLabel(dvToPath.getDirectoryLabel());
-            fileMeta.setLabel(dvToPath.getLabel());
+            var fileMeta = filesInDatasetCache.get(move.getFrom());
+            fileMeta = filesInDatasetCache.createFileMetaForMovedFile(move.getTo(), fileMeta);
             dataverseService.updateFileMetadata(fileMeta.getDataFile().getId(), fileMeta);
+            filesInDatasetCache.remove(move.getFrom());
+            filesInDatasetCache.put(fileMeta); // auto-rename is done by getMovedFile
         }
         log.debug("End moving files for deposit {}", depositId);
     }
@@ -204,26 +200,10 @@ public class FilesEditor {
     private void updateFileMetas() throws IOException, DataverseException {
         log.debug("Start updating {} file metas for deposit {}", editFiles.getUpdateFileMetas().size(), depositId);
         for (var fileMeta : editFiles.getUpdateFileMetas()) {
-            var id = filesInDataset().get(getPath(fileMeta)).getDataFile().getId();
+            var id = filesInDatasetCache.get(getPath(fileMeta)).getDataFile().getId();
             dataverseService.updateFileMetadata(id, fileMeta);
         }
         log.debug("End updating file metadata for deposit {}", depositId);
-    }
-
-    private Map<String, FileMeta> filesInDataset() throws IOException, DataverseException {
-        if (!filesRetrieved) {
-            log.debug("Start getting files in dataset for deposit {}", depositId);
-            var files = dataverseService.getFiles(pid);
-            for (var file : files) {
-                filesInDataset.put(getPath(file), file);
-            }
-            filesRetrieved = true;
-            log.debug("End getting files in dataset for deposit {}", depositId);
-        }
-        else {
-            log.debug("Files in dataset already retrieved for deposit {}", depositId);
-        }
-        return filesInDataset;
     }
 
     private String getPath(FileMeta file) {
@@ -237,7 +217,10 @@ public class FilesEditor {
             var embargo = new Embargo();
             embargo.setDateAvailable(addEmbargo.getDateAvailable());
             embargo.setReason(addEmbargo.getReason());
-            var fileIds = addEmbargo.getFilePaths().stream().map(filesInDataset::get).mapToInt(file -> file.getDataFile().getId()).toArray();
+            var fileIds = addEmbargo.getFilePaths()
+                .stream()
+                .map(filesInDatasetCache::get)
+                .mapToInt(file -> file.getDataFile().getId()).toArray();
             embargo.setFileIds(fileIds);
             dataverseService.addEmbargo(pid, embargo);
         }

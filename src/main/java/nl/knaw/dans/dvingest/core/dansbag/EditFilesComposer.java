@@ -63,7 +63,7 @@ public class EditFilesComposer {
         editFiles.setIgnoreFiles(ignoredFiles);
         pathFileInfoMap = removeIgnoredFiles(pathFileInfoMap, ignoredFiles);
 
-        editFiles.setRenameAtUploadFiles(getFilesToRenameAtUpload(pathFileInfoMap));
+        editFiles.setAutoRenameFiles(getAutoRenamedFiles(pathFileInfoMap));
         editFiles.setAddRestrictedFiles(getRestrictedFilesToAdd(pathFileInfoMap));
         editFiles.setUpdateFileMetas(getUpdatedFileMetas(pathFileInfoMap));
         editFiles.setDeleteFiles(getDeleteFiles(pathFileInfoMap));
@@ -179,7 +179,7 @@ public class EditFilesComposer {
             .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
     }
 
-    private List<FromTo> getFilesToRenameAtUpload(Map<Path, FileInfo> files) {
+    private List<FromTo> getAutoRenamedFiles(Map<Path, FileInfo> files) {
         ArrayList<FromTo> fromTos = new ArrayList<>();
         for (var entry : files.entrySet()) {
             if (entry.getValue().isSanitized()) {

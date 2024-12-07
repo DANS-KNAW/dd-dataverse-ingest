@@ -72,6 +72,4 @@ public interface DataverseService {
     void addEmbargo(String pid, Embargo embargo) throws IOException, DataverseException;
 
     List<String> findDoiByMetadataField(String fieldName, String value) throws IOException, DataverseException;
-
-    FilesInDataset getFilesInDataset(String pid);
 }

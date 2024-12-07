@@ -40,11 +40,7 @@ public class EditFilesComposerForUpdate extends EditFilesComposer {
     protected List<String> getFilesToIgnore(Map<Path, FileInfo> files) {
         super.getFilesToIgnore(files);
 
-
-
-
-
-
+        return List.of();
     }
 
     @Override
