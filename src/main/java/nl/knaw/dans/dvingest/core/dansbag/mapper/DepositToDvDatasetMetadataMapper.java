@@ -55,7 +55,7 @@ import nl.knaw.dans.dvingest.core.dansbag.mapper.mapping.SpatialPoint;
 import nl.knaw.dans.dvingest.core.dansbag.mapper.mapping.Subject;
 import nl.knaw.dans.dvingest.core.dansbag.mapper.mapping.SubjectAbr;
 import nl.knaw.dans.dvingest.core.dansbag.mapper.mapping.TemporalAbr;
-import nl.knaw.dans.dvingest.core.dansbag.service.XPathEvaluator;
+import nl.knaw.dans.dvingest.core.dansbag.xml.XPathEvaluator;
 import nl.knaw.dans.lib.dataverse.CompoundFieldBuilder;
 import nl.knaw.dans.lib.dataverse.model.dataset.Dataset;
 import nl.knaw.dans.lib.dataverse.model.dataset.DatasetVersion;
@@ -77,11 +77,11 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static nl.knaw.dans.dvingest.core.dansbag.service.DepositDatasetFieldNames.RIGHTS_HOLDER;
-import static nl.knaw.dans.dvingest.core.dansbag.service.DepositDatasetFieldNames.SUBJECT;
-import static nl.knaw.dans.dvingest.core.dansbag.service.DepositDatasetFieldNames.TITLE;
-import static nl.knaw.dans.dvingest.core.dansbag.service.XPathConstants.DDM_DCMI_METADATA;
-import static nl.knaw.dans.dvingest.core.dansbag.service.XPathConstants.DDM_PROFILE;
+import static nl.knaw.dans.dvingest.core.dansbag.mapper.DepositDatasetFieldNames.RIGHTS_HOLDER;
+import static nl.knaw.dans.dvingest.core.dansbag.mapper.DepositDatasetFieldNames.SUBJECT;
+import static nl.knaw.dans.dvingest.core.dansbag.mapper.DepositDatasetFieldNames.TITLE;
+import static nl.knaw.dans.dvingest.core.dansbag.xml.XPathConstants.DDM_DCMI_METADATA;
+import static nl.knaw.dans.dvingest.core.dansbag.xml.XPathConstants.DDM_PROFILE;
 
 @Slf4j
 @RequiredArgsConstructor

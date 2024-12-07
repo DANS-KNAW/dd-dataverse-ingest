@@ -16,7 +16,7 @@
 package nl.knaw.dans.dvingest.core.dansbag.mapper.mapping;
 
 import lombok.extern.slf4j.Slf4j;
-import nl.knaw.dans.dvingest.core.dansbag.service.XPathEvaluator;
+import nl.knaw.dans.dvingest.core.dansbag.xml.XPathEvaluator;
 import org.apache.commons.lang3.StringUtils;
 import org.w3c.dom.Node;
 

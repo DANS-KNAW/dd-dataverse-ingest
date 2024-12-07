@@ -17,8 +17,8 @@ package nl.knaw.dans.dvingest.core.dansbag.mapper.mapping;
 
 import nl.knaw.dans.dvingest.core.dansbag.mapper.builder.CompoundFieldGenerator;
 
-import static nl.knaw.dans.dvingest.core.dansbag.service.DepositDatasetFieldNames.OTHER_ID_AGENCY;
-import static nl.knaw.dans.dvingest.core.dansbag.service.DepositDatasetFieldNames.OTHER_ID_VALUE;
+import static nl.knaw.dans.dvingest.core.dansbag.mapper.DepositDatasetFieldNames.OTHER_ID_AGENCY;
+import static nl.knaw.dans.dvingest.core.dansbag.mapper.DepositDatasetFieldNames.OTHER_ID_VALUE;
 
 public class DepositPropertiesOtherDoi extends Base {
 

@@ -17,15 +17,11 @@ package nl.knaw.dans.dvingest.core.dansbag;
 
 import gov.loc.repository.bagit.reader.BagReader;
 import nl.knaw.dans.dvingest.core.TestDirFixture;
-import nl.knaw.dans.dvingest.core.dansbag.deposit.BagDirResolver;
-import nl.knaw.dans.dvingest.core.dansbag.deposit.BagDirResolverImpl;
-import nl.knaw.dans.dvingest.core.dansbag.deposit.DepositReader;
-import nl.knaw.dans.dvingest.core.dansbag.deposit.DepositReaderImpl;
+import nl.knaw.dans.dvingest.core.dansbag.deposit.DansBagDepositReader;
+import nl.knaw.dans.dvingest.core.dansbag.deposit.DansBagDepositReaderImpl;
 import nl.knaw.dans.dvingest.core.dansbag.mapper.DepositToDvDatasetMetadataMapper;
-import nl.knaw.dans.dvingest.core.dansbag.service.ManifestHelper;
-import nl.knaw.dans.dvingest.core.dansbag.service.ManifestHelperImpl;
-import nl.knaw.dans.dvingest.core.dansbag.service.XmlReader;
-import nl.knaw.dans.dvingest.core.dansbag.service.XmlReaderImpl;
+import nl.knaw.dans.dvingest.core.dansbag.xml.XmlReader;
+import nl.knaw.dans.dvingest.core.dansbag.xml.XmlReaderImpl;
 import nl.knaw.dans.dvingest.core.service.DataverseService;
 import nl.knaw.dans.lib.dataverse.model.dataset.License;
 import nl.knaw.dans.lib.util.MappingLoader;
@@ -45,18 +41,16 @@ import java.util.regex.Pattern;
 
 public abstract class DansConversionFixture extends TestDirFixture {
     protected final DataverseService dataverseServiceMock = Mockito.mock(DataverseService.class);
-    protected DepositReader depositReader;
+    protected DansBagDepositReader dansBagDepositReader;
     protected DansBagMappingService mappingService;
 
     @BeforeEach
     public void setUp() throws Exception {
         super.setUp();
         BagReader bagReader = new BagReader();
-        ManifestHelper manifestHelper = new ManifestHelperImpl();
         XmlReader xmlReader = new XmlReaderImpl();
-        BagDirResolver bagDirResolver = new BagDirResolverImpl();
 
-        depositReader = new DepositReaderImpl(xmlReader, bagDirResolver, bagReader, manifestHelper);
+        dansBagDepositReader = new DansBagDepositReaderImpl(xmlReader, bagReader);
         var defaultConfigDir = Paths.get("src/main/assembly/dist/cfg");
         var mapper = new DepositToDvDatasetMetadataMapper(
             false,

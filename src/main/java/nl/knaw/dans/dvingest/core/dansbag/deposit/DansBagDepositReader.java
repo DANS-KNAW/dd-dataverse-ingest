@@ -13,16 +13,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package nl.knaw.dans.dvingest.core.dansbag.service;
+package nl.knaw.dans.dvingest.core.dansbag.deposit;
 
-import gov.loc.repository.bagit.reader.BagReader;
+import nl.knaw.dans.dvingest.core.dansbag.exception.InvalidDepositException;
 
-public class BagDataManagerImpl implements BagDataManager {
-    private static final String DEPOSIT_PROPERTIES_FILENAME = "deposit.properties";
-    private final BagReader bagReader;
+import java.nio.file.Path;
 
-    public BagDataManagerImpl(BagReader bagReader) {
-        this.bagReader = bagReader;
-    }
+/**
+ * Reads a DANS bag deposit from a deposit directory into a {@link DansBagDeposit} object.
+ */
+public interface DansBagDepositReader {
 
+    /**
+     * Reads a DANS bag deposit from a deposit directory into a {@link DansBagDeposit} object.
+     *
+     * @param depositDir the deposit directory
+     * @return the deposit object
+     * @throws InvalidDepositException if the deposit is invalid
+     */
+    DansBagDeposit readDeposit(Path depositDir) throws InvalidDepositException;
 }

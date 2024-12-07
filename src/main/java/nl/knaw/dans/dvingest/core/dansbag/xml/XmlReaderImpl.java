@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package nl.knaw.dans.dvingest.core.dansbag.service;
+package nl.knaw.dans.dvingest.core.dansbag.xml;
 
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;

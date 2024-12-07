@@ -17,17 +17,13 @@ package nl.knaw.dans.dvingest.core.dansbag;
 
 import gov.loc.repository.bagit.reader.BagReader;
 import lombok.extern.slf4j.Slf4j;
-import nl.knaw.dans.dvingest.core.dansbag.deposit.BagDirResolver;
-import nl.knaw.dans.dvingest.core.dansbag.deposit.BagDirResolverImpl;
 import nl.knaw.dans.dvingest.core.dansbag.deposit.DansBagDeposit;
-import nl.knaw.dans.dvingest.core.dansbag.deposit.DepositReader;
-import nl.knaw.dans.dvingest.core.dansbag.deposit.DepositReaderImpl;
+import nl.knaw.dans.dvingest.core.dansbag.deposit.DansBagDepositReader;
+import nl.knaw.dans.dvingest.core.dansbag.deposit.DansBagDepositReaderImpl;
 import nl.knaw.dans.dvingest.core.dansbag.exception.InvalidDepositException;
 import nl.knaw.dans.dvingest.core.dansbag.mapper.DepositToDvDatasetMetadataMapper;
-import nl.knaw.dans.dvingest.core.dansbag.service.ManifestHelper;
-import nl.knaw.dans.dvingest.core.dansbag.service.ManifestHelperImpl;
-import nl.knaw.dans.dvingest.core.dansbag.service.XmlReader;
-import nl.knaw.dans.dvingest.core.dansbag.service.XmlReaderImpl;
+import nl.knaw.dans.dvingest.core.dansbag.xml.XmlReader;
+import nl.knaw.dans.dvingest.core.dansbag.xml.XmlReaderImpl;
 import nl.knaw.dans.dvingest.core.service.DataverseService;
 import nl.knaw.dans.dvingest.core.yaml.EditFiles;
 import nl.knaw.dans.dvingest.core.yaml.EditPermissions;
@@ -44,6 +40,7 @@ import org.joda.time.format.DateTimeFormatter;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.security.NoSuchAlgorithmException;
 import java.text.SimpleDateFormat;
 import java.util.List;
 import java.util.Optional;
@@ -56,7 +53,7 @@ public class DansBagMappingServiceImpl implements DansBagMappingService {
 
     private final DepositToDvDatasetMetadataMapper depositToDvDatasetMetadataMapper;
     private final DataverseService dataverseService;
-    private final DepositReader depositReader;
+    private final DansBagDepositReader dansBagDepositReader;
     private final SupportedLicenses supportedLicenses;
     private final Pattern fileExclusionPattern;
     private final List<String> embargoExclusions;
@@ -66,11 +63,9 @@ public class DansBagMappingServiceImpl implements DansBagMappingService {
         this.depositToDvDatasetMetadataMapper = depositToDvDatasetMetadataMapper;
         this.dataverseService = dataverseService;
         BagReader bagReader = new BagReader();
-        ManifestHelper manifestHelper = new ManifestHelperImpl();
         XmlReader xmlReader = new XmlReaderImpl();
-        BagDirResolver bagDirResolver = new BagDirResolverImpl();
 
-        depositReader = new DepositReaderImpl(xmlReader, bagDirResolver, bagReader, manifestHelper);
+        dansBagDepositReader = new DansBagDepositReaderImpl(xmlReader, bagReader);
         this.supportedLicenses = supportedLicenses;
         this.fileExclusionPattern = fileExclusionPattern;
         this.embargoExclusions = embargoExclusions;
@@ -179,6 +174,13 @@ public class DansBagMappingServiceImpl implements DansBagMappingService {
 
     @Override
     public DansBagDeposit readDansDeposit(Path depositDir) throws InvalidDepositException {
-        return depositReader.readDeposit(depositDir);
+        var deposit = dansBagDepositReader.readDeposit(depositDir);
+        try {
+            ManifestUtil.ensureSha1ManifestPresent(deposit.getBag());
+            return deposit;
+        }
+        catch (IOException | NoSuchAlgorithmException e) {
+            throw new IllegalStateException("Error reading deposit", e);
+        }
     }
 }

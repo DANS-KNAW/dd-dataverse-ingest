@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package nl.knaw.dans.dvingest.core.dansbag.service;
+package nl.knaw.dans.dvingest.core.dansbag.xml;
 
 public interface XmlNamespaces {
     String NAMESPACE_XML = "http://www.w3.org/XML/1998/namespace";

@@ -19,9 +19,9 @@ import nl.knaw.dans.dvingest.core.dansbag.mapper.builder.CompoundFieldGenerator;
 import nl.knaw.dans.lib.dataverse.model.user.AuthenticatedUser;
 import org.apache.commons.lang3.StringUtils;
 
-import static nl.knaw.dans.dvingest.core.dansbag.service.DepositDatasetFieldNames.DATASET_CONTACT_AFFILIATION;
-import static nl.knaw.dans.dvingest.core.dansbag.service.DepositDatasetFieldNames.DATASET_CONTACT_EMAIL;
-import static nl.knaw.dans.dvingest.core.dansbag.service.DepositDatasetFieldNames.DATASET_CONTACT_NAME;
+import static nl.knaw.dans.dvingest.core.dansbag.mapper.DepositDatasetFieldNames.DATASET_CONTACT_AFFILIATION;
+import static nl.knaw.dans.dvingest.core.dansbag.mapper.DepositDatasetFieldNames.DATASET_CONTACT_EMAIL;
+import static nl.knaw.dans.dvingest.core.dansbag.mapper.DepositDatasetFieldNames.DATASET_CONTACT_NAME;
 
 public class Contact {
 

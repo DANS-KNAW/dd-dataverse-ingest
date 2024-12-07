@@ -13,8 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package nl.knaw.dans.dvingest.core.dansbag.service;
+package nl.knaw.dans.dvingest.core.dansbag.xml;
 
-public interface BagDataManager {
-
+public interface XPathConstants {
+    String DDM_PROFILE = "/ddm:DDM/ddm:profile";
+    String DDM_DCMI_METADATA = "/ddm:DDM/ddm:dcmiMetadata";
+    String FILES_FILE = "/files:files/files:file";
 }

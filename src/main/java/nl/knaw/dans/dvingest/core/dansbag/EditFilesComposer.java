@@ -21,7 +21,7 @@ import nl.knaw.dans.dvingest.core.bagprocessor.DataversePath;
 import nl.knaw.dans.dvingest.core.dansbag.deposit.DansBagDeposit;
 import nl.knaw.dans.dvingest.core.dansbag.deposit.FileInfo;
 import nl.knaw.dans.dvingest.core.dansbag.mapper.mapping.FileElement;
-import nl.knaw.dans.dvingest.core.dansbag.service.XPathEvaluator;
+import nl.knaw.dans.dvingest.core.dansbag.xml.XPathEvaluator;
 import nl.knaw.dans.dvingest.core.yaml.AddEmbargo;
 import nl.knaw.dans.dvingest.core.yaml.EditFiles;
 import nl.knaw.dans.dvingest.core.yaml.FromTo;

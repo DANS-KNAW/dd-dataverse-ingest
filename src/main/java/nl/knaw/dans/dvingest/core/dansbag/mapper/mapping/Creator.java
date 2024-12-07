@@ -19,7 +19,7 @@ import lombok.extern.slf4j.Slf4j;
 import nl.knaw.dans.dvingest.core.dansbag.mapper.builder.CompoundFieldGenerator;
 import org.w3c.dom.Node;
 
-import static nl.knaw.dans.dvingest.core.dansbag.service.DepositDatasetFieldNames.AUTHOR_NAME;
+import static nl.knaw.dans.dvingest.core.dansbag.mapper.DepositDatasetFieldNames.AUTHOR_NAME;
 
 @Slf4j
 public final class Creator extends Base {

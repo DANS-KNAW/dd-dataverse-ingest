@@ -20,8 +20,8 @@ import org.w3c.dom.Node;
 
 import java.util.Map;
 
-import static nl.knaw.dans.dvingest.core.dansbag.service.DepositDatasetFieldNames.SCHEME_ABR_VERWERVINGSWIJZE;
-import static nl.knaw.dans.dvingest.core.dansbag.service.DepositDatasetFieldNames.SCHEME_URI_ABR_VERWERVINGSWIJZE;
+import static nl.knaw.dans.dvingest.core.dansbag.mapper.DepositDatasetFieldNames.SCHEME_ABR_VERWERVINGSWIJZE;
+import static nl.knaw.dans.dvingest.core.dansbag.mapper.DepositDatasetFieldNames.SCHEME_URI_ABR_VERWERVINGSWIJZE;
 
 @Slf4j
 public class AbrAcquisitionMethod extends Base {

@@ -20,9 +20,9 @@ import nl.knaw.dans.dvingest.core.dansbag.mapper.builder.CompoundFieldGenerator;
 import org.apache.commons.lang3.StringUtils;
 import org.w3c.dom.Node;
 
-import static nl.knaw.dans.dvingest.core.dansbag.service.DepositDatasetFieldNames.SPATIAL_POINT_SCHEME;
-import static nl.knaw.dans.dvingest.core.dansbag.service.DepositDatasetFieldNames.SPATIAL_POINT_X;
-import static nl.knaw.dans.dvingest.core.dansbag.service.DepositDatasetFieldNames.SPATIAL_POINT_Y;
+import static nl.knaw.dans.dvingest.core.dansbag.mapper.DepositDatasetFieldNames.SPATIAL_POINT_SCHEME;
+import static nl.knaw.dans.dvingest.core.dansbag.mapper.DepositDatasetFieldNames.SPATIAL_POINT_X;
+import static nl.knaw.dans.dvingest.core.dansbag.mapper.DepositDatasetFieldNames.SPATIAL_POINT_Y;
 
 @Slf4j
 public class SpatialPoint extends Spatial {

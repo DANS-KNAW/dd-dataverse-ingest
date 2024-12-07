@@ -18,10 +18,9 @@ package nl.knaw.dans.dvingest.core.dansbag.deposit;
 import gov.loc.repository.bagit.domain.Bag;
 import gov.loc.repository.bagit.reader.BagReader;
 import nl.knaw.dans.dvingest.core.dansbag.exception.InvalidDepositException;
-import nl.knaw.dans.dvingest.core.dansbag.service.ManifestHelper;
-import nl.knaw.dans.dvingest.core.dansbag.service.ManifestHelperImpl;
-import nl.knaw.dans.dvingest.core.dansbag.service.XPathEvaluator;
-import nl.knaw.dans.dvingest.core.dansbag.service.XmlReader;
+import nl.knaw.dans.dvingest.core.dansbag.ManifestUtil;
+import nl.knaw.dans.dvingest.core.dansbag.xml.XPathEvaluator;
+import nl.knaw.dans.dvingest.core.dansbag.xml.XmlReader;
 import org.apache.commons.configuration2.Configuration;
 import org.apache.commons.configuration2.FileBasedConfiguration;
 import org.apache.commons.configuration2.PropertiesConfiguration;
@@ -42,34 +41,28 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import static nl.knaw.dans.dvingest.core.dansbag.service.XPathConstants.FILES_FILE;
+import static nl.knaw.dans.dvingest.core.dansbag.xml.XPathConstants.FILES_FILE;
 
-public class DepositReaderImpl implements DepositReader {
+public class DansBagDepositReaderImpl implements DansBagDepositReader {
     private static final String DEPOSIT_PROPERTIES_FILENAME = "deposit.properties";
 
     private final XmlReader xmlReader;
-    private final BagDirResolver bagDirResolver;
     private final BagReader bagReader;
 
-    private final ManifestHelper manifestHelper;
-
-    public DepositReaderImpl(XmlReader xmlReader, BagDirResolver bagDirResolver, BagReader bagReader, ManifestHelper manifestHelper) {
+    public DansBagDepositReaderImpl(XmlReader xmlReader, BagReader bagReader) {
         this.xmlReader = xmlReader;
-        this.bagDirResolver = bagDirResolver;
         this.bagReader = bagReader;
-        this.manifestHelper = manifestHelper;
     }
 
     @Override
     public DansBagDeposit readDeposit(Path depositDir) throws InvalidDepositException {
         try {
-            var bagDir = bagDirResolver.getBagDir(depositDir);
+            var bagDir = getBagDir(depositDir);
 
-            var config = readDepositProperties(depositDir);
+            var depositProperties = readDepositProperties(depositDir);
             var bag = bagReader.read(bagDir);
-            manifestHelper.ensureSha1ManifestPresent(bag);
 
-            var deposit = mapToDeposit(depositDir, bagDir, config, bag);
+            var deposit = mapToDeposit(bag, depositProperties);
 
             deposit.setBag(bag);
             deposit.setDdm(readRequiredXmlFile(deposit.getDdmPath()));
@@ -80,8 +73,42 @@ public class DepositReaderImpl implements DepositReader {
 
             return deposit;
         }
-        catch (Throwable cex) {
+        catch (Exception cex) {
             throw new InvalidDepositException(cex.getMessage(), cex);
+        }
+    }
+
+    private Path getBagDir(Path depositDir) throws InvalidDepositException, IOException {
+        if (!Files.isDirectory(depositDir)) {
+            throw new InvalidDepositException(String.format("%s is not a directory", depositDir));
+        }
+
+        try (var substream = Files.list(depositDir).filter(Files::isDirectory)) {
+            var directories = substream.toList();
+
+            // only 1 directory allowed, not 0 or more than 1
+            if (directories.size() != 1) {
+                throw new InvalidDepositException(String.format(
+                    "%s has more or fewer than one subdirectory", depositDir
+                ));
+            }
+
+            // check for the presence of deposit.properties and bagit.txt
+            if (!Files.exists(depositDir.resolve("deposit.properties"))) {
+                throw new InvalidDepositException(String.format(
+                    "%s does not contain a deposit.properties file", depositDir
+                ));
+            }
+
+            var bagDir = directories.get(0);
+
+            if (!Files.exists(bagDir.resolve("bagit.txt"))) {
+                throw new InvalidDepositException(String.format(
+                    "%s does not contain a bag", depositDir
+                ));
+            }
+
+            return bagDir;
         }
     }
 
@@ -101,7 +128,7 @@ public class DepositReaderImpl implements DepositReader {
 
     private List<DepositFile> getDepositFiles(DansBagDeposit dansBagDeposit) throws IOException {
         var bag = dansBagDeposit.getBag();
-        var filePathToSha1 = ManifestHelperImpl.getFilePathToSha1(bag);
+        var filePathToSha1 = ManifestUtil.getFilePathToSha1(bag);
 
         return XPathEvaluator.nodes(dansBagDeposit.getFilesXml(), FILES_FILE)
             .map(node -> {
@@ -132,23 +159,23 @@ public class DepositReaderImpl implements DepositReader {
         return null;
     }
 
-    private DansBagDeposit mapToDeposit(Path path, Path bagDir, Configuration config, Bag bag) {
+    private DansBagDeposit mapToDeposit(Bag bag, Configuration depositProperties) {
         var deposit = new DansBagDeposit();
-        deposit.setBagDir(bagDir);
-        deposit.setDir(path);
-        deposit.setDoi(config.getString("identifier.doi", ""));
-        deposit.setUrn(config.getString("identifier.urn"));
-        deposit.setCreated(Optional.ofNullable(config.getString("creation.timestamp")).map(OffsetDateTime::parse).orElse(null));
-        deposit.setDepositorUserId(config.getString("depositor.userId"));
+        deposit.setBagDir(bag.getRootDir());
+        deposit.setDir(bag.getRootDir().getParent());
+        deposit.setDoi(depositProperties.getString("identifier.doi", ""));
+        deposit.setUrn(depositProperties.getString("identifier.urn"));
+        deposit.setCreated(Optional.ofNullable(depositProperties.getString("creation.timestamp")).map(OffsetDateTime::parse).orElse(null));
+        deposit.setDepositorUserId(depositProperties.getString("depositor.userId"));
 
-        deposit.setDataverseIdProtocol(config.getString("dataverse.id-protocol", ""));
-        deposit.setDataverseIdAuthority(config.getString("dataverse.id-authority", ""));
-        deposit.setDataverseId(config.getString("dataverse.id-identifier", ""));
-        deposit.setDataverseBagId(config.getString("dataverse.bag-id", ""));
-        deposit.setDataverseNbn(config.getString("dataverse.nbn", ""));
-        deposit.setDataverseOtherId(config.getString("dataverse.other-id", ""));
-        deposit.setDataverseOtherIdVersion(config.getString("dataverse.other-id-version", ""));
-        deposit.setDataverseSwordToken(config.getString("dataverse.sword-token", ""));
+        deposit.setDataverseIdProtocol(depositProperties.getString("dataverse.id-protocol", ""));
+        deposit.setDataverseIdAuthority(depositProperties.getString("dataverse.id-authority", ""));
+        deposit.setDataverseId(depositProperties.getString("dataverse.id-identifier", ""));
+        deposit.setDataverseBagId(depositProperties.getString("dataverse.bag-id", ""));
+        deposit.setDataverseNbn(depositProperties.getString("dataverse.nbn", ""));
+        deposit.setDataverseOtherId(depositProperties.getString("dataverse.other-id", ""));
+        deposit.setDataverseOtherIdVersion(depositProperties.getString("dataverse.other-id-version", ""));
+        deposit.setDataverseSwordToken(depositProperties.getString("dataverse.sword-token", ""));
         deposit.setHasOrganizationalIdentifier(getFirstValue(bag.getMetadata().get("Has-Organizational-Identifier")));
 
         var isVersionOf = bag.getMetadata().get("Is-Version-Of");

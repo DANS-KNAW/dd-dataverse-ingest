@@ -22,26 +22,26 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static nl.knaw.dans.dvingest.core.dansbag.service.DepositDatasetFieldNames.ALTERNATIVE_TITLE;
-import static nl.knaw.dans.dvingest.core.dansbag.service.DepositDatasetFieldNames.AUTHOR;
-import static nl.knaw.dans.dvingest.core.dansbag.service.DepositDatasetFieldNames.CONTRIBUTOR;
-import static nl.knaw.dans.dvingest.core.dansbag.service.DepositDatasetFieldNames.DATASET_CONTACT;
-import static nl.knaw.dans.dvingest.core.dansbag.service.DepositDatasetFieldNames.DATA_SOURCES;
-import static nl.knaw.dans.dvingest.core.dansbag.service.DepositDatasetFieldNames.DATE_OF_COLLECTION;
-import static nl.knaw.dans.dvingest.core.dansbag.service.DepositDatasetFieldNames.DATE_OF_DEPOSIT;
-import static nl.knaw.dans.dvingest.core.dansbag.service.DepositDatasetFieldNames.DESCRIPTION;
-import static nl.knaw.dans.dvingest.core.dansbag.service.DepositDatasetFieldNames.DISTRIBUTION_DATE;
-import static nl.knaw.dans.dvingest.core.dansbag.service.DepositDatasetFieldNames.DISTRIBUTOR;
-import static nl.knaw.dans.dvingest.core.dansbag.service.DepositDatasetFieldNames.GRANT_NUMBER;
-import static nl.knaw.dans.dvingest.core.dansbag.service.DepositDatasetFieldNames.KEYWORD;
-import static nl.knaw.dans.dvingest.core.dansbag.service.DepositDatasetFieldNames.LANGUAGE;
-import static nl.knaw.dans.dvingest.core.dansbag.service.DepositDatasetFieldNames.NOTES_TEXT;
-import static nl.knaw.dans.dvingest.core.dansbag.service.DepositDatasetFieldNames.OTHER_ID;
-import static nl.knaw.dans.dvingest.core.dansbag.service.DepositDatasetFieldNames.PRODUCTION_DATE;
-import static nl.knaw.dans.dvingest.core.dansbag.service.DepositDatasetFieldNames.PUBLICATION;
-import static nl.knaw.dans.dvingest.core.dansbag.service.DepositDatasetFieldNames.SERIES;
-import static nl.knaw.dans.dvingest.core.dansbag.service.DepositDatasetFieldNames.SUBJECT;
-import static nl.knaw.dans.dvingest.core.dansbag.service.DepositDatasetFieldNames.TITLE;
+import static nl.knaw.dans.dvingest.core.dansbag.mapper.DepositDatasetFieldNames.ALTERNATIVE_TITLE;
+import static nl.knaw.dans.dvingest.core.dansbag.mapper.DepositDatasetFieldNames.AUTHOR;
+import static nl.knaw.dans.dvingest.core.dansbag.mapper.DepositDatasetFieldNames.CONTRIBUTOR;
+import static nl.knaw.dans.dvingest.core.dansbag.mapper.DepositDatasetFieldNames.DATASET_CONTACT;
+import static nl.knaw.dans.dvingest.core.dansbag.mapper.DepositDatasetFieldNames.DATA_SOURCES;
+import static nl.knaw.dans.dvingest.core.dansbag.mapper.DepositDatasetFieldNames.DATE_OF_COLLECTION;
+import static nl.knaw.dans.dvingest.core.dansbag.mapper.DepositDatasetFieldNames.DATE_OF_DEPOSIT;
+import static nl.knaw.dans.dvingest.core.dansbag.mapper.DepositDatasetFieldNames.DESCRIPTION;
+import static nl.knaw.dans.dvingest.core.dansbag.mapper.DepositDatasetFieldNames.DISTRIBUTION_DATE;
+import static nl.knaw.dans.dvingest.core.dansbag.mapper.DepositDatasetFieldNames.DISTRIBUTOR;
+import static nl.knaw.dans.dvingest.core.dansbag.mapper.DepositDatasetFieldNames.GRANT_NUMBER;
+import static nl.knaw.dans.dvingest.core.dansbag.mapper.DepositDatasetFieldNames.KEYWORD;
+import static nl.knaw.dans.dvingest.core.dansbag.mapper.DepositDatasetFieldNames.LANGUAGE;
+import static nl.knaw.dans.dvingest.core.dansbag.mapper.DepositDatasetFieldNames.NOTES_TEXT;
+import static nl.knaw.dans.dvingest.core.dansbag.mapper.DepositDatasetFieldNames.OTHER_ID;
+import static nl.knaw.dans.dvingest.core.dansbag.mapper.DepositDatasetFieldNames.PRODUCTION_DATE;
+import static nl.knaw.dans.dvingest.core.dansbag.mapper.DepositDatasetFieldNames.PUBLICATION;
+import static nl.knaw.dans.dvingest.core.dansbag.mapper.DepositDatasetFieldNames.SERIES;
+import static nl.knaw.dans.dvingest.core.dansbag.mapper.DepositDatasetFieldNames.SUBJECT;
+import static nl.knaw.dans.dvingest.core.dansbag.mapper.DepositDatasetFieldNames.TITLE;
 
 public class CitationFieldBuilder extends FieldBuilder {
 

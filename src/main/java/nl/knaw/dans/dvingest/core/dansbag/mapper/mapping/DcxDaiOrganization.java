@@ -20,20 +20,20 @@ import lombok.Data;
 import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
 import nl.knaw.dans.dvingest.core.dansbag.mapper.builder.CompoundFieldGenerator;
-import nl.knaw.dans.dvingest.core.dansbag.service.XPathEvaluator;
+import nl.knaw.dans.dvingest.core.dansbag.xml.XPathEvaluator;
 import org.apache.commons.lang3.StringUtils;
 import org.w3c.dom.Node;
 
 import java.util.Set;
 
 import static nl.knaw.dans.dvingest.core.dansbag.mapper.mapping.IdUriHelper.reduceUriToId;
-import static nl.knaw.dans.dvingest.core.dansbag.service.DepositDatasetFieldNames.AUTHOR_IDENTIFIER;
-import static nl.knaw.dans.dvingest.core.dansbag.service.DepositDatasetFieldNames.AUTHOR_IDENTIFIER_SCHEME;
-import static nl.knaw.dans.dvingest.core.dansbag.service.DepositDatasetFieldNames.AUTHOR_NAME;
-import static nl.knaw.dans.dvingest.core.dansbag.service.DepositDatasetFieldNames.CONTRIBUTOR_NAME;
-import static nl.knaw.dans.dvingest.core.dansbag.service.DepositDatasetFieldNames.CONTRIBUTOR_TYPE;
-import static nl.knaw.dans.dvingest.core.dansbag.service.DepositDatasetFieldNames.GRANT_NUMBER_AGENCY;
-import static nl.knaw.dans.dvingest.core.dansbag.service.DepositDatasetFieldNames.GRANT_NUMBER_VALUE;
+import static nl.knaw.dans.dvingest.core.dansbag.mapper.DepositDatasetFieldNames.AUTHOR_IDENTIFIER;
+import static nl.knaw.dans.dvingest.core.dansbag.mapper.DepositDatasetFieldNames.AUTHOR_IDENTIFIER_SCHEME;
+import static nl.knaw.dans.dvingest.core.dansbag.mapper.DepositDatasetFieldNames.AUTHOR_NAME;
+import static nl.knaw.dans.dvingest.core.dansbag.mapper.DepositDatasetFieldNames.CONTRIBUTOR_NAME;
+import static nl.knaw.dans.dvingest.core.dansbag.mapper.DepositDatasetFieldNames.CONTRIBUTOR_TYPE;
+import static nl.knaw.dans.dvingest.core.dansbag.mapper.DepositDatasetFieldNames.GRANT_NUMBER_AGENCY;
+import static nl.knaw.dans.dvingest.core.dansbag.mapper.DepositDatasetFieldNames.GRANT_NUMBER_VALUE;
 
 @Slf4j
 public final class DcxDaiOrganization {

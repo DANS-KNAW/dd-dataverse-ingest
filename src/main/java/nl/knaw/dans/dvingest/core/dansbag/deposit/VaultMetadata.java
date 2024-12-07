@@ -16,18 +16,16 @@
 package nl.knaw.dans.dvingest.core.dansbag.deposit;
 
 import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
 import lombok.ToString;
+import lombok.Value;
 
-@Data
-@NoArgsConstructor
+@Value
 @AllArgsConstructor
 @ToString
 public class VaultMetadata {
-    private String pid;
-    private String bagId;
-    private String nbn;
-    private String otherId;
-    private String swordToken;
+    String pid;
+    String bagId;
+    String nbn;
+    String otherId;
+    String swordToken;
 }

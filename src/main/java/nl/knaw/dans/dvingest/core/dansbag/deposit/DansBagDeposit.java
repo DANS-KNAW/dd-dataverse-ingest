@@ -19,7 +19,7 @@ import gov.loc.repository.bagit.domain.Bag;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import nl.knaw.dans.dvingest.core.dansbag.service.XPathEvaluator;
+import nl.knaw.dans.dvingest.core.dansbag.xml.XPathEvaluator;
 import org.apache.commons.lang3.StringUtils;
 import org.w3c.dom.Document;
 
@@ -28,9 +28,12 @@ import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.util.List;
 
-import static nl.knaw.dans.dvingest.core.dansbag.service.XPathConstants.DDM_PROFILE;
-import static nl.knaw.dans.dvingest.core.dansbag.service.XPathConstants.FILES_FILE;
+import static nl.knaw.dans.dvingest.core.dansbag.xml.XPathConstants.DDM_PROFILE;
+import static nl.knaw.dans.dvingest.core.dansbag.xml.XPathConstants.FILES_FILE;
 
+/**
+ * Represents a DANS bag deposit, i.e. a deposit containing a bag conforming to the DANS BagIt Profile.
+ */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor

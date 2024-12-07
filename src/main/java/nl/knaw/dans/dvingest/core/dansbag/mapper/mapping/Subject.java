@@ -21,9 +21,9 @@ import org.w3c.dom.Node;
 
 import java.util.regex.Pattern;
 
-import static nl.knaw.dans.dvingest.core.dansbag.service.DepositDatasetFieldNames.KEYWORD_VALUE;
-import static nl.knaw.dans.dvingest.core.dansbag.service.DepositDatasetFieldNames.KEYWORD_VOCABULARY;
-import static nl.knaw.dans.dvingest.core.dansbag.service.DepositDatasetFieldNames.KEYWORD_VOCABULARY_URI;
+import static nl.knaw.dans.dvingest.core.dansbag.mapper.DepositDatasetFieldNames.KEYWORD_VALUE;
+import static nl.knaw.dans.dvingest.core.dansbag.mapper.DepositDatasetFieldNames.KEYWORD_VOCABULARY;
+import static nl.knaw.dans.dvingest.core.dansbag.mapper.DepositDatasetFieldNames.KEYWORD_VOCABULARY_URI;
 
 @Slf4j
 public class Subject extends Base {

@@ -16,7 +16,7 @@
 package nl.knaw.dans.dvingest.core.dansbag.mapper.mapping;
 
 import lombok.extern.slf4j.Slf4j;
-import nl.knaw.dans.dvingest.core.dansbag.service.XPathEvaluator;
+import nl.knaw.dans.dvingest.core.dansbag.xml.XPathEvaluator;
 import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
@@ -29,7 +29,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Stream;
 
-import static nl.knaw.dans.dvingest.core.dansbag.service.XmlReader.NAMESPACE_XSI;
+import static nl.knaw.dans.dvingest.core.dansbag.xml.XmlReader.NAMESPACE_XSI;
 
 @Slf4j
 public class Base {

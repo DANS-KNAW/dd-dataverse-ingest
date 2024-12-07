@@ -36,7 +36,7 @@ public class DansDepositConverterTest extends DansConversionFixture {
         // Given
         FileUtils.copyDirectoryToDirectory(Paths.get("src/test/resources/unit-test/d0919038-9866-49e8-986a-bcef54ae7566").toFile(), testDir.toFile());
         var depositDir = testDir.resolve("d0919038-9866-49e8-986a-bcef54ae7566");
-        var deposit = depositReader.readDeposit(depositDir);
+        var deposit = dansBagDepositReader.readDeposit(depositDir);
         var authenticatedUser = new AuthenticatedUser();
         authenticatedUser.setFirstName("John");
         authenticatedUser.setLastName("Doe");

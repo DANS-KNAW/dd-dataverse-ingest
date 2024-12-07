@@ -19,11 +19,11 @@ import org.w3c.dom.Node;
 
 import java.util.stream.Stream;
 
-import static nl.knaw.dans.dvingest.core.dansbag.service.DepositDatasetFieldNames.SPATIAL_BOX;
-import static nl.knaw.dans.dvingest.core.dansbag.service.DepositDatasetFieldNames.SPATIAL_COVERAGE_CONTROLLED;
-import static nl.knaw.dans.dvingest.core.dansbag.service.DepositDatasetFieldNames.SPATIAL_COVERAGE_UNCONTROLLED;
-import static nl.knaw.dans.dvingest.core.dansbag.service.DepositDatasetFieldNames.SPATIAL_POINT;
-import static nl.knaw.dans.dvingest.core.dansbag.service.DepositDatasetFieldNames.TEMPORAL_COVERAGE;
+import static nl.knaw.dans.dvingest.core.dansbag.mapper.DepositDatasetFieldNames.SPATIAL_BOX;
+import static nl.knaw.dans.dvingest.core.dansbag.mapper.DepositDatasetFieldNames.SPATIAL_COVERAGE_CONTROLLED;
+import static nl.knaw.dans.dvingest.core.dansbag.mapper.DepositDatasetFieldNames.SPATIAL_COVERAGE_UNCONTROLLED;
+import static nl.knaw.dans.dvingest.core.dansbag.mapper.DepositDatasetFieldNames.SPATIAL_POINT;
+import static nl.knaw.dans.dvingest.core.dansbag.mapper.DepositDatasetFieldNames.TEMPORAL_COVERAGE;
 
 public class TemporalSpatialFieldBuilder extends FieldBuilder {
 

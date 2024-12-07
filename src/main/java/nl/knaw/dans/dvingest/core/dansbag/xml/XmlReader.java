@@ -13,10 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package nl.knaw.dans.dvingest.core.dansbag.service;
+package nl.knaw.dans.dvingest.core.dansbag.xml;
 
-public interface XPathConstants {
-    String DDM_PROFILE = "/ddm:DDM/ddm:profile";
-    String DDM_DCMI_METADATA = "/ddm:DDM/ddm:dcmiMetadata";
-    String FILES_FILE = "/files:files/files:file";
+import org.w3c.dom.Document;
+import org.xml.sax.SAXException;
+
+import javax.xml.parsers.ParserConfigurationException;
+import java.io.IOException;
+import java.nio.file.Path;
+
+public interface XmlReader extends XmlNamespaces {
+
+    Document readXmlFile(Path path) throws ParserConfigurationException, IOException, SAXException;
+
 }

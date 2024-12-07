@@ -13,14 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+/**
+ * Classes for reading and writing a DansBagDeposit.
+ *
+ */
 package nl.knaw.dans.dvingest.core.dansbag.deposit;
 
-import nl.knaw.dans.dvingest.core.dansbag.exception.InvalidDepositException;
-
-import java.nio.file.Path;
-
-public interface DepositReader {
-
-    DansBagDeposit readDeposit(Path depositDir) throws InvalidDepositException;
-
-}

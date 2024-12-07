@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package nl.knaw.dans.dvingest.core.dansbag.service;
+package nl.knaw.dans.dvingest.core.dansbag;
 
 import gov.loc.repository.bagit.creator.CreatePayloadManifestsVistor;
 import gov.loc.repository.bagit.creator.CreateTagManifestsVistor;
@@ -37,10 +37,9 @@ import java.util.stream.Collectors;
 
 import static gov.loc.repository.bagit.hash.StandardSupportedAlgorithms.SHA1;
 
-public class ManifestHelperImpl implements ManifestHelper {
+public class ManifestUtil  {
 
-    @Override
-    public void ensureSha1ManifestPresent(Bag bag) throws NoSuchAlgorithmException, IOException {
+    public static void ensureSha1ManifestPresent(Bag bag) throws NoSuchAlgorithmException, IOException {
         var manifests = bag.getPayLoadManifests();
         var algorithms = manifests.stream().map(Manifest::getAlgorithm);
 

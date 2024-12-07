@@ -19,14 +19,14 @@ import org.w3c.dom.Node;
 
 import java.util.stream.Stream;
 
-import static nl.knaw.dans.dvingest.core.dansbag.service.DepositDatasetFieldNames.ABR_ARTIFACT;
-import static nl.knaw.dans.dvingest.core.dansbag.service.DepositDatasetFieldNames.ABR_COMPLEX;
-import static nl.knaw.dans.dvingest.core.dansbag.service.DepositDatasetFieldNames.ABR_PERIOD;
-import static nl.knaw.dans.dvingest.core.dansbag.service.DepositDatasetFieldNames.ABR_RAPPORT_NUMMER;
-import static nl.knaw.dans.dvingest.core.dansbag.service.DepositDatasetFieldNames.ABR_RAPPORT_TYPE;
-import static nl.knaw.dans.dvingest.core.dansbag.service.DepositDatasetFieldNames.ABR_VERWERVINGSWIJZE;
-import static nl.knaw.dans.dvingest.core.dansbag.service.DepositDatasetFieldNames.ARCHIS_NUMBER;
-import static nl.knaw.dans.dvingest.core.dansbag.service.DepositDatasetFieldNames.ARCHIS_ZAAK_ID;
+import static nl.knaw.dans.dvingest.core.dansbag.mapper.DepositDatasetFieldNames.ABR_ARTIFACT;
+import static nl.knaw.dans.dvingest.core.dansbag.mapper.DepositDatasetFieldNames.ABR_COMPLEX;
+import static nl.knaw.dans.dvingest.core.dansbag.mapper.DepositDatasetFieldNames.ABR_PERIOD;
+import static nl.knaw.dans.dvingest.core.dansbag.mapper.DepositDatasetFieldNames.ABR_RAPPORT_NUMMER;
+import static nl.knaw.dans.dvingest.core.dansbag.mapper.DepositDatasetFieldNames.ABR_RAPPORT_TYPE;
+import static nl.knaw.dans.dvingest.core.dansbag.mapper.DepositDatasetFieldNames.ABR_VERWERVINGSWIJZE;
+import static nl.knaw.dans.dvingest.core.dansbag.mapper.DepositDatasetFieldNames.ARCHIS_NUMBER;
+import static nl.knaw.dans.dvingest.core.dansbag.mapper.DepositDatasetFieldNames.ARCHIS_ZAAK_ID;
 
 public class ArchaeologyFieldBuilder extends FieldBuilder {
 
