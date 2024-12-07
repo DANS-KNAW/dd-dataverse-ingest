@@ -26,6 +26,4 @@ public interface XmlReader extends XmlNamespaces {
 
     Document readXmlFile(Path path) throws ParserConfigurationException, IOException, SAXException;
 
-    Document readXmlString(String str) throws ParserConfigurationException, IOException, SAXException;
-
 }

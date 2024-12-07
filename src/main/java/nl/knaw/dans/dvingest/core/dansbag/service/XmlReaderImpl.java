@@ -16,7 +16,6 @@
 package nl.knaw.dans.dvingest.core.dansbag.service;
 
 import org.w3c.dom.Document;
-import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
 import javax.xml.XMLConstants;
@@ -26,7 +25,6 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathFactory;
 import java.io.IOException;
-import java.io.StringReader;
 import java.nio.file.Path;
 import java.util.Iterator;
 import java.util.Map;
@@ -80,15 +78,6 @@ public class XmlReaderImpl implements XmlReader {
         return factory
             .newDocumentBuilder()
             .parse(path.toFile());
-    }
-
-    @Override
-    public Document readXmlString(String str) throws ParserConfigurationException, IOException, SAXException {
-        var factory = getFactory();
-
-        return factory
-            .newDocumentBuilder()
-            .parse(new InputSource(new StringReader(str)));
     }
 
     public DocumentBuilderFactory getFactory() throws ParserConfigurationException {
