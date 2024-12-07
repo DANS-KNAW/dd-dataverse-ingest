@@ -16,7 +16,6 @@
 package nl.knaw.dans.dvingest.core.yaml;
 
 import lombok.Data;
-import nl.knaw.dans.lib.dataverse.model.dataset.Embargo;
 
 import java.util.List;
 

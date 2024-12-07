@@ -15,7 +15,6 @@
  */
 package nl.knaw.dans.dvingest.core;
 
-import io.dropwizard.lifecycle.Managed;
 import lombok.Builder;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
@@ -27,8 +26,6 @@ import nl.knaw.dans.dvingest.core.dansbag.DansBagMappingService;
 import nl.knaw.dans.dvingest.core.service.DataverseService;
 import nl.knaw.dans.dvingest.core.service.UtilityServices;
 import nl.knaw.dans.dvingest.core.service.YamlService;
-import nl.knaw.dans.dvingest.core.service.YamlServiceImpl;
-import nl.knaw.dans.lib.util.inbox.Inbox;
 
 import java.nio.file.Path;
 import java.util.List;

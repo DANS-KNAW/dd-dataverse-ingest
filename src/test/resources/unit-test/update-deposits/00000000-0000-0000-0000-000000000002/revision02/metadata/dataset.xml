@@ -1,0 +1,34 @@
+<ddm:DDM
+        xmlns:dc="http://purl.org/dc/elements/1.1/"
+        xmlns:dcx-dai="http://easy.dans.knaw.nl/schemas/dcx/dai/"
+        xmlns:ddm="http://schemas.dans.knaw.nl/dataset/ddm-v2/"
+        xmlns:dcterms="http://purl.org/dc/terms/"
+        xmlns:id-type="http://easy.dans.knaw.nl/schemas/vocab/identifier-type/"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <ddm:profile>
+        <dc:title>A bag to demonstrate revisions - 2</dc:title>
+        <dcterms:description>
+            Updated description for revision 2
+        </dcterms:description>
+        <dcx-dai:creatorDetails>
+            <dcx-dai:author>
+                <dcx-dai:titles>Dr</dcx-dai:titles>
+                <dcx-dai:initials>I</dcx-dai:initials>
+                <dcx-dai:surname>Lastname</dcx-dai:surname>
+                <dcx-dai:organization>
+                    <dcx-dai:name xml:lang="en">Example Org</dcx-dai:name>
+                </dcx-dai:organization>
+            </dcx-dai:author>
+        </dcx-dai:creatorDetails>
+        <ddm:created>2020-01-01</ddm:created>
+        <ddm:available>2025-01-01</ddm:available>
+        <ddm:audience>D16300</ddm:audience>
+        <ddm:accessRights>OPEN_ACCESS</ddm:accessRights>
+        <ddm:personalData present="No"/>
+    </ddm:profile>
+    <ddm:dcmiMetadata>
+        <dcterms:license xsi:type="dcterms:URI">http://opensource.org/licenses/MIT</dcterms:license>
+        <dcterms:rightsHolder>I Lastname</dcterms:rightsHolder>
+        <dcterms:identifier xsi:type="id-type:DOI">10.17026/dans-z6y-5y2e</dcterms:identifier>
+    </ddm:dcmiMetadata>
+</ddm:DDM>

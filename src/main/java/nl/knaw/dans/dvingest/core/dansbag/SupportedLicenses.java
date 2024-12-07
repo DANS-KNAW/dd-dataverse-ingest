@@ -15,12 +15,11 @@
  */
 package nl.knaw.dans.dvingest.core.dansbag;
 
-import lombok.AllArgsConstructor;
+import nl.knaw.dans.dvingest.core.dansbag.deposit.DansBagDeposit;
+import nl.knaw.dans.dvingest.core.dansbag.exception.RejectedDepositException;
+import nl.knaw.dans.dvingest.core.dansbag.mapper.mapping.LicenseElem;
+import nl.knaw.dans.dvingest.core.dansbag.xml.XPathEvaluator;
 import nl.knaw.dans.dvingest.core.service.DataverseService;
-import nl.knaw.dans.ingest.core.domain.Deposit;
-import nl.knaw.dans.ingest.core.exception.RejectedDepositException;
-import nl.knaw.dans.ingest.core.service.XPathEvaluator;
-import nl.knaw.dans.ingest.core.service.mapper.mapping.LicenseElem;
 import nl.knaw.dans.lib.dataverse.DataverseException;
 import nl.knaw.dans.lib.dataverse.model.dataset.License;
 
@@ -29,7 +28,7 @@ import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
 
-import static nl.knaw.dans.ingest.core.service.XPathConstants.DDM_DCMI_METADATA;
+import static nl.knaw.dans.dvingest.core.dansbag.xml.XPathConstants.DDM_DCMI_METADATA;
 
 public class SupportedLicenses {
     private final Map<URI, License> supportedLicenses;
@@ -47,7 +46,7 @@ public class SupportedLicenses {
     }
 
 
-    public License getLicenseFromDansDeposit(Deposit dansDeposit) {
+    public License getLicenseFromDansDeposit(DansBagDeposit dansDeposit) {
         var optLicenseUri = XPathEvaluator.nodes(dansDeposit.getDdm(), DDM_DCMI_METADATA + "/dcterms:license")
             .filter(LicenseElem::isLicenseUri)
             .findFirst()

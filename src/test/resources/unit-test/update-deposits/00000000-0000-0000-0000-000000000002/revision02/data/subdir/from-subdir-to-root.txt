@@ -1,0 +1,1 @@
+This file is moved from subdir to root dir between version 2 and 3.
