@@ -18,9 +18,9 @@ package nl.knaw.dans.dvingest.core.dansbag.mapper.builder;
 import java.util.Objects;
 import java.util.stream.Stream;
 
-import static nl.knaw.dans.ingest.core.service.DepositDatasetFieldNames.LANGUAGE_OF_METADATA;
-import static nl.knaw.dans.ingest.core.service.DepositDatasetFieldNames.PERSONAL_DATA_PRESENT;
-import static nl.knaw.dans.ingest.core.service.DepositDatasetFieldNames.RIGHTS_HOLDER;
+import static nl.knaw.dans.dvingest.core.dansbag.service.DepositDatasetFieldNames.LANGUAGE_OF_METADATA;
+import static nl.knaw.dans.dvingest.core.dansbag.service.DepositDatasetFieldNames.PERSONAL_DATA_PRESENT;
+import static nl.knaw.dans.dvingest.core.dansbag.service.DepositDatasetFieldNames.RIGHTS_HOLDER;
 
 public class RightsFieldBuilder extends FieldBuilder {
 

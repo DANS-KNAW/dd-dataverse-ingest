@@ -17,10 +17,10 @@ package nl.knaw.dans.dvingest.core.dansbag;
 
 import lombok.extern.slf4j.Slf4j;
 import nl.knaw.dans.dvingest.core.bagprocessor.FilesInDatasetCache;
+import nl.knaw.dans.dvingest.core.dansbag.domain.Deposit;
+import nl.knaw.dans.dvingest.core.dansbag.domain.FileInfo;
 import nl.knaw.dans.dvingest.core.service.DataverseService;
 import nl.knaw.dans.dvingest.core.yaml.FromTo;
-import nl.knaw.dans.ingest.core.domain.Deposit;
-import nl.knaw.dans.ingest.core.domain.FileInfo;
 import nl.knaw.dans.lib.dataverse.DataverseException;
 import nl.knaw.dans.lib.dataverse.model.file.FileMeta;
 

@@ -17,16 +17,16 @@ package nl.knaw.dans.dvingest.core.dansbag.mapper.mapping;
 
 import lombok.Builder;
 import lombok.Data;
-import nl.knaw.dans.ingest.core.service.XPathEvaluator;
 import nl.knaw.dans.dvingest.core.dansbag.mapper.builder.CompoundFieldGenerator;
+import nl.knaw.dans.dvingest.core.dansbag.service.XPathEvaluator;
 import org.apache.commons.lang3.StringUtils;
 import org.w3c.dom.Node;
 
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static nl.knaw.dans.ingest.core.service.DepositDatasetFieldNames.GRANT_NUMBER_AGENCY;
-import static nl.knaw.dans.ingest.core.service.DepositDatasetFieldNames.GRANT_NUMBER_VALUE;
+import static nl.knaw.dans.dvingest.core.dansbag.service.DepositDatasetFieldNames.GRANT_NUMBER_AGENCY;
+import static nl.knaw.dans.dvingest.core.dansbag.service.DepositDatasetFieldNames.GRANT_NUMBER_VALUE;
 
 public class Funder {
 

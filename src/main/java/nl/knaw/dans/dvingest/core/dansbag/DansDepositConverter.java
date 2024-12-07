@@ -16,11 +16,11 @@
 package nl.knaw.dans.dvingest.core.dansbag;
 
 import lombok.AllArgsConstructor;
+import nl.knaw.dans.dvingest.core.dansbag.domain.Deposit;
 import nl.knaw.dans.dvingest.core.service.YamlService;
 import nl.knaw.dans.dvingest.core.yaml.EditFilesRoot;
 import nl.knaw.dans.dvingest.core.yaml.EditPermissionsRoot;
 import nl.knaw.dans.dvingest.core.yaml.UpdateState;
-import nl.knaw.dans.ingest.core.domain.Deposit;
 
 import java.io.IOException;
 

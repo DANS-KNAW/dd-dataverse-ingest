@@ -16,14 +16,14 @@
 package nl.knaw.dans.dvingest.core.dansbag.mapper.mapping;
 
 import lombok.extern.slf4j.Slf4j;
-import nl.knaw.dans.ingest.core.service.XPathEvaluator;
+import nl.knaw.dans.dvingest.core.dansbag.service.XPathEvaluator;
 import org.apache.commons.lang3.StringUtils;
 import org.w3c.dom.Node;
 
 import java.util.Optional;
 
-import static nl.knaw.dans.ingest.core.domain.DepositState.PUBLISHED;
-import static nl.knaw.dans.ingest.core.domain.DepositState.SUBMITTED;
+import static nl.knaw.dans.dvingest.core.dansbag.domain.DepositState.PUBLISHED;
+import static nl.knaw.dans.dvingest.core.dansbag.domain.DepositState.SUBMITTED;
 
 @Slf4j
 public class Amd extends Base {

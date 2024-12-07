@@ -22,7 +22,7 @@ import org.w3c.dom.Node;
 import java.util.HashMap;
 import java.util.Map;
 
-import static nl.knaw.dans.ingest.core.service.DepositDatasetFieldNames.CONTRIBUTOR_NAME;
+import static nl.knaw.dans.dvingest.core.dansbag.service.DepositDatasetFieldNames.CONTRIBUTOR_NAME;
 
 @Slf4j
 public final class Contributor extends Base {

@@ -15,24 +15,24 @@
  */
 package nl.knaw.dans.dvingest.core.dansbag.mapper.mapping;
 
-import nl.knaw.dans.ingest.core.service.XmlReader;
 import nl.knaw.dans.dvingest.core.dansbag.mapper.builder.CompoundFieldGenerator;
+import nl.knaw.dans.dvingest.core.dansbag.service.XmlReader;
 import org.w3c.dom.Node;
 
 import java.util.Map;
 import java.util.Optional;
 
-import static nl.knaw.dans.ingest.core.service.DepositDatasetFieldNames.ARCHIS_NUMBER_ID;
-import static nl.knaw.dans.ingest.core.service.DepositDatasetFieldNames.ARCHIS_NUMBER_TYPE;
-import static nl.knaw.dans.ingest.core.service.DepositDatasetFieldNames.GRANT_NUMBER_AGENCY;
-import static nl.knaw.dans.ingest.core.service.DepositDatasetFieldNames.GRANT_NUMBER_VALUE;
-import static nl.knaw.dans.ingest.core.service.DepositDatasetFieldNames.OTHER_ID_AGENCY;
-import static nl.knaw.dans.ingest.core.service.DepositDatasetFieldNames.OTHER_ID_VALUE;
-import static nl.knaw.dans.ingest.core.service.DepositDatasetFieldNames.PUBLICATION_CITATION;
-import static nl.knaw.dans.ingest.core.service.DepositDatasetFieldNames.PUBLICATION_ID_NUMBER;
-import static nl.knaw.dans.ingest.core.service.DepositDatasetFieldNames.PUBLICATION_ID_TYPE;
-import static nl.knaw.dans.ingest.core.service.DepositDatasetFieldNames.PUBLICATION_URL;
-import static nl.knaw.dans.ingest.core.service.XmlReader.NAMESPACE_XSI;
+import static nl.knaw.dans.dvingest.core.dansbag.service.DepositDatasetFieldNames.ARCHIS_NUMBER_ID;
+import static nl.knaw.dans.dvingest.core.dansbag.service.DepositDatasetFieldNames.ARCHIS_NUMBER_TYPE;
+import static nl.knaw.dans.dvingest.core.dansbag.service.DepositDatasetFieldNames.GRANT_NUMBER_AGENCY;
+import static nl.knaw.dans.dvingest.core.dansbag.service.DepositDatasetFieldNames.GRANT_NUMBER_VALUE;
+import static nl.knaw.dans.dvingest.core.dansbag.service.DepositDatasetFieldNames.OTHER_ID_AGENCY;
+import static nl.knaw.dans.dvingest.core.dansbag.service.DepositDatasetFieldNames.OTHER_ID_VALUE;
+import static nl.knaw.dans.dvingest.core.dansbag.service.DepositDatasetFieldNames.PUBLICATION_CITATION;
+import static nl.knaw.dans.dvingest.core.dansbag.service.DepositDatasetFieldNames.PUBLICATION_ID_NUMBER;
+import static nl.knaw.dans.dvingest.core.dansbag.service.DepositDatasetFieldNames.PUBLICATION_ID_TYPE;
+import static nl.knaw.dans.dvingest.core.dansbag.service.DepositDatasetFieldNames.PUBLICATION_URL;
+import static nl.knaw.dans.dvingest.core.dansbag.service.XmlReader.NAMESPACE_XSI;
 
 public class Identifier extends Base {
 

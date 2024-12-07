@@ -23,13 +23,13 @@ import java.net.URISyntaxException;
 import java.nio.file.Paths;
 import java.util.Map;
 
-import static nl.knaw.dans.ingest.core.service.DepositDatasetFieldNames.ABR_BASE_URL;
-import static nl.knaw.dans.ingest.core.service.DepositDatasetFieldNames.SCHEME_ABR_ARTIFACT;
-import static nl.knaw.dans.ingest.core.service.DepositDatasetFieldNames.SCHEME_ABR_COMPLEX;
-import static nl.knaw.dans.ingest.core.service.DepositDatasetFieldNames.SCHEME_ABR_OLD;
-import static nl.knaw.dans.ingest.core.service.DepositDatasetFieldNames.SCHEME_URI_ABR_ARTIFACT;
-import static nl.knaw.dans.ingest.core.service.DepositDatasetFieldNames.SCHEME_URI_ABR_COMPLEX;
-import static nl.knaw.dans.ingest.core.service.DepositDatasetFieldNames.SCHEME_URI_ABR_OLD;
+import static nl.knaw.dans.dvingest.core.dansbag.service.DepositDatasetFieldNames.ABR_BASE_URL;
+import static nl.knaw.dans.dvingest.core.dansbag.service.DepositDatasetFieldNames.SCHEME_ABR_ARTIFACT;
+import static nl.knaw.dans.dvingest.core.dansbag.service.DepositDatasetFieldNames.SCHEME_ABR_COMPLEX;
+import static nl.knaw.dans.dvingest.core.dansbag.service.DepositDatasetFieldNames.SCHEME_ABR_OLD;
+import static nl.knaw.dans.dvingest.core.dansbag.service.DepositDatasetFieldNames.SCHEME_URI_ABR_ARTIFACT;
+import static nl.knaw.dans.dvingest.core.dansbag.service.DepositDatasetFieldNames.SCHEME_URI_ABR_COMPLEX;
+import static nl.knaw.dans.dvingest.core.dansbag.service.DepositDatasetFieldNames.SCHEME_URI_ABR_OLD;
 
 @Slf4j
 public class SubjectAbr extends Base {

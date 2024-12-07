@@ -17,12 +17,12 @@ package nl.knaw.dans.dvingest.core.dansbag.mapper.builder;
 
 import java.util.stream.Stream;
 
-import static nl.knaw.dans.ingest.core.service.DepositDatasetFieldNames.BAG_ID;
-import static nl.knaw.dans.ingest.core.service.DepositDatasetFieldNames.DANS_OTHER_ID;
-import static nl.knaw.dans.ingest.core.service.DepositDatasetFieldNames.DANS_OTHER_ID_VERSION;
-import static nl.knaw.dans.ingest.core.service.DepositDatasetFieldNames.DATA_SUPPLIER;
-import static nl.knaw.dans.ingest.core.service.DepositDatasetFieldNames.NBN;
-import static nl.knaw.dans.ingest.core.service.DepositDatasetFieldNames.SWORD_TOKEN;
+import static nl.knaw.dans.dvingest.core.dansbag.service.DepositDatasetFieldNames.BAG_ID;
+import static nl.knaw.dans.dvingest.core.dansbag.service.DepositDatasetFieldNames.DANS_OTHER_ID;
+import static nl.knaw.dans.dvingest.core.dansbag.service.DepositDatasetFieldNames.DANS_OTHER_ID_VERSION;
+import static nl.knaw.dans.dvingest.core.dansbag.service.DepositDatasetFieldNames.DATA_SUPPLIER;
+import static nl.knaw.dans.dvingest.core.dansbag.service.DepositDatasetFieldNames.NBN;
+import static nl.knaw.dans.dvingest.core.dansbag.service.DepositDatasetFieldNames.SWORD_TOKEN;
 
 public class DataVaultFieldBuilder extends FieldBuilder {
 

@@ -20,9 +20,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import nl.knaw.dans.ingest.core.domain.VaultMetadata;
-import nl.knaw.dans.ingest.core.exception.MissingRequiredFieldException;
-import nl.knaw.dans.ingest.core.service.XPathEvaluator;
+import nl.knaw.dans.dvingest.core.dansbag.domain.VaultMetadata;
+import nl.knaw.dans.dvingest.core.dansbag.exception.MissingRequiredFieldException;
 import nl.knaw.dans.dvingest.core.dansbag.mapper.builder.ArchaeologyFieldBuilder;
 import nl.knaw.dans.dvingest.core.dansbag.mapper.builder.CitationFieldBuilder;
 import nl.knaw.dans.dvingest.core.dansbag.mapper.builder.DataVaultFieldBuilder;
@@ -56,6 +55,7 @@ import nl.knaw.dans.dvingest.core.dansbag.mapper.mapping.SpatialPoint;
 import nl.knaw.dans.dvingest.core.dansbag.mapper.mapping.Subject;
 import nl.knaw.dans.dvingest.core.dansbag.mapper.mapping.SubjectAbr;
 import nl.knaw.dans.dvingest.core.dansbag.mapper.mapping.TemporalAbr;
+import nl.knaw.dans.dvingest.core.dansbag.service.XPathEvaluator;
 import nl.knaw.dans.lib.dataverse.CompoundFieldBuilder;
 import nl.knaw.dans.lib.dataverse.model.dataset.Dataset;
 import nl.knaw.dans.lib.dataverse.model.dataset.DatasetVersion;
@@ -77,11 +77,11 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static nl.knaw.dans.ingest.core.service.DepositDatasetFieldNames.RIGHTS_HOLDER;
-import static nl.knaw.dans.ingest.core.service.DepositDatasetFieldNames.SUBJECT;
-import static nl.knaw.dans.ingest.core.service.DepositDatasetFieldNames.TITLE;
-import static nl.knaw.dans.ingest.core.service.XPathConstants.DDM_DCMI_METADATA;
-import static nl.knaw.dans.ingest.core.service.XPathConstants.DDM_PROFILE;
+import static nl.knaw.dans.dvingest.core.dansbag.service.DepositDatasetFieldNames.RIGHTS_HOLDER;
+import static nl.knaw.dans.dvingest.core.dansbag.service.DepositDatasetFieldNames.SUBJECT;
+import static nl.knaw.dans.dvingest.core.dansbag.service.DepositDatasetFieldNames.TITLE;
+import static nl.knaw.dans.dvingest.core.dansbag.service.XPathConstants.DDM_DCMI_METADATA;
+import static nl.knaw.dans.dvingest.core.dansbag.service.XPathConstants.DDM_PROFILE;
 
 @Slf4j
 @RequiredArgsConstructor

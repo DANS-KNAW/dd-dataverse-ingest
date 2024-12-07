@@ -21,7 +21,6 @@ import lombok.extern.slf4j.Slf4j;
 import nl.knaw.dans.ingest.core.dataverse.DatasetService;
 import nl.knaw.dans.ingest.core.domain.Deposit;
 import nl.knaw.dans.ingest.core.domain.FileInfo;
-import nl.knaw.dans.dvingest.core.dansbag.mapper.mapping.FileElement;
 import nl.knaw.dans.lib.dataverse.DataverseClient;
 import nl.knaw.dans.lib.dataverse.DataverseException;
 import nl.knaw.dans.lib.dataverse.Version;
@@ -177,24 +176,25 @@ public abstract class DatasetEditor {
     }
 
     Map<Path, FileInfo> getFileInfo() {
-        var files = FileElement.pathToFileInfo(deposit, isMigration);
-
-        return files.entrySet().stream()
-            .map(entry -> {
-                // relativize the path
-                var bagPath = entry.getKey();
-                var fileInfo = entry.getValue();
-                var newKey = Path.of("data").relativize(bagPath);
-
-                return Map.entry(newKey, fileInfo);
-            })
-            .filter(entry -> {
-                // remove entries that match the file exclusion pattern
-                var path = entry.getKey().toString();
-
-                return (fileExclusionPattern == null || !fileExclusionPattern.matcher(path).matches());
-            })
-            .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+//        var files = FileElement.pathToFileInfo(deposit, isMigration);
+//
+//        return files.entrySet().stream()
+//            .map(entry -> {
+//                // relativize the path
+//                var bagPath = entry.getKey();
+//                var fileInfo = entry.getValue();
+//                var newKey = Path.of("data").relativize(bagPath);
+//
+//                return Map.entry(newKey, fileInfo);
+//            })
+//            .filter(entry -> {
+//                // remove entries that match the file exclusion pattern
+//                var path = entry.getKey().toString();
+//
+//                return (fileExclusionPattern == null || !fileExclusionPattern.matcher(path).matches());
+//            })
+//            .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+        return null;
     }
 
     // FIL008, FIL009

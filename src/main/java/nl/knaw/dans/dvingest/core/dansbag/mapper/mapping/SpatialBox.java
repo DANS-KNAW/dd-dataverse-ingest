@@ -20,11 +20,11 @@ import nl.knaw.dans.dvingest.core.dansbag.mapper.builder.CompoundFieldGenerator;
 import org.apache.commons.lang3.StringUtils;
 import org.w3c.dom.Node;
 
-import static nl.knaw.dans.ingest.core.service.DepositDatasetFieldNames.SPATIAL_BOX_EAST;
-import static nl.knaw.dans.ingest.core.service.DepositDatasetFieldNames.SPATIAL_BOX_NORTH;
-import static nl.knaw.dans.ingest.core.service.DepositDatasetFieldNames.SPATIAL_BOX_SCHEME;
-import static nl.knaw.dans.ingest.core.service.DepositDatasetFieldNames.SPATIAL_BOX_SOUTH;
-import static nl.knaw.dans.ingest.core.service.DepositDatasetFieldNames.SPATIAL_BOX_WEST;
+import static nl.knaw.dans.dvingest.core.dansbag.service.DepositDatasetFieldNames.SPATIAL_BOX_EAST;
+import static nl.knaw.dans.dvingest.core.dansbag.service.DepositDatasetFieldNames.SPATIAL_BOX_NORTH;
+import static nl.knaw.dans.dvingest.core.dansbag.service.DepositDatasetFieldNames.SPATIAL_BOX_SCHEME;
+import static nl.knaw.dans.dvingest.core.dansbag.service.DepositDatasetFieldNames.SPATIAL_BOX_SOUTH;
+import static nl.knaw.dans.dvingest.core.dansbag.service.DepositDatasetFieldNames.SPATIAL_BOX_WEST;
 
 @Slf4j
 public class SpatialBox extends Spatial {

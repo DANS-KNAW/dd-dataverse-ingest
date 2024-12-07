@@ -21,10 +21,10 @@ import nl.knaw.dans.dvingest.client.ValidateDansBagService;
 import nl.knaw.dans.dvingest.core.bagprocessor.BagProcessor;
 import nl.knaw.dans.dvingest.core.dansbag.DansBagMappingService;
 import nl.knaw.dans.dvingest.core.dansbag.DansDepositSupport;
+import nl.knaw.dans.dvingest.core.dansbag.exception.RejectedDepositException;
 import nl.knaw.dans.dvingest.core.service.DataverseService;
 import nl.knaw.dans.dvingest.core.service.UtilityServices;
 import nl.knaw.dans.dvingest.core.service.YamlService;
-import nl.knaw.dans.ingest.core.exception.RejectedDepositException;
 
 import java.io.IOException;
 import java.nio.file.Path;

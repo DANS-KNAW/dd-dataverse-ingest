@@ -21,9 +21,9 @@ import org.w3c.dom.Node;
 import java.util.HashMap;
 import java.util.Map;
 
-import static nl.knaw.dans.ingest.core.service.DepositDatasetFieldNames.RELATION_TEXT;
-import static nl.knaw.dans.ingest.core.service.DepositDatasetFieldNames.RELATION_TYPE;
-import static nl.knaw.dans.ingest.core.service.DepositDatasetFieldNames.RELATION_URI;
+import static nl.knaw.dans.dvingest.core.dansbag.service.DepositDatasetFieldNames.RELATION_TEXT;
+import static nl.knaw.dans.dvingest.core.dansbag.service.DepositDatasetFieldNames.RELATION_TYPE;
+import static nl.knaw.dans.dvingest.core.dansbag.service.DepositDatasetFieldNames.RELATION_URI;
 
 public class Relation extends Base {
 

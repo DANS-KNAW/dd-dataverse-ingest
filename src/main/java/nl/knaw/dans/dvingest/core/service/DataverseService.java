@@ -26,10 +26,8 @@ import nl.knaw.dans.lib.dataverse.model.dataset.MetadataField;
 import nl.knaw.dans.lib.dataverse.model.dataset.UpdateType;
 import nl.knaw.dans.lib.dataverse.model.file.FileMeta;
 import nl.knaw.dans.lib.dataverse.model.user.AuthenticatedUser;
-import org.checkerframework.checker.nullness.qual.NonNull;
 
 import java.io.IOException;
-import java.net.URI;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Optional;

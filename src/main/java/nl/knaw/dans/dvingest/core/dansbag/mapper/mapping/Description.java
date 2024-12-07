@@ -24,8 +24,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import static nl.knaw.dans.ingest.core.service.DepositDatasetFieldNames.DESCRIPTION_VALUE;
-import static nl.knaw.dans.ingest.core.service.DepositDatasetFieldNames.SERIES_INFORMATION;
+import static nl.knaw.dans.dvingest.core.dansbag.service.DepositDatasetFieldNames.DESCRIPTION_VALUE;
+import static nl.knaw.dans.dvingest.core.dansbag.service.DepositDatasetFieldNames.SERIES_INFORMATION;
 
 public class Description extends Base {
 

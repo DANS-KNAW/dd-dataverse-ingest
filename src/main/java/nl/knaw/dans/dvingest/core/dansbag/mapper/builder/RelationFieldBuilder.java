@@ -19,9 +19,9 @@ import org.w3c.dom.Node;
 
 import java.util.stream.Stream;
 
-import static nl.knaw.dans.ingest.core.service.DepositDatasetFieldNames.AUDIENCE;
-import static nl.knaw.dans.ingest.core.service.DepositDatasetFieldNames.COLLECTION;
-import static nl.knaw.dans.ingest.core.service.DepositDatasetFieldNames.RELATION;
+import static nl.knaw.dans.dvingest.core.dansbag.service.DepositDatasetFieldNames.AUDIENCE;
+import static nl.knaw.dans.dvingest.core.dansbag.service.DepositDatasetFieldNames.COLLECTION;
+import static nl.knaw.dans.dvingest.core.dansbag.service.DepositDatasetFieldNames.RELATION;
 
 public class RelationFieldBuilder extends FieldBuilder {
 

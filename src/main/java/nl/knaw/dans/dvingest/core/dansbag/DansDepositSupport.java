@@ -23,9 +23,9 @@ import nl.knaw.dans.dvingest.client.ValidateDansBagService;
 import nl.knaw.dans.dvingest.core.DataverseIngestBag;
 import nl.knaw.dans.dvingest.core.DataverseIngestDeposit;
 import nl.knaw.dans.dvingest.core.Deposit;
+import nl.knaw.dans.dvingest.core.dansbag.exception.InvalidDepositException;
+import nl.knaw.dans.dvingest.core.dansbag.exception.RejectedDepositException;
 import nl.knaw.dans.dvingest.core.service.YamlService;
-import nl.knaw.dans.ingest.core.exception.InvalidDepositException;
-import nl.knaw.dans.ingest.core.exception.RejectedDepositException;
 import nl.knaw.dans.lib.dataverse.DataverseException;
 
 import java.io.IOException;
@@ -44,7 +44,7 @@ public class DansDepositSupport implements Deposit {
     private final DataverseIngestDeposit ingestDataverseIngestDeposit;
     private final boolean isDansDeposit;
 
-    private nl.knaw.dans.ingest.core.domain.Deposit dansDeposit;
+    private nl.knaw.dans.dvingest.core.dansbag.domain.Deposit dansDeposit;
 
     public DansDepositSupport(DataverseIngestDeposit dataverseIngestDeposit, ValidateDansBagService validateDansBagService, DansBagMappingService dansBagMappingService, YamlService yamlService) {
         this.validateDansBagService = validateDansBagService;

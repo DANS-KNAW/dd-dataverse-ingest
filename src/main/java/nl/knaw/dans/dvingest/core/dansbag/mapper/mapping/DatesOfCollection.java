@@ -21,8 +21,8 @@ import org.w3c.dom.Node;
 
 import java.util.regex.Pattern;
 
-import static nl.knaw.dans.ingest.core.service.DepositDatasetFieldNames.DATE_OF_COLLECTION_END;
-import static nl.knaw.dans.ingest.core.service.DepositDatasetFieldNames.DATE_OF_COLLECTION_START;
+import static nl.knaw.dans.dvingest.core.dansbag.service.DepositDatasetFieldNames.DATE_OF_COLLECTION_END;
+import static nl.knaw.dans.dvingest.core.dansbag.service.DepositDatasetFieldNames.DATE_OF_COLLECTION_START;
 
 @Slf4j
 public class DatesOfCollection extends Base {
