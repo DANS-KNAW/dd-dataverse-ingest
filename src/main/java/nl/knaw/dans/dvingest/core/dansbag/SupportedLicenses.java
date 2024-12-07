@@ -15,7 +15,7 @@
  */
 package nl.knaw.dans.dvingest.core.dansbag;
 
-import nl.knaw.dans.dvingest.core.dansbag.domain.Deposit;
+import nl.knaw.dans.dvingest.core.dansbag.domain.DansBagDeposit;
 import nl.knaw.dans.dvingest.core.dansbag.exception.RejectedDepositException;
 import nl.knaw.dans.dvingest.core.dansbag.mapper.mapping.LicenseElem;
 import nl.knaw.dans.dvingest.core.dansbag.service.XPathEvaluator;
@@ -46,7 +46,7 @@ public class SupportedLicenses {
     }
 
 
-    public License getLicenseFromDansDeposit(Deposit dansDeposit) {
+    public License getLicenseFromDansDeposit(DansBagDeposit dansDeposit) {
         var optLicenseUri = XPathEvaluator.nodes(dansDeposit.getDdm(), DDM_DCMI_METADATA + "/dcterms:license")
             .filter(LicenseElem::isLicenseUri)
             .findFirst()

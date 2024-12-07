@@ -17,7 +17,7 @@ package nl.knaw.dans.dvingest.core.dansbag;
 
 import lombok.extern.slf4j.Slf4j;
 import nl.knaw.dans.dvingest.core.bagprocessor.FilesInDatasetCache;
-import nl.knaw.dans.dvingest.core.dansbag.domain.Deposit;
+import nl.knaw.dans.dvingest.core.dansbag.domain.DansBagDeposit;
 import nl.knaw.dans.dvingest.core.dansbag.domain.FileInfo;
 import nl.knaw.dans.dvingest.core.service.DataverseService;
 import nl.knaw.dans.dvingest.core.yaml.FromTo;
@@ -41,7 +41,7 @@ public class EditFilesComposerForUpdate extends EditFilesComposer {
     // TODO: this should be a read-only variant the cache
     private FilesInDatasetCache filesInDatasetCache;
 
-    public EditFilesComposerForUpdate(Deposit dansDeposit, String updatesDatasetPid, Pattern fileExclusionPattern, List<String> embargoExclusions, DataverseService dataverseService) {
+    public EditFilesComposerForUpdate(DansBagDeposit dansDeposit, String updatesDatasetPid, Pattern fileExclusionPattern, List<String> embargoExclusions, DataverseService dataverseService) {
         super(dansDeposit, fileExclusionPattern, embargoExclusions);
         this.updatesDatasetPid = updatesDatasetPid;
         this.dataverseService = dataverseService;

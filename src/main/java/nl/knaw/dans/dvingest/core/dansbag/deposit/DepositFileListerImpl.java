@@ -15,7 +15,7 @@
  */
 package nl.knaw.dans.dvingest.core.dansbag.deposit;
 
-import nl.knaw.dans.dvingest.core.dansbag.domain.Deposit;
+import nl.knaw.dans.dvingest.core.dansbag.domain.DansBagDeposit;
 import nl.knaw.dans.dvingest.core.dansbag.domain.DepositFile;
 import nl.knaw.dans.dvingest.core.dansbag.domain.OriginalFilePathMapping;
 import nl.knaw.dans.dvingest.core.dansbag.service.ManifestHelperImpl;
@@ -35,13 +35,13 @@ import static nl.knaw.dans.dvingest.core.dansbag.service.XPathConstants.FILES_FI
 
 public class DepositFileListerImpl implements DepositFileLister {
     @Override
-    public List<DepositFile> getDepositFiles(Deposit deposit) throws IOException {
-        var bag = deposit.getBag();
+    public List<DepositFile> getDepositFiles(DansBagDeposit dansBagDeposit) throws IOException {
+        var bag = dansBagDeposit.getBag();
         var bagDir = bag.getRootDir();
         var filePathToSha1 = ManifestHelperImpl.getFilePathToSha1(bag);
         var originalFilePathMappings = getOriginalFilePathMapping(bagDir);
 
-        return XPathEvaluator.nodes(deposit.getFilesXml(), FILES_FILE)
+        return XPathEvaluator.nodes(dansBagDeposit.getFilesXml(), FILES_FILE)
             .map(node -> {
                 var filePath = Optional.ofNullable(node.getAttributes().getNamedItem("filepath"))
                     .map(Node::getTextContent)

@@ -36,7 +36,7 @@ import static nl.knaw.dans.dvingest.core.dansbag.service.XmlNamespaces.NAMESPACE
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class Deposit {
+public class DansBagDeposit {
 
     private Path dir;
     private Path bagDir;

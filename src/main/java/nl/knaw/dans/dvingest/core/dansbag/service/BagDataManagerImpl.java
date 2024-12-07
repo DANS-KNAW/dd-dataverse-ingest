@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package nl.knaw.dans.dvingest.core.dansbag.io;
+package nl.knaw.dans.dvingest.core.dansbag.service;
 
 import gov.loc.repository.bagit.domain.Bag;
 import gov.loc.repository.bagit.exceptions.InvalidBagitFileFormatException;

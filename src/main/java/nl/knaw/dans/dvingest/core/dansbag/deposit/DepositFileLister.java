@@ -15,13 +15,13 @@
  */
 package nl.knaw.dans.dvingest.core.dansbag.deposit;
 
-import nl.knaw.dans.dvingest.core.dansbag.domain.Deposit;
+import nl.knaw.dans.dvingest.core.dansbag.domain.DansBagDeposit;
 import nl.knaw.dans.dvingest.core.dansbag.domain.DepositFile;
 
 import java.io.IOException;
 import java.util.List;
 
 public interface DepositFileLister {
-    List<DepositFile> getDepositFiles(Deposit deposit) throws IOException;
+    List<DepositFile> getDepositFiles(DansBagDeposit dansBagDeposit) throws IOException;
 
 }

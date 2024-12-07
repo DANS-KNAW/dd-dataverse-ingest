@@ -16,9 +16,9 @@
 package nl.knaw.dans.dvingest.core.dansbag.deposit;
 
 import gov.loc.repository.bagit.domain.Bag;
-import nl.knaw.dans.dvingest.core.dansbag.domain.Deposit;
+import nl.knaw.dans.dvingest.core.dansbag.domain.DansBagDeposit;
 import nl.knaw.dans.dvingest.core.dansbag.exception.InvalidDepositException;
-import nl.knaw.dans.dvingest.core.dansbag.io.BagDataManager;
+import nl.knaw.dans.dvingest.core.dansbag.service.BagDataManager;
 import nl.knaw.dans.dvingest.core.dansbag.service.ManifestHelper;
 import nl.knaw.dans.dvingest.core.dansbag.service.XmlReader;
 import org.apache.commons.configuration2.Configuration;
@@ -51,7 +51,7 @@ public class DepositReaderImpl implements DepositReader {
     }
 
     @Override
-    public Deposit readDeposit(Path depositDir) throws InvalidDepositException {
+    public DansBagDeposit readDeposit(Path depositDir) throws InvalidDepositException {
         try {
             var bagDir = bagDirResolver.getBagDir(depositDir);
 
@@ -83,8 +83,8 @@ public class DepositReaderImpl implements DepositReader {
         return null;
     }
 
-    Deposit mapToDeposit(Path path, Path bagDir, Configuration config, Bag bag) {
-        var deposit = new Deposit();
+    DansBagDeposit mapToDeposit(Path path, Path bagDir, Configuration config, Bag bag) {
+        var deposit = new DansBagDeposit();
         deposit.setBagDir(bagDir);
         deposit.setDir(path);
         deposit.setDoi(config.getString("identifier.doi", ""));

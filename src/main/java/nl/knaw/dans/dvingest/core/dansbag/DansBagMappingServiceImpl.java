@@ -23,11 +23,11 @@ import nl.knaw.dans.dvingest.core.dansbag.deposit.DepositFileLister;
 import nl.knaw.dans.dvingest.core.dansbag.deposit.DepositFileListerImpl;
 import nl.knaw.dans.dvingest.core.dansbag.deposit.DepositReader;
 import nl.knaw.dans.dvingest.core.dansbag.deposit.DepositReaderImpl;
-import nl.knaw.dans.dvingest.core.dansbag.domain.Deposit;
+import nl.knaw.dans.dvingest.core.dansbag.domain.DansBagDeposit;
 import nl.knaw.dans.dvingest.core.dansbag.exception.InvalidDepositException;
-import nl.knaw.dans.dvingest.core.dansbag.io.BagDataManager;
-import nl.knaw.dans.dvingest.core.dansbag.io.BagDataManagerImpl;
 import nl.knaw.dans.dvingest.core.dansbag.mapper.DepositToDvDatasetMetadataMapper;
+import nl.knaw.dans.dvingest.core.dansbag.service.BagDataManager;
+import nl.knaw.dans.dvingest.core.dansbag.service.BagDataManagerImpl;
 import nl.knaw.dans.dvingest.core.dansbag.service.ManifestHelper;
 import nl.knaw.dans.dvingest.core.dansbag.service.ManifestHelperImpl;
 import nl.knaw.dans.dvingest.core.dansbag.service.XmlReader;
@@ -120,7 +120,7 @@ public class DansBagMappingServiceImpl implements DansBagMappingService {
     }
 
     @Override
-    public Dataset getDatasetMetadataFromDansDeposit(Deposit dansDeposit) {
+    public Dataset getDatasetMetadataFromDansDeposit(DansBagDeposit dansDeposit) {
         var dataset = depositToDvDatasetMetadataMapper.toDataverseDataset(
             dansDeposit.getDdm(),
             dansDeposit.getOtherDoiId(),
@@ -143,12 +143,12 @@ public class DansBagMappingServiceImpl implements DansBagMappingService {
     }
 
     @Override
-    public EditFiles getEditFilesFromDansDeposit(Deposit dansDeposit) {
+    public EditFiles getEditFilesFromDansDeposit(DansBagDeposit dansDeposit) {
         return new EditFilesComposer(dansDeposit, fileExclusionPattern, embargoExclusions).composeEditFiles();
     }
 
     @Override
-    public EditPermissions getEditPermissionsFromDansDeposit(Deposit dansDeposit) {
+    public EditPermissions getEditPermissionsFromDansDeposit(DansBagDeposit dansDeposit) {
         var userId = dansDeposit.getDepositorUserId();
         var editPermissions = new EditPermissions();
         var roleAssignment = new RoleAssignment();
@@ -159,7 +159,7 @@ public class DansBagMappingServiceImpl implements DansBagMappingService {
     }
 
     @Override
-    public String packageOriginalMetadata(Deposit dansDeposit) throws IOException {
+    public String packageOriginalMetadata(DansBagDeposit dansDeposit) throws IOException {
         // Zip the contents of the metadata directory of the bag
         var metadataDir = dansDeposit.getBagDir().resolve("metadata");
         var zipFile = dansDeposit.getBagDir().resolve("data/original-metadata.zip");
@@ -167,7 +167,7 @@ public class DansBagMappingServiceImpl implements DansBagMappingService {
         return zipFile.toString();
     }
 
-    Optional<String> getDateOfDeposit(Deposit dansDeposit) {
+    Optional<String> getDateOfDeposit(DansBagDeposit dansDeposit) {
         if (dansDeposit.isUpdate()) {
             return Optional.empty(); // See for implementation CIT025B in DatasetUpdater
         }
@@ -176,7 +176,7 @@ public class DansBagMappingServiceImpl implements DansBagMappingService {
         }
     }
 
-    Optional<AuthenticatedUser> getDatasetContact(Deposit dansDeposit) {
+    Optional<AuthenticatedUser> getDatasetContact(DansBagDeposit dansDeposit) {
         return Optional.ofNullable(dansDeposit.getDepositorUserId())
             .filter(StringUtils::isNotBlank)
             .map(userId -> dataverseService.getUserById(userId)
@@ -184,7 +184,7 @@ public class DansBagMappingServiceImpl implements DansBagMappingService {
     }
 
     @Override
-    public Deposit readDansDeposit(Path depositDir) throws InvalidDepositException {
+    public DansBagDeposit readDansDeposit(Path depositDir) throws InvalidDepositException {
         return depositReader.readDeposit(depositDir);
     }
 }

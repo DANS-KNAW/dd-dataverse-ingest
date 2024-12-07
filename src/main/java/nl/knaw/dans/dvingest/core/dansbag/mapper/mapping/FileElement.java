@@ -17,7 +17,7 @@ package nl.knaw.dans.dvingest.core.dansbag.mapper.mapping;
 
 import lombok.Value;
 import lombok.extern.slf4j.Slf4j;
-import nl.knaw.dans.dvingest.core.dansbag.domain.Deposit;
+import nl.knaw.dans.dvingest.core.dansbag.domain.DansBagDeposit;
 import nl.knaw.dans.dvingest.core.dansbag.domain.FileInfo;
 import nl.knaw.dans.dvingest.core.dansbag.service.XPathEvaluator;
 import nl.knaw.dans.lib.dataverse.model.file.FileMeta;
@@ -212,17 +212,17 @@ public class FileElement extends Base {
         return filenameForbidden.matcher(filename).replaceAll("_");
     }
 
-    public static Map<Path, FileInfo> pathToFileInfo(Deposit deposit, boolean isMigration) {
+    public static Map<Path, FileInfo> pathToFileInfo(DansBagDeposit dansBagDeposit, boolean isMigration) {
         // FIL006
-        var defaultRestrict = XPathEvaluator.nodes(deposit.getDdm(), "/ddm:DDM/ddm:profile/ddm:accessRights")
+        var defaultRestrict = XPathEvaluator.nodes(dansBagDeposit.getDdm(), "/ddm:DDM/ddm:profile/ddm:accessRights")
             .map(AccessRights::toDefaultRestrict)
             .findFirst()
             .orElse(true);
 
         var result = new HashMap<Path, FileInfo>();
-        var bagDir = deposit.getBagDir();
+        var bagDir = dansBagDeposit.getBagDir();
 
-        deposit.getFiles().forEach(depositFile -> {
+        dansBagDeposit.getFiles().forEach(depositFile -> {
             var fileMetaResult = toFileMeta(depositFile.getXmlNode(), defaultRestrict, isMigration);
             result.put(depositFile.getPath(), new FileInfo(
                 bagDir.resolve(depositFile.getPath()),

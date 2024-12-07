@@ -18,7 +18,7 @@ package nl.knaw.dans.dvingest.core.dansbag;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import nl.knaw.dans.dvingest.core.bagprocessor.DataversePath;
-import nl.knaw.dans.dvingest.core.dansbag.domain.Deposit;
+import nl.knaw.dans.dvingest.core.dansbag.domain.DansBagDeposit;
 import nl.knaw.dans.dvingest.core.dansbag.domain.FileInfo;
 import nl.knaw.dans.dvingest.core.dansbag.mapper.mapping.FileElement;
 import nl.knaw.dans.dvingest.core.dansbag.service.XPathEvaluator;
@@ -48,7 +48,7 @@ import java.util.stream.Collectors;
 @Slf4j
 @AllArgsConstructor
 public class EditFilesComposer {
-    private final Deposit dansDeposit;
+    private final DansBagDeposit dansDeposit;
     private final Pattern fileExclusionPattern;
     private final List<String> embargoExclusions;
     private static final SimpleDateFormat yyyymmddFormat = new SimpleDateFormat("yyyy-MM-dd");
@@ -158,7 +158,7 @@ public class EditFilesComposer {
         }
     }
 
-    private Map<Path, FileInfo> getFileInfo(Deposit dansDeposit) {
+    private Map<Path, FileInfo> getFileInfo(DansBagDeposit dansDeposit) {
         var files = FileElement.pathToFileInfo(dansDeposit, false); // TODO: handle migration case
 
         return files.entrySet().stream()
@@ -198,8 +198,8 @@ public class EditFilesComposer {
     }
 
     // TODO: move to mapping package
-    private Instant getDateAvailable(Deposit deposit) {
-        return XPathEvaluator.strings(deposit.getDdm(), "/ddm:DDM/ddm:profile/ddm:available")
+    private Instant getDateAvailable(DansBagDeposit dansBagDeposit) {
+        return XPathEvaluator.strings(dansBagDeposit.getDdm(), "/ddm:DDM/ddm:profile/ddm:available")
             .map(EditFilesComposer::parseDate)
             .findFirst()
             .orElseThrow(() -> new IllegalArgumentException("Deposit without a ddm:available element"));

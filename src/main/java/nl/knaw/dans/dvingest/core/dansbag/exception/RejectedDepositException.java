@@ -15,11 +15,11 @@
  */
 package nl.knaw.dans.dvingest.core.dansbag.exception;
 
-import nl.knaw.dans.dvingest.core.dansbag.domain.Deposit;
+import nl.knaw.dans.dvingest.core.dansbag.domain.DansBagDeposit;
 
 public class RejectedDepositException extends RuntimeException {
-    public RejectedDepositException(Deposit deposit, String message) {
-        super(String.format("Rejected %s: %s", deposit.getDir(), message));
+    public RejectedDepositException(DansBagDeposit dansBagDeposit, String message) {
+        super(String.format("Rejected %s: %s", dansBagDeposit.getDir(), message));
     }
 
     public RejectedDepositException(nl.knaw.dans.dvingest.core.Deposit deposit, String message) {
