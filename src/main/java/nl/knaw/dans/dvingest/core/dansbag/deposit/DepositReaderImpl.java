@@ -19,7 +19,6 @@ import gov.loc.repository.bagit.domain.Bag;
 import nl.knaw.dans.dvingest.core.dansbag.domain.Deposit;
 import nl.knaw.dans.dvingest.core.dansbag.exception.InvalidDepositException;
 import nl.knaw.dans.dvingest.core.dansbag.io.BagDataManager;
-import nl.knaw.dans.dvingest.core.dansbag.io.FileService;
 import nl.knaw.dans.dvingest.core.dansbag.service.ManifestHelper;
 import nl.knaw.dans.dvingest.core.dansbag.service.XmlReader;
 import org.apache.commons.configuration2.Configuration;
@@ -29,6 +28,7 @@ import org.xml.sax.SAXException;
 
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.OffsetDateTime;
 import java.util.List;
@@ -37,16 +37,14 @@ import java.util.Optional;
 public class DepositReaderImpl implements DepositReader {
     private final XmlReader xmlReader;
     private final BagDirResolver bagDirResolver;
-    private final FileService fileService;
     private final BagDataManager bagDataManager;
     private final DepositFileLister depositFileLister;
 
     private final ManifestHelper manifestHelper;
 
-    public DepositReaderImpl(XmlReader xmlReader, BagDirResolver bagDirResolver, FileService fileService, BagDataManager bagDataManager, DepositFileLister depositFileLister, ManifestHelper manifestHelper) {
+    public DepositReaderImpl(XmlReader xmlReader, BagDirResolver bagDirResolver, BagDataManager bagDataManager, DepositFileLister depositFileLister, ManifestHelper manifestHelper) {
         this.xmlReader = xmlReader;
         this.bagDirResolver = bagDirResolver;
-        this.fileService = fileService;
         this.bagDataManager = bagDataManager;
         this.depositFileLister = depositFileLister;
         this.manifestHelper = manifestHelper;
@@ -78,7 +76,7 @@ public class DepositReaderImpl implements DepositReader {
     }
 
     Document readOptionalXmlFile(Path path) throws ParserConfigurationException, IOException, SAXException {
-        if (fileService.fileExists(path)) {
+        if (Files.exists(path)) {
             return xmlReader.readXmlFile(path);
         }
 

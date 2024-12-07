@@ -26,8 +26,6 @@ import nl.knaw.dans.dvingest.core.dansbag.deposit.DepositReader;
 import nl.knaw.dans.dvingest.core.dansbag.deposit.DepositReaderImpl;
 import nl.knaw.dans.dvingest.core.dansbag.io.BagDataManager;
 import nl.knaw.dans.dvingest.core.dansbag.io.BagDataManagerImpl;
-import nl.knaw.dans.dvingest.core.dansbag.io.FileService;
-import nl.knaw.dans.dvingest.core.dansbag.io.FileServiceImpl;
 import nl.knaw.dans.dvingest.core.dansbag.service.ManifestHelper;
 import nl.knaw.dans.dvingest.core.dansbag.service.ManifestHelperImpl;
 import nl.knaw.dans.dvingest.core.dansbag.service.XmlReader;
@@ -62,10 +60,9 @@ public abstract class DansConversionFixture extends TestDirFixture {
         DepositFileLister depositFileLister = new DepositFileListerImpl();
         BagDataManager bagDataManager = new BagDataManagerImpl(bagReader);
         XmlReader xmlReader = new XmlReaderImpl();
-        FileService fileService = new FileServiceImpl();
-        BagDirResolver bagDirResolver = new BagDirResolverImpl(fileService);
+        BagDirResolver bagDirResolver = new BagDirResolverImpl();
 
-        depositReader = new DepositReaderImpl(xmlReader, bagDirResolver, fileService, bagDataManager, depositFileLister, manifestHelper);
+        depositReader = new DepositReaderImpl(xmlReader, bagDirResolver, bagDataManager, depositFileLister, manifestHelper);
         var defaultConfigDir = Paths.get("src/main/assembly/dist/cfg");
         var mapper = new DepositToDvDatasetMetadataMapper(
             false,

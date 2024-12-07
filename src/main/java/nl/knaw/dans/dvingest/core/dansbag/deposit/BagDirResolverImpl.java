@@ -16,27 +16,21 @@
 package nl.knaw.dans.dvingest.core.dansbag.deposit;
 
 import nl.knaw.dans.dvingest.core.dansbag.exception.InvalidDepositException;
-import nl.knaw.dans.dvingest.core.dansbag.io.FileService;
 
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.stream.Collectors;
 
 public class BagDirResolverImpl implements BagDirResolver {
-    private final FileService fileService;
-
-    public BagDirResolverImpl(FileService fileService) {
-        this.fileService = fileService;
-    }
 
     @Override
     public Path getBagDir(Path depositDir) throws InvalidDepositException, IOException {
-        if (!fileService.isDirectory(depositDir)) {
+        if (!Files.isDirectory(depositDir)) {
             throw new InvalidDepositException(String.format("%s is not a directory", depositDir));
         }
 
-        try (var substream = fileService.listDirectories(depositDir)) {
-            var directories = substream.collect(Collectors.toList());
+        try (var substream = Files.list(depositDir).filter(Files::isDirectory)) {
+            var directories = substream.toList();
 
             // only 1 directory allowed, not 0 or more than 1
             if (directories.size() != 1) {
@@ -46,7 +40,7 @@ public class BagDirResolverImpl implements BagDirResolver {
             }
 
             // check for the presence of deposit.properties and bagit.txt
-            if (!fileService.fileExists(depositDir.resolve("deposit.properties"))) {
+            if (!Files.exists(depositDir.resolve("deposit.properties"))) {
                 throw new InvalidDepositException(String.format(
                     "%s does not contain a deposit.properties file", depositDir
                 ));
@@ -54,7 +48,7 @@ public class BagDirResolverImpl implements BagDirResolver {
 
             var bagDir = directories.get(0);
 
-            if (!fileService.fileExists(bagDir.resolve("bagit.txt"))) {
+            if (!Files.exists(bagDir.resolve("bagit.txt"))) {
                 throw new InvalidDepositException(String.format(
                     "%s does not contain a bag", depositDir
                 ));

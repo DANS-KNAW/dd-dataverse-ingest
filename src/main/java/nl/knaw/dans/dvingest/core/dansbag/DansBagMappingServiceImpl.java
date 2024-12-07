@@ -27,8 +27,6 @@ import nl.knaw.dans.dvingest.core.dansbag.domain.Deposit;
 import nl.knaw.dans.dvingest.core.dansbag.exception.InvalidDepositException;
 import nl.knaw.dans.dvingest.core.dansbag.io.BagDataManager;
 import nl.knaw.dans.dvingest.core.dansbag.io.BagDataManagerImpl;
-import nl.knaw.dans.dvingest.core.dansbag.io.FileService;
-import nl.knaw.dans.dvingest.core.dansbag.io.FileServiceImpl;
 import nl.knaw.dans.dvingest.core.dansbag.mapper.DepositToDvDatasetMetadataMapper;
 import nl.knaw.dans.dvingest.core.dansbag.service.ManifestHelper;
 import nl.knaw.dans.dvingest.core.dansbag.service.ManifestHelperImpl;
@@ -76,10 +74,9 @@ public class DansBagMappingServiceImpl implements DansBagMappingService {
         DepositFileLister depositFileLister = new DepositFileListerImpl();
         BagDataManager bagDataManager = new BagDataManagerImpl(bagReader);
         XmlReader xmlReader = new XmlReaderImpl();
-        FileService fileService = new FileServiceImpl();
-        BagDirResolver bagDirResolver = new BagDirResolverImpl(fileService);
+        BagDirResolver bagDirResolver = new BagDirResolverImpl();
 
-        depositReader = new DepositReaderImpl(xmlReader, bagDirResolver, fileService, bagDataManager, depositFileLister, manifestHelper);
+        depositReader = new DepositReaderImpl(xmlReader, bagDirResolver, bagDataManager, depositFileLister, manifestHelper);
         this.supportedLicenses = supportedLicenses;
         this.fileExclusionPattern = fileExclusionPattern;
         this.embargoExclusions = embargoExclusions;
