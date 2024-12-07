@@ -16,24 +16,16 @@
 package nl.knaw.dans.dvingest.core.dansbag.domain;
 
 import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.Value;
 import org.w3c.dom.Node;
 
 import java.nio.file.Path;
 
-@Data
+@Value
 @AllArgsConstructor
 public class DepositFile {
-    private Path path;
-    private Path physicalPath;
-    private String checksum;
-    private Node xmlNode;
-
-    public Path getPhysicalPath() {
-        if (this.physicalPath != null) {
-            return physicalPath;
-        }
-
-        return path;
-    }
+    Path path;
+    Path physicalPath;
+    String checksum;
+    Node xmlNode;
 }

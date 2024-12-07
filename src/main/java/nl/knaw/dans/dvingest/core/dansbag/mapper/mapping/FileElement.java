@@ -45,7 +45,7 @@ public class FileElement extends Base {
     );
 
     @Value
-    private static class FileMetaResult {
+    public static class FileMetaResult {
         boolean sanitized;
         FileMeta fileMeta;
     }
@@ -226,7 +226,6 @@ public class FileElement extends Base {
             var fileMetaResult = toFileMeta(depositFile.getXmlNode(), defaultRestrict, isMigration);
             result.put(depositFile.getPath(), new FileInfo(
                 bagDir.resolve(depositFile.getPath()),
-                bagDir.resolve(depositFile.getPhysicalPath()),
                 depositFile.getChecksum(),
                 fileMetaResult.isSanitized(),
                 fileMetaResult.getFileMeta()

@@ -16,20 +16,18 @@
 package nl.knaw.dans.dvingest.core.dansbag.domain;
 
 import lombok.AllArgsConstructor;
-import lombok.Data;
 import lombok.ToString;
+import lombok.Value;
 import nl.knaw.dans.lib.dataverse.model.file.FileMeta;
 
 import java.nio.file.Path;
 
-@Data
+@Value
 @ToString
 @AllArgsConstructor
 public class FileInfo {
-    private Path path;
-    private Path physicalPath;
-    private String checksum;
-    private boolean sanitized;
-    private FileMeta metadata;
-
+    Path path;
+    String checksum;
+    boolean sanitized;
+    FileMeta metadata;
 }
