@@ -17,7 +17,6 @@ package nl.knaw.dans.dvingest.core.dansbag.deposit;
 
 import gov.loc.repository.bagit.domain.Bag;
 import nl.knaw.dans.dvingest.core.dansbag.domain.Deposit;
-import nl.knaw.dans.dvingest.core.dansbag.domain.DepositLocation;
 import nl.knaw.dans.dvingest.core.dansbag.exception.InvalidDepositException;
 import nl.knaw.dans.dvingest.core.dansbag.io.BagDataManager;
 import nl.knaw.dans.dvingest.core.dansbag.io.FileService;
@@ -51,11 +50,6 @@ public class DepositReaderImpl implements DepositReader {
         this.bagDataManager = bagDataManager;
         this.depositFileLister = depositFileLister;
         this.manifestHelper = manifestHelper;
-    }
-
-    @Override
-    public synchronized Deposit readDeposit(DepositLocation location) throws InvalidDepositException {
-        return readDeposit(location.getDir());
     }
 
     @Override

@@ -16,14 +16,11 @@
 package nl.knaw.dans.dvingest.core.dansbag.deposit;
 
 import nl.knaw.dans.dvingest.core.dansbag.domain.Deposit;
-import nl.knaw.dans.dvingest.core.dansbag.domain.DepositLocation;
 import nl.knaw.dans.dvingest.core.dansbag.exception.InvalidDepositException;
 
 import java.nio.file.Path;
 
 public interface DepositReader {
-
-    Deposit readDeposit(DepositLocation location) throws InvalidDepositException;
 
     Deposit readDeposit(Path depositDir) throws InvalidDepositException;
 

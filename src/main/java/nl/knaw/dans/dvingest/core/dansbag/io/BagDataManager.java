@@ -16,7 +16,6 @@
 package nl.knaw.dans.dvingest.core.dansbag.io;
 
 import gov.loc.repository.bagit.domain.Bag;
-import gov.loc.repository.bagit.domain.Metadata;
 import gov.loc.repository.bagit.exceptions.InvalidBagitFileFormatException;
 import gov.loc.repository.bagit.exceptions.MaliciousPathException;
 import gov.loc.repository.bagit.exceptions.UnparsableVersionException;
@@ -26,28 +25,8 @@ import org.apache.commons.configuration2.ex.ConfigurationException;
 
 import java.io.IOException;
 import java.nio.file.Path;
-import java.util.Map;
 
 public interface BagDataManager {
-
-    /**
-     * Reads the bag metadata on the path that contains bag-info.txt and bagit.txt, among other files
-     *
-     * @param bagDir the path that contains bag-info.txt and bagit.txt
-     * @return The Metadata object
-     * @throws UnparsableVersionException
-     * @throws InvalidBagitFileFormatException
-     * @throws IOException
-     */
-    Metadata readBagMetadata(Path bagDir) throws UnparsableVersionException, InvalidBagitFileFormatException, IOException;
-
-    /**
-     * Writes the current bag metadata to disk and updates the entry for bag-info.txt in all existing tag manifests, so that the bag stays valid.
-     *
-     * @param bag the bag object
-     * @throws IOException
-     */
-    void writeBagMetadata(Bag bag) throws IOException;
 
     /**
      * Reads the bag on the path that contains bag-info.txt and bagit.txt, among other files
@@ -71,12 +50,4 @@ public interface BagDataManager {
      */
     Configuration readDepositProperties(Path depositDir) throws ConfigurationException;
 
-    /**
-     * Saves the provided configuration to the deposit.properties file in the provided path. The path should NOT reference deposit.properties directly
-     *
-     * @param depositDir    The directory that should contain the deposit.properties file
-     * @param configuration
-     * @throws ConfigurationException
-     */
-    void saveDepositProperties(Path depositDir, Map<String, Object> configuration) throws ConfigurationException;
 }
