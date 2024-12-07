@@ -16,7 +16,6 @@
 package nl.knaw.dans.dvingest.core.dansbag.deposit;
 
 import gov.loc.repository.bagit.domain.Bag;
-import nl.knaw.dans.dvingest.core.dansbag.domain.DansBagDeposit;
 import nl.knaw.dans.dvingest.core.dansbag.exception.InvalidDepositException;
 import nl.knaw.dans.dvingest.core.dansbag.service.BagDataManager;
 import nl.knaw.dans.dvingest.core.dansbag.service.ManifestHelper;

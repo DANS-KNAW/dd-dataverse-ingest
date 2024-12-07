@@ -22,8 +22,8 @@ import org.w3c.dom.Node;
 
 import java.util.Optional;
 
-import static nl.knaw.dans.dvingest.core.dansbag.domain.DepositState.PUBLISHED;
-import static nl.knaw.dans.dvingest.core.dansbag.domain.DepositState.SUBMITTED;
+import static nl.knaw.dans.dvingest.core.dansbag.deposit.DepositState.PUBLISHED;
+import static nl.knaw.dans.dvingest.core.dansbag.deposit.DepositState.SUBMITTED;
 
 @Slf4j
 public class Amd extends Base {

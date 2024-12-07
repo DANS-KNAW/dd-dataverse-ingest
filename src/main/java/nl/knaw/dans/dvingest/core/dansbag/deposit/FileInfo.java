@@ -13,18 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package nl.knaw.dans.dvingest.core.dansbag.domain;
+package nl.knaw.dans.dvingest.core.dansbag.deposit;
 
-import lombok.Builder;
-import lombok.Data;
+import lombok.AllArgsConstructor;
 import lombok.ToString;
+import lombok.Value;
+import nl.knaw.dans.lib.dataverse.model.file.FileMeta;
 
-@Data
-@Builder
+import java.nio.file.Path;
+
+@Value
 @ToString
-public class DatasetOrganization {
-    private String name;
-    private String role;
-    private String isni;
-    private String viaf;
+@AllArgsConstructor
+public class FileInfo {
+    Path path;
+    String checksum;
+    boolean sanitized;
+    FileMeta metadata;
 }

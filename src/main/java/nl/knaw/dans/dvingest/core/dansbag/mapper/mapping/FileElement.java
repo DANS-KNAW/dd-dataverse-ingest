@@ -17,8 +17,8 @@ package nl.knaw.dans.dvingest.core.dansbag.mapper.mapping;
 
 import lombok.Value;
 import lombok.extern.slf4j.Slf4j;
-import nl.knaw.dans.dvingest.core.dansbag.domain.DansBagDeposit;
-import nl.knaw.dans.dvingest.core.dansbag.domain.FileInfo;
+import nl.knaw.dans.dvingest.core.dansbag.deposit.DansBagDeposit;
+import nl.knaw.dans.dvingest.core.dansbag.deposit.FileInfo;
 import nl.knaw.dans.dvingest.core.dansbag.service.XPathEvaluator;
 import nl.knaw.dans.lib.dataverse.model.file.FileMeta;
 import org.apache.commons.lang3.StringUtils;

@@ -23,7 +23,7 @@ import nl.knaw.dans.dvingest.core.dansbag.deposit.DepositFileLister;
 import nl.knaw.dans.dvingest.core.dansbag.deposit.DepositFileListerImpl;
 import nl.knaw.dans.dvingest.core.dansbag.deposit.DepositReader;
 import nl.knaw.dans.dvingest.core.dansbag.deposit.DepositReaderImpl;
-import nl.knaw.dans.dvingest.core.dansbag.domain.DansBagDeposit;
+import nl.knaw.dans.dvingest.core.dansbag.deposit.DansBagDeposit;
 import nl.knaw.dans.dvingest.core.dansbag.exception.InvalidDepositException;
 import nl.knaw.dans.dvingest.core.dansbag.mapper.DepositToDvDatasetMetadataMapper;
 import nl.knaw.dans.dvingest.core.dansbag.service.BagDataManager;

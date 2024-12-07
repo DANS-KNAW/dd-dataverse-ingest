@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package nl.knaw.dans.dvingest.core.dansbag.domain;
+package nl.knaw.dans.dvingest.core.dansbag.deposit;
 
 import gov.loc.repository.bagit.domain.Bag;
 import lombok.AllArgsConstructor;

@@ -15,8 +15,9 @@
  */
 package nl.knaw.dans.dvingest.core.dansbag.mapper.mapping;
 
+import lombok.Builder;
+import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
-import nl.knaw.dans.dvingest.core.dansbag.domain.DatasetAuthor;
 import nl.knaw.dans.dvingest.core.dansbag.mapper.builder.CompoundFieldGenerator;
 import nl.knaw.dans.dvingest.core.dansbag.service.XPathEvaluator;
 import org.apache.commons.lang3.StringUtils;
@@ -37,6 +38,20 @@ import static nl.knaw.dans.dvingest.core.dansbag.service.DepositDatasetFieldName
 
 @Slf4j
 public final class DcxDaiAuthor extends Base {
+    @Data
+    @Builder
+    public static class DatasetAuthor {
+        private String titles;
+        private String initials;
+        private String insertions;
+        private String surname;
+        private String dai;
+        private String isni;
+        private String orcid;
+        private String role;
+        private String organization;
+    }
+
     public static CompoundFieldGenerator<Node> toAuthorValueObject = (builder, node) -> {
         var author = parseAuthor(node);
         var name = formatName(author);

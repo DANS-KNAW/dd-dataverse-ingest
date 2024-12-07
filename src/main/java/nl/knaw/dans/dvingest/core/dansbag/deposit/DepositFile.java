@@ -13,21 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package nl.knaw.dans.dvingest.core.dansbag.domain;
+package nl.knaw.dans.dvingest.core.dansbag.deposit;
 
 import lombok.AllArgsConstructor;
-import lombok.ToString;
 import lombok.Value;
-import nl.knaw.dans.lib.dataverse.model.file.FileMeta;
+import org.w3c.dom.Node;
 
 import java.nio.file.Path;
 
 @Value
-@ToString
 @AllArgsConstructor
-public class FileInfo {
+public class DepositFile {
     Path path;
     String checksum;
-    boolean sanitized;
-    FileMeta metadata;
+    Node xmlNode;
 }

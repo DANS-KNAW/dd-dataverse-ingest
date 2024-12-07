@@ -13,8 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package nl.knaw.dans.dvingest.core.dansbag.domain;
+package nl.knaw.dans.dvingest.core.dansbag.deposit;
 
-public enum DepositState {
-    ARCHIVED, DRAFT, FAILED, FINALIZING, INVALID, REJECTED, SUBMITTED, UPLOADED, PUBLISHED, ACCEPTED
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.ToString;
+
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@ToString
+public class VaultMetadata {
+    private String pid;
+    private String bagId;
+    private String nbn;
+    private String otherId;
+    private String swordToken;
 }

@@ -13,18 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package nl.knaw.dans.dvingest.core.dansbag.domain;
+package nl.knaw.dans.dvingest.core.dansbag.deposit;
 
-import lombok.AllArgsConstructor;
-import lombok.Value;
-import org.w3c.dom.Node;
-
-import java.nio.file.Path;
-
-@Value
-@AllArgsConstructor
-public class DepositFile {
-    Path path;
-    String checksum;
-    Node xmlNode;
+public enum DepositState {
+    ARCHIVED, DRAFT, FAILED, FINALIZING, INVALID, REJECTED, SUBMITTED, UPLOADED, PUBLISHED, ACCEPTED
 }

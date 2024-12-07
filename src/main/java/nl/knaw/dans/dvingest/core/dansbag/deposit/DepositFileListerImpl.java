@@ -15,8 +15,6 @@
  */
 package nl.knaw.dans.dvingest.core.dansbag.deposit;
 
-import nl.knaw.dans.dvingest.core.dansbag.domain.DansBagDeposit;
-import nl.knaw.dans.dvingest.core.dansbag.domain.DepositFile;
 import nl.knaw.dans.dvingest.core.dansbag.service.ManifestHelperImpl;
 import nl.knaw.dans.dvingest.core.dansbag.service.XPathEvaluator;
 import org.w3c.dom.Node;

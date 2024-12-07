@@ -15,8 +15,10 @@
  */
 package nl.knaw.dans.dvingest.core.dansbag.mapper.mapping;
 
+import lombok.Builder;
+import lombok.Data;
+import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
-import nl.knaw.dans.dvingest.core.dansbag.domain.DatasetOrganization;
 import nl.knaw.dans.dvingest.core.dansbag.mapper.builder.CompoundFieldGenerator;
 import nl.knaw.dans.dvingest.core.dansbag.service.XPathEvaluator;
 import org.apache.commons.lang3.StringUtils;
@@ -35,6 +37,15 @@ import static nl.knaw.dans.dvingest.core.dansbag.service.DepositDatasetFieldName
 
 @Slf4j
 public final class DcxDaiOrganization {
+    @Data
+    @Builder
+    @ToString
+    public static class DatasetOrganization {
+        private String name;
+        private String role;
+        private String isni;
+        private String viaf;
+    }
 
     public static CompoundFieldGenerator<Node> toAuthorValueObject = (builder, node) -> {
         var organization = parseOrganization(node);

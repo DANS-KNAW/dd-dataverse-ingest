@@ -15,7 +15,7 @@
  */
 package nl.knaw.dans.dvingest.core.dansbag;
 
-import nl.knaw.dans.dvingest.core.dansbag.domain.DansBagDeposit;
+import nl.knaw.dans.dvingest.core.dansbag.deposit.DansBagDeposit;
 import nl.knaw.dans.dvingest.core.dansbag.exception.InvalidDepositException;
 import nl.knaw.dans.dvingest.core.yaml.EditFiles;
 import nl.knaw.dans.dvingest.core.yaml.EditPermissions;

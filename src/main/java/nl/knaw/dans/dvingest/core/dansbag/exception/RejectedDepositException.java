@@ -15,7 +15,7 @@
  */
 package nl.knaw.dans.dvingest.core.dansbag.exception;
 
-import nl.knaw.dans.dvingest.core.dansbag.domain.DansBagDeposit;
+import nl.knaw.dans.dvingest.core.dansbag.deposit.DansBagDeposit;
 
 public class RejectedDepositException extends RuntimeException {
     public RejectedDepositException(DansBagDeposit dansBagDeposit, String message) {

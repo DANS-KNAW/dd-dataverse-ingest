@@ -20,7 +20,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import nl.knaw.dans.dvingest.core.dansbag.domain.VaultMetadata;
+import nl.knaw.dans.dvingest.core.dansbag.deposit.VaultMetadata;
 import nl.knaw.dans.dvingest.core.dansbag.exception.MissingRequiredFieldException;
 import nl.knaw.dans.dvingest.core.dansbag.mapper.builder.ArchaeologyFieldBuilder;
 import nl.knaw.dans.dvingest.core.dansbag.mapper.builder.CitationFieldBuilder;

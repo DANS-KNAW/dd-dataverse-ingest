@@ -15,7 +15,7 @@
  */
 package nl.knaw.dans.dvingest.core.dansbag;
 
-import nl.knaw.dans.dvingest.core.dansbag.domain.DansBagDeposit;
+import nl.knaw.dans.dvingest.core.dansbag.deposit.DansBagDeposit;
 import nl.knaw.dans.dvingest.core.dansbag.exception.RejectedDepositException;
 import nl.knaw.dans.dvingest.core.dansbag.mapper.mapping.LicenseElem;
 import nl.knaw.dans.dvingest.core.dansbag.service.XPathEvaluator;

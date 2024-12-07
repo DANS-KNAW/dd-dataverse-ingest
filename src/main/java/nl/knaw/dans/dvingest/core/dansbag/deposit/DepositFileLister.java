@@ -15,9 +15,6 @@
  */
 package nl.knaw.dans.dvingest.core.dansbag.deposit;
 
-import nl.knaw.dans.dvingest.core.dansbag.domain.DansBagDeposit;
-import nl.knaw.dans.dvingest.core.dansbag.domain.DepositFile;
-
 import java.io.IOException;
 import java.util.List;
 

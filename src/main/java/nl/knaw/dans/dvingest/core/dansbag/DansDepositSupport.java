@@ -23,7 +23,7 @@ import nl.knaw.dans.dvingest.client.ValidateDansBagService;
 import nl.knaw.dans.dvingest.core.DataverseIngestBag;
 import nl.knaw.dans.dvingest.core.DataverseIngestDeposit;
 import nl.knaw.dans.dvingest.core.Deposit;
-import nl.knaw.dans.dvingest.core.dansbag.domain.DansBagDeposit;
+import nl.knaw.dans.dvingest.core.dansbag.deposit.DansBagDeposit;
 import nl.knaw.dans.dvingest.core.dansbag.exception.InvalidDepositException;
 import nl.knaw.dans.dvingest.core.dansbag.exception.RejectedDepositException;
 import nl.knaw.dans.dvingest.core.service.YamlService;
