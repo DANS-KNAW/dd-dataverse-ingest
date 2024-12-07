@@ -403,7 +403,7 @@ public class DatasetUpdater extends DatasetEditor {
             }
         }
 
-        // check if any of them have a checksum that is not SHA-1restrictedFilesPresent
+        // check if any of them have a checksum that is not SHA-1
         for (var fileMeta : pathToFileInfoInLatestVersion.values()) {
             var checksumType = fileMeta.getDataFile().getChecksum().getType();
             log.trace("Filemeta checksum type for file {}: {}", fileMeta.getLabel(), checksumType);

@@ -37,6 +37,7 @@ public class FilesInDatasetCache {
     /*
      * Key: filepath after auto-rename / Value: FileMeta object
      */
+    @Getter
     private final Map<String, FileMeta> filesInDataset = new java.util.HashMap<>();
     @Getter
     private final Map<String, String> autoRenamedFiles;

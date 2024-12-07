@@ -25,8 +25,10 @@ import nl.knaw.dans.dvingest.core.yaml.FromTo;
 import nl.knaw.dans.ingest.core.domain.Deposit;
 import nl.knaw.dans.ingest.core.domain.FileInfo;
 import nl.knaw.dans.ingest.core.service.XPathEvaluator;
+import nl.knaw.dans.lib.dataverse.DataverseException;
 import nl.knaw.dans.lib.dataverse.model.file.FileMeta;
 
+import java.io.IOException;
 import java.nio.file.Path;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
@@ -35,7 +37,6 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeParseException;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -55,19 +56,20 @@ public class EditFilesComposer {
     private static final SimpleDateFormat yyyymmddFormat = new SimpleDateFormat("yyyy-MM-dd");
 
     public EditFiles composeEditFiles() {
-        var editFiles = new EditFiles();
         var pathFileInfoMap = getFileInfo(dansDeposit);
-
-        // TODO: in update also ignore any files that have not changed (content or metadata)
+        var renamedFiles = getAutoRenameMap(pathFileInfoMap);
+        init(renamedFiles);
         var ignoredFiles = getFilesToIgnore(pathFileInfoMap);
+
+        var editFiles = new EditFiles();
         editFiles.setIgnoreFiles(ignoredFiles);
         pathFileInfoMap = removeIgnoredFiles(pathFileInfoMap, ignoredFiles);
 
-        editFiles.setAutoRenameFiles(getAutoRenamedFiles(pathFileInfoMap));
+        editFiles.setAutoRenameFiles(getAutoRenamedFiles(renamedFiles));
         editFiles.setAddRestrictedFiles(getRestrictedFilesToAdd(pathFileInfoMap));
         editFiles.setUpdateFileMetas(getUpdatedFileMetas(pathFileInfoMap));
         editFiles.setDeleteFiles(getDeleteFiles(pathFileInfoMap));
-        editFiles.setMoveFiles(getFileMovements());
+        editFiles.setMoveFiles(getFileMovements(pathFileInfoMap));
 
         var dateAvailable = getDateAvailable(dansDeposit);
         var filePathsToEmbargo = getEmbargoedFiles(pathFileInfoMap, dateAvailable);
@@ -80,13 +82,17 @@ public class EditFilesComposer {
         return editFiles;
     }
 
+    protected void init(Map<String, String> renamedFiles)  {
+        // do nothing
+    }
+
+
     /**
      * Get the files that should not be processed by the ingest service.
      *
      * @param files the file infos found inf files.xml
      * @return a list of file paths that should be ignored
      */
-    // TODO: add parameter for current FileMetas (for update)
     protected List<String> getFilesToIgnore(Map<Path, FileInfo> files) {
         if (fileExclusionPattern == null) {
             return List.of();
@@ -135,9 +141,10 @@ public class EditFilesComposer {
     /**
      * Get the files that should be moved.
      *
+     * @param files the file infos found in files.xml
      * @return a list of FromTo objects that specify the files to move and their new location
      */
-    protected List<FromTo> getFileMovements() {
+    protected List<FromTo> getFileMovements(Map<Path, FileInfo> files) {
         return List.of();
     }
 
@@ -179,16 +186,17 @@ public class EditFilesComposer {
             .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
     }
 
-    private List<FromTo> getAutoRenamedFiles(Map<Path, FileInfo> files) {
-        ArrayList<FromTo> fromTos = new ArrayList<>();
-        for (var entry : files.entrySet()) {
-            if (entry.getValue().isSanitized()) {
-                var from = entry.getKey().toString();
-                var to = new DataversePath(entry.getValue().getMetadata().getDirectoryLabel(), entry.getValue().getMetadata().getLabel()).toString();
-                fromTos.add(new FromTo(from, to));
-            }
-        }
-        return fromTos;
+    private List<FromTo> getAutoRenamedFiles(Map<String, String> renamedFiles) {
+        return renamedFiles.entrySet().stream()
+            .map(entry -> new FromTo(entry.getKey(), entry.getValue()))
+            .toList();
+    }
+
+    protected Map<String, String> getAutoRenameMap(Map<Path, FileInfo> files) {
+        return files.entrySet().stream()
+            .filter(entry -> entry.getValue().isSanitized())
+            .collect(Collectors.toMap(entry -> entry.getKey().toString(),
+                entry -> new DataversePath(entry.getValue().getMetadata().getDirectoryLabel(), entry.getValue().getMetadata().getLabel()).toString()));
     }
 
     // TODO: move to mapping package

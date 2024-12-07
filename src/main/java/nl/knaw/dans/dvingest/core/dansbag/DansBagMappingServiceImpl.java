@@ -175,26 +175,6 @@ public class DansBagMappingServiceImpl implements DansBagMappingService {
         return zipFile.toString();
     }
 
-    private boolean hasAttributes(FileMeta fileMeta) {
-        return (fileMeta.getCategories() != null && !fileMeta.getCategories().isEmpty()) ||
-            (fileMeta.getDescription() != null && !fileMeta.getDescription().isBlank());
-    }
-
-    Map<Path, FileInfo> getFileInfo(Deposit dansDeposit) {
-        var files = FileElement.pathToFileInfo(dansDeposit, false); // TODO: handle migration case
-
-        return files.entrySet().stream()
-            .map(entry -> {
-                // relativize the path
-                var bagPath = entry.getKey();
-                var fileInfo = entry.getValue();
-                var newKey = Path.of("data").relativize(bagPath);
-
-                return Map.entry(newKey, fileInfo);
-            })
-            .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
-    }
-
     Optional<String> getDateOfDeposit(Deposit dansDeposit) {
         if (dansDeposit.isUpdate()) {
             return Optional.empty(); // See for implementation CIT025B in DatasetUpdater
