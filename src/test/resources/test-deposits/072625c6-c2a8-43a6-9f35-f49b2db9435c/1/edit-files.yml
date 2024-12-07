@@ -5,3 +5,6 @@ editFiles:
   updateFileMetas:
     - label: 'file3-desc.txt'
       description: 'Description of file3'
+  autoRenameFiles:
+    - from: 'problème/<problem>.txt'
+      to: 'probl_me/_problem_.txt'
