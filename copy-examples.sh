@@ -15,10 +15,9 @@
 # limitations under the License.
 #
 
-
+SCRIPT_DIR=$(cd $(dirname "$0") && pwd)
 BATCH_NAME=${1:-"test-deposits"}
 
-rm -rf data/import/inbox/$BATCH_NAME
-rm -fr data/import/outbox/$BATCH_NAME
-cp -r src/test/resources/test-deposits data/import/inbox/$BATCH_NAME
-
+rm -rf "$SCRIPT_DIR/data/import/inbox/$BATCH_NAME"
+rm -rf "$SCRIPT_DIR/data/import/outbox/$BATCH_NAME"
+cp -r "$SCRIPT_DIR/src/test/resources/test-deposits" "$SCRIPT_DIR/data/import/inbox/$BATCH_NAME"
