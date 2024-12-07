@@ -16,13 +16,21 @@
 package nl.knaw.dans.dvingest.core.dansbag.deposit;
 
 import gov.loc.repository.bagit.domain.Bag;
+import gov.loc.repository.bagit.reader.BagReader;
 import nl.knaw.dans.dvingest.core.dansbag.exception.InvalidDepositException;
-import nl.knaw.dans.dvingest.core.dansbag.service.BagDataManager;
 import nl.knaw.dans.dvingest.core.dansbag.service.ManifestHelper;
+import nl.knaw.dans.dvingest.core.dansbag.service.ManifestHelperImpl;
+import nl.knaw.dans.dvingest.core.dansbag.service.XPathEvaluator;
 import nl.knaw.dans.dvingest.core.dansbag.service.XmlReader;
 import org.apache.commons.configuration2.Configuration;
+import org.apache.commons.configuration2.FileBasedConfiguration;
+import org.apache.commons.configuration2.PropertiesConfiguration;
+import org.apache.commons.configuration2.builder.FileBasedConfigurationBuilder;
+import org.apache.commons.configuration2.builder.fluent.Parameters;
+import org.apache.commons.configuration2.ex.ConfigurationException;
 import org.apache.commons.lang3.StringUtils;
 import org.w3c.dom.Document;
+import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
 import javax.xml.parsers.ParserConfigurationException;
@@ -32,20 +40,23 @@ import java.nio.file.Path;
 import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
+
+import static nl.knaw.dans.dvingest.core.dansbag.service.XPathConstants.FILES_FILE;
 
 public class DepositReaderImpl implements DepositReader {
+    private static final String DEPOSIT_PROPERTIES_FILENAME = "deposit.properties";
+
     private final XmlReader xmlReader;
     private final BagDirResolver bagDirResolver;
-    private final BagDataManager bagDataManager;
-    private final DepositFileLister depositFileLister;
+    private final BagReader bagReader;
 
     private final ManifestHelper manifestHelper;
 
-    public DepositReaderImpl(XmlReader xmlReader, BagDirResolver bagDirResolver, BagDataManager bagDataManager, DepositFileLister depositFileLister, ManifestHelper manifestHelper) {
+    public DepositReaderImpl(XmlReader xmlReader, BagDirResolver bagDirResolver, BagReader bagReader, ManifestHelper manifestHelper) {
         this.xmlReader = xmlReader;
         this.bagDirResolver = bagDirResolver;
-        this.bagDataManager = bagDataManager;
-        this.depositFileLister = depositFileLister;
+        this.bagReader = bagReader;
         this.manifestHelper = manifestHelper;
     }
 
@@ -54,18 +65,18 @@ public class DepositReaderImpl implements DepositReader {
         try {
             var bagDir = bagDirResolver.getBagDir(depositDir);
 
-            var config = bagDataManager.readDepositProperties(depositDir);
-            var bag = bagDataManager.readBag(bagDir);
+            var config = readDepositProperties(depositDir);
+            var bag = bagReader.read(bagDir);
             manifestHelper.ensureSha1ManifestPresent(bag);
 
             var deposit = mapToDeposit(depositDir, bagDir, config, bag);
 
             deposit.setBag(bag);
-            deposit.setDdm(readOptionalXmlFile(deposit.getDdmPath()));
-            deposit.setFilesXml(readOptionalXmlFile(deposit.getFilesXmlPath()));
+            deposit.setDdm(readRequiredXmlFile(deposit.getDdmPath()));
+            deposit.setFilesXml(readRequiredXmlFile(deposit.getFilesXmlPath()));
             deposit.setAmd(readOptionalXmlFile(deposit.getAmdPath()));
 
-            deposit.setFiles(depositFileLister.getDepositFiles(deposit));
+            deposit.setFiles(getDepositFiles(deposit));
 
             return deposit;
         }
@@ -74,7 +85,46 @@ public class DepositReaderImpl implements DepositReader {
         }
     }
 
-    Document readOptionalXmlFile(Path path) throws ParserConfigurationException, IOException, SAXException {
+
+    private Configuration readDepositProperties(Path depositDir) throws ConfigurationException {
+        var propertiesFile = depositDir.resolve(DEPOSIT_PROPERTIES_FILENAME);
+        var params = new Parameters();
+        var paramConfig = params.properties()
+            .setFileName(propertiesFile.toString());
+
+        var builder = new FileBasedConfigurationBuilder<FileBasedConfiguration>
+            (PropertiesConfiguration.class, null, true)
+            .configure(paramConfig);
+
+        return builder.getConfiguration();
+    }
+
+    private List<DepositFile> getDepositFiles(DansBagDeposit dansBagDeposit) throws IOException {
+        var bag = dansBagDeposit.getBag();
+        var filePathToSha1 = ManifestHelperImpl.getFilePathToSha1(bag);
+
+        return XPathEvaluator.nodes(dansBagDeposit.getFilesXml(), FILES_FILE)
+            .map(node -> {
+                var filePath = Optional.ofNullable(node.getAttributes().getNamedItem("filepath"))
+                    .map(Node::getTextContent)
+                    .map(Path::of)
+                    .orElseThrow(() -> new IllegalArgumentException("File element without filepath attribute"));
+
+                var sha1 = filePathToSha1.get(filePath);
+
+                return new DepositFile(filePath, sha1, node);
+            })
+            .collect(Collectors.toList());
+    }
+
+    private Document readRequiredXmlFile(Path path) throws ParserConfigurationException, IOException, SAXException {
+        if (!Files.exists(path)) {
+            throw new IllegalArgumentException("Required file not found: " + path);
+        }
+        return xmlReader.readXmlFile(path);
+    }
+
+    private Document readOptionalXmlFile(Path path) throws ParserConfigurationException, IOException, SAXException {
         if (Files.exists(path)) {
             return xmlReader.readXmlFile(path);
         }
@@ -82,7 +132,7 @@ public class DepositReaderImpl implements DepositReader {
         return null;
     }
 
-    DansBagDeposit mapToDeposit(Path path, Path bagDir, Configuration config, Bag bag) {
+    private DansBagDeposit mapToDeposit(Path path, Path bagDir, Configuration config, Bag bag) {
         var deposit = new DansBagDeposit();
         deposit.setBagDir(bagDir);
         deposit.setDir(path);

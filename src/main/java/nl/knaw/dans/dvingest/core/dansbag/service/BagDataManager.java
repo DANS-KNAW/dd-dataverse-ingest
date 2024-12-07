@@ -15,39 +15,6 @@
  */
 package nl.knaw.dans.dvingest.core.dansbag.service;
 
-import gov.loc.repository.bagit.domain.Bag;
-import gov.loc.repository.bagit.exceptions.InvalidBagitFileFormatException;
-import gov.loc.repository.bagit.exceptions.MaliciousPathException;
-import gov.loc.repository.bagit.exceptions.UnparsableVersionException;
-import gov.loc.repository.bagit.exceptions.UnsupportedAlgorithmException;
-import org.apache.commons.configuration2.Configuration;
-import org.apache.commons.configuration2.ex.ConfigurationException;
-
-import java.io.IOException;
-import java.nio.file.Path;
-
 public interface BagDataManager {
-
-    /**
-     * Reads the bag on the path that contains bag-info.txt and bagit.txt, among other files
-     *
-     * @param bagDir the path that contains bag-info.txt and bagit.txt
-     * @return The bag object
-     * @throws UnparsableVersionException
-     * @throws InvalidBagitFileFormatException
-     * @throws IOException
-     * @throws MaliciousPathException
-     * @throws UnsupportedAlgorithmException
-     */
-    Bag readBag(Path bagDir) throws UnparsableVersionException, InvalidBagitFileFormatException, IOException, MaliciousPathException, UnsupportedAlgorithmException;
-
-    /**
-     * Reads the deposit.properties file found inside the folder provided. The path should NOT reference deposit.properties directly
-     *
-     * @param depositDir The directory that contains a deposit.properties file
-     * @return
-     * @throws ConfigurationException
-     */
-    Configuration readDepositProperties(Path depositDir) throws ConfigurationException;
 
 }

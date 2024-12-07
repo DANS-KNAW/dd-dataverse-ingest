@@ -15,21 +15,7 @@
  */
 package nl.knaw.dans.dvingest.core.dansbag.service;
 
-import gov.loc.repository.bagit.domain.Bag;
-import gov.loc.repository.bagit.exceptions.InvalidBagitFileFormatException;
-import gov.loc.repository.bagit.exceptions.MaliciousPathException;
-import gov.loc.repository.bagit.exceptions.UnparsableVersionException;
-import gov.loc.repository.bagit.exceptions.UnsupportedAlgorithmException;
 import gov.loc.repository.bagit.reader.BagReader;
-import org.apache.commons.configuration2.Configuration;
-import org.apache.commons.configuration2.FileBasedConfiguration;
-import org.apache.commons.configuration2.PropertiesConfiguration;
-import org.apache.commons.configuration2.builder.FileBasedConfigurationBuilder;
-import org.apache.commons.configuration2.builder.fluent.Parameters;
-import org.apache.commons.configuration2.ex.ConfigurationException;
-
-import java.io.IOException;
-import java.nio.file.Path;
 
 public class BagDataManagerImpl implements BagDataManager {
     private static final String DEPOSIT_PROPERTIES_FILENAME = "deposit.properties";
@@ -37,25 +23,6 @@ public class BagDataManagerImpl implements BagDataManager {
 
     public BagDataManagerImpl(BagReader bagReader) {
         this.bagReader = bagReader;
-    }
-
-    @Override
-    public Bag readBag(Path bagDir) throws UnparsableVersionException, InvalidBagitFileFormatException, IOException, MaliciousPathException, UnsupportedAlgorithmException {
-        return bagReader.read(bagDir);
-    }
-
-    @Override
-    public Configuration readDepositProperties(Path depositDir) throws ConfigurationException {
-        var propertiesFile = depositDir.resolve(DEPOSIT_PROPERTIES_FILENAME);
-        var params = new Parameters();
-        var paramConfig = params.properties()
-            .setFileName(propertiesFile.toString());
-
-        var builder = new FileBasedConfigurationBuilder<FileBasedConfiguration>
-            (PropertiesConfiguration.class, null, true)
-            .configure(paramConfig);
-
-        return builder.getConfiguration();
     }
 
 }

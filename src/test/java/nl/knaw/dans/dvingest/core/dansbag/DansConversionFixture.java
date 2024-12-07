@@ -17,20 +17,16 @@ package nl.knaw.dans.dvingest.core.dansbag;
 
 import gov.loc.repository.bagit.reader.BagReader;
 import nl.knaw.dans.dvingest.core.TestDirFixture;
-import nl.knaw.dans.dvingest.core.service.DataverseService;
 import nl.knaw.dans.dvingest.core.dansbag.deposit.BagDirResolver;
 import nl.knaw.dans.dvingest.core.dansbag.deposit.BagDirResolverImpl;
-import nl.knaw.dans.dvingest.core.dansbag.deposit.DepositFileLister;
-import nl.knaw.dans.dvingest.core.dansbag.deposit.DepositFileListerImpl;
 import nl.knaw.dans.dvingest.core.dansbag.deposit.DepositReader;
 import nl.knaw.dans.dvingest.core.dansbag.deposit.DepositReaderImpl;
-import nl.knaw.dans.dvingest.core.dansbag.service.BagDataManager;
-import nl.knaw.dans.dvingest.core.dansbag.service.BagDataManagerImpl;
+import nl.knaw.dans.dvingest.core.dansbag.mapper.DepositToDvDatasetMetadataMapper;
 import nl.knaw.dans.dvingest.core.dansbag.service.ManifestHelper;
 import nl.knaw.dans.dvingest.core.dansbag.service.ManifestHelperImpl;
 import nl.knaw.dans.dvingest.core.dansbag.service.XmlReader;
 import nl.knaw.dans.dvingest.core.dansbag.service.XmlReaderImpl;
-import nl.knaw.dans.dvingest.core.dansbag.mapper.DepositToDvDatasetMetadataMapper;
+import nl.knaw.dans.dvingest.core.service.DataverseService;
 import nl.knaw.dans.lib.dataverse.model.dataset.License;
 import nl.knaw.dans.lib.util.MappingLoader;
 import org.apache.commons.io.FileUtils;
@@ -57,12 +53,10 @@ public abstract class DansConversionFixture extends TestDirFixture {
         super.setUp();
         BagReader bagReader = new BagReader();
         ManifestHelper manifestHelper = new ManifestHelperImpl();
-        DepositFileLister depositFileLister = new DepositFileListerImpl();
-        BagDataManager bagDataManager = new BagDataManagerImpl(bagReader);
         XmlReader xmlReader = new XmlReaderImpl();
         BagDirResolver bagDirResolver = new BagDirResolverImpl();
 
-        depositReader = new DepositReaderImpl(xmlReader, bagDirResolver, bagDataManager, depositFileLister, manifestHelper);
+        depositReader = new DepositReaderImpl(xmlReader, bagDirResolver, bagReader, manifestHelper);
         var defaultConfigDir = Paths.get("src/main/assembly/dist/cfg");
         var mapper = new DepositToDvDatasetMetadataMapper(
             false,
