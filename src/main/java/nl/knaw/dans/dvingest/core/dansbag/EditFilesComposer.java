@@ -48,7 +48,7 @@ import java.util.stream.Collectors;
 @Slf4j
 @AllArgsConstructor
 public class EditFilesComposer {
-    private final DansBagDeposit dansDeposit;
+    protected final DansBagDeposit dansDeposit;
     private final Pattern fileExclusionPattern;
     private final List<String> embargoExclusions;
     private static final SimpleDateFormat yyyymmddFormat = new SimpleDateFormat("yyyy-MM-dd");
@@ -68,6 +68,7 @@ public class EditFilesComposer {
         editFiles.setUpdateFileMetas(getUpdatedFileMetas(pathFileInfoMap));
         editFiles.setDeleteFiles(getDeleteFiles(pathFileInfoMap));
         editFiles.setMoveFiles(getFileMovements(pathFileInfoMap));
+        editFiles.setReplaceFiles(getReplacedFiles(pathFileInfoMap));
 
         var dateAvailable = getDateAvailable(dansDeposit);
         var filePathsToEmbargo = getEmbargoedFiles(pathFileInfoMap, dateAvailable);
@@ -80,10 +81,13 @@ public class EditFilesComposer {
         return editFiles;
     }
 
-    protected void init(Map<String, String> renamedFiles)  {
-        // do nothing
+    protected List<String> getReplacedFiles(Map<Path, FileInfo> pathFileInfoMap) {
+        return List.of();
     }
 
+    protected void init(Map<String, String> renamedFiles) {
+        // do nothing
+    }
 
     /**
      * Get the files that should not be processed by the ingest service.
@@ -158,7 +162,7 @@ public class EditFilesComposer {
         }
     }
 
-    private Map<Path, FileInfo> getFileInfo(DansBagDeposit dansDeposit) {
+    protected Map<Path, FileInfo> getFileInfo(DansBagDeposit dansDeposit) {
         var files = FileElement.pathToFileInfo(dansDeposit, false); // TODO: handle migration case
 
         return files.entrySet().stream()
