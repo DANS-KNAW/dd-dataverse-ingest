@@ -58,7 +58,6 @@ public class EditFilesComposer {
         var ignoredFiles = getFilesToIgnore(pathFileInfoMap);
 
         var editFiles = new EditFiles();
-        editFiles.setIgnoreFiles(ignoredFiles);
         pathFileInfoMap = removeIgnoredFiles(pathFileInfoMap, ignoredFiles);
 
         editFiles.setAutoRenameFiles(getAutoRenamedFiles(renamedFiles));

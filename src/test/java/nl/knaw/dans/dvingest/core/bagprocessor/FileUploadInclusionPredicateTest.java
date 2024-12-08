@@ -34,32 +34,6 @@ public class FileUploadInclusionPredicateTest {
     }
 
     @Test
-    public void ignored_files_are_skipped_for_unrestricted_file_upload() throws Exception {
-        // Given
-        editFiles.setIgnoreFiles(List.of("file1"));
-        var fileUploadInclusionPredicate = new FileUploadInclusionPredicate(editFiles, dataDir.toPath(), false);
-
-        // When
-        var result = fileUploadInclusionPredicate.evaluate(new File("dataDir/file1"));
-
-        // Then
-        assertThat(result).isFalse();
-    }
-
-    @Test
-    public void ignored_files_are_skipped_for_restricted_file_upload() throws Exception {
-        // Given
-        editFiles.setIgnoreFiles(List.of("file1"));
-        var fileUploadInclusionPredicate = new FileUploadInclusionPredicate(editFiles, dataDir.toPath(), true);
-
-        // When
-        var result = fileUploadInclusionPredicate.evaluate(new File("dataDir/file1"));
-
-        // Then
-        assertThat(result).isFalse();
-    }
-
-    @Test
     public void restricted_files_are_included_for_restricted_file_upload() throws Exception {
         // Given
         editFiles.setAddRestrictedFiles(List.of("file1"));

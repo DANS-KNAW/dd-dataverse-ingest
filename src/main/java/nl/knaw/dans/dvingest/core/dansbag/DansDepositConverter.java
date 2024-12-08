@@ -27,6 +27,7 @@ import java.io.IOException;
 @AllArgsConstructor
 public class DansDepositConverter {
     private final DansBagDeposit dansDeposit;
+    private final String updatesDataset;
     private final DansBagMappingService mappingService;
     private final YamlService yamlService;
 
@@ -37,7 +38,7 @@ public class DansDepositConverter {
         var dataset = mappingService.getDatasetMetadataFromDansDeposit(dansDeposit);
         yamlService.writeYaml(dataset, dansDeposit.getBagDir().resolve("dataset.yml"));
 
-        var editFiles = mappingService.getEditFilesFromDansDeposit(dansDeposit);
+        var editFiles = mappingService.getEditFilesFromDansDeposit(dansDeposit, updatesDataset);
         yamlService.writeYaml(new EditFilesRoot(editFiles), dansDeposit.getBagDir().resolve("edit-files.yml"));
 
         var editPermissions = mappingService.getEditPermissionsFromDansDeposit(dansDeposit);

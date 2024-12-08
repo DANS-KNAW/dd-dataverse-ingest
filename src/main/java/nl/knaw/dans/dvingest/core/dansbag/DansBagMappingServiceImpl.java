@@ -141,10 +141,15 @@ public class DansBagMappingServiceImpl implements DansBagMappingService {
     }
 
     @Override
-    public EditFiles getEditFilesFromDansDeposit(DansBagDeposit dansDeposit) {
+    public EditFiles getEditFilesFromDansDeposit(DansBagDeposit dansDeposit, String updatesDataset) {
         var files = getFileInfo(dansDeposit);
         var dateAvailable = getDateAvailable(dansDeposit);
-        return new EditFilesComposer(files, dateAvailable, fileExclusionPattern, embargoExclusions).composeEditFiles();
+        if (updatesDataset == null) {
+            return new EditFilesComposer(files, dateAvailable, fileExclusionPattern, embargoExclusions).composeEditFiles();
+        }
+        else {
+            return new EditFilesComposerForUpdate(files, dateAvailable, updatesDataset, fileExclusionPattern, embargoExclusions, dataverseService).composeEditFiles();
+        }
     }
 
     @Override

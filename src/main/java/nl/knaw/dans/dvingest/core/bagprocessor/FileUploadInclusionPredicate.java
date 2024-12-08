@@ -31,7 +31,7 @@ public class FileUploadInclusionPredicate implements Predicate<File> {
     @Override
     public boolean evaluate(File file) {
         return editFiles != null && (restrictedFiles ? isRestricted(file) : notRestricted(file))
-            && notReplaced(file) && notIgnored(file);
+            && notReplaced(file);
     }
 
     private boolean notReplaced(File file) {
@@ -44,9 +44,5 @@ public class FileUploadInclusionPredicate implements Predicate<File> {
 
     private boolean notRestricted(File file) {
         return editFiles.getAddUnrestrictedFiles().contains(dataDir.relativize(file.toPath()).toString());
-    }
-
-    private boolean notIgnored(File file) {
-        return !editFiles.getIgnoreFiles().contains(dataDir.relativize(file.toPath()).toString());
     }
 }

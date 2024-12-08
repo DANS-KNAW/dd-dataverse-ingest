@@ -42,13 +42,7 @@ public class EditFilesComposerTest extends EditFilesComposerFixture {
         var editFiles = editFilesComposer.composeEditFiles();
 
         // Then
-        assertThat(editFiles.getAddRestrictedFiles()).isEmpty();
-        assertThat(editFiles.getAutoRenameFiles()).isEmpty();
-        assertThat(editFiles.getIgnoreFiles()).isEmpty();
-        assertThat(editFiles.getUpdateFileMetas()).isEmpty();
-        assertThat(editFiles.getAddEmbargoes()).isEmpty();
-        assertThat(editFiles.getDeleteFiles()).isEmpty();
-        assertThat(editFiles.getMoveFiles()).isEmpty();
+        assertEmptyFieldsExcept(editFiles);
     }
 
     @Test
@@ -68,13 +62,7 @@ public class EditFilesComposerTest extends EditFilesComposerFixture {
         assertThat(addRestrictedFiles).hasSize(2);
         assertThat(addRestrictedFiles).contains("file1.txt", "file2.txt");
 
-        // The rest is not affected
-        assertThat(editFiles.getAutoRenameFiles()).isEmpty();
-        assertThat(editFiles.getIgnoreFiles()).isEmpty();
-        assertThat(editFiles.getUpdateFileMetas()).isEmpty();
-        assertThat(editFiles.getAddEmbargoes()).isEmpty();
-        assertThat(editFiles.getDeleteFiles()).isEmpty();
-        assertThat(editFiles.getMoveFiles()).isEmpty();
+        assertEmptyFieldsExcept(editFiles, "addRestrictedFiles");
     }
 
     @Test
@@ -94,13 +82,7 @@ public class EditFilesComposerTest extends EditFilesComposerFixture {
         assertThat(updateFileMetas).hasSize(2);
         assertThat(updateFileMetas).extracting(FileMeta::getDescription).contains("description1", "description2");
 
-        // The rest is not affected
-        assertThat(editFiles.getAddRestrictedFiles()).isEmpty();
-        assertThat(editFiles.getAutoRenameFiles()).isEmpty();
-        assertThat(editFiles.getIgnoreFiles()).isEmpty();
-        assertThat(editFiles.getAddEmbargoes()).isEmpty();
-        assertThat(editFiles.getDeleteFiles()).isEmpty();
-        assertThat(editFiles.getMoveFiles()).isEmpty();
+        assertEmptyFieldsExcept(editFiles, "updateFileMetas");
     }
 
     @Test
@@ -120,13 +102,7 @@ public class EditFilesComposerTest extends EditFilesComposerFixture {
         assertThat(updateFileMetas).hasSize(2);
         assertThat(updateFileMetas).extracting(FileMeta::getCategories).contains(List.of("category1"), List.of("category2"));
 
-        // The rest is not affected
-        assertThat(editFiles.getAddRestrictedFiles()).isEmpty();
-        assertThat(editFiles.getAutoRenameFiles()).isEmpty();
-        assertThat(editFiles.getIgnoreFiles()).isEmpty();
-        assertThat(editFiles.getAddEmbargoes()).isEmpty();
-        assertThat(editFiles.getDeleteFiles()).isEmpty();
-        assertThat(editFiles.getMoveFiles()).isEmpty();
+        assertEmptyFieldsExcept(editFiles, "updateFileMetas");
     }
 
     @Test
@@ -145,13 +121,7 @@ public class EditFilesComposerTest extends EditFilesComposerFixture {
         assertThat(addEmbargoes).hasSize(1); // There is only one embargo, covering all files
         assertThat(addEmbargoes).extracting(AddEmbargo::getFilePaths).containsExactly(List.of("file1.txt", "file2.txt"));
 
-        // The rest is not affected
-        assertThat(editFiles.getAddRestrictedFiles()).isEmpty();
-        assertThat(editFiles.getAutoRenameFiles()).isEmpty();
-        assertThat(editFiles.getIgnoreFiles()).isEmpty();
-        assertThat(editFiles.getUpdateFileMetas()).isEmpty();
-        assertThat(editFiles.getDeleteFiles()).isEmpty();
-        assertThat(editFiles.getMoveFiles()).isEmpty();
+        assertEmptyFieldsExcept(editFiles, "addEmbargoes");
     }
 
     @Test
@@ -171,13 +141,7 @@ public class EditFilesComposerTest extends EditFilesComposerFixture {
         assertThat(autoRenameFiles.get(0).getFrom()).isEqualTo("file1.txt");
         assertThat(autoRenameFiles.get(0).getTo()).isEqualTo("file1_sanitized.txt");
 
-        // The rest is not affected
-        assertThat(editFiles.getAddRestrictedFiles()).isEmpty();
-        assertThat(editFiles.getIgnoreFiles()).isEmpty();
-        assertThat(editFiles.getUpdateFileMetas()).isEmpty();
-        assertThat(editFiles.getAddEmbargoes()).isEmpty();
-        assertThat(editFiles.getDeleteFiles()).isEmpty();
-        assertThat(editFiles.getMoveFiles()).isEmpty();
+        assertEmptyFieldsExcept(editFiles, "autoRenameFiles");
     }
 
     @Test
@@ -192,15 +156,7 @@ public class EditFilesComposerTest extends EditFilesComposerFixture {
         var editFiles = editFilesComposer.composeEditFiles();
 
         // Then
-        assertThat(editFiles.getIgnoreFiles()).containsExactly("file1.txt");
-
-        // The rest is not affected
-        assertThat(editFiles.getAddRestrictedFiles()).isEmpty();
-        assertThat(editFiles.getAutoRenameFiles()).isEmpty();
-        assertThat(editFiles.getUpdateFileMetas()).isEmpty();
-        assertThat(editFiles.getAddEmbargoes()).isEmpty();
-        assertThat(editFiles.getDeleteFiles()).isEmpty();
-        assertThat(editFiles.getMoveFiles()).isEmpty();
+        assertEmptyFieldsExcept(editFiles);
     }
 
     @Test
@@ -220,13 +176,7 @@ public class EditFilesComposerTest extends EditFilesComposerFixture {
         assertThat(addEmbargoes).hasSize(1); // There is only one embargo, covering all files
         assertThat(addEmbargoes).extracting(AddEmbargo::getFilePaths).containsExactly(List.of("file1.txt"));
 
-        // The rest is not affected
-        assertThat(editFiles.getAddRestrictedFiles()).isEmpty();
-        assertThat(editFiles.getAutoRenameFiles()).isEmpty();
-        assertThat(editFiles.getIgnoreFiles()).isEmpty();
-        assertThat(editFiles.getUpdateFileMetas()).isEmpty();
-        assertThat(editFiles.getDeleteFiles()).isEmpty();
-        assertThat(editFiles.getMoveFiles()).isEmpty();
+        assertEmptyFieldsExcept(editFiles, "addEmbargoes");
     }
 
 }

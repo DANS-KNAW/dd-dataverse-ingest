@@ -32,7 +32,7 @@ public interface DansBagMappingService {
 
     Dataset getDatasetMetadataFromDansDeposit(DansBagDeposit dansDeposit);
 
-    EditFiles getEditFilesFromDansDeposit(DansBagDeposit dansDeposit);
+    EditFiles getEditFilesFromDansDeposit(DansBagDeposit dansDeposit, String updatesDataset);
 
     EditPermissions getEditPermissionsFromDansDeposit(DansBagDeposit dansDeposit);
 

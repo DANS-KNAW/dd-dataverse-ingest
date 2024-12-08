@@ -17,6 +17,9 @@ package nl.knaw.dans.dvingest.core.dansbag;
 
 import nl.knaw.dans.dvingest.core.bagprocessor.DataversePath;
 import nl.knaw.dans.dvingest.core.dansbag.deposit.FileInfo;
+import nl.knaw.dans.dvingest.core.yaml.EditFiles;
+import nl.knaw.dans.lib.dataverse.model.file.Checksum;
+import nl.knaw.dans.lib.dataverse.model.file.DataFile;
 import nl.knaw.dans.lib.dataverse.model.file.FileMeta;
 
 import java.nio.file.Path;
@@ -24,6 +27,8 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Map;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class EditFilesComposerFixture {
     protected static final Instant inThePast = Instant.parse("2010-01-01T00:00:00Z");
@@ -81,5 +86,46 @@ public class EditFilesComposerFixture {
 
     protected void add(Map<Path, FileInfo> map, FileInfo fileInfo) {
         map.put(fileInfo.getPath(), fileInfo);
+    }
+
+    protected void assertEmptyFieldsExcept(EditFiles editFiles, String... except) {
+        List<String> exceptList = List.of(except);
+        if (!exceptList.contains("addRestrictedFiles")) {
+            assertThat(editFiles.getAddRestrictedFiles()).as("expected addRestrictedFiles to remain empty").isEmpty();
+        }
+        if (!exceptList.contains("addUnrestrictedFiles")) {
+            assertThat(editFiles.getAddUnrestrictedFiles()).as("expected addUnrestrictedFiles to remain empty").isEmpty();
+        }
+        if (!exceptList.contains("autoRenameFiles")) {
+            assertThat(editFiles.getAutoRenameFiles()).as("expected autoRenameFiles to remain empty").isEmpty();
+        }
+        if (!exceptList.contains("updateFileMetas")) {
+            assertThat(editFiles.getUpdateFileMetas()).as("expected updateFileMetas to remain empty").isEmpty();
+        }
+        if (!exceptList.contains("addEmbargoes")) {
+            assertThat(editFiles.getAddEmbargoes()).as("expected addEmbargoes to remain empty").isEmpty();
+        }
+        if (!exceptList.contains("deleteFiles")) {
+            assertThat(editFiles.getDeleteFiles()).as("expected deleteFiles to remain empty").isEmpty();
+        }
+        if (!exceptList.contains("moveFiles")) {
+            assertThat(editFiles.getMoveFiles()).as("expected moveFiles to remain empty").isEmpty();
+        }
+    }
+
+    protected FileMeta fileMeta(String path, String checksum) {
+        var fileMeta = new FileMeta();
+        var dataversePath = new DataversePath(path);
+        fileMeta.setLabel(dataversePath.getLabel());
+        fileMeta.setDirectoryLabel(dataversePath.getDirectoryLabel());
+        var dataFile = new DataFile();
+        var cs = new Checksum();
+        cs.setType("SHA-1");
+        cs.setValue(checksum);
+        dataFile.setChecksum(cs);
+        dataFile.setFilename(dataversePath.getLabel());
+        // No directoryLabel?
+        fileMeta.setDataFile(dataFile);
+        return fileMeta;
     }
 }

@@ -100,7 +100,7 @@ public class EditFilesComposerForUpdate extends EditFilesComposer {
         var filesToReplace = getFilesToReplace(pathFileInfoMap, fileReplacementCandidates);
         log.debug("filesToReplace = {}", filesToReplace);
         // TODO: check if we can do away with the IDs
-        editFiles.setReplaceFiles(filesToReplace.values().stream().map(FileInfo::getPath).map(Path::toString).collect(Collectors.toList()));
+        editFiles.setReplaceFiles(filesToReplace.values().stream().map(FileInfo::getPath).map(Path::toString).toList());
 
         /*
          * To find the files to delete we start from the paths in the deposit payload. In principle, these paths are remaining, so should NOT be deleted.
@@ -124,7 +124,7 @@ public class EditFilesComposerForUpdate extends EditFilesComposer {
          * After the movements have been performed, which paths are occupied? We start from the paths of the latest version (pathToFileMetaInLatestVersion.keySet)
          *
          * The old paths of the moved files (oldToNewPathMovedFiles.keySet) are no longer occupied, so they must be subtracted. This is important in the case where
-         * a deposit renames/moves a file (leaving the checksum unchanges) but provides a new file for the vacated path.
+         * a deposit renames/moves a file (leaving the checksum unchanged) but provides a new file for the vacated path.
          *
          * The paths of the deleted files (pathsToDelete) are no longer occupied, so must be subtracted. (It is not strictly necessary for the calculation
          * of pathsToAdd, but done anyway to keep the logic consistent.)
@@ -144,19 +144,18 @@ public class EditFilesComposerForUpdate extends EditFilesComposer {
             .toList().stream()
             .filter(f -> f.getMetadata().getRestricted())
             .toList();
-        editFiles.setAddRestrictedFiles(restrictedFilesToAdd.stream().map(FileInfo::getPath).map(Path::toString).collect(Collectors.toList()));
+        editFiles.setAddRestrictedFiles(restrictedFilesToAdd.stream().map(FileInfo::getPath).map(Path::toString).toList());
 
-        // todo: set ignoredFiles
+        var unrestrictedFilesToAdd = pathsToAdd.stream()
+            .map(pathFileInfoMap::get)
+            .toList().stream()
+            .filter(f -> !f.getMetadata().getRestricted())
+            .toList();
+        editFiles.setAddUnrestrictedFiles(unrestrictedFilesToAdd.stream().map(FileInfo::getPath).map(Path::toString).toList());
 
         // todo: embargoes
 
         return editFiles;
-    }
-
-    private Set<Integer> getFileDeletions(Set<Path> pathsToDelete, Map<Path, FileMeta> pathToFileInfoInLatestVersion) {
-        return pathsToDelete.stream()
-            .map(p -> pathToFileInfoInLatestVersion.get(p).getDataFile().getId())
-            .collect(Collectors.toSet());
     }
 
     private Map<Integer, FileInfo> getFilesToReplace(Map<Path, FileInfo> pathToFileInfo, Map<Path, FileMeta> fileReplacementCandidates) {
@@ -172,9 +171,9 @@ public class EditFilesComposerForUpdate extends EditFilesComposer {
     }
 
     /**
-     * Creating a mapping for moving files to a new location. To determine this, the file needs to be unique in the old and the new version, because its checksum is used to locate it. Files that
-     * occur multiple times in either the old or the new version cannot be moved in this way. They will appear to have been deleted in the old version and added in the new. This has the same net
-     * result, except that the "Changes" overview in Dataverse does not record that the file was effectively moved.
+     * Creating a mapping for moving files to a new location. To determine this, the file needs to be unique in the old and the new version, because its checksum is used to locate it. Files that occur
+     * multiple times in either the old or the new version cannot be moved in this way. They will appear to have been deleted in the old version and added in the new. This has the same net result,
+     * except that the "Changes" overview in Dataverse does not record that the file was effectively moved.
      *
      * @param pathToFileMetaInLatestVersion map from path to file metadata in the old version
      * @param pathToFileInfo                map from path to file info in the new version (i.e. the deposit).
@@ -206,11 +205,11 @@ public class EditFilesComposerForUpdate extends EditFilesComposer {
 
     private Map<String, Path> getChecksumsToPathOfNonDuplicateFiles(Map<Path, String> pathToChecksum) {
         // inverse map first
-        var inversed = pathToChecksum.entrySet().stream()
+        var inverse = pathToChecksum.entrySet().stream()
             .collect(Collectors.groupingBy(Map.Entry::getValue, Collectors.mapping(Map.Entry::getKey, Collectors.toList())));
 
-        // filter out items with 0 or more than 1 items
-        return inversed.entrySet().stream()
+        // filter out items with 0 or more than 1 item
+        return inverse.entrySet().stream()
             .filter(item -> item.getValue().size() == 1)
             .collect(Collectors.toMap(Map.Entry::getKey, e -> e.getValue().get(0)));
     }
