@@ -15,5 +15,146 @@
  */
 package nl.knaw.dans.dvingest.core.dansbag;
 
-public class EditFilesComposerForUpdateTest {
+import nl.knaw.dans.dvingest.core.bagprocessor.DataversePath;
+import nl.knaw.dans.dvingest.core.dansbag.deposit.FileInfo;
+import nl.knaw.dans.dvingest.core.service.DataverseService;
+import nl.knaw.dans.lib.dataverse.model.file.Checksum;
+import nl.knaw.dans.lib.dataverse.model.file.DataFile;
+import nl.knaw.dans.lib.dataverse.model.file.FileMeta;
+import org.junit.jupiter.api.Test;
+
+import java.nio.file.Path;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
+public class EditFilesComposerForUpdateTest extends EditFilesComposerFixture {
+    private final DataverseService dataverseServiceMock = mock(DataverseService.class);
+
+    private FileMeta fileMeta(String path, String checksum) {
+        var fileMeta = new FileMeta();
+        var dataversePath = new DataversePath(path);
+        fileMeta.setLabel(dataversePath.getLabel());
+        fileMeta.setDirectoryLabel(dataversePath.getDirectoryLabel());
+        var dataFile = new DataFile();
+        var cs = new Checksum();
+        cs.setType("SHA-1");
+        cs.setValue(checksum);
+        dataFile.setChecksum(cs);
+        dataFile.setFilename(dataversePath.getLabel());
+        // No directoryLabel?
+        fileMeta.setDataFile(dataFile);
+        return fileMeta;
+    }
+
+    @Test
+    public void file_with_same_path_and_different_checksum_is_replaced() throws Exception {
+        // Given
+        when(dataverseServiceMock.getFiles(anyString())).thenReturn(List.of(fileMeta("file1.txt", "oldchecksum")));
+        Map<Path, FileInfo> map = new HashMap<>();
+        add(map, file("file1.txt", "newchecksum"));
+
+        editFilesComposer = new EditFilesComposerForUpdate(map, inThePast, "doi:some", null, List.of(), dataverseServiceMock);
+
+        // When
+        var editFiles = editFilesComposer.composeEditFiles();
+
+        // Then
+        assertThat(editFiles.getReplaceFiles()).hasSize(1);
+        assertThat(editFiles.getReplaceFiles().get(0)).isEqualTo("file1.txt");
+
+        // The rest is not affected
+        assertThat(editFiles.getAutoRenameFiles()).isEmpty();
+        assertThat(editFiles.getIgnoreFiles()).isEmpty();
+        assertThat(editFiles.getUpdateFileMetas()).isEmpty();
+        assertThat(editFiles.getAddEmbargoes()).isEmpty();
+        assertThat(editFiles.getDeleteFiles()).isEmpty();
+        assertThat(editFiles.getMoveFiles()).isEmpty();
+    }
+
+    @Test
+    public void file_with_same_path_and_same_checksum_is_NOT_replaced() throws Exception {
+        // Given
+        when(dataverseServiceMock.getFiles(anyString())).thenReturn(List.of(fileMeta("file1.txt", "oldchecksum")));
+        Map<Path, FileInfo> map = new HashMap<>();
+        add(map, file("file1.txt", "oldchecksum"));
+
+        editFilesComposer = new EditFilesComposerForUpdate(map, inThePast, "doi:some", null, List.of(), dataverseServiceMock);
+
+        // When
+        var editFiles = editFilesComposer.composeEditFiles();
+
+        // Then
+        assertThat(editFiles.getReplaceFiles()).isEmpty();
+
+        // The rest is not affected
+        assertThat(editFiles.getAutoRenameFiles()).isEmpty();
+        assertThat(editFiles.getIgnoreFiles()).isEmpty();
+        assertThat(editFiles.getUpdateFileMetas()).isEmpty();
+        assertThat(editFiles.getAddEmbargoes()).isEmpty();
+        assertThat(editFiles.getDeleteFiles()).isEmpty();
+        assertThat(editFiles.getMoveFiles()).isEmpty();
+    }
+
+    @Test
+    public void file_with_different_path_and_same_checksum_is_moved() throws Exception {
+        // Given
+        when(dataverseServiceMock.getFiles(anyString())).thenReturn(List.of(fileMeta("path/to/file1.txt", "oldchecksum")));
+        Map<Path, FileInfo> map = new HashMap<>();
+        add(map, file("path/three/file2.txt", "oldchecksum"));
+
+        editFilesComposer = new EditFilesComposerForUpdate(map, inThePast, "doi:some", null, List.of(), dataverseServiceMock);
+
+        // When
+        var editFiles = editFilesComposer.composeEditFiles();
+
+        // Then
+        assertThat(editFiles.getMoveFiles()).hasSize(1);
+        assertThat(editFiles.getMoveFiles().get(0).getFrom()).isEqualTo("path/to/file1.txt");
+        assertThat(editFiles.getMoveFiles().get(0).getTo()).isEqualTo("path/three/file2.txt");
+
+        // The rest is not affected
+        assertThat(editFiles.getReplaceFiles()).isEmpty();
+        assertThat(editFiles.getAutoRenameFiles()).isEmpty();
+        assertThat(editFiles.getIgnoreFiles()).isEmpty();
+        assertThat(editFiles.getUpdateFileMetas()).isEmpty();
+        assertThat(editFiles.getAddEmbargoes()).isEmpty();
+        assertThat(editFiles.getDeleteFiles()).isEmpty();
+    }
+
+//    @Test
+//    public void ambiguous_move_is_implemented_add_delete_and_add() throws Exception {
+//        // Given
+//        when(dataverseServiceMock.getFiles(anyString())).thenReturn(List.of(fileMeta("path/to/file1.txt", "oldchecksum")));
+//        Map<Path, FileInfo> map = new HashMap<>();
+//        add(map, file("path/three/file1.txt", "oldchecksum"));
+//        add(map, file("path/three/file2.txt", "oldchecksum"));
+//
+//        editFilesComposer = new EditFilesComposerForUpdate(map, inThePast, "doi:some", null, List.of(), dataverseServiceMock);
+//
+//        // When
+//        var editFiles = editFilesComposer.composeEditFiles();
+//
+//        // Then
+//
+//        assertThat(editFiles.getDeleteFiles()).hasSize(1);
+//        assertThat(editFiles.getDeleteFiles().get(0)).isEqualTo("path/to/file1.txt");
+//
+//        // The rest is not affected
+//        assertThat(editFiles.getReplaceFiles()).isEmpty();
+//        assertThat(editFiles.getAutoRenameFiles()).isEmpty();
+//        assertThat(editFiles.getIgnoreFiles()).isEmpty();
+//        assertThat(editFiles.getUpdateFileMetas()).isEmpty();
+//        assertThat(editFiles.getAddEmbargoes()).isEmpty();
+//        assertThat(editFiles.getMoveFiles()).isEmpty();
+//    }
+
+
+
+
 }

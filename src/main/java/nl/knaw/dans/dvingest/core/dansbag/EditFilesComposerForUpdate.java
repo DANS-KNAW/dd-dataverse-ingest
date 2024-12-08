@@ -172,13 +172,13 @@ public class EditFilesComposerForUpdate extends EditFilesComposer {
     }
 
     /**
-     * Creatings a mapping for moving files to a new location. To determine this, the file needs to be unique in the old and the new version, because its checksum is used to locate it. Files that
+     * Creating a mapping for moving files to a new location. To determine this, the file needs to be unique in the old and the new version, because its checksum is used to locate it. Files that
      * occur multiple times in either the old or the new version cannot be moved in this way. They will appear to have been deleted in the old version and added in the new. This has the same net
      * result, except that the "Changes" overview in Dataverse does not record that the file was effectively moved.
      *
      * @param pathToFileMetaInLatestVersion map from path to file metadata in the old version
      * @param pathToFileInfo                map from path to file info in the new version (i.e. the deposit).
-     * @return
+     * @return a map from old path to new path
      */
     Map<Path, Path> getOldToNewPathOfFilesToMove(Map<Path, FileMeta> pathToFileMetaInLatestVersion, Map<Path, FileInfo> pathToFileInfo) {
 
@@ -199,6 +199,7 @@ public class EditFilesComposerForUpdate extends EditFilesComposer {
 
         return intersects.stream()
             .map(c -> Map.entry(checksumsToPathNonDuplicatedFilesInLatestVersion.get(c), checksumsToPathNonDuplicatedFilesInDeposit.get(c)))
+            .filter(entry -> !entry.getKey().equals(entry.getValue())) // filter out files that are not moved (this was not present in the old code)
             .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
 
     }
