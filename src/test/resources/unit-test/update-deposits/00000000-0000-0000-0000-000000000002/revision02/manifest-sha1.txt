@@ -1,0 +1,8 @@
+38346b95fadd5fce5cc512a8e2b101ec0b4bd766  data/file4.txt
+803c3d2458982137364ef85c50f28d904cf8b25e  data/subdir/from-subdir-to-root.txt
+4e6867e27887a3df45412b557f561a081e516555  data/subdir/fileB-renamed.txt
+cfb9ed217d610ad6a32487889f6fe5319056ce6c  data/subdir/fileA.txt
+271490baca1915b0592d94f2b7b6357fad2b9306  data/from-root-to-subdir.txt
+912dcd8724d99d2ecef62f089ef1b81032845db8  data/file1.txt
+02f1b44559a4a4e4d213e694fc082f039732ba5d  data/file2-renamed.txt
+205c6d07fdbc2e456c976f8650da360d2bf68b79  data/subdir/fileD.txt

@@ -16,17 +16,17 @@
 package nl.knaw.dans.dvingest.core.dansbag;
 
 import lombok.AllArgsConstructor;
+import nl.knaw.dans.dvingest.core.dansbag.deposit.DansBagDeposit;
 import nl.knaw.dans.dvingest.core.service.YamlService;
 import nl.knaw.dans.dvingest.core.yaml.EditFilesRoot;
 import nl.knaw.dans.dvingest.core.yaml.EditPermissionsRoot;
 import nl.knaw.dans.dvingest.core.yaml.UpdateState;
-import nl.knaw.dans.ingest.core.domain.Deposit;
 
 import java.io.IOException;
 
 @AllArgsConstructor
 public class DansDepositConverter {
-    private final Deposit dansDeposit;
+    private final DansBagDeposit dansDeposit;
     private final DansBagMappingService mappingService;
     private final YamlService yamlService;
 

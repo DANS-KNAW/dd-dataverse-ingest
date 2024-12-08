@@ -15,7 +15,6 @@
  */
 package nl.knaw.dans.dvingest.config;
 
-import io.dropwizard.client.HttpClientConfiguration;
 import io.dropwizard.client.JerseyClientConfiguration;
 import lombok.Data;
 

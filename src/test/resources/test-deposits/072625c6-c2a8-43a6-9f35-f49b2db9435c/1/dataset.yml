@@ -84,6 +84,11 @@ magna amet ipsum et ipsum dolor do lorem sed sit"
           multiple: false
           typeClass: "controlledVocabulary"
           value: "No"
+        - typeName: "dansMetadataLanguage"
+          multiple: true
+          typeClass: "controlledVocabulary"
+          value:
+            - "Dutch"
     dansRelationMetadata:
       displayName: "Relation Metadata"
       name: "dansRelationMetadata"

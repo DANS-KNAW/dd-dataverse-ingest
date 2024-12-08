@@ -23,13 +23,14 @@ import nl.knaw.dans.dvingest.client.ValidateDansBagService;
 import nl.knaw.dans.dvingest.core.DataverseIngestBag;
 import nl.knaw.dans.dvingest.core.DataverseIngestDeposit;
 import nl.knaw.dans.dvingest.core.Deposit;
+import nl.knaw.dans.dvingest.core.dansbag.deposit.DansBagDeposit;
+import nl.knaw.dans.dvingest.core.dansbag.exception.InvalidDepositException;
+import nl.knaw.dans.dvingest.core.dansbag.exception.RejectedDepositException;
 import nl.knaw.dans.dvingest.core.service.YamlService;
-import nl.knaw.dans.ingest.core.exception.InvalidDepositException;
-import nl.knaw.dans.ingest.core.exception.RejectedDepositException;
+import nl.knaw.dans.lib.dataverse.DataverseException;
 
 import java.io.IOException;
 import java.nio.file.Path;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -44,9 +45,9 @@ public class DansDepositSupport implements Deposit {
     private final DataverseIngestDeposit ingestDataverseIngestDeposit;
     private final boolean isDansDeposit;
 
-    private nl.knaw.dans.ingest.core.domain.Deposit dansDeposit;
+    private DansBagDeposit dansDeposit;
 
-    public DansDepositSupport(ValidateDansBagService validateDansBagService, DataverseIngestDeposit dataverseIngestDeposit, DansBagMappingService dansBagMappingService, YamlService yamlService) {
+    public DansDepositSupport(DataverseIngestDeposit dataverseIngestDeposit, ValidateDansBagService validateDansBagService, DansBagMappingService dansBagMappingService, YamlService yamlService) {
         this.validateDansBagService = validateDansBagService;
         this.ingestDataverseIngestDeposit = dataverseIngestDeposit;
         this.dansBagMappingService = dansBagMappingService;
@@ -64,12 +65,16 @@ public class DansDepositSupport implements Deposit {
         if (isDansDeposit && dansDeposit == null) {
             log.info("Converting deposit to Dataverse ingest metadata");
             try {
+                var updatesDataset = dansBagMappingService.getUpdatesDataset(ingestDataverseIngestDeposit.getLocation());
+                if (updatesDataset != null) {
+                    ingestDataverseIngestDeposit.updateProperties(Map.of("updatesDataset", updatesDataset));
+                }
                 dansDeposit = dansBagMappingService.readDansDeposit(ingestDataverseIngestDeposit.getLocation());
                 new DansDepositConverter(dansDeposit, dansBagMappingService, yamlService).run();
                 log.info("Conversion successful");
                 return true;
             }
-            catch (IOException | InvalidDepositException e) {
+            catch (IOException | InvalidDepositException | DataverseException e) {
                 throw new RuntimeException("Error converting deposit to Dataverse ingest metadata", e);
             }
         }
