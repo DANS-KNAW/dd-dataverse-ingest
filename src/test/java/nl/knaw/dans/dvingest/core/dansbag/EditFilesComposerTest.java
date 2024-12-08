@@ -27,14 +27,18 @@ import java.time.temporal.ChronoUnit;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class EditFilesComposerTest {
     private static final Instant inThePast = Instant.parse("2010-01-01T00:00:00Z");
-    private Instant inTheFuture = Instant.now().plus(1, ChronoUnit.DAYS);
+    private final Instant inTheFuture = Instant.now().plus(1, ChronoUnit.DAYS);
     private EditFilesComposer editFilesComposer;
 
+    /*
+     * Helper methods to set things up.
+     */
     private FileInfo file(String path, String checksum, boolean restricted, String description, List<String> categories) {
         var fileMeta = new FileMeta();
         var dataversePath = new DataversePath(path);
@@ -48,6 +52,25 @@ public class EditFilesComposerTest {
             fileMeta.setCategories(categories);
         }
         return new FileInfo(Path.of(path), checksum, false, fileMeta);
+    }
+
+    private FileInfo sanitizedFile(String path, String sanitizedPath, String checksum, boolean restricted, String description, List<String> categories) {
+        var fileMeta = new FileMeta();
+        var dataversePath = new DataversePath(sanitizedPath);
+        fileMeta.setLabel(dataversePath.getLabel());
+        fileMeta.setDirectoryLabel(dataversePath.getDirectoryLabel());
+        fileMeta.setRestrict(restricted);
+        if (description != null) {
+            fileMeta.setDescription(description);
+        }
+        if (categories != null) {
+            fileMeta.setCategories(categories);
+        }
+        return new FileInfo(Path.of(path), checksum, true, fileMeta);
+    }
+
+    private FileInfo sanitizedFile(String path, String sanitizedPath, String checksum) {
+        return sanitizedFile(path, sanitizedPath, checksum, false, null, null);
     }
 
     private FileInfo file(String path, String checksum) {
@@ -65,6 +88,10 @@ public class EditFilesComposerTest {
     private void add(Map<Path, FileInfo> map, FileInfo fileInfo) {
         map.put(fileInfo.getPath(), fileInfo);
     }
+
+    /*
+     * Tests
+     */
 
     @Test
     public void adding_two_unrestricted_files_leaves_editFiles_empty() {
@@ -180,6 +207,81 @@ public class EditFilesComposerTest {
         var addEmbargoes = editFiles.getAddEmbargoes();
         assertThat(addEmbargoes).hasSize(1); // There is only one embargo, covering all files
         assertThat(addEmbargoes).extracting(AddEmbargo::getFilePaths).containsExactly(List.of("file1.txt", "file2.txt"));
+
+        // The rest is not affected
+        assertThat(editFiles.getAddRestrictedFiles()).isEmpty();
+        assertThat(editFiles.getAutoRenameFiles()).isEmpty();
+        assertThat(editFiles.getIgnoreFiles()).isEmpty();
+        assertThat(editFiles.getUpdateFileMetas()).isEmpty();
+        assertThat(editFiles.getDeleteFiles()).isEmpty();
+        assertThat(editFiles.getMoveFiles()).isEmpty();
+    }
+
+    @Test
+    public void sanitized_files_are_add_to_autoRenamedFiles() {
+        // Given
+        Map<Path, FileInfo> map = new HashMap<>();
+        add(map, sanitizedFile("file1.txt", "file1_sanitized.txt", "checksum1"));
+        add(map, file("file2.txt", "checksum2"));
+        editFilesComposer = new EditFilesComposer(map, inThePast, null, List.of());
+
+        // When
+        var editFiles = editFilesComposer.composeEditFiles();
+
+        // Then
+        var autoRenameFiles = editFiles.getAutoRenameFiles();
+        assertThat(autoRenameFiles).hasSize(1);
+        assertThat(autoRenameFiles.get(0).getFrom()).isEqualTo("file1.txt");
+        assertThat(autoRenameFiles.get(0).getTo()).isEqualTo("file1_sanitized.txt");
+
+        // The rest is not affected
+        assertThat(editFiles.getAddRestrictedFiles()).isEmpty();
+        assertThat(editFiles.getIgnoreFiles()).isEmpty();
+        assertThat(editFiles.getUpdateFileMetas()).isEmpty();
+        assertThat(editFiles.getAddEmbargoes()).isEmpty();
+        assertThat(editFiles.getDeleteFiles()).isEmpty();
+        assertThat(editFiles.getMoveFiles()).isEmpty();
+    }
+
+    @Test
+    public void fileExclusionPattern_ignores_files_matching_pattern() {
+        // Given
+        Map<Path, FileInfo> map = new HashMap<>();
+        add(map, file("file1.txt", "checksum1"));
+        add(map, file("file2.txt", "checksum2"));
+        editFilesComposer = new EditFilesComposer(map, inThePast, Pattern.compile("file1.*"), List.of());
+
+        // When
+        var editFiles = editFilesComposer.composeEditFiles();
+
+        // Then
+        assertThat(editFiles.getIgnoreFiles()).containsExactly("file1.txt");
+
+        // The rest is not affected
+        assertThat(editFiles.getAddRestrictedFiles()).isEmpty();
+        assertThat(editFiles.getAutoRenameFiles()).isEmpty();
+        assertThat(editFiles.getUpdateFileMetas()).isEmpty();
+        assertThat(editFiles.getAddEmbargoes()).isEmpty();
+        assertThat(editFiles.getDeleteFiles()).isEmpty();
+        assertThat(editFiles.getMoveFiles()).isEmpty();
+    }
+
+    @Test
+    public void embargoExclusions_ignores_files_matching_filepaths() {
+        // Given
+        Map<Path, FileInfo> map = new HashMap<>();
+        add(map, file("file1.txt", "checksum1"));
+        add(map, file("file2.txt", "checksum2"));
+        add(map, file("subdir/file3.txt", "checksum3"));
+        editFilesComposer = new EditFilesComposer(map, inTheFuture, null, List.of("file2.txt", "subdir/file3.txt"));
+
+        // When
+        var editFiles = editFilesComposer.composeEditFiles();
+
+        // Then
+        var addEmbargoes = editFiles.getAddEmbargoes();
+        assertThat(addEmbargoes).hasSize(1); // There is only one embargo, covering all files
+        assertThat(addEmbargoes).extracting(AddEmbargo::getFilePaths).containsExactly(List.of("file1.txt"));
 
         // The rest is not affected
         assertThat(editFiles.getAddRestrictedFiles()).isEmpty();
