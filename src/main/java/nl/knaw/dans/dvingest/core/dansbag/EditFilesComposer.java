@@ -16,12 +16,10 @@
 package nl.knaw.dans.dvingest.core.dansbag;
 
 import lombok.AllArgsConstructor;
+import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import nl.knaw.dans.dvingest.core.bagprocessor.DataversePath;
-import nl.knaw.dans.dvingest.core.dansbag.deposit.DansBagDeposit;
 import nl.knaw.dans.dvingest.core.dansbag.deposit.FileInfo;
-import nl.knaw.dans.dvingest.core.dansbag.mapper.mapping.FileElement;
-import nl.knaw.dans.dvingest.core.dansbag.xml.XPathEvaluator;
 import nl.knaw.dans.dvingest.core.yaml.AddEmbargo;
 import nl.knaw.dans.dvingest.core.yaml.EditFiles;
 import nl.knaw.dans.dvingest.core.yaml.FromTo;
@@ -30,11 +28,6 @@ import nl.knaw.dans.lib.dataverse.model.file.FileMeta;
 import java.nio.file.Path;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
-import java.time.format.DateTimeParseException;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -48,15 +41,20 @@ import java.util.stream.Collectors;
 @Slf4j
 @AllArgsConstructor
 public class EditFilesComposer {
-    protected final DansBagDeposit dansDeposit;
-    private final Pattern fileExclusionPattern;
-    private final List<String> embargoExclusions;
-    private static final SimpleDateFormat yyyymmddFormat = new SimpleDateFormat("yyyy-MM-dd");
+    protected static final SimpleDateFormat yyyymmddFormat = new SimpleDateFormat("yyyy-MM-dd");
+
+    @NonNull
+    protected final Map<Path, FileInfo> files;
+    @NonNull
+    protected final Instant dateAvailable;
+
+    protected final Pattern fileExclusionPattern;
+    @NonNull
+    protected final List<String> embargoExclusions;
 
     public EditFiles composeEditFiles() {
-        var pathFileInfoMap = getFileInfo(dansDeposit);
+        var pathFileInfoMap = files;
         var renamedFiles = getAutoRenameMap(pathFileInfoMap);
-        init(renamedFiles);
         var ignoredFiles = getFilesToIgnore(pathFileInfoMap);
 
         var editFiles = new EditFiles();
@@ -66,11 +64,7 @@ public class EditFilesComposer {
         editFiles.setAutoRenameFiles(getAutoRenamedFiles(renamedFiles));
         editFiles.setAddRestrictedFiles(getRestrictedFilesToAdd(pathFileInfoMap));
         editFiles.setUpdateFileMetas(getUpdatedFileMetas(pathFileInfoMap));
-        editFiles.setDeleteFiles(getDeleteFiles(pathFileInfoMap));
-        editFiles.setMoveFiles(getFileMovements(pathFileInfoMap));
-        editFiles.setReplaceFiles(getReplacedFiles(pathFileInfoMap));
 
-        var dateAvailable = getDateAvailable(dansDeposit);
         var filePathsToEmbargo = getEmbargoedFiles(pathFileInfoMap, dateAvailable);
         if (!filePathsToEmbargo.isEmpty()) {
             var addEmbargo = new AddEmbargo();
@@ -79,14 +73,6 @@ public class EditFilesComposer {
             editFiles.setAddEmbargoes(List.of(addEmbargo));
         }
         return editFiles;
-    }
-
-    protected List<String> getReplacedFiles(Map<Path, FileInfo> pathFileInfoMap) {
-        return List.of();
-    }
-
-    protected void init(Map<String, String> renamedFiles) {
-        // do nothing
     }
 
     /**
@@ -130,26 +116,6 @@ public class EditFilesComposer {
             .toList();
     }
 
-    /**
-     * Get the files that should be deleted.
-     *
-     * @param files the file infos found in files.xml
-     * @return a list of file paths that should be deleted
-     */
-    protected List<String> getDeleteFiles(Map<Path, FileInfo> files) {
-        return List.of();
-    }
-
-    /**
-     * Get the files that should be moved.
-     *
-     * @param files the file infos found in files.xml
-     * @return a list of FromTo objects that specify the files to move and their new location
-     */
-    protected List<FromTo> getFileMovements(Map<Path, FileInfo> files) {
-        return List.of();
-    }
-
     private List<Path> getEmbargoedFiles(Map<Path, FileInfo> files, Instant dateAvailable) {
         var now = Instant.now();
         if (dateAvailable.isAfter(now)) {
@@ -160,21 +126,6 @@ public class EditFilesComposer {
             log.debug("Date available in the past, no embargo: {}", dateAvailable);
             return List.of();
         }
-    }
-
-    protected Map<Path, FileInfo> getFileInfo(DansBagDeposit dansDeposit) {
-        var files = FileElement.pathToFileInfo(dansDeposit, false); // TODO: handle migration case
-
-        return files.entrySet().stream()
-            .map(entry -> {
-                // relativize the path
-                var bagPath = entry.getKey();
-                var fileInfo = entry.getValue();
-                var newKey = Path.of("data").relativize(bagPath);
-
-                return Map.entry(newKey, fileInfo);
-            })
-            .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
     }
 
     private boolean hasAttributes(FileMeta fileMeta) {
@@ -200,31 +151,4 @@ public class EditFilesComposer {
             .collect(Collectors.toMap(entry -> entry.getKey().toString(),
                 entry -> new DataversePath(entry.getValue().getMetadata().getDirectoryLabel(), entry.getValue().getMetadata().getLabel()).toString()));
     }
-
-    // TODO: move to mapping package
-    private Instant getDateAvailable(DansBagDeposit dansBagDeposit) {
-        return XPathEvaluator.strings(dansBagDeposit.getDdm(), "/ddm:DDM/ddm:profile/ddm:available")
-            .map(EditFilesComposer::parseDate)
-            .findFirst()
-            .orElseThrow(() -> new IllegalArgumentException("Deposit without a ddm:available element"));
-    }
-
-    private static Instant parseDate(String value) {
-        try {
-            log.debug("Trying to parse {} as LocalDate", value);
-            return LocalDate.parse(value).atStartOfDay(ZoneId.systemDefault()).toInstant();
-        }
-        catch (DateTimeParseException e) {
-            try {
-                log.debug("Trying to parse {} as ZonedDateTime", value);
-                return ZonedDateTime.parse(value).toInstant();
-            }
-            catch (DateTimeParseException ee) {
-                log.debug("Trying to parse {} as LocalDateTime", value);
-                var id = ZoneId.systemDefault().getRules().getOffset(Instant.now());
-                return LocalDateTime.parse(value).toInstant(id);
-            }
-        }
-    }
-
 }

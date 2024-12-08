@@ -17,7 +17,6 @@ package nl.knaw.dans.dvingest.core.dansbag;
 
 import lombok.extern.slf4j.Slf4j;
 import nl.knaw.dans.dvingest.core.bagprocessor.FilesInDatasetCache;
-import nl.knaw.dans.dvingest.core.dansbag.deposit.DansBagDeposit;
 import nl.knaw.dans.dvingest.core.dansbag.deposit.FileInfo;
 import nl.knaw.dans.dvingest.core.service.DataverseService;
 import nl.knaw.dans.dvingest.core.yaml.EditFiles;
@@ -27,6 +26,7 @@ import nl.knaw.dans.lib.dataverse.model.file.FileMeta;
 
 import java.io.IOException;
 import java.nio.file.Path;
+import java.time.Instant;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -42,15 +42,16 @@ public class EditFilesComposerForUpdate extends EditFilesComposer {
     private final String updatesDatasetPid;
     private final DataverseService dataverseService;
 
-    public EditFilesComposerForUpdate(DansBagDeposit dansDeposit, String updatesDatasetPid, Pattern fileExclusionPattern, List<String> embargoExclusions, DataverseService dataverseService) {
-        super(dansDeposit, fileExclusionPattern, embargoExclusions);
+    public EditFilesComposerForUpdate(Map<Path, FileInfo> files, Instant dateAvailable, String updatesDatasetPid, Pattern fileExclusionPattern, List<String> embargoExclusions,
+        DataverseService dataverseService) {
+        super(files, dateAvailable, fileExclusionPattern, embargoExclusions);
         this.updatesDatasetPid = updatesDatasetPid;
         this.dataverseService = dataverseService;
     }
 
     @Override
     public EditFiles composeEditFiles() {
-        var pathFileInfoMap = getFileInfo(dansDeposit);
+        var pathFileInfoMap = files;
         var renamedFiles = getAutoRenameMap(pathFileInfoMap);
         // TODO: this should be a read-only variant of the cache
         FilesInDatasetCache filesInDatasetCache = new FilesInDatasetCache(dataverseService, renamedFiles);

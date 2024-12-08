@@ -20,8 +20,11 @@ import lombok.extern.slf4j.Slf4j;
 import nl.knaw.dans.dvingest.core.dansbag.deposit.DansBagDeposit;
 import nl.knaw.dans.dvingest.core.dansbag.deposit.DansBagDepositReader;
 import nl.knaw.dans.dvingest.core.dansbag.deposit.DansBagDepositReaderImpl;
+import nl.knaw.dans.dvingest.core.dansbag.deposit.FileInfo;
 import nl.knaw.dans.dvingest.core.dansbag.exception.InvalidDepositException;
 import nl.knaw.dans.dvingest.core.dansbag.mapper.DepositToDvDatasetMetadataMapper;
+import nl.knaw.dans.dvingest.core.dansbag.mapper.mapping.FileElement;
+import nl.knaw.dans.dvingest.core.dansbag.xml.XPathEvaluator;
 import nl.knaw.dans.dvingest.core.dansbag.xml.XmlReader;
 import nl.knaw.dans.dvingest.core.dansbag.xml.XmlReaderImpl;
 import nl.knaw.dans.dvingest.core.service.DataverseService;
@@ -42,9 +45,17 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.security.NoSuchAlgorithmException;
 import java.text.SimpleDateFormat;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeParseException;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 @Slf4j
 public class DansBagMappingServiceImpl implements DansBagMappingService {
@@ -133,7 +144,9 @@ public class DansBagMappingServiceImpl implements DansBagMappingService {
 
     @Override
     public EditFiles getEditFilesFromDansDeposit(DansBagDeposit dansDeposit) {
-        return new EditFilesComposer(dansDeposit, fileExclusionPattern, embargoExclusions).composeEditFiles();
+        var files = getFileInfo(dansDeposit);
+        var dateAvailable = getDateAvailable(dansDeposit);
+        return new EditFilesComposer(files, dateAvailable, fileExclusionPattern, embargoExclusions).composeEditFiles();
     }
 
     @Override
@@ -154,6 +167,49 @@ public class DansBagMappingServiceImpl implements DansBagMappingService {
         var zipFile = dansDeposit.getBagDir().resolve("data/original-metadata.zip");
         ZipUtil.zipDirectory(metadataDir, zipFile, false);
         return zipFile.toString();
+    }
+
+    // todo: move to mapping package
+    private Map<Path, FileInfo> getFileInfo(DansBagDeposit dansDeposit) {
+        var files = FileElement.pathToFileInfo(dansDeposit, false); // TODO: handle migration case
+
+        return files.entrySet().stream()
+            .map(entry -> {
+                // relativize the path
+                var bagPath = entry.getKey();
+                var fileInfo = entry.getValue();
+                var newKey = Path.of("data").relativize(bagPath);
+
+                return Map.entry(newKey, fileInfo);
+            })
+            .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+    }
+
+    // todo: move to mapping package
+    private Instant getDateAvailable(DansBagDeposit dansBagDeposit) {
+        return XPathEvaluator.strings(dansBagDeposit.getDdm(), "/ddm:DDM/ddm:profile/ddm:available")
+            .map(DansBagMappingServiceImpl::parseDate)
+            .findFirst()
+            .orElseThrow(() -> new IllegalArgumentException("Deposit without a ddm:available element"));
+    }
+
+    // todo: move to util class
+    private static Instant parseDate(String value) {
+        try {
+            log.debug("Trying to parse {} as LocalDate", value);
+            return LocalDate.parse(value).atStartOfDay(ZoneId.systemDefault()).toInstant();
+        }
+        catch (DateTimeParseException e) {
+            try {
+                log.debug("Trying to parse {} as ZonedDateTime", value);
+                return ZonedDateTime.parse(value).toInstant();
+            }
+            catch (DateTimeParseException ee) {
+                log.debug("Trying to parse {} as LocalDateTime", value);
+                var id = ZoneId.systemDefault().getRules().getOffset(Instant.now());
+                return LocalDateTime.parse(value).toInstant(id);
+            }
+        }
     }
 
     Optional<String> getDateOfDeposit(DansBagDeposit dansDeposit) {
