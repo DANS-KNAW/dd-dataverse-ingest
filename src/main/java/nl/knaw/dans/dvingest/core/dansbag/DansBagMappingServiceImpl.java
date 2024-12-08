@@ -44,7 +44,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.security.NoSuchAlgorithmException;
-import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -60,7 +59,6 @@ import java.util.stream.Collectors;
 @Slf4j
 public class DansBagMappingServiceImpl implements DansBagMappingService {
     private static final DateTimeFormatter yyyymmddPattern = DateTimeFormat.forPattern("YYYY-MM-dd");
-    private static final SimpleDateFormat yyyymmddFormat = new SimpleDateFormat("YYYY-MM-dd");
 
     private final DepositToDvDatasetMetadataMapper depositToDvDatasetMetadataMapper;
     private final DataverseService dataverseService;
