@@ -91,9 +91,7 @@ public class FilesEditor {
             deleteFiles();
             replaceFiles();
             addRestrictedFiles();
-        }
-        addUnrestrictedFiles();
-        if (editFiles != null) {
+            addUnrestrictedFiles();
             moveFiles();
             updateFileMetas();
             addEmbargoes();

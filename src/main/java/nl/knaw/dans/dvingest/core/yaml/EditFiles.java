@@ -24,6 +24,7 @@ import java.util.List;
 public class EditFiles {
     private List<String> deleteFiles = List.of();
     private List<String> replaceFiles = List.of();
+    private List<String> addUnrestrictedFiles = List.of();
     private List<String> addRestrictedFiles = List.of();
     private List<FromTo> moveFiles = List.of();
     private List<String> ignoreFiles = List.of();
