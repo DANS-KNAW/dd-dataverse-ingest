@@ -41,7 +41,7 @@ public class DansDepositConverter {
         var editFiles = mappingService.getEditFilesFromDansDeposit(dansDeposit, updatesDataset);
         yamlService.writeYaml(new EditFilesRoot(editFiles), dansDeposit.getBagDir().resolve("edit-files.yml"));
 
-        var editPermissions = mappingService.getEditPermissionsFromDansDeposit(dansDeposit);
+        var editPermissions = mappingService.getEditPermissionsFromDansDeposit(dansDeposit, updatesDataset);
         yamlService.writeYaml(new EditPermissionsRoot(editPermissions), dansDeposit.getBagDir().resolve("edit-permissions.yml"));
 
         var updateState = new UpdateState();

@@ -153,14 +153,19 @@ public class DansBagMappingServiceImpl implements DansBagMappingService {
     }
 
     @Override
-    public EditPermissions getEditPermissionsFromDansDeposit(DansBagDeposit dansDeposit) {
-        var userId = dansDeposit.getDepositorUserId();
-        var editPermissions = new EditPermissions();
-        var roleAssignment = new RoleAssignment();
-        roleAssignment.setAssignee("@" + userId);
-        roleAssignment.setRole("contributorplus"); // TODO: make this configurable
-        editPermissions.setAddRoleAssignments(List.of(roleAssignment));
-        return editPermissions;
+    public EditPermissions getEditPermissionsFromDansDeposit(DansBagDeposit dansDeposit, String updatesDataset) {
+        if (updatesDataset == null) {
+            var userId = dansDeposit.getDepositorUserId();
+            var editPermissions = new EditPermissions();
+            var roleAssignment = new RoleAssignment();
+            roleAssignment.setAssignee("@" + userId);
+            roleAssignment.setRole("contributorplus"); // TODO: make this configurable
+            editPermissions.setAddRoleAssignments(List.of(roleAssignment));
+            return editPermissions;
+        }
+        else {
+            return new EditPermissions();
+        }
     }
 
     @Override
