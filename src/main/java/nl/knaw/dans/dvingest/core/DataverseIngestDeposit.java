@@ -43,7 +43,6 @@ public class DataverseIngestDeposit implements Comparable<DataverseIngestDeposit
     private Path location;
 
     private final Properties depositProperties;
-    private final String updatesDataset;
     private final YamlService yamlService;
 
     public DataverseIngestDeposit(@NonNull Path location, @NonNull YamlService yamlService) {
@@ -58,11 +57,15 @@ public class DataverseIngestDeposit implements Comparable<DataverseIngestDeposit
             }
             this.creationTimestamp = OffsetDateTime.parse(creationTimestamp);
             this.id = UUID.fromString(location.getFileName().toString());
-            this.updatesDataset = depositProperties.getProperty("updates.dataset");
         }
         catch (IOException e) {
             throw new IllegalStateException("Error loading deposit properties from " + location.resolve("deposit.properties"), e);
         }
+    }
+
+    @Override
+    public String getUpdatesDataset() {
+        return depositProperties.getProperty(UPDATES_DATASET_KEY);
     }
 
     @Override

@@ -99,8 +99,7 @@ public class EditFilesComposerForUpdate extends EditFilesComposer {
 
         var filesToReplace = getFilesToReplace(pathFileInfoMap, fileReplacementCandidates);
         log.debug("filesToReplace = {}", filesToReplace);
-        // TODO: check if we can do away with the IDs
-        editFiles.setReplaceFiles(filesToReplace.values().stream().map(FileInfo::getPath).map(Path::toString).toList());
+        editFiles.setReplaceFiles(filesToReplace.stream().map(Path::toString).collect(Collectors.toList()));
 
         /*
          * To find the files to delete we start from the paths in the deposit payload. In principle, these paths are remaining, so should NOT be deleted.
@@ -139,26 +138,18 @@ public class EditFilesComposerForUpdate extends EditFilesComposer {
 
         log.debug("occupiedPaths = {}", occupiedPaths);
         var pathsToAdd = diff(pathFileInfoMap.keySet(), occupiedPaths);
-        var restrictedFilesToAdd = pathsToAdd.stream()
-            .map(pathFileInfoMap::get)
-            .toList().stream()
-            .filter(f -> f.getMetadata().getRestricted())
-            .toList();
-        editFiles.setAddRestrictedFiles(restrictedFilesToAdd.stream().map(FileInfo::getPath).map(Path::toString).toList());
+        editFiles.setAddRestrictedFiles(pathsToAdd.stream()
+            .filter(p -> pathFileInfoMap.get(p).getMetadata().getRestricted()).toList().stream().map(Path::toString).toList());
 
-        var unrestrictedFilesToAdd = pathsToAdd.stream()
-            .map(pathFileInfoMap::get)
-            .toList().stream()
-            .filter(f -> !f.getMetadata().getRestricted())
-            .toList();
-        editFiles.setAddUnrestrictedFiles(unrestrictedFilesToAdd.stream().map(FileInfo::getPath).map(Path::toString).toList());
+        editFiles.setAddUnrestrictedFiles(pathsToAdd.stream()
+            .filter(p -> !pathFileInfoMap.get(p).getMetadata().getRestricted()).toList().stream().map(Path::toString).toList());
 
         // todo: embargoes
 
         return editFiles;
     }
 
-    private Map<Integer, FileInfo> getFilesToReplace(Map<Path, FileInfo> pathToFileInfo, Map<Path, FileMeta> fileReplacementCandidates) {
+    private Set<Path> getFilesToReplace(Map<Path, FileInfo> pathToFileInfo, Map<Path, FileMeta> fileReplacementCandidates) {
 
         var intersection = SetUtils.intersection(pathToFileInfo.keySet(), fileReplacementCandidates.keySet());
 
@@ -166,8 +157,8 @@ public class EditFilesComposerForUpdate extends EditFilesComposer {
 
         return intersection.stream()
             .filter(p -> !pathToFileInfo.get(p).getChecksum().equals(fileReplacementCandidates.get(p).getDataFile().getChecksum().getValue()))
-            .map(p -> Map.entry(fileReplacementCandidates.get(p).getDataFile().getId(), pathToFileInfo.get(p)))
-            .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+            .collect(Collectors.toSet());
+
     }
 
     /**

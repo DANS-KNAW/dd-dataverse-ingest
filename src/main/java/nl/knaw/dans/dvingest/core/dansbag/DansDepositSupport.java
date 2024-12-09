@@ -70,7 +70,7 @@ public class DansDepositSupport implements Deposit {
             try {
                 var updatesDataset = dansBagMappingService.getUpdatesDataset(ingestDataverseIngestDeposit.getLocation());
                 if (updatesDataset != null) {
-                    ingestDataverseIngestDeposit.updateProperties(Map.of("updatesDataset", updatesDataset));
+                    ingestDataverseIngestDeposit.updateProperties(Map.of(UPDATES_DATASET_KEY, updatesDataset));
                 }
                 dansDeposit = dansBagMappingService.readDansDeposit(ingestDataverseIngestDeposit.getLocation());
                 new DansDepositConverter(dansDeposit, updatesDataset, dansBagMappingService, yamlService).run();
