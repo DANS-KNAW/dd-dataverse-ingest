@@ -77,7 +77,7 @@ public class FilesEditorTest extends TestDirFixture {
         // Then
         Mockito.verify(dataverseServiceMock).deleteFile(1);
         Mockito.verify(dataverseServiceMock).deleteFile(3);
-        assertThat(filesEditor.getFilesInDataset()).containsOnlyKeys("file2");
+        assertThat(filesEditor.getFilesInDatasetCache().get("file1")).isNull();
     }
 
     @Test
@@ -96,5 +96,7 @@ public class FilesEditorTest extends TestDirFixture {
             .isInstanceOf(IllegalArgumentException.class)
             .hasMessage("File to delete not found in dataset: file4");
     }
+
+
 
 }

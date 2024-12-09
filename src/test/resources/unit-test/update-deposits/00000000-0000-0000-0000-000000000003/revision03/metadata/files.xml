@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<files xmlns="http://easy.dans.knaw.nl/schemas/bag/metadata/files/" xmlns:dcterms="http://purl.org/dc/terms/">
+    <file filepath="data/file1.txt">
+        <dcterms:format>text/plain</dcterms:format>
+    </file>
+    <file filepath="data/file2-renamed.txt">
+        <dcterms:format>text/plain</dcterms:format>
+    </file>
+    <file filepath="data/file3.txt">
+        <dcterms:format>text/plain</dcterms:format>
+    </file>
+    <file filepath="data/file4.txt">
+        <dcterms:description>Content of this file has changed again</dcterms:description>
+        <dcterms:format>text/plain</dcterms:format>
+    </file>
+    <file filepath="data/subdir/fileA.txt">
+        <dcterms:format>text/plain</dcterms:format>
+    </file>
+    <file filepath="data/subdir/fileB-renamed.txt">
+        <dcterms:format>text/plain</dcterms:format>
+    </file>
+    <file filepath="data/subdir/fileC.txt">
+        <dcterms:format>text/plain</dcterms:format>
+    </file>
+    <file filepath="data/subdir/fileD.txt">
+        <dcterms:description>Content of this file has changed again</dcterms:description>
+        <dcterms:format>text/plain</dcterms:format>
+        <accessibleToRights>RESTRICTED_REQUEST</accessibleToRights>
+    </file>
+    <file filepath="data/from-subdir-to-root.txt">
+        <dcterms:description>I am in the root dir</dcterms:description>
+        <dcterms:format>text/plain</dcterms:format>
+    </file>
+    <file filepath="data/subdir/from-root-to-subdir.txt">
+        <dcterms:description>I am in the subdir</dcterms:description>
+        <dcterms:format>text/plain</dcterms:format>
+    </file>
+</files>
+

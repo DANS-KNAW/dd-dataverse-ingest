@@ -15,26 +15,26 @@
  */
 package nl.knaw.dans.dvingest.core.dansbag;
 
+import nl.knaw.dans.dvingest.core.dansbag.deposit.DansBagDeposit;
+import nl.knaw.dans.dvingest.core.dansbag.exception.InvalidDepositException;
 import nl.knaw.dans.dvingest.core.yaml.EditFiles;
 import nl.knaw.dans.dvingest.core.yaml.EditPermissions;
-import nl.knaw.dans.ingest.core.domain.Deposit;
-import nl.knaw.dans.ingest.core.domain.DepositState;
-import nl.knaw.dans.ingest.core.exception.InvalidDepositException;
+import nl.knaw.dans.lib.dataverse.DataverseException;
 import nl.knaw.dans.lib.dataverse.model.dataset.Dataset;
 
 import java.io.IOException;
 import java.nio.file.Path;
 
 public interface DansBagMappingService {
-    Deposit readDansDeposit(Path depositDir) throws InvalidDepositException;
+    String getUpdatesDataset(Path depositDir) throws IOException, DataverseException;
 
-    Dataset getDatasetMetadataFromDansDeposit(Deposit dansDeposit);
+    DansBagDeposit readDansDeposit(Path depositDir) throws InvalidDepositException;
 
-    EditFiles getEditFilesFromDansDeposit(Deposit dansDeposit);
+    Dataset getDatasetMetadataFromDansDeposit(DansBagDeposit dansDeposit);
 
-    EditPermissions getEditPermissionsFromDansDeposit(Deposit dansDeposit);
+    EditFiles getEditFilesFromDansDeposit(DansBagDeposit dansDeposit, String updatesDataset);
 
-    void updateDepositStatus(Deposit deposit, DepositState state, String pid);
+    EditPermissions getEditPermissionsFromDansDeposit(DansBagDeposit dansDeposit, String updatesDataset);
 
-    String packageOriginalMetadata(Deposit dansDeposit) throws IOException;
+    String packageOriginalMetadata(DansBagDeposit dansDeposit) throws IOException;
 }

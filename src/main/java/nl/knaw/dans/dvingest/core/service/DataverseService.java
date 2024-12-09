@@ -26,10 +26,8 @@ import nl.knaw.dans.lib.dataverse.model.dataset.MetadataField;
 import nl.knaw.dans.lib.dataverse.model.dataset.UpdateType;
 import nl.knaw.dans.lib.dataverse.model.file.FileMeta;
 import nl.knaw.dans.lib.dataverse.model.user.AuthenticatedUser;
-import org.checkerframework.checker.nullness.qual.NonNull;
 
 import java.io.IOException;
-import java.net.URI;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Optional;
@@ -46,6 +44,8 @@ public interface DataverseService {
     void replaceFile(String targetDatasetPid, FileMeta fileToReplace, Path replacement) throws DataverseException, IOException;
 
     void deleteFile(int id) throws DataverseException, IOException;
+
+    String getDatasetUrnNbn(String datasetId) throws IOException, DataverseException;
 
     void waitForState(String persistentId, String state) throws DataverseException;
 
@@ -70,4 +70,6 @@ public interface DataverseService {
     Set<String> getActiveMetadataBlockNames() throws IOException, DataverseException;
 
     void addEmbargo(String pid, Embargo embargo) throws IOException, DataverseException;
+
+    List<String> findDoiByMetadataField(String fieldName, String value) throws IOException, DataverseException;
 }

@@ -15,12 +15,13 @@
  */
 package nl.knaw.dans.dvingest.client;
 
-import nl.knaw.dans.ingest.core.exception.RejectedDepositException;
 import nl.knaw.dans.validatedansbag.client.api.ValidateOkDto;
-import nl.knaw.dans.validatedansbag.client.api.ValidateOkDto.InformationPackageTypeEnum;
 
 import java.nio.file.Path;
 
+/**
+ * Proxy for dd-validate-dans-bag service.
+ */
 public interface ValidateDansBagService {
 
     ValidateOkDto validate(Path bag);

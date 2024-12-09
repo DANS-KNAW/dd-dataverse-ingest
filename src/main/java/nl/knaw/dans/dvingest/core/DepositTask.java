@@ -21,10 +21,10 @@ import nl.knaw.dans.dvingest.client.ValidateDansBagService;
 import nl.knaw.dans.dvingest.core.bagprocessor.BagProcessor;
 import nl.knaw.dans.dvingest.core.dansbag.DansBagMappingService;
 import nl.knaw.dans.dvingest.core.dansbag.DansDepositSupport;
+import nl.knaw.dans.dvingest.core.dansbag.exception.RejectedDepositException;
 import nl.knaw.dans.dvingest.core.service.DataverseService;
 import nl.knaw.dans.dvingest.core.service.UtilityServices;
 import nl.knaw.dans.dvingest.core.service.YamlService;
-import nl.knaw.dans.ingest.core.exception.RejectedDepositException;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -50,7 +50,7 @@ public class DepositTask implements Runnable {
     public DepositTask(DataverseIngestDeposit dataverseIngestDeposit, Path outputDir, boolean onlyConvertDansDeposit, ValidateDansBagService validateDansBagService, DataverseService dataverseService, UtilityServices utilityServices,
         DansBagMappingService dansBagMappingService,
         YamlService yamlService) {
-        this.deposit = dansBagMappingService == null ? dataverseIngestDeposit : new DansDepositSupport(validateDansBagService, dataverseIngestDeposit, dansBagMappingService, yamlService);
+        this.deposit = dansBagMappingService == null ? dataverseIngestDeposit : new DansDepositSupport(dataverseIngestDeposit, validateDansBagService, dansBagMappingService, dataverseService, yamlService);
         this.dataverseService = dataverseService;
         this.onlyConvertDansDeposit = onlyConvertDansDeposit;
         this.utilityServices = utilityServices;
@@ -59,13 +59,14 @@ public class DepositTask implements Runnable {
 
     @Override
     public void run() {
-        String pid = deposit.getUpdatesDataset();
+        String pid = null;
         try {
             deposit.validate();
             if (deposit.convertDansDepositIfNeeded() && onlyConvertDansDeposit) {
                 log.info("Only converting DANS deposit, LEAVING CONVERTED DEPOSIT IN PLACE");
                 return;
             }
+            pid = deposit.getUpdatesDataset();
 
             for (DataverseIngestBag bag : deposit.getBags()) {
                 log.info("START processing deposit / bag: {} / {}", deposit.getId(), bag);
@@ -81,6 +82,7 @@ public class DepositTask implements Runnable {
             deposit.onSuccess(pid, "Deposit processed successfully");
             deposit.moveTo(outputDir.resolve("processed"));
         }
+        // TODO: move RejectedDepositException to a package that is not specific to DANS
         catch (RejectedDepositException e) {
             try {
                 log.error("Deposit rejected", e);

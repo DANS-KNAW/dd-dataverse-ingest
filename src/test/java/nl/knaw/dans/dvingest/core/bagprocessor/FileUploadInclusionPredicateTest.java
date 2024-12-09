@@ -34,32 +34,6 @@ public class FileUploadInclusionPredicateTest {
     }
 
     @Test
-    public void ignored_files_are_skipped_for_unrestricted_file_upload() throws Exception {
-        // Given
-        editFiles.setIgnoreFiles(List.of("file1"));
-        var fileUploadInclusionPredicate = new FileUploadInclusionPredicate(editFiles, dataDir.toPath(), false);
-
-        // When
-        var result = fileUploadInclusionPredicate.evaluate(new File("dataDir/file1"));
-
-        // Then
-        assertThat(result).isFalse();
-    }
-
-    @Test
-    public void ignored_files_are_skipped_for_restricted_file_upload() throws Exception {
-        // Given
-        editFiles.setIgnoreFiles(List.of("file1"));
-        var fileUploadInclusionPredicate = new FileUploadInclusionPredicate(editFiles, dataDir.toPath(), true);
-
-        // When
-        var result = fileUploadInclusionPredicate.evaluate(new File("dataDir/file1"));
-
-        // Then
-        assertThat(result).isFalse();
-    }
-
-    @Test
     public void restricted_files_are_included_for_restricted_file_upload() throws Exception {
         // Given
         editFiles.setAddRestrictedFiles(List.of("file1"));
@@ -114,8 +88,9 @@ public class FileUploadInclusionPredicateTest {
     @Test
     public void unrestricted_files_are_included_for_unrestricted_file_upload() throws Exception {
         // Given
-        // Default is unrestricted upload
+        editFiles.setAddUnrestrictedFiles(List.of("file1"));
         var fileUploadInclusionPredicate = new FileUploadInclusionPredicate(editFiles, dataDir.toPath(), false);
+
 
         // When
         var result = fileUploadInclusionPredicate.evaluate(new File("dataDir/file1"));
@@ -125,7 +100,7 @@ public class FileUploadInclusionPredicateTest {
     }
 
     @Test
-    public void all_files_are_included_if_editFiles_is_null_for_unrestricted_file_upload() throws Exception {
+    public void all_files_are_excluded_if_editFiles_is_null_for_unrestricted_file_upload() throws Exception {
         // Given
         var fileUploadInclusionPredicate = new FileUploadInclusionPredicate(null, dataDir.toPath(), false);
 
@@ -133,7 +108,7 @@ public class FileUploadInclusionPredicateTest {
         var result = fileUploadInclusionPredicate.evaluate(new File("dataDir/file1"));
 
         // Then
-        assertThat(result).isTrue();
+        assertThat(result).isFalse();
     }
 
     @Test

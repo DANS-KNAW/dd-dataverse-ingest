@@ -82,7 +82,8 @@ editFiles:
   addRestrictedFiles:
     - 'file4.txt'
     - 'subdirectory/file5.txt'
-  # Unrestricted files are added by default at this point
+  addUnrestrictedFiles:
+    - 'file6.txt'  
   moveFiles:
     - from: 'file6.txt' # Old location in the dataset
       to: 'subdirectory/file6.txt' # New location in the dataset
@@ -92,11 +93,9 @@ editFiles:
       directoryLabel: "subdirectory"
       restricted: false
       categories: [ 'Testlabel' ]
-  ignoreFiles:
-    - 'file7.txt' # This file will NOT be added to the dataset     
-  renameAtUploadFiles:
-    - from: 'file8.txt' # Local file name
-      to: 'file9.txt' # The file name assigned in the dataset
+  autoRenameFiles:
+    - from: "Unsanitize'd/file?" # Local file name
+      to: "Sanitize_d/file_" # The file name assigned in the dataset
   addEmbargoes:
     - filePaths: [ 'file1.txt' ] # All other files will NOT be embargoed
       dateAvailable: '2030-01-01'

@@ -2,6 +2,16 @@ editFiles:
   addRestrictedFiles:
     - 'subdir/file2-restricted.txt'
     - 'file4-restricted.txt'
+  addUnrestrictedFiles:
+    - 'problème/<problem>.txt'
+    - 'subdir/file6-to-be-deleted-in-v2.txt'
+    - 'subdir/file7-to-be-moved-to-subdir2-in-v2.txt'
+    - 'file1.txt'
+    - 'file3-desc.txt'
+    - 'file5-to-be-replaced-in-v2.txt'
   updateFileMetas:
     - label: 'file3-desc.txt'
       description: 'Description of file3'
+  autoRenameFiles:
+    - from: 'problème/<problem>.txt'
+      to: 'probl_me/_problem_.txt'

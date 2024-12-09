@@ -1,4 +1,7 @@
 editFiles:
+  addUnrestrictedFiles:
+    - 'extra/added/extra-added-1.txt'
+    - 'extra/added/extra-added-2.txt'
   replaceFiles:
     - 'file5-to-be-replaced-in-v2.txt'
   deleteFiles:

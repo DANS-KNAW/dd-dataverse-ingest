@@ -20,7 +20,7 @@ import lombok.Value;
 import org.apache.tika.utils.StringUtils;
 
 /**
- * A filepath in Dataverse is a combination of file label and directory label. This class converts between a regular representation of a path and the Dataverse representation.
+ * A filepath in Dataverse is a combination of file label and directory label. This class converts between a regular representation of a filepath and the Dataverse representation.
  */
 @Value
 public class DataversePath {

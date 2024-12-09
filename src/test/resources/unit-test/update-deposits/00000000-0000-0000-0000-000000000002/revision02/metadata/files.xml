@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<files xmlns="http://easy.dans.knaw.nl/schemas/bag/metadata/files/" xmlns:dcterms="http://purl.org/dc/terms/">
+    <file filepath="data/file1.txt">
+        <dcterms:format>text/plain</dcterms:format>
+    </file>
+    <file filepath="data/file2-renamed.txt">
+        <dcterms:format>text/plain</dcterms:format>
+    </file>
+    <file filepath="data/file4.txt">
+        <dcterms:description>Content of this file has changed</dcterms:description>
+        <dcterms:format>text/plain</dcterms:format>
+    </file>
+    <file filepath="data/subdir/fileA.txt">
+        <dcterms:format>text/plain</dcterms:format>
+    </file>
+    <file filepath="data/subdir/fileB-renamed.txt">
+        <dcterms:format>text/plain</dcterms:format>
+    </file>
+    <file filepath="data/subdir/fileD.txt">
+        <dcterms:description>Content of this file has changed</dcterms:description>
+        <dcterms:format>text/plain</dcterms:format>
+        <accessibleToRights>NONE</accessibleToRights>
+    </file>
+    <file filepath="data/subdir/from-subdir-to-root.txt">
+        <dcterms:description>I am in a subdir</dcterms:description>
+        <dcterms:format>text/plain</dcterms:format>
+    </file>
+    <file filepath="data/from-root-to-subdir.txt">
+        <dcterms:description>I am in the root dir</dcterms:description>
+        <dcterms:format>text/plain</dcterms:format>
+    </file>
+</files>
+

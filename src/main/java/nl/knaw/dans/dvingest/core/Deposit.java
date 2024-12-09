@@ -23,6 +23,8 @@ import java.util.List;
 import java.util.UUID;
 
 public interface Deposit {
+    String UPDATES_DATASET_KEY = "updates-dataset";
+
     boolean convertDansDepositIfNeeded();
 
     String getUpdatesDataset();
