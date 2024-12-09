@@ -50,7 +50,7 @@ public class DepositTask implements Runnable {
     public DepositTask(DataverseIngestDeposit dataverseIngestDeposit, Path outputDir, boolean onlyConvertDansDeposit, ValidateDansBagService validateDansBagService, DataverseService dataverseService, UtilityServices utilityServices,
         DansBagMappingService dansBagMappingService,
         YamlService yamlService) {
-        this.deposit = dansBagMappingService == null ? dataverseIngestDeposit : new DansDepositSupport(dataverseIngestDeposit, validateDansBagService, dansBagMappingService, yamlService);
+        this.deposit = dansBagMappingService == null ? dataverseIngestDeposit : new DansDepositSupport(dataverseIngestDeposit, validateDansBagService, dansBagMappingService, dataverseService, yamlService);
         this.dataverseService = dataverseService;
         this.onlyConvertDansDeposit = onlyConvertDansDeposit;
         this.utilityServices = utilityServices;

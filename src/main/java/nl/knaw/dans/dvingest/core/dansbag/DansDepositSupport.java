@@ -26,6 +26,7 @@ import nl.knaw.dans.dvingest.core.Deposit;
 import nl.knaw.dans.dvingest.core.dansbag.deposit.DansBagDeposit;
 import nl.knaw.dans.dvingest.core.dansbag.exception.InvalidDepositException;
 import nl.knaw.dans.dvingest.core.dansbag.exception.RejectedDepositException;
+import nl.knaw.dans.dvingest.core.service.DataverseService;
 import nl.knaw.dans.dvingest.core.service.YamlService;
 import nl.knaw.dans.lib.dataverse.DataverseException;
 
@@ -41,16 +42,18 @@ public class DansDepositSupport implements Deposit {
 
     private final ValidateDansBagService validateDansBagService;
     private final DansBagMappingService dansBagMappingService;
+    private final DataverseService dataverseService;
     private final YamlService yamlService;
     private final DataverseIngestDeposit ingestDataverseIngestDeposit;
     private final boolean isDansDeposit;
 
     private DansBagDeposit dansDeposit;
 
-    public DansDepositSupport(DataverseIngestDeposit dataverseIngestDeposit, ValidateDansBagService validateDansBagService, DansBagMappingService dansBagMappingService, YamlService yamlService) {
+    public DansDepositSupport(DataverseIngestDeposit dataverseIngestDeposit, ValidateDansBagService validateDansBagService, DansBagMappingService dansBagMappingService, DataverseService dataverseService, YamlService yamlService) {
         this.validateDansBagService = validateDansBagService;
         this.ingestDataverseIngestDeposit = dataverseIngestDeposit;
         this.dansBagMappingService = dansBagMappingService;
+        this.dataverseService = dataverseService;
         this.yamlService = yamlService;
         try {
             this.isDansDeposit = dataverseIngestDeposit.getBags().get(0).looksLikeDansBag();
@@ -107,12 +110,18 @@ public class DansDepositSupport implements Deposit {
             var bag = ingestDataverseIngestDeposit.getBags().get(0);
             var action = bag.getUpdateState().getAction();
             if (action.startsWith("publish")) {
-                ingestDataverseIngestDeposit.updateProperties(Map.of(
-                        "state.label", "PUBLISHED",
-                        "state.description", "The dataset is published",
-                        "identifier.doi", pid
-                    )
-                );
+                try {
+                    var nbn = dataverseService.getDatasetUrnNbn(pid);
+                    ingestDataverseIngestDeposit.updateProperties(Map.of(
+                            "state.label", "PUBLISHED",
+                            "state.description", "The dataset is published",
+                            "identifier.doi", pid,
+                            "identifier.urn", nbn
+                        )
+                    );
+                } catch (IOException | DataverseException e) {
+                    throw new RuntimeException("Error getting URN:NBN", e); // Cancelling the "success"
+                }
             }
             else if (action.equals("submit-for-review")) {
                 ingestDataverseIngestDeposit.updateProperties(Map.of(

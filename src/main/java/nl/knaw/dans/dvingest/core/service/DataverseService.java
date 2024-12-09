@@ -45,6 +45,8 @@ public interface DataverseService {
 
     void deleteFile(int id) throws DataverseException, IOException;
 
+    String getDatasetUrnNbn(String datasetId) throws IOException, DataverseException;
+
     void waitForState(String persistentId, String state) throws DataverseException;
 
     void updateMetadata(String targetDatasetPid, DatasetVersion datasetMetadata) throws DataverseException, IOException;

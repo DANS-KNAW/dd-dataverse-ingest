@@ -31,7 +31,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class EditFilesComposerTest extends EditFilesComposerFixture {
 
     @Test
-    public void adding_two_unrestricted_files_leaves_editFiles_empty() {
+    public void adding_two_unrestricted_files_adds_them_to_addUnrestrictedFiles() {
         // Given
         Map<Path, FileInfo> map = new HashMap<>();
         add(map, file("file1.txt", "checksum1"));
@@ -41,8 +41,12 @@ public class EditFilesComposerTest extends EditFilesComposerFixture {
         // When
         var editFiles = editFilesComposer.composeEditFiles();
 
+        var unrestrictedFiles = editFiles.getAddUnrestrictedFiles();
+        assertThat(unrestrictedFiles).hasSize(2);
+        assertThat(unrestrictedFiles).contains("file1.txt", "file2.txt");
+
         // Then
-        assertEmptyFieldsExcept(editFiles);
+        assertEmptyFieldsExcept(editFiles, "addUnrestrictedFiles");
     }
 
     @Test
@@ -62,7 +66,11 @@ public class EditFilesComposerTest extends EditFilesComposerFixture {
         assertThat(addRestrictedFiles).hasSize(2);
         assertThat(addRestrictedFiles).contains("file1.txt", "file2.txt");
 
-        assertEmptyFieldsExcept(editFiles, "addRestrictedFiles");
+        var unrestrictedFiles = editFiles.getAddUnrestrictedFiles();
+        assertThat(unrestrictedFiles).hasSize(1);
+        assertThat(unrestrictedFiles).contains("file3.txt");
+
+        assertEmptyFieldsExcept(editFiles, "addRestrictedFiles", "addUnrestrictedFiles");
     }
 
     @Test
@@ -82,7 +90,11 @@ public class EditFilesComposerTest extends EditFilesComposerFixture {
         assertThat(updateFileMetas).hasSize(2);
         assertThat(updateFileMetas).extracting(FileMeta::getDescription).contains("description1", "description2");
 
-        assertEmptyFieldsExcept(editFiles, "updateFileMetas");
+        var unrestrictedFiles = editFiles.getAddUnrestrictedFiles();
+        assertThat(unrestrictedFiles).hasSize(3);
+        assertThat(unrestrictedFiles).contains("file1.txt", "file2.txt", "file3.txt");
+
+        assertEmptyFieldsExcept(editFiles, "updateFileMetas", "addUnrestrictedFiles");
     }
 
     @Test
@@ -102,7 +114,11 @@ public class EditFilesComposerTest extends EditFilesComposerFixture {
         assertThat(updateFileMetas).hasSize(2);
         assertThat(updateFileMetas).extracting(FileMeta::getCategories).contains(List.of("category1"), List.of("category2"));
 
-        assertEmptyFieldsExcept(editFiles, "updateFileMetas");
+        var unrestrictedFiles = editFiles.getAddUnrestrictedFiles();
+        assertThat(unrestrictedFiles).hasSize(3);
+        assertThat(unrestrictedFiles).contains("file1.txt", "file2.txt", "file3.txt");
+
+        assertEmptyFieldsExcept(editFiles, "updateFileMetas", "addUnrestrictedFiles");
     }
 
     @Test
@@ -121,7 +137,11 @@ public class EditFilesComposerTest extends EditFilesComposerFixture {
         assertThat(addEmbargoes).hasSize(1); // There is only one embargo, covering all files
         assertThat(addEmbargoes).extracting(AddEmbargo::getFilePaths).containsExactly(List.of("file1.txt", "file2.txt"));
 
-        assertEmptyFieldsExcept(editFiles, "addEmbargoes");
+        var unrestrictedFiles = editFiles.getAddUnrestrictedFiles();
+        assertThat(unrestrictedFiles).hasSize(2);
+        assertThat(unrestrictedFiles).contains("file1.txt", "file2.txt");
+
+        assertEmptyFieldsExcept(editFiles, "addEmbargoes", "addUnrestrictedFiles");
     }
 
     @Test
@@ -141,7 +161,11 @@ public class EditFilesComposerTest extends EditFilesComposerFixture {
         assertThat(autoRenameFiles.get(0).getFrom()).isEqualTo("file1.txt");
         assertThat(autoRenameFiles.get(0).getTo()).isEqualTo("file1_sanitized.txt");
 
-        assertEmptyFieldsExcept(editFiles, "autoRenameFiles");
+        var unrestrictedFiles = editFiles.getAddUnrestrictedFiles();
+        assertThat(unrestrictedFiles).hasSize(2);
+        assertThat(unrestrictedFiles).contains("file1.txt", "file2.txt");
+
+        assertEmptyFieldsExcept(editFiles, "autoRenameFiles", "addUnrestrictedFiles");
     }
 
     @Test
@@ -155,8 +179,12 @@ public class EditFilesComposerTest extends EditFilesComposerFixture {
         // When
         var editFiles = editFilesComposer.composeEditFiles();
 
+        var addUnrestrictedFiles = editFiles.getAddUnrestrictedFiles();
+        assertThat(addUnrestrictedFiles).hasSize(1);
+        assertThat(addUnrestrictedFiles).contains("file2.txt");
+
         // Then
-        assertEmptyFieldsExcept(editFiles);
+        assertEmptyFieldsExcept(editFiles, "addUnrestrictedFiles");
     }
 
     @Test
@@ -176,7 +204,11 @@ public class EditFilesComposerTest extends EditFilesComposerFixture {
         assertThat(addEmbargoes).hasSize(1); // There is only one embargo, covering all files
         assertThat(addEmbargoes).extracting(AddEmbargo::getFilePaths).containsExactly(List.of("file1.txt"));
 
-        assertEmptyFieldsExcept(editFiles, "addEmbargoes");
+        var unrestrictedFiles = editFiles.getAddUnrestrictedFiles();
+        assertThat(unrestrictedFiles).hasSize(3);
+        assertThat(unrestrictedFiles).contains("file1.txt", "file2.txt", "subdir/file3.txt");
+
+        assertEmptyFieldsExcept(editFiles, "addEmbargoes", "addUnrestrictedFiles");
     }
 
 }

@@ -31,6 +31,7 @@ import nl.knaw.dans.lib.dataverse.model.dataset.FileList;
 import nl.knaw.dans.lib.dataverse.model.dataset.License;
 import nl.knaw.dans.lib.dataverse.model.dataset.MetadataBlockSummary;
 import nl.knaw.dans.lib.dataverse.model.dataset.MetadataField;
+import nl.knaw.dans.lib.dataverse.model.dataset.PrimitiveSingleValueField;
 import nl.knaw.dans.lib.dataverse.model.dataset.UpdateType;
 import nl.knaw.dans.lib.dataverse.model.file.FileMeta;
 import nl.knaw.dans.lib.dataverse.model.search.DatasetResultItem;
@@ -189,6 +190,20 @@ public class DataverseServiceImpl implements DataverseService {
             .map(r -> (DatasetResultItem) r)
             .map(DatasetResultItem::getGlobalId)
             .collect(Collectors.toList());
+    }
+
+    @Override
+    public String getDatasetUrnNbn(String pid) throws IOException, DataverseException {
+        var dataset = dataverseClient.dataset(pid);
+        var version = dataset.getVersion();
+        var data = version.getData();
+        var metadata = data.getMetadataBlocks().get("dansDataVaultMetadata");
+
+        return metadata.getFields().stream()
+            .filter(f -> f.getTypeName().equals("dansNbn"))
+            .map(f -> (PrimitiveSingleValueField) f)
+            .map(PrimitiveSingleValueField::getValue)
+            .findFirst().orElseThrow(() -> new IllegalStateException("No URN:NBN found in dataset"));
     }
 
     // TODO: move this to dans-dataverse-client-lib; it is similar to awaitLockState.

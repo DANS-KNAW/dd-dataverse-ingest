@@ -62,6 +62,7 @@ public class EditFilesComposer {
 
         editFiles.setAutoRenameFiles(getAutoRenamedFiles(renamedFiles));
         editFiles.setAddRestrictedFiles(getRestrictedFilesToAdd(pathFileInfoMap));
+        editFiles.setAddUnrestrictedFiles(getUnrestrictedFilesToAdd(pathFileInfoMap));
         editFiles.setUpdateFileMetas(getUpdatedFileMetas(pathFileInfoMap));
 
         var filePathsToEmbargo = getEmbargoedFiles(pathFileInfoMap, dateAvailable);
@@ -95,9 +96,16 @@ public class EditFilesComposer {
      * @param files the file infos found in files.xml
      * @return a list of file paths that should be added as restricted files
      */
-    protected List<String> getRestrictedFilesToAdd(Map<Path, FileInfo> files) {
+    private List<String> getRestrictedFilesToAdd(Map<Path, FileInfo> files) {
         return files.entrySet().stream()
             .filter(entry -> entry.getValue().getMetadata().getRestricted())
+            .map(entry -> entry.getKey().toString())
+            .toList();
+    }
+
+    private List<String> getUnrestrictedFilesToAdd(Map<Path, FileInfo> files) {
+        return files.entrySet().stream()
+            .filter(entry -> !entry.getValue().getMetadata().getRestricted())
             .map(entry -> entry.getKey().toString())
             .toList();
     }
@@ -108,7 +116,7 @@ public class EditFilesComposer {
      * @param files the file infos found in files.xml
      * @return a list of FileMetas that should be updated
      */
-    protected List<FileMeta> getUpdatedFileMetas(Map<Path, FileInfo> files) {
+    private List<FileMeta> getUpdatedFileMetas(Map<Path, FileInfo> files) {
         return files.values().stream()
             .map(FileInfo::getMetadata)
             .filter(this::hasAttributes)

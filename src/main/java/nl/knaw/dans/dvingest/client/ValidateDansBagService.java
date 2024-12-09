@@ -19,6 +19,9 @@ import nl.knaw.dans.validatedansbag.client.api.ValidateOkDto;
 
 import java.nio.file.Path;
 
+/**
+ * Proxy for dd-validate-dans-bag service.
+ */
 public interface ValidateDansBagService {
 
     ValidateOkDto validate(Path bag);

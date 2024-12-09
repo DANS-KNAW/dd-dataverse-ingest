@@ -42,6 +42,9 @@ import java.util.stream.Collectors;
 
 @Slf4j
 
+/**
+ * Edits files in a dataset in Dataverse, based on the edit-files.yml file, which has been read and parsed into an EditFiles object.
+ */
 public class FilesEditor {
     private final UUID depositId;
     private final Path dataDir;

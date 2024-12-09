@@ -26,7 +26,9 @@ import nl.knaw.dans.lib.dataverse.DataverseException;
 import java.io.IOException;
 import java.util.UUID;
 
-
+/**
+ * Processes a bag, creating and/or editing a dataset version in Dataverse.
+ */
 @Slf4j
 public class BagProcessor {
     private final DatasetVersionCreator datasetVersionCreator;
