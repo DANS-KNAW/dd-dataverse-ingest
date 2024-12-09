@@ -22,7 +22,6 @@ import nl.knaw.dans.lib.dataverse.model.user.AuthenticatedUser;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -54,16 +53,18 @@ public class DansDepositConverterTest extends DansConversionFixture {
         // Find the metadata field with property typeName = "title"
         assertPrimitiveSinglevalueFieldContainsValue(citationBlockFields, "title", "A bag containing examples for each mapping rule");
         assertPrimitiveMultiValueFieldContainsValues(citationBlockFields, "alternativeTitle", "DCTERMS title 1");
-        assertCompoundMultiValueFieldContainsValues2(citationBlockFields, "datasetContact", Map.of(
+        assertCompoundMultiValueFieldContainsValues(citationBlockFields, "datasetContact", Map.of(
             "datasetContactName", "John Doe",
             "datasetContactEmail", "jdoe@foo.com"
         ));
-        assertCompoundMultiValueFieldContainsValues2(citationBlockFields, "otherId",
+        assertCompoundMultiValueFieldContainsValues(citationBlockFields, "otherId",
             Map.of("otherIdAgency", "", "otherIdValue", "DCTERMS_ID001"),
             Map.of("otherIdAgency", "", "otherIdValue", "DC_ID002"),
             Map.of("otherIdAgency", "", "otherIdValue", "DCTERMS_ID003"),
             Map.of("otherIdAgency", "TESTPREFIX", "otherIdValue", "1234"));
-        
+
+
+        // TODO: CHECK ALL THE OTHER FIELDS
 
     }
 

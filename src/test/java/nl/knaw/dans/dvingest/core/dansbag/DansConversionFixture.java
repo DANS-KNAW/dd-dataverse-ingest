@@ -145,32 +145,8 @@ public abstract class DansConversionFixture extends TestDirFixture {
             .containsExactly(List.of(values));
     }
 
-    protected void assertCompoundMultiValueFieldContainsValues(List<MetadataField> fields, String typeName, List<Map<String, String>> expectedValues) {
-        var filteredFields = fields.stream()
-            .filter(f -> typeName.equals(f.getTypeName()))
-            .map(f -> (CompoundMultiValueField) f)
-            .toList();
-
-        assertThat(filteredFields).as("Field not found: " + typeName).isNotEmpty();
-        assertThat(filteredFields).as("Field appearing more than once: " + typeName).hasSize(1);
-
-        var actualValues = filteredFields.get(0).getValue();
-        assertThat(actualValues).as("Different number of actual and expected values: " + actualValues.size() + " vs " + expectedValues.size()).hasSize(expectedValues.size());
-
-        List<Map<String, String>> actualValuesList = new ArrayList<>();
-        for (var actualValue : actualValues) {
-            var actualValueMap = actualValue.entrySet().stream()
-                .map(e -> Map.entry(e.getKey(), e.getValue().getValue()))
-                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
-            actualValuesList.add(actualValueMap);
-        }
-
-        assertThat(actualValuesList).containsExactlyInAnyOrderElementsOf(expectedValues);
-
-    }
-
     @SafeVarargs
-    protected final void assertCompoundMultiValueFieldContainsValues2(List<MetadataField> fields, String typeName, Map<String, String>... expectedValues) {
+    protected final void assertCompoundMultiValueFieldContainsValues(List<MetadataField> fields, String typeName, Map<String, String>... expectedValues) {
         var filteredFields = fields.stream()
             .filter(f -> typeName.equals(f.getTypeName()))
             .map(f -> (CompoundMultiValueField) f)
