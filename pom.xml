@@ -37,10 +37,11 @@
         <main-class>nl.knaw.dans.dvingest.DdDataverseIngestApplication</main-class>
         <dd-dataverse-ingest-api.version>0.2.0</dd-dataverse-ingest-api.version>
         <dd-validate-dans-bag-api.version>1.0.0</dd-validate-dans-bag-api.version>
+        <dd-dans-sword2-examples.version>1.0.0</dd-dans-sword2-examples.version>
     </properties>
 
     <scm>
-        <developerConnection>scm:git:ssh://github.com/DANS-KNAW/dd-dataverse-ingest</developerConnection>
+        <developerConnection>scm:git:ssh://github.com/DANS-KNAW/${project.artifactId}</developerConnection>
         <tag>HEAD</tag>
     </scm>
 
@@ -216,6 +217,7 @@
                 <artifactId>maven-dependency-plugin</artifactId>
                 <executions>
                     <execution>
+                        <id>compile-dependencies</id>
                         <phase>initialize</phase>
                         <goals>
                             <goal>unpack</goal>
@@ -233,6 +235,24 @@
                                     <artifactId>dd-validate-dans-bag-api</artifactId>
                                     <version>${dd-validate-dans-bag-api.version}</version>
                                     <outputDirectory>${project.build.directory}/openapi</outputDirectory>
+                                </artifactItem>
+                            </artifactItems>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>test-dependencies</id>
+                        <phase>generate-test-resources</phase>
+                        <goals>
+                            <goal>unpack</goal>
+                        </goals>
+                        <configuration>
+                            <artifactItems>
+                                <artifactItem>
+                                    <groupId>nl.knaw.dans</groupId>
+                                    <artifactId>dd-dans-sword2-examples</artifactId>
+                                    <version>${dd-dans-sword2-examples.version}</version>
+                                    <outputDirectory>${project.build.directory}/test</outputDirectory>
+                                    <includes>example-bags/**</includes>
                                 </artifactItem>
                             </artifactItems>
                         </configuration>
