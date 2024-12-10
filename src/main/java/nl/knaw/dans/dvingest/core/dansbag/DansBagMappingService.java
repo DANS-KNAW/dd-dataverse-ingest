@@ -31,7 +31,7 @@ public interface DansBagMappingService {
 
     DansBagDeposit readDansDeposit(Path depositDir) throws InvalidDepositException;
 
-    Dataset getDatasetMetadataFromDansDeposit(DansBagDeposit dansDeposit, DatasetVersion updatesDataset);
+    Dataset getDatasetMetadataFromDansDeposit(DansBagDeposit dansDeposit, DatasetVersion currentMetadata);
 
     EditFiles getEditFilesFromDansDeposit(DansBagDeposit dansDeposit, String updatesDataset);
 
