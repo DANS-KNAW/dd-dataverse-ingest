@@ -19,6 +19,7 @@ import lombok.extern.slf4j.Slf4j;
 import nl.knaw.dans.dvingest.core.bagprocessor.FilesInDatasetCache;
 import nl.knaw.dans.dvingest.core.dansbag.deposit.FileInfo;
 import nl.knaw.dans.dvingest.core.service.DataverseService;
+import nl.knaw.dans.dvingest.core.yaml.AddEmbargo;
 import nl.knaw.dans.dvingest.core.yaml.EditFiles;
 import nl.knaw.dans.dvingest.core.yaml.FromTo;
 import nl.knaw.dans.lib.dataverse.DataverseException;
@@ -27,6 +28,7 @@ import nl.knaw.dans.lib.dataverse.model.file.FileMeta;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.time.Instant;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -144,10 +146,10 @@ public class EditFilesComposerForUpdate extends EditFilesComposer {
         editFiles.setAddUnrestrictedFiles(pathsToAdd.stream()
             .filter(p -> !pathFileInfoMap.get(p).getMetadata().getRestricted()).toList().stream().map(Path::toString).toList());
 
-        // todo: embargoes
-
+        addEmbargo(editFiles, SetUtils.union(pathsToAdd, filesToReplace));
         return editFiles;
     }
+
 
     private Set<Path> getFilesToReplace(Map<Path, FileInfo> pathToFileInfo, Map<Path, FileMeta> fileReplacementCandidates) {
 

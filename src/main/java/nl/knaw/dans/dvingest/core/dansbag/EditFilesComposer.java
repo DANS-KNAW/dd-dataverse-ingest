@@ -31,6 +31,7 @@ import java.time.Instant;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
@@ -65,13 +66,8 @@ public class EditFilesComposer {
         editFiles.setAddUnrestrictedFiles(getUnrestrictedFilesToAdd(pathFileInfoMap));
         editFiles.setUpdateFileMetas(getUpdatedFileMetas(pathFileInfoMap));
 
-        var filePathsToEmbargo = getEmbargoedFiles(pathFileInfoMap, dateAvailable);
-        if (!filePathsToEmbargo.isEmpty()) {
-            var addEmbargo = new AddEmbargo();
-            addEmbargo.setDateAvailable(yyyymmddFormat.format(Date.from(dateAvailable)));
-            addEmbargo.setFilePaths(filePathsToEmbargo.stream().map(Path::toString).toList());
-            editFiles.setAddEmbargoes(List.of(addEmbargo));
-        }
+        addEmbargo(editFiles, pathFileInfoMap.keySet());
+
         return editFiles;
     }
 
@@ -123,10 +119,23 @@ public class EditFilesComposer {
             .toList();
     }
 
-    private List<Path> getEmbargoedFiles(Map<Path, FileInfo> files, Instant dateAvailable) {
-        var now = Instant.now();
-        if (dateAvailable.isAfter(now)) {
-            return files.keySet().stream()
+    protected void addEmbargo(EditFiles editFiles, Set<Path> candidates) {
+        if (dateAvailable.isAfter(Instant.now())) {
+            var filesToEmbargo = candidates.stream()
+                .filter(f -> !embargoExclusions.contains(f.toString())).toList();
+
+            if (!filesToEmbargo.isEmpty()) {
+                var addEmbargo = new AddEmbargo();
+                addEmbargo.setDateAvailable(yyyymmddFormat.format(Date.from(dateAvailable)));
+                addEmbargo.setFilePaths(filesToEmbargo.stream().map(Path::toString).toList());
+                editFiles.setAddEmbargoes(List.of(addEmbargo));
+            }
+        }
+    }
+
+    private List<Path> getEmbargoedFiles(Set<Path> candidates, Instant dateAvailable) {
+        if (dateAvailable.isAfter(Instant.now())) {
+            return candidates.stream()
                 .filter(f -> !embargoExclusions.contains(f.toString())).toList();
         }
         else {

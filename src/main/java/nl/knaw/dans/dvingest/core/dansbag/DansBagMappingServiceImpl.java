@@ -121,6 +121,7 @@ public class DansBagMappingServiceImpl implements DansBagMappingService {
 
     @Override
     public Dataset getDatasetMetadataFromDansDeposit(DansBagDeposit dansDeposit, DatasetVersion currentMetadata) {
+        // TODO: rename to DatasetComposer en push the terms stuff into it as well.
         var dataset = depositToDvDatasetMetadataMapper.toDataverseDataset(
             dansDeposit.getDdm(),
             dansDeposit.getOtherDoiId(),
