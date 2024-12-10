@@ -30,6 +30,7 @@ import java.util.Map;
 
 import static nl.knaw.dans.dvingest.core.dansbag.xml.XPathConstants.DDM_DCMI_METADATA;
 
+// TODO: move to mapping package
 public class SupportedLicenses {
     private final Map<URI, License> supportedLicenses;
 

@@ -27,6 +27,9 @@ import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+/**
+ * Test class for {@link DansDepositConverter}. It uses the valid examples from the dd-dans-sword2-examples project.
+ */
 public class DansDepositConverterTest extends DansConversionFixture {
 
     private final YamlService yamlService = new YamlServiceImpl();

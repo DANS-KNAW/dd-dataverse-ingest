@@ -47,9 +47,4 @@ public class DansBagMappingServiceTest extends DansConversionFixture {
         // When / Then
         assertThat(mappingService.getUpdatesDataset(testDepositDir)).isEqualTo(doi);
     }
-
-
-
-
-
 }

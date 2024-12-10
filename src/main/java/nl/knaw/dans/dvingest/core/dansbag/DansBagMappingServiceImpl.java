@@ -132,14 +132,17 @@ public class DansBagMappingServiceImpl implements DansBagMappingService {
             dansDeposit.getHasOrganizationalIdentifier(),
             dansDeposit.getHasOrganizationalIdentifierVersion());
         var version = dataset.getDatasetVersion();
-        version.setFileAccessRequest(dansDeposit.allowAccessRequests());
 
-        // TODO: when processing an update-deposit, retrieve terms of access from the previous version
-        if (!dansDeposit.allowAccessRequests() && StringUtils.isBlank(version.getTermsOfAccess())) {
+        // Allow access requests only if it was not forbidden in previous versions
+        var fileAccessRequest = dansDeposit.allowAccessRequests() && (currentMetadata == null || currentMetadata.getFileAccessRequest());
+        version.setFileAccessRequest(fileAccessRequest);
+        if (StringUtils.isBlank(version.getTermsOfAccess()) && currentMetadata != null) {
+            version.setTermsOfAccess(currentMetadata.getTermsOfAccess());
+        }
+        if (!fileAccessRequest && StringUtils.isBlank(version.getTermsOfAccess())) {
+            // Dataverse requires terms of access to be set if file access requests are disabled, so set it to "N/a" if not explicitly provided
             version.setTermsOfAccess("N/a");
         }
-
-
         version.setLicense(supportedLicenses.getLicenseFromDansDeposit(dansDeposit));
         return dataset;
     }
