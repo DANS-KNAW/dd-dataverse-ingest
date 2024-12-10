@@ -29,6 +29,7 @@ import nl.knaw.dans.dvingest.core.dansbag.exception.RejectedDepositException;
 import nl.knaw.dans.dvingest.core.service.DataverseService;
 import nl.knaw.dans.dvingest.core.service.YamlService;
 import nl.knaw.dans.lib.dataverse.DataverseException;
+import nl.knaw.dans.lib.dataverse.model.dataset.DatasetVersion;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -49,7 +50,8 @@ public class DansDepositSupport implements Deposit {
 
     private DansBagDeposit dansDeposit;
 
-    public DansDepositSupport(DataverseIngestDeposit dataverseIngestDeposit, ValidateDansBagService validateDansBagService, DansBagMappingService dansBagMappingService, DataverseService dataverseService, YamlService yamlService) {
+    public DansDepositSupport(DataverseIngestDeposit dataverseIngestDeposit, ValidateDansBagService validateDansBagService, DansBagMappingService dansBagMappingService,
+        DataverseService dataverseService, YamlService yamlService) {
         this.validateDansBagService = validateDansBagService;
         this.ingestDataverseIngestDeposit = dataverseIngestDeposit;
         this.dansBagMappingService = dansBagMappingService;
@@ -69,11 +71,13 @@ public class DansDepositSupport implements Deposit {
             log.info("Converting deposit to Dataverse ingest metadata");
             try {
                 var updatesDataset = dansBagMappingService.getUpdatesDataset(ingestDataverseIngestDeposit.getLocation());
+                DatasetVersion currentMetadata = null;
                 if (updatesDataset != null) {
                     ingestDataverseIngestDeposit.updateProperties(Map.of(UPDATES_DATASET_KEY, updatesDataset));
+                    currentMetadata = dataverseService.getDatasetMetadata(updatesDataset);
                 }
                 dansDeposit = dansBagMappingService.readDansDeposit(ingestDataverseIngestDeposit.getLocation());
-                new DansDepositConverter(dansDeposit, updatesDataset, dansBagMappingService, yamlService).run();
+                new DansDepositConverter(dansDeposit, updatesDataset, currentMetadata, dansBagMappingService, yamlService).run();
                 log.info("Conversion successful");
                 return true;
             }
@@ -119,7 +123,8 @@ public class DansDepositSupport implements Deposit {
                             "identifier.urn", nbn
                         )
                     );
-                } catch (IOException | DataverseException e) {
+                }
+                catch (IOException | DataverseException e) {
                     throw new RuntimeException("Error getting URN:NBN", e); // Cancelling the "success"
                 }
             }

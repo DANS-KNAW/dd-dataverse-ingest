@@ -21,6 +21,7 @@ import nl.knaw.dans.dvingest.core.yaml.EditFiles;
 import nl.knaw.dans.dvingest.core.yaml.EditPermissions;
 import nl.knaw.dans.lib.dataverse.DataverseException;
 import nl.knaw.dans.lib.dataverse.model.dataset.Dataset;
+import nl.knaw.dans.lib.dataverse.model.dataset.DatasetVersion;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -30,7 +31,7 @@ public interface DansBagMappingService {
 
     DansBagDeposit readDansDeposit(Path depositDir) throws InvalidDepositException;
 
-    Dataset getDatasetMetadataFromDansDeposit(DansBagDeposit dansDeposit);
+    Dataset getDatasetMetadataFromDansDeposit(DansBagDeposit dansDeposit, DatasetVersion updatesDataset);
 
     EditFiles getEditFilesFromDansDeposit(DansBagDeposit dansDeposit, String updatesDataset);
 

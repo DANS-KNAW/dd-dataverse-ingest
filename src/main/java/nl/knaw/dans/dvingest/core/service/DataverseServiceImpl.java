@@ -206,6 +206,11 @@ public class DataverseServiceImpl implements DataverseService {
             .findFirst().orElseThrow(() -> new IllegalStateException("No URN:NBN found in dataset"));
     }
 
+    @Override
+    public DatasetVersion getDatasetMetadata(String pid) throws IOException, DataverseException {
+        return dataverseClient.dataset(pid).getVersion().getData();
+    }
+
     // TODO: move this to dans-dataverse-client-lib; it is similar to awaitLockState.
     public void waitForState(String datasetId, String expectedState) {
         var numberOfTimesTried = 0;
@@ -239,8 +244,8 @@ public class DataverseServiceImpl implements DataverseService {
     }
 
     private String getDatasetState(String datasetId) throws IOException, DataverseException {
-        var version = dataverseClient.dataset(datasetId).getLatestVersion();
-        return version.getData().getLatestVersion().getVersionState();
+        var version = dataverseClient.dataset(datasetId).getVersion(Version.LATEST.toString(), true);
+        return version.getData().getVersionState();
 
     }
 }

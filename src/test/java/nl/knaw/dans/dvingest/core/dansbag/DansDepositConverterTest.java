@@ -44,7 +44,7 @@ public class DansDepositConverterTest extends DansConversionFixture {
         var deposit = dansBagDepositReader.readDeposit(depositDir);
 
         // When
-        new DansDepositConverter(deposit, null, mappingService, yamlService).run();
+        new DansDepositConverter(deposit, null, null, mappingService, yamlService).run();
 
         // Then
         assertThat(deposit.getBagDir().resolve("dataset.yml")).exists();

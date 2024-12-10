@@ -33,6 +33,7 @@ import nl.knaw.dans.dvingest.core.yaml.EditPermissions;
 import nl.knaw.dans.lib.dataverse.DataverseException;
 import nl.knaw.dans.lib.dataverse.model.RoleAssignment;
 import nl.knaw.dans.lib.dataverse.model.dataset.Dataset;
+import nl.knaw.dans.lib.dataverse.model.dataset.DatasetVersion;
 import nl.knaw.dans.lib.dataverse.model.user.AuthenticatedUser;
 import nl.knaw.dans.lib.util.ZipUtil;
 import org.apache.commons.lang3.StringUtils;
@@ -88,37 +89,38 @@ public class DansBagMappingServiceImpl implements DansBagMappingService {
                 .findFirst().orElseThrow(() -> new IllegalArgumentException("No bag found in deposit"));
             var bagInfo = new LightweightBagInfo(bag.resolve("bag-info.txt"));
             var isVersionOf = bagInfo.get("Is-Version-Of");
-            if (isVersionOf != null) {
-                log.debug("Found Is-Version-Of in bag-info.txt, so this is an update-deposit: {}", isVersionOf);
-                List<String> results;
-                if (dansDepositProperties.getSwordToken() != null) {
-                    log.debug("Found sword token in deposit.properties, looking for target dataset by sword token");
-                    results = dataverseService.findDoiByMetadataField("dansSwordToken", dansDepositProperties.getSwordToken());
-                }
-                else if (depositToDvDatasetMetadataMapper.isMigration()) {
-                    log.debug("This is a migration deposit, looking for target dataset by dansBagIt. Note that this will only work for two versions of the same dataset");
-                    results = dataverseService.findDoiByMetadataField("dansBagId", isVersionOf);
 
-                }
-                else {
-                    throw new IllegalArgumentException("Update deposit should have either a sword token or be a migration deposit");
-                }
-                if (results.size() == 1) {
-                    return results.get(0);
-                }
-                else {
-                    throw new IllegalArgumentException("Update deposit should update exactly one dataset, found " + results.size());
-                }
-            }
-            else {
+            if (isVersionOf == null) {
                 log.debug("No Is-Version-Of found in bag-info.txt, so this is a deposit of a new dataset");
                 return null;
+            }
+
+            log.debug("Found Is-Version-Of in bag-info.txt, so this is an update-deposit: {}", isVersionOf);
+            List<String> results;
+
+            if (dansDepositProperties.getSwordToken() != null) {
+                log.debug("Found sword token in deposit.properties, looking for target dataset by sword token");
+                results = dataverseService.findDoiByMetadataField("dansSwordToken", dansDepositProperties.getSwordToken());
+            }
+            else if (depositToDvDatasetMetadataMapper.isMigration()) {
+                log.debug("This is a migration deposit, looking for target dataset by dansBagId");
+                results = dataverseService.findDoiByMetadataField("dansBagId", isVersionOf);
+            }
+            else {
+                throw new IllegalArgumentException("Update deposit should have either a sword token or be a migration deposit");
+            }
+
+            if (results.size() == 1) {
+                return results.get(0);
+            }
+            else {
+                throw new IllegalArgumentException("Update deposit should update exactly one dataset, found " + results.size());
             }
         }
     }
 
     @Override
-    public Dataset getDatasetMetadataFromDansDeposit(DansBagDeposit dansDeposit) {
+    public Dataset getDatasetMetadataFromDansDeposit(DansBagDeposit dansDeposit, DatasetVersion currentMetadata) {
         var dataset = depositToDvDatasetMetadataMapper.toDataverseDataset(
             dansDeposit.getDdm(),
             dansDeposit.getOtherDoiId(),
@@ -136,6 +138,8 @@ public class DansBagMappingServiceImpl implements DansBagMappingService {
         if (!dansDeposit.allowAccessRequests() && StringUtils.isBlank(version.getTermsOfAccess())) {
             version.setTermsOfAccess("N/a");
         }
+
+
         version.setLicense(supportedLicenses.getLicenseFromDansDeposit(dansDeposit));
         return dataset;
     }
