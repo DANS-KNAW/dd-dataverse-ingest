@@ -24,6 +24,8 @@ import nl.knaw.dans.dvingest.core.yaml.EditMetadata;
 import nl.knaw.dans.dvingest.core.yaml.EditMetadataRoot;
 import nl.knaw.dans.dvingest.core.yaml.EditPermissions;
 import nl.knaw.dans.dvingest.core.yaml.EditPermissionsRoot;
+import nl.knaw.dans.dvingest.core.yaml.Init;
+import nl.knaw.dans.dvingest.core.yaml.InitRoot;
 import nl.knaw.dans.dvingest.core.yaml.UpdateState;
 import nl.knaw.dans.lib.dataverse.model.dataset.Dataset;
 
@@ -35,6 +37,7 @@ import java.util.Collections;
 public class DataverseIngestBag implements Comparable<DataverseIngestBag> {
     private final YamlServiceImpl yamService;
 
+    public static final String INIT_YML = "init.yml";
     public static final String DATASET_YML = "dataset.yml";
     public static final String EDIT_FILES_YML = "edit-files.yml";
     public static final String EDIT_METADATA_YML = "edit-metadata.yml";
@@ -54,6 +57,14 @@ public class DataverseIngestBag implements Comparable<DataverseIngestBag> {
 
     public boolean looksLikeDansBag() {
         return Files.exists(bagDir.resolve("metadata/dataset.xml"));
+    }
+
+    public Init getInit() throws IOException, ConfigurationException {
+        if (!Files.exists(bagDir.resolve(INIT_YML))) {
+            return null;
+        }
+        var initRoot = yamService.readYaml(bagDir.resolve(INIT_YML), InitRoot.class);
+        return initRoot.getInit();
     }
 
     public Dataset getDatasetMetadata() throws IOException, ConfigurationException {

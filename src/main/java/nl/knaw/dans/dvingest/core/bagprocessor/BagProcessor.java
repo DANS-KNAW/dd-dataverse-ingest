@@ -39,7 +39,7 @@ public class BagProcessor {
 
     @Builder
     private BagProcessor(UUID depositId, DataverseIngestBag bag, DataverseService dataverseService, UtilityServices utilityServices) throws IOException, ConfigurationException {
-        this.datasetVersionCreator = new DatasetVersionCreator(depositId, dataverseService, bag.getDatasetMetadata());
+        this.datasetVersionCreator = new DatasetVersionCreator(depositId, dataverseService, bag.getInit(), bag.getDatasetMetadata());
         this.filesEditor = new FilesEditor(depositId, bag.getDataDir(), bag.getEditFiles(), dataverseService, utilityServices);
         this.metadataEditor = new MetadataEditor(depositId, bag.getEditMetadata(), dataverseService);
         this.permissionsEditor = new PermissionsEditor(depositId, bag.getEditPermissions(), dataverseService);

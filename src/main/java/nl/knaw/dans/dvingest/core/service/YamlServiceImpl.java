@@ -28,6 +28,7 @@ import lombok.extern.slf4j.Slf4j;
 import nl.knaw.dans.dvingest.core.yaml.EditFilesRoot;
 import nl.knaw.dans.dvingest.core.yaml.EditMetadataRoot;
 import nl.knaw.dans.dvingest.core.yaml.EditPermissionsRoot;
+import nl.knaw.dans.dvingest.core.yaml.InitRoot;
 import nl.knaw.dans.dvingest.core.yaml.UpdateState;
 import nl.knaw.dans.lib.dataverse.MetadataFieldDeserializer;
 import nl.knaw.dans.lib.dataverse.model.dataset.Dataset;
@@ -69,6 +70,7 @@ public class YamlServiceImpl implements YamlService {
             mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, true);
             mapper.addMixIn(FileMeta.class, FileMetaMixin.class);
             mapper.registerModule(module);
+            yamlConfigurationFactories.put(InitRoot.class, new YamlConfigurationFactory<>(InitRoot.class, factory.getValidator(), mapper, "dw"));
             yamlConfigurationFactories.put(Dataset.class, new YamlConfigurationFactory<>(Dataset.class, factory.getValidator(), mapper, "dw"));
             yamlConfigurationFactories.put(EditFilesRoot.class, new YamlConfigurationFactory<>(EditFilesRoot.class, factory.getValidator(), mapper, "dw"));
             yamlConfigurationFactories.put(EditMetadataRoot.class, new YamlConfigurationFactory<>(EditMetadataRoot.class, factory.getValidator(), mapper, "dw"));

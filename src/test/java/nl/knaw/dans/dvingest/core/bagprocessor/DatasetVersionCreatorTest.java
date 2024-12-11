@@ -38,7 +38,7 @@ public class DatasetVersionCreatorTest {
         // Given
         var depositId = UUID.randomUUID();
         var dataset = new Dataset();
-        DatasetVersionCreator datasetVersionCreator = new DatasetVersionCreator(depositId, dataverseServiceMock, dataset);
+        DatasetVersionCreator datasetVersionCreator = new DatasetVersionCreator(depositId, dataverseServiceMock, null, dataset);
 
         // When
         datasetVersionCreator.createDatasetVersion(null);
@@ -53,7 +53,7 @@ public class DatasetVersionCreatorTest {
         // Given
         var depositId = UUID.randomUUID();
         var dataset = new Dataset();
-        DatasetVersionCreator datasetVersionCreator = new DatasetVersionCreator(depositId, dataverseServiceMock, dataset);
+        DatasetVersionCreator datasetVersionCreator = new DatasetVersionCreator(depositId, dataverseServiceMock, null,  dataset);
 
         // When
         datasetVersionCreator.createDatasetVersion("pid");
@@ -67,7 +67,7 @@ public class DatasetVersionCreatorTest {
     public void createDatasetVersion_throws_IllegalArgumentException_if_dataset_is_null() {
         // Given
         var depositId = UUID.randomUUID();
-        DatasetVersionCreator datasetVersionCreator = new DatasetVersionCreator(depositId, dataverseServiceMock, null);
+        DatasetVersionCreator datasetVersionCreator = new DatasetVersionCreator(depositId, dataverseServiceMock, null, null);
 
         // When
         // Then
@@ -80,7 +80,7 @@ public class DatasetVersionCreatorTest {
     public void createDatasetVersion_is_noop_if_dataset_is_null_and_targetPid_is_not_null() throws Exception {
         // Given
         var depositId = UUID.randomUUID();
-        DatasetVersionCreator datasetVersionCreator = new DatasetVersionCreator(depositId, dataverseServiceMock, null);
+        DatasetVersionCreator datasetVersionCreator = new DatasetVersionCreator(depositId, dataverseServiceMock, null, null);
 
         // When
         datasetVersionCreator.createDatasetVersion("pid");
@@ -96,14 +96,14 @@ public class DatasetVersionCreatorTest {
         var depositId = UUID.randomUUID();
         // When
         // Then
-        assertThatThrownBy(() -> new DatasetVersionCreator(depositId, null, new Dataset()))
+        assertThatThrownBy(() -> new DatasetVersionCreator(depositId, null, null, new Dataset()))
           .isInstanceOf(NullPointerException.class);
     }
 
     // Throws NullPointerException if dataverseService is null
     @Test
     public void ctor_throws_NullPointerException_if_depositId_is_null() {
-        assertThatThrownBy(() -> new DatasetVersionCreator(null, dataverseServiceMock, new Dataset()))
+        assertThatThrownBy(() -> new DatasetVersionCreator(null, dataverseServiceMock, null, new Dataset()))
           .isInstanceOf(NullPointerException.class);
     }
 }

@@ -211,6 +211,19 @@ public class DataverseServiceImpl implements DataverseService {
         return dataverseClient.dataset(pid).getVersion().getData();
     }
 
+    @Override
+    public String getDatasetState(String pid) throws IOException, DataverseException {
+        return dataverseClient.dataset(pid).getVersion(Version.LATEST.toString(), true).getData().getVersionState();
+    }
+
+    @Override
+    public void importDataset(String pid, Dataset dataset) throws IOException, DataverseException {
+        log.debug("Start importing dataset for deposit {}", pid);
+        var result = dataverseClient.dataverse("root").importDataset(dataset, pid, false);
+        log.debug(result.getEnvelopeAsString());
+        log.debug("End importing dataset for deposit {}", pid);
+    }
+
     // TODO: move this to dans-dataverse-client-lib; it is similar to awaitLockState.
     public void waitForState(String datasetId, String expectedState) {
         var numberOfTimesTried = 0;
@@ -241,11 +254,5 @@ public class DataverseServiceImpl implements DataverseService {
         catch (IOException | DataverseException e) {
             throw new RuntimeException(e);
         }
-    }
-
-    private String getDatasetState(String datasetId) throws IOException, DataverseException {
-        var version = dataverseClient.dataset(datasetId).getVersion(Version.LATEST.toString(), true);
-        return version.getData().getVersionState();
-
     }
 }

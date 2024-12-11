@@ -74,4 +74,8 @@ public interface DataverseService {
     List<String> findDoiByMetadataField(String fieldName, String value) throws IOException, DataverseException;
 
     DatasetVersion getDatasetMetadata(String pid) throws IOException, DataverseException;
+
+    String getDatasetState(String targetPid) throws IOException, DataverseException;
+
+    void importDataset(String pid, Dataset dataset) throws IOException, DataverseException;
 }

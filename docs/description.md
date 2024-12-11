@@ -39,11 +39,36 @@ closely follow the JSON that is passed to the Dataverse API.
 
 | File                   | Description                                                                                                                              |
 |------------------------|------------------------------------------------------------------------------------------------------------------------------------------|
+| `init.yml`             | Preconditions and instructions for creating a new dataset.                                                                               |
 | `dataset.yml`          | Dataset level metadata.                                                                                                                  |
 | `edit-files.yml`       | Instructions for deleting, replacing or moving files, or updating the file metadata;<br> also included: restricting and embargoing files |
 | `edit-metadata.yml`    | Edit dataset level metadata, including metadata value deletions                                                                          |
 | `edit-permissions.yml` | Role assignments to create or delete on the dataset                                                                                      |
 | `update-state.yml`     | Whether to publish the dataset version or submit it for review                                                                           |
+
+##### init.yml
+
+The init file initializes the ingest process. It can be used to verify that an expected precondition is met:
+
+```yaml
+init:
+  expect:
+    state: 'released' # or 'draft', 'absent'.
+```
+
+If the state of the dataset does not match the expected state, the ingest procedure will be aborted. The state can be either `released` or `draft`. The default
+is 'released', if `updates-dataset` is set in `deposit.properties`, and 'absent' otherwise.
+
+It can also be used to instruct the service to import the bag as a dataset with an existing DOI:
+
+```yaml
+init:
+  create:
+    importPid: 'doi:10.5072/FK2/ABCDEF'
+```
+
+In this case the `updates-dataset` property in `deposit.properties` must not be set. If 'create' is set, 'expect.state' must either be left out or set to
+'absent'.
 
 ##### dataset.yml
 
@@ -83,7 +108,7 @@ editFiles:
     - 'file4.txt'
     - 'subdirectory/file5.txt'
   addUnrestrictedFiles:
-    - 'file6.txt'  
+    - 'file6.txt'
   moveFiles:
     - from: 'file6.txt' # Old location in the dataset
       to: 'subdirectory/file6.txt' # New location in the dataset
@@ -107,7 +132,7 @@ editFiles:
 
 The actions specified in this file correspond roughly to the actions available in the dropdown menu in the file view of a dataset in Dataverse.
 
-The replacement file is looked up in the bag, under the `data` directory under the same path as the original file has in the dataset. Note that files in 
+The replacement file is looked up in the bag, under the `data` directory under the same path as the original file has in the dataset. Note that files in
 `replaceFiles` will automatically be skipped in the add files step, the deleted files, however, will not. In other words, it is also possible to remove a
 file and add a file back to the same location in one deposit. In that case, there will be no continuous history of the file in the dataset.
 
