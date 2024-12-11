@@ -17,10 +17,7 @@ package nl.knaw.dans.dvingest.core;
 
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
-import nl.knaw.dans.dvingest.client.ValidateDansBagService;
 import nl.knaw.dans.dvingest.core.bagprocessor.BagProcessor;
-import nl.knaw.dans.dvingest.core.dansbag.DansBagMappingService;
-import nl.knaw.dans.dvingest.core.dansbag.DansDepositSupport;
 import nl.knaw.dans.dvingest.core.dansbag.DansDepositSupportFactory;
 import nl.knaw.dans.dvingest.core.dansbag.exception.RejectedDepositException;
 import nl.knaw.dans.dvingest.core.service.DataverseService;

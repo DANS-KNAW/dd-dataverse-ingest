@@ -15,8 +15,6 @@
  */
 package nl.knaw.dans.dvingest.core;
 
-import nl.knaw.dans.lib.util.inbox.InboxTaskFactory;
-
 import java.nio.file.Path;
 
 public interface DepositTaskFactory {

@@ -26,15 +26,15 @@ import org.w3c.dom.Node;
 import java.util.List;
 import java.util.Optional;
 
-import static nl.knaw.dans.dvingest.core.dansbag.mapper.mapping.Contributor.contributorRoleToContributorType;
-import static nl.knaw.dans.dvingest.core.dansbag.mapper.mapping.IdUriHelper.reduceUriToId;
-import static nl.knaw.dans.dvingest.core.dansbag.mapper.mapping.IdUriHelper.reduceUriToOrcidId;
 import static nl.knaw.dans.dvingest.core.dansbag.mapper.DepositDatasetFieldNames.AUTHOR_AFFILIATION;
 import static nl.knaw.dans.dvingest.core.dansbag.mapper.DepositDatasetFieldNames.AUTHOR_IDENTIFIER;
 import static nl.knaw.dans.dvingest.core.dansbag.mapper.DepositDatasetFieldNames.AUTHOR_IDENTIFIER_SCHEME;
 import static nl.knaw.dans.dvingest.core.dansbag.mapper.DepositDatasetFieldNames.AUTHOR_NAME;
 import static nl.knaw.dans.dvingest.core.dansbag.mapper.DepositDatasetFieldNames.CONTRIBUTOR_NAME;
 import static nl.knaw.dans.dvingest.core.dansbag.mapper.DepositDatasetFieldNames.CONTRIBUTOR_TYPE;
+import static nl.knaw.dans.dvingest.core.dansbag.mapper.mapping.Contributor.contributorRoleToContributorType;
+import static nl.knaw.dans.dvingest.core.dansbag.mapper.mapping.IdUriHelper.reduceUriToId;
+import static nl.knaw.dans.dvingest.core.dansbag.mapper.mapping.IdUriHelper.reduceUriToOrcidId;
 
 @Slf4j
 public final class DcxDaiAuthor extends Base {

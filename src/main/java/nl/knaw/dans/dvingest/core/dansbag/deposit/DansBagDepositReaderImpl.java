@@ -17,8 +17,8 @@ package nl.knaw.dans.dvingest.core.dansbag.deposit;
 
 import gov.loc.repository.bagit.domain.Bag;
 import gov.loc.repository.bagit.reader.BagReader;
-import nl.knaw.dans.dvingest.core.dansbag.exception.InvalidDepositException;
 import nl.knaw.dans.dvingest.core.dansbag.ManifestUtil;
+import nl.knaw.dans.dvingest.core.dansbag.exception.InvalidDepositException;
 import nl.knaw.dans.dvingest.core.dansbag.xml.XPathEvaluator;
 import nl.knaw.dans.dvingest.core.dansbag.xml.XmlReader;
 import org.apache.commons.configuration2.Configuration;
