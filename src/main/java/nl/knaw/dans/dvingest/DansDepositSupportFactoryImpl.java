@@ -34,6 +34,8 @@ public class DansDepositSupportFactoryImpl implements DansDepositSupportFactory 
     private final DataverseService dataverseService;
     private final YamlService yamlService;
 
+    // todo: property isMigration
+
     @Override
     public Deposit addDansDepositSupportIfEnabled(DataverseIngestDeposit deposit) {
         return new DansDepositSupport(deposit, validateDansBagService, dansBagMappingService, dataverseService, yamlService);

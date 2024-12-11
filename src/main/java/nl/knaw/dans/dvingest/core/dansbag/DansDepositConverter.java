@@ -20,6 +20,7 @@ import nl.knaw.dans.dvingest.core.dansbag.deposit.DansBagDeposit;
 import nl.knaw.dans.dvingest.core.service.YamlService;
 import nl.knaw.dans.dvingest.core.yaml.EditFilesRoot;
 import nl.knaw.dans.dvingest.core.yaml.EditPermissionsRoot;
+import nl.knaw.dans.dvingest.core.yaml.InitRoot;
 import nl.knaw.dans.dvingest.core.yaml.UpdateState;
 import nl.knaw.dans.lib.dataverse.model.dataset.DatasetVersion;
 
@@ -36,6 +37,9 @@ public class DansDepositConverter {
     public void run() throws IOException {
         // TODO: pass to getEditFilesFromDansDeposit so that update-deposit can register it as a replaced file
         var originalMetadataPath = mappingService.packageOriginalMetadata(dansDeposit);
+
+        var init = mappingService.getInitFromDansDeposit(dansDeposit);
+        yamlService.writeYaml(new InitRoot(init), dansDeposit.getBagDir().resolve("init.yml"));
 
         var dataset = mappingService.getDatasetMetadataFromDansDeposit(dansDeposit, currentMetadata);
         yamlService.writeYaml(dataset, dansDeposit.getBagDir().resolve("dataset.yml"));

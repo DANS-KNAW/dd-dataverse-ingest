@@ -79,7 +79,7 @@ public class DatasetVersionCreator {
             if (StringUtils.isBlank(create.getImportPid())) {
                 throw new IllegalArgumentException("Cannot import a dataset without a PID.");
             }
-            if (expect != null && expect.getState() != null && !"absent".equals(expect.getState().toLowerCase())) {
+            if (expect != null && expect.getState() != null && !"absent".equalsIgnoreCase(expect.getState())) {
                 throw new IllegalArgumentException("Cannot expect a state other than 'absent' when importing a dataset.");
             }
         }

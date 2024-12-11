@@ -28,8 +28,10 @@ import nl.knaw.dans.dvingest.core.dansbag.xml.XPathEvaluator;
 import nl.knaw.dans.dvingest.core.dansbag.xml.XmlReader;
 import nl.knaw.dans.dvingest.core.dansbag.xml.XmlReaderImpl;
 import nl.knaw.dans.dvingest.core.service.DataverseService;
+import nl.knaw.dans.dvingest.core.yaml.Create;
 import nl.knaw.dans.dvingest.core.yaml.EditFiles;
 import nl.knaw.dans.dvingest.core.yaml.EditPermissions;
+import nl.knaw.dans.dvingest.core.yaml.Init;
 import nl.knaw.dans.lib.dataverse.DataverseException;
 import nl.knaw.dans.lib.dataverse.model.RoleAssignment;
 import nl.knaw.dans.lib.dataverse.model.dataset.Dataset;
@@ -120,6 +122,21 @@ public class DansBagMappingServiceImpl implements DansBagMappingService {
     }
 
     @Override
+    public Init getInitFromDansDeposit(DansBagDeposit dansDeposit) {
+        if (depositToDvDatasetMetadataMapper.isMigration()) {
+            var init = new Init();
+            var create = new Create();
+            if (StringUtils.isBlank(dansDeposit.getDoi())) {
+                throw new IllegalArgumentException("Migration deposit must have a DOI");
+            }
+            create.setImportPid(dansDeposit.getDoi());
+            init.setCreate(create);
+            return init;
+        }
+        return null;
+    }
+
+    @Override
     public Dataset getDatasetMetadataFromDansDeposit(DansBagDeposit dansDeposit, DatasetVersion currentMetadata) {
         // TODO: rename to DatasetComposer en push the terms stuff into it as well.
         var dataset = depositToDvDatasetMetadataMapper.toDataverseDataset(
@@ -178,11 +195,14 @@ public class DansBagMappingServiceImpl implements DansBagMappingService {
 
     @Override
     public String packageOriginalMetadata(DansBagDeposit dansDeposit) throws IOException {
-        // Zip the contents of the metadata directory of the bag
-        var metadataDir = dansDeposit.getBagDir().resolve("metadata");
-        var zipFile = dansDeposit.getBagDir().resolve("data/original-metadata.zip");
-        ZipUtil.zipDirectory(metadataDir, zipFile, false);
-        return zipFile.toString();
+        if (!depositToDvDatasetMetadataMapper.isMigration()) {
+            // Zip the contents of the metadata directory of the bag
+            var metadataDir = dansDeposit.getBagDir().resolve("metadata");
+            var zipFile = dansDeposit.getBagDir().resolve("data/original-metadata.zip");
+            ZipUtil.zipDirectory(metadataDir, zipFile, false);
+            return zipFile.toString();
+        }
+        return null;
     }
 
     // todo: move to mapping package

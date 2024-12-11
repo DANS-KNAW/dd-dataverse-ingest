@@ -111,6 +111,8 @@ public class DansDepositSupport implements Deposit {
     @Override
     public void onSuccess(@NonNull String pid, String message) {
         try {
+            // todo: skip for migration deposit
+
             var bag = ingestDataverseIngestDeposit.getBags().get(0);
             var action = bag.getUpdateState().getAction();
             if (action.startsWith("publish")) {

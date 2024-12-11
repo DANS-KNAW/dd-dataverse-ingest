@@ -19,6 +19,7 @@ import nl.knaw.dans.dvingest.core.dansbag.deposit.DansBagDeposit;
 import nl.knaw.dans.dvingest.core.dansbag.exception.InvalidDepositException;
 import nl.knaw.dans.dvingest.core.yaml.EditFiles;
 import nl.knaw.dans.dvingest.core.yaml.EditPermissions;
+import nl.knaw.dans.dvingest.core.yaml.Init;
 import nl.knaw.dans.lib.dataverse.DataverseException;
 import nl.knaw.dans.lib.dataverse.model.dataset.Dataset;
 import nl.knaw.dans.lib.dataverse.model.dataset.DatasetVersion;
@@ -48,6 +49,14 @@ public interface DansBagMappingService {
      * @throws InvalidDepositException if the deposit is invalid
      */
     DansBagDeposit readDansDeposit(Path depositDir) throws InvalidDepositException;
+
+    /**
+     * Determines what preconditions to expect and whether and how to create a new dataset based on the DANS deposit.
+     *
+     * @param dansDeposit the DANS deposit
+     * @return the preconditions to expect and whether and how to create a new dataset
+     */
+    Init getInitFromDansDeposit(DansBagDeposit dansDeposit);
 
     /**
      * Maps the metadata from the DANS deposit to the new dataset level metadata for the dataset. For some parts the new metadata depends on the current metadata of the dataset. That is why the
