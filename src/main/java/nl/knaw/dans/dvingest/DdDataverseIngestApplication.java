@@ -82,6 +82,7 @@ public class DdDataverseIngestApplication extends Application<DdDataverseIngestC
             .build();
         var yamlService = new YamlServiceImpl();
         var dataverseIngestDepositFactory = new DataverseIngestDepositFactoryImpl(yamlService);
+        var bagProcessorFactory = new BagProcessorFactoryImpl(dataverseService, utilityServices);
 
         /*
          *  Import area
@@ -93,7 +94,7 @@ public class DdDataverseIngestApplication extends Application<DdDataverseIngestC
             var validateDansBagImportImport = new ValidateDansBagServiceImpl(dansDepositConversionConfig.getValidateDansBag(), false);
             dansDepositSupportFactoryImport = new DansDepositSupportFactoryImpl(validateDansBagImportImport, dansBagMappingServiceImport, dataverseService, yamlService);
         }
-        var depositTaskFactoryImport = new DepositTaskFactoryImpl(dataverseService, utilityServices, dansDepositSupportFactoryImport, yamlService);
+        var depositTaskFactoryImport = new DepositTaskFactoryImpl(bagProcessorFactory, dansDepositSupportFactoryImport);
         var importJobFactory = new ImportJobFactoryImpl(dataverseIngestDepositFactory, depositTaskFactoryImport);
         IngestAreaConfig importConfig = configuration.getIngest().getImportConfig();
         var importArea = new IngestArea(importJobFactory, importConfig.getInbox(), importConfig.getOutbox(),
@@ -108,7 +109,7 @@ public class DdDataverseIngestApplication extends Application<DdDataverseIngestC
             var validateDansBagImport = new ValidateDansBagServiceImpl(dansDepositConversionConfig.getValidateDansBag(), true);
             dansDepositSupportFactoryMigration = new DansDepositSupportFactoryImpl(validateDansBagImport, dansBagMappingService, dataverseService, yamlService);
         }
-        var depositTaskFactoryMigration = new DepositTaskFactoryImpl(dataverseService, utilityServices, dansDepositSupportFactoryMigration, yamlService);
+        var depositTaskFactoryMigration = new DepositTaskFactoryImpl(bagProcessorFactory, dansDepositSupportFactoryMigration);
         var migrationJobFactory = new ImportJobFactoryImpl(dataverseIngestDepositFactory, depositTaskFactoryMigration);
         IngestAreaConfig migrationConfig = configuration.getIngest().getMigration();
         var migrationArea = new IngestArea(migrationJobFactory, migrationConfig.getInbox(), migrationConfig.getOutbox(),

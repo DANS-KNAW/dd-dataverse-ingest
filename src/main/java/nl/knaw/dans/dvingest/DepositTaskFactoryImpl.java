@@ -19,22 +19,18 @@ import lombok.AllArgsConstructor;
 import nl.knaw.dans.dvingest.core.DataverseIngestDeposit;
 import nl.knaw.dans.dvingest.core.DepositTask;
 import nl.knaw.dans.dvingest.core.DepositTaskFactory;
+import nl.knaw.dans.dvingest.core.bagprocessor.BagProcessorFactory;
 import nl.knaw.dans.dvingest.core.dansbag.DansDepositSupportFactory;
-import nl.knaw.dans.dvingest.core.service.DataverseService;
-import nl.knaw.dans.dvingest.core.service.UtilityServices;
-import nl.knaw.dans.dvingest.core.service.YamlService;
 
 import java.nio.file.Path;
 
 @AllArgsConstructor
 public class DepositTaskFactoryImpl implements DepositTaskFactory {
-    private final DataverseService dataverseService;
-    private final UtilityServices utilityServices;
+    private final BagProcessorFactory bagProcessorFactory;
     private final DansDepositSupportFactory dansDepositSupportFactory;
-    private final YamlService yamlService;
 
     @Override
     public Runnable createDepositTask(DataverseIngestDeposit deposit, Path outputDir, boolean onlyConvertDansDeposit) {
-        return new DepositTask(deposit, outputDir, onlyConvertDansDeposit, dansDepositSupportFactory, dataverseService, utilityServices, yamlService);
+        return new DepositTask(deposit, outputDir, onlyConvertDansDeposit, bagProcessorFactory, dansDepositSupportFactory);
     }
 }

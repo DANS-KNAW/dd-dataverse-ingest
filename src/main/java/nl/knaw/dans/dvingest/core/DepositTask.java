@@ -17,12 +17,9 @@ package nl.knaw.dans.dvingest.core;
 
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
-import nl.knaw.dans.dvingest.core.bagprocessor.BagProcessor;
+import nl.knaw.dans.dvingest.core.bagprocessor.BagProcessorFactory;
 import nl.knaw.dans.dvingest.core.dansbag.DansDepositSupportFactory;
 import nl.knaw.dans.dvingest.core.dansbag.exception.RejectedDepositException;
-import nl.knaw.dans.dvingest.core.service.DataverseService;
-import nl.knaw.dans.dvingest.core.service.UtilityServices;
-import nl.knaw.dans.dvingest.core.service.YamlService;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -39,18 +36,17 @@ public class DepositTask implements Runnable {
     private final Deposit deposit;
     private final Path outputDir;
     private final boolean onlyConvertDansDeposit;
-    private final DataverseService dataverseService;
-    private final UtilityServices utilityServices;
+    private final BagProcessorFactory bagProcessorFactory;
 
     @Getter
     private Status status = Status.TODO;
 
-    public DepositTask(DataverseIngestDeposit dataverseIngestDeposit, Path outputDir, boolean onlyConvertDansDeposit, DansDepositSupportFactory dansDepositSupportFactory, DataverseService dataverseService, UtilityServices utilityServices, YamlService yamlService) {
+    public DepositTask(DataverseIngestDeposit dataverseIngestDeposit, Path outputDir, boolean onlyConvertDansDeposit, BagProcessorFactory bagProcessorFactory,
+        DansDepositSupportFactory dansDepositSupportFactory) {
         this.deposit = dansDepositSupportFactory.addDansDepositSupportIfEnabled(dataverseIngestDeposit);
-        this.dataverseService = dataverseService;
-        this.onlyConvertDansDeposit = onlyConvertDansDeposit;
-        this.utilityServices = utilityServices;
         this.outputDir = outputDir;
+        this.onlyConvertDansDeposit = onlyConvertDansDeposit;
+        this.bagProcessorFactory = bagProcessorFactory;
     }
 
     @Override
@@ -66,13 +62,7 @@ public class DepositTask implements Runnable {
 
             for (DataverseIngestBag bag : deposit.getBags()) {
                 log.info("START processing deposit / bag: {} / {}", deposit.getId(), bag);
-                pid = BagProcessor.builder()
-                    .depositId(deposit.getId())
-                    .bag(bag)
-                    .dataverseService(dataverseService)
-                    .utilityServices(utilityServices)
-                    .build()
-                    .run(pid);
+                pid = bagProcessorFactory.createBagProcessor(deposit.getId(), bag).run(pid);
                 log.info("END processing deposit / bag: {} / {}", deposit.getId(), bag);
             }
             deposit.onSuccess(pid, "Deposit processed successfully");
