@@ -26,16 +26,63 @@ import nl.knaw.dans.lib.dataverse.model.dataset.DatasetVersion;
 import java.io.IOException;
 import java.nio.file.Path;
 
+/**
+ * Service for mapping a DANS deposit to a standard Dataverse ingest deposit. A DANS deposit has only one bag, which must conform to the DANS BagIt Profile.
+ */
 public interface DansBagMappingService {
+    /**
+     * Returns the DOI of the dataset that needs to be updated. If the deposit is to create a new dataset, this method returns null.
+     *
+     * @param depositDir the deposit directory
+     * @return the DOI of the dataset that needs to be updated, or null if the deposit is to create a new dataset
+     * @throws IOException        if there was an error reading the deposit or calling Dataverse
+     * @throws DataverseException if a call to Dataverse failed
+     */
     String getUpdatesDataset(Path depositDir) throws IOException, DataverseException;
 
+    /**
+     * Reads the DANS deposit from the given directory into a {@link DansBagDeposit} object.
+     *
+     * @param depositDir the deposit directory
+     * @return the DANS deposit object
+     * @throws InvalidDepositException if the deposit is invalid
+     */
     DansBagDeposit readDansDeposit(Path depositDir) throws InvalidDepositException;
 
+    /**
+     * Maps the metadata from the DANS deposit to the new dataset level metadata for the dataset. For some parts the new metadata depends on the current metadata of the dataset. That is why the
+     * current metadata is also given as input. If the deposit is to create a new dataset, the current metadata is null.
+     *
+     * @param dansDeposit     the DANS deposit
+     * @param currentMetadata the current metadata of the dataset
+     * @return the new dataset level metadata
+     */
     Dataset getDatasetMetadataFromDansDeposit(DansBagDeposit dansDeposit, DatasetVersion currentMetadata);
 
+    /**
+     * Maps file information in the DANS bag to edit actions for the files in the dataset. The edit actions are used to update the files in the dataset.
+     *
+     * @param dansDeposit    the DANS deposit
+     * @param updatesDataset the DOI of the dataset that needs to be updated, or null if the deposit is to create a new dataset
+     * @return the edit actions for the files in the dataset
+     */
     EditFiles getEditFilesFromDansDeposit(DansBagDeposit dansDeposit, String updatesDataset);
 
+    /**
+     * Maps the permissions in the DANS deposit to edit actions for the permissions of the dataset. The edit actions are used to update the permissions of the dataset.
+     *
+     * @param dansDeposit    the DANS deposit
+     * @param updatesDataset the DOI of the dataset that needs to be updated, or null if the deposit is to create a new dataset
+     * @return the edit actions for the permissions of the dataset
+     */
     EditPermissions getEditPermissionsFromDansDeposit(DansBagDeposit dansDeposit, String updatesDataset);
 
+    /**
+     * Packages the original metadata of the DANS bag into a ZIP file and returns the local path to the ZIP file.
+     *
+     * @param dansDeposit the DANS deposit
+     * @return the local path to the ZIP file
+     * @throws IOException if there was an error reading the deposit or writing the ZIP file
+     */
     String packageOriginalMetadata(DansBagDeposit dansDeposit) throws IOException;
 }

@@ -21,8 +21,20 @@ import nl.knaw.dans.dvingest.core.DataverseIngestBag;
 import java.io.IOException;
 import java.util.UUID;
 
+/**
+ * Factory for creating BagProcessors.
+ */
 public interface BagProcessorFactory {
 
+    /**
+     * Create a BagProcessor for the given deposit.
+     *
+     * @param depositId the deposit id
+     * @param bag       the bag
+     * @return the BagProcessor
+     * @throws ConfigurationException if the Yaml files in the bag are not valid
+     * @throws IOException            if there was a problem readin the bag files
+     */
     BagProcessor createBagProcessor(UUID depositId, DataverseIngestBag bag) throws ConfigurationException, IOException;
 
 }

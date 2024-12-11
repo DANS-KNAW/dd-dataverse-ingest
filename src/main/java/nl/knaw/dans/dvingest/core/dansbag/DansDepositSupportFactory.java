@@ -18,8 +18,18 @@ package nl.knaw.dans.dvingest.core.dansbag;
 import nl.knaw.dans.dvingest.core.DataverseIngestDeposit;
 import nl.knaw.dans.dvingest.core.Deposit;
 
+/**
+ * Factory for creating DansDepositSupport objects.
+ */
 public interface DansDepositSupportFactory {
 
+    /**
+     * Create a DansDepositSupport object for the given deposit. The object implements the {@link Deposit} interface, implementing the appropriate methods and forwarding the others to call the
+     * original deposit. If DANS deposit support is disabled, the deposit is returned as is.
+     *
+     * @param deposit the deposit
+     * @return the DansDepositSupport object
+     */
     Deposit addDansDepositSupportIfEnabled(DataverseIngestDeposit deposit);
 
 }
