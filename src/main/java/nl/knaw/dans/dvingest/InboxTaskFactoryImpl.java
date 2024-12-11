@@ -26,10 +26,11 @@ import java.nio.file.Path;
 public class InboxTaskFactoryImpl implements InboxTaskFactory {
     private final DataverseIngestDepositFactory dataverseIngestDepositFactory;
     private final DepositTaskFactory depositTaskFactory;
+    private final Path outputDir;
 
     @Override
     public Runnable createInboxTask(Path path) {
         var dataVerseIngestDeposit = dataverseIngestDepositFactory.createDataverseIngestDeposit(path);
-        return depositTaskFactory.createDepositTask(dataVerseIngestDeposit, path, false);
+        return depositTaskFactory.createDepositTask(dataVerseIngestDeposit, outputDir, false);
     }
 }

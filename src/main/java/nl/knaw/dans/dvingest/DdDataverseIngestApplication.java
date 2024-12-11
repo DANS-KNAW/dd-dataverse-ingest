@@ -118,7 +118,7 @@ public class DdDataverseIngestApplication extends Application<DdDataverseIngestC
          * Auto ingest area
          */
         var autoIngestConfig = configuration.getIngest().getAutoIngest();
-        var inboxTaskFactory = new InboxTaskFactoryImpl(dataverseIngestDepositFactory, depositTaskFactoryImport);
+        var inboxTaskFactory = new InboxTaskFactoryImpl(dataverseIngestDepositFactory, depositTaskFactoryImport, autoIngestConfig.getOutbox());
         var inbox = Inbox.builder().inbox(autoIngestConfig.getInbox()).taskFactory(inboxTaskFactory).build();
         var autoIngestArea = new AutoIngestArea(inbox, autoIngestConfig.getOutbox());
 
