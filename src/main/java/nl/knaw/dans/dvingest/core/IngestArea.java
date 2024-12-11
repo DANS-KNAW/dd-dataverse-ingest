@@ -15,17 +15,11 @@
  */
 package nl.knaw.dans.dvingest.core;
 
-import lombok.Builder;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import nl.knaw.dans.dvingest.api.ImportCommandDto;
 import nl.knaw.dans.dvingest.api.ImportJobStatusDto;
 import nl.knaw.dans.dvingest.api.ImportJobStatusDto.StatusEnum;
-import nl.knaw.dans.dvingest.client.ValidateDansBagService;
-import nl.knaw.dans.dvingest.core.dansbag.DansBagMappingService;
-import nl.knaw.dans.dvingest.core.service.DataverseService;
-import nl.knaw.dans.dvingest.core.service.UtilityServices;
-import nl.knaw.dans.dvingest.core.service.YamlService;
 
 import java.nio.file.Path;
 import java.util.List;
@@ -34,17 +28,11 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 
 @Slf4j
-public class IngestArea  {
+public class IngestArea {
     @NonNull
     private final ExecutorService executorService;
     @NonNull
-    private final DataverseService dataverseService;
-    @NonNull
-    private final UtilityServices utilityServices;
-    @NonNull
-    private final DansBagMappingService dansBagMappingService;
-    @NonNull
-    private final ValidateDansBagService validateDansBagService;
+    private final ImportJobFactory importJobFactory;
     @NonNull
     private final Path inbox;
     @NonNull
@@ -52,26 +40,17 @@ public class IngestArea  {
 
     private final Map<String, ImportJob> importJobs = new ConcurrentHashMap<>();
 
-    @NonNull
-    private final YamlService yamlService;
-
-    @Builder
-    protected IngestArea(ExecutorService executorService, ValidateDansBagService validateDansBagService, DataverseService dataverseService, UtilityServices utilityServices, DansBagMappingService dansBagMappingService, YamlService yamlService, Path inbox, Path outbox) {
+    public IngestArea(ImportJobFactory importJobFactory, Path inbox, Path outbox, ExecutorService executorService) {
         try {
-            this.executorService = executorService;
-            this.validateDansBagService = validateDansBagService;
-            this.dataverseService = dataverseService;
-            this.utilityServices = utilityServices;
-            this.dansBagMappingService = dansBagMappingService;
-            this.yamlService = yamlService;
+            this.importJobFactory = importJobFactory;
             this.inbox = inbox.toAbsolutePath().toRealPath();
             this.outbox = outbox.toAbsolutePath().toRealPath();
+            this.executorService = executorService;
         }
         catch (Exception e) {
             throw new IllegalStateException("Failed to create ingest area", e);
         }
     }
-
 
     public void submit(ImportCommandDto importCommand) {
         log.debug("Received import command: {}", importCommand);
@@ -108,16 +87,7 @@ public class IngestArea  {
         else {
             relativePath = inbox.relativize(Path.of(importCommand.getPath()));
         }
-        return ImportJob.builder()
-            .importCommand(importCommand)
-            .outputDir(outbox.resolve(relativePath))
-            .onlyConvertDansDeposit(importCommand.getOnlyConvertDansBag())
-            .dataverseService(dataverseService)
-            .utilityServices(utilityServices)
-            .yamlService(yamlService)
-            .dansBagMappingService(dansBagMappingService)
-            .validateDansBagService(validateDansBagService)
-            .build();
+        return importJobFactory.createImportJob(importCommand, outbox.resolve(relativePath), importCommand.getOnlyConvertDansBag());
     }
 
     private void validatePath(String path) {

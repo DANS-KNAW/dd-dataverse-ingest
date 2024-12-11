@@ -16,35 +16,17 @@
 package nl.knaw.dans.dvingest.core;
 
 import io.dropwizard.lifecycle.Managed;
-import lombok.Builder;
-import lombok.NonNull;
+import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import nl.knaw.dans.dvingest.client.ValidateDansBagService;
-import nl.knaw.dans.dvingest.core.dansbag.DansBagMappingService;
-import nl.knaw.dans.dvingest.core.service.DataverseService;
-import nl.knaw.dans.dvingest.core.service.UtilityServices;
-import nl.knaw.dans.dvingest.core.service.YamlService;
 import nl.knaw.dans.lib.util.inbox.Inbox;
 
 import java.nio.file.Path;
-import java.util.concurrent.ExecutorService;
 
 @Slf4j
-public class AutoIngestArea extends IngestArea implements Managed {
+@AllArgsConstructor
+public class AutoIngestArea implements Managed {
     private final Inbox autoIngestInbox;
-
-    @Builder(builderMethodName = "autoIngestAreaBuilder")
-    public AutoIngestArea(@NonNull ExecutorService executorService, @NonNull ValidateDansBagService validateDansBagService, @NonNull DataverseService dataverseService,
-        @NonNull UtilityServices utilityServices,
-        DansBagMappingService dansBagMappingService /* may be null if disabled !*/, @NonNull YamlService yamlService,
-        Path inbox, Path outbox) {
-        super(executorService, validateDansBagService, dataverseService, utilityServices, dansBagMappingService, yamlService, inbox, outbox);
-        var inboxTaskFactory = new DepositInboxTaskFactory(outbox, false, dataverseService, utilityServices, validateDansBagService, dansBagMappingService, yamlService);
-        autoIngestInbox = Inbox.builder()
-            .inbox(inbox)
-            .taskFactory(inboxTaskFactory)
-            .build();
-    }
+    private final Path outbox;
 
     private void initOutputDir() {
         log.debug("Initializing output directory: {}", outbox);

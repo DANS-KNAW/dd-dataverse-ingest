@@ -13,31 +13,29 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package nl.knaw.dans.dvingest.core;
+package nl.knaw.dans.dvingest;
 
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import nl.knaw.dans.dvingest.client.ValidateDansBagService;
+import nl.knaw.dans.dvingest.core.DataverseIngestDeposit;
+import nl.knaw.dans.dvingest.core.Deposit;
 import nl.knaw.dans.dvingest.core.dansbag.DansBagMappingService;
+import nl.knaw.dans.dvingest.core.dansbag.DansDepositSupport;
+import nl.knaw.dans.dvingest.core.dansbag.DansDepositSupportFactory;
 import nl.knaw.dans.dvingest.core.service.DataverseService;
-import nl.knaw.dans.dvingest.core.service.UtilityServices;
 import nl.knaw.dans.dvingest.core.service.YamlService;
-import nl.knaw.dans.lib.util.inbox.InboxTaskFactory;
 
-import java.nio.file.Path;
-
+@Slf4j
 @AllArgsConstructor
-public class DepositInboxTaskFactory implements InboxTaskFactory {
-    private final Path outputDir;
-    private final boolean onlyConvertDansDeposit;
-    private final DataverseService dataverseService;
-    private final UtilityServices utilityServices;
+public class DansDepositSupportFactoryImpl implements DansDepositSupportFactory {
     private final ValidateDansBagService validateDansBagService;
     private final DansBagMappingService dansBagMappingService;
+    private final DataverseService dataverseService;
     private final YamlService yamlService;
 
     @Override
-    public Runnable createInboxTask(Path path) {
-        var deposit = new DataverseIngestDeposit(path, yamlService);
-        return new DepositTask(deposit, outputDir, onlyConvertDansDeposit, validateDansBagService, dataverseService, utilityServices, dansBagMappingService, yamlService);
+    public Deposit addDansDepositSupportIfEnabled(DataverseIngestDeposit deposit) {
+        return new DansDepositSupport(deposit, validateDansBagService, dansBagMappingService, dataverseService, yamlService);
     }
 }

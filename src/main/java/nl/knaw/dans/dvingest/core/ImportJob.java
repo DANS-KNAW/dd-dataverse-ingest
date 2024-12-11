@@ -15,18 +15,13 @@
  */
 package nl.knaw.dans.dvingest.core;
 
-import lombok.Builder;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import nl.knaw.dans.dvingest.api.ImportCommandDto;
 import nl.knaw.dans.dvingest.api.ImportJobStatusDto;
 import nl.knaw.dans.dvingest.api.ImportJobStatusDto.StatusEnum;
-import nl.knaw.dans.dvingest.client.ValidateDansBagService;
-import nl.knaw.dans.dvingest.core.dansbag.DansBagMappingService;
-import nl.knaw.dans.dvingest.core.service.DataverseService;
-import nl.knaw.dans.dvingest.core.service.UtilityServices;
-import nl.knaw.dans.dvingest.core.service.YamlService;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -34,7 +29,7 @@ import java.nio.file.Path;
 import java.util.TreeSet;
 
 @Slf4j
-@Builder
+@AllArgsConstructor
 public class ImportJob implements Runnable {
     @NonNull
     @Getter
@@ -42,36 +37,11 @@ public class ImportJob implements Runnable {
     @NonNull
     private final Path outputDir;
     private boolean onlyConvertDansDeposit;
-    @NonNull
-    private final DataverseService dataverseService;
-    @NonNull
-    private final UtilityServices utilityServices;
-    @NonNull
-    private final YamlService yamlService;
-    @NonNull
-    private final DansBagMappingService dansBagMappingService;
-    @NonNull
-    private final ValidateDansBagService validateDansBagService;
+    private final DataverseIngestDepositFactory depositFactory;
+    private final DepositTaskFactory depositTaskFactory;
 
     @Getter
     private final ImportJobStatusDto status = new ImportJobStatusDto();
-
-    private ImportJob(@NonNull ImportCommandDto importCommand,
-        @NonNull Path outputDir,
-        boolean onlyConvertDansDeposit,
-        @NonNull DataverseService dataverseService,
-        @NonNull UtilityServices utilityServices,
-        @NonNull YamlService yamlService,
-        @NonNull DansBagMappingService dansBagMappingService, @NonNull ValidateDansBagService validateDansBagService) {
-        this.importCommand = importCommand;
-        this.outputDir = outputDir;
-        this.onlyConvertDansDeposit = onlyConvertDansDeposit;
-        this.dataverseService = dataverseService;
-        this.utilityServices = utilityServices;
-        this.yamlService = yamlService;
-        this.dansBagMappingService = dansBagMappingService;
-        this.validateDansBagService = validateDansBagService;
-    }
 
     @Override
     public void run() {
@@ -83,11 +53,14 @@ public class ImportJob implements Runnable {
             var deposits = new TreeSet<DataverseIngestDeposit>();
 
             if (importCommand.getSingleObject()) {
-                deposits.add(new DataverseIngestDeposit(Path.of(importCommand.getPath()), yamlService));
+                deposits.add(depositFactory.createDataverseIngestDeposit(Path.of(importCommand.getPath())));
             }
             else {
                 try (var depositPaths = Files.list(Path.of(importCommand.getPath()))) {
-                    depositPaths.filter(Files::isDirectory).sorted().forEach(p -> deposits.add(new DataverseIngestDeposit(p, yamlService)));
+                    depositPaths.filter(Files::isDirectory)
+                        .sorted()
+                        .map(depositFactory::createDataverseIngestDeposit)
+                        .forEach(deposits::add);
                 }
             }
 
@@ -95,7 +68,7 @@ public class ImportJob implements Runnable {
 
             for (DataverseIngestDeposit dataverseIngestDeposit : deposits) {
                 log.info("START Processing deposit: {}", dataverseIngestDeposit.getId());
-                var task = new DepositTask(dataverseIngestDeposit, outputDir, onlyConvertDansDeposit, validateDansBagService, dataverseService, utilityServices, dansBagMappingService, yamlService);
+                var task = depositTaskFactory.createDepositTask(dataverseIngestDeposit, outputDir, onlyConvertDansDeposit);
                 task.run();
                 log.info("END Processing deposit: {}", dataverseIngestDeposit.getId());
                 // TODO: record number of processed/rejected/failed deposits in ImportJob status

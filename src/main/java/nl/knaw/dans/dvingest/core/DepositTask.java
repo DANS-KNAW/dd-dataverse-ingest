@@ -21,6 +21,7 @@ import nl.knaw.dans.dvingest.client.ValidateDansBagService;
 import nl.knaw.dans.dvingest.core.bagprocessor.BagProcessor;
 import nl.knaw.dans.dvingest.core.dansbag.DansBagMappingService;
 import nl.knaw.dans.dvingest.core.dansbag.DansDepositSupport;
+import nl.knaw.dans.dvingest.core.dansbag.DansDepositSupportFactory;
 import nl.knaw.dans.dvingest.core.dansbag.exception.RejectedDepositException;
 import nl.knaw.dans.dvingest.core.service.DataverseService;
 import nl.knaw.dans.dvingest.core.service.UtilityServices;
@@ -47,10 +48,8 @@ public class DepositTask implements Runnable {
     @Getter
     private Status status = Status.TODO;
 
-    public DepositTask(DataverseIngestDeposit dataverseIngestDeposit, Path outputDir, boolean onlyConvertDansDeposit, ValidateDansBagService validateDansBagService, DataverseService dataverseService, UtilityServices utilityServices,
-        DansBagMappingService dansBagMappingService,
-        YamlService yamlService) {
-        this.deposit = dansBagMappingService == null ? dataverseIngestDeposit : new DansDepositSupport(dataverseIngestDeposit, validateDansBagService, dansBagMappingService, dataverseService, yamlService);
+    public DepositTask(DataverseIngestDeposit dataverseIngestDeposit, Path outputDir, boolean onlyConvertDansDeposit, DansDepositSupportFactory dansDepositSupportFactory, DataverseService dataverseService, UtilityServices utilityServices, YamlService yamlService) {
+        this.deposit = dansDepositSupportFactory.addDansDepositSupportIfEnabled(dataverseIngestDeposit);
         this.dataverseService = dataverseService;
         this.onlyConvertDansDeposit = onlyConvertDansDeposit;
         this.utilityServices = utilityServices;
