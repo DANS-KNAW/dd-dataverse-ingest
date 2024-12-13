@@ -21,7 +21,7 @@ import nl.knaw.dans.dvingest.core.service.YamlService;
 import nl.knaw.dans.dvingest.core.yaml.EditFilesRoot;
 import nl.knaw.dans.dvingest.core.yaml.EditPermissionsRoot;
 import nl.knaw.dans.dvingest.core.yaml.InitRoot;
-import nl.knaw.dans.dvingest.core.yaml.UpdateState;
+import nl.knaw.dans.dvingest.core.yaml.UpdateStateRoot;
 import nl.knaw.dans.lib.dataverse.model.dataset.DatasetVersion;
 
 import java.io.IOException;
@@ -50,8 +50,8 @@ public class DansDepositConverter {
         var editPermissions = mappingService.getEditPermissionsFromDansDeposit(dansDeposit, updatesDataset);
         yamlService.writeYaml(new EditPermissionsRoot(editPermissions), dansDeposit.getBagDir().resolve("edit-permissions.yml"));
 
-        var updateState = new UpdateState();
-        updateState.setAction("publish-major");
+        var updateState = new UpdateStateRoot();
+//        updateState.setAction("publish-major");
         yamlService.writeYaml(updateState, dansDeposit.getBagDir().resolve("update-state.yml"));
     }
 }

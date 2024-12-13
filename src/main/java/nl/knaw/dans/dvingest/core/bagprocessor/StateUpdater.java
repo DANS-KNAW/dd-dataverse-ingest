@@ -18,7 +18,9 @@ package nl.knaw.dans.dvingest.core.bagprocessor;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import nl.knaw.dans.dvingest.core.service.DataverseService;
-import nl.knaw.dans.dvingest.core.yaml.UpdateState;
+import nl.knaw.dans.dvingest.core.yaml.PublishAction;
+import nl.knaw.dans.dvingest.core.yaml.ReleaseMigratedAction;
+import nl.knaw.dans.dvingest.core.yaml.UpdateAction;
 import nl.knaw.dans.lib.dataverse.DataverseException;
 import nl.knaw.dans.lib.dataverse.model.dataset.UpdateType;
 
@@ -29,29 +31,18 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class StateUpdater {
     private final UUID depositId;
-    private final UpdateState updateState;
+    private final UpdateAction updateAction;
     private final DataverseService dataverseService;
 
     private String pid;
 
     public void updateState(String pid) throws DataverseException, IOException {
         this.pid = pid;
-        if (updateState == null) {
-            log.debug("No update state found. Skipping update state processing.");
-            return;
+        if (updateAction instanceof PublishAction) {
+            publishVersion(((PublishAction) updateAction).getUpdateType());
         }
-        if ("publish-major".equals(updateState.getAction())) {
-            publishVersion(UpdateType.major);
-        }
-        else if ("publish-minor".equals(updateState.getAction())) {
-            publishVersion(UpdateType.minor);
-        }
-        else if ("submit-for-review".equals(updateState.getAction())) {
-            // TODO: Implement submit for review
-            throw new UnsupportedOperationException("Submit for review not yet implemented");
-        }
-        else {
-            throw new IllegalArgumentException("Unknown update state action: " + updateState.getAction());
+        else if (updateAction instanceof ReleaseMigratedAction) {
+            releaseMigrated(((ReleaseMigratedAction) updateAction).getReleaseDate());
         }
     }
 
@@ -62,4 +53,10 @@ public class StateUpdater {
         log.debug("End publishing version for deposit {}", depositId);
     }
 
+    public void releaseMigrated(String date) throws DataverseException, IOException {
+        log.debug("Start releasing migrated version for deposit {}", depositId);
+        dataverseService.releaseMigratedDataset(pid, date);
+        dataverseService.waitForState(pid, "RELEASED");
+        log.debug("End releasing migrated version for deposit {}", depositId);
+    }
 }

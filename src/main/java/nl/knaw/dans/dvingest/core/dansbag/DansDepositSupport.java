@@ -120,23 +120,23 @@ public class DansDepositSupport implements Deposit {
 
     @Override
     public void onSuccess(@NonNull String pid, String message) {
-        try {
-            var bag = ingestDataverseIngestDeposit.getBags().get(0);
-            var action = bag.getUpdateState().getAction();
-
-            if (action.startsWith("publish")) {
-                handlePublishAction(pid);
-            }
-            else if (action.equals("submit-for-review")) {
-                handleSubmitForReviewAction(pid);
-            }
-            else {
-                throw new RuntimeException("Unknown update action: " + action);
-            }
-        }
-        catch (IOException | ConfigurationException e) {
-            throw new RuntimeException("Error processing onSuccess", e);
-        }
+//        try {
+//            var bag = ingestDataverseIngestDeposit.getBags().get(0);
+//            var action = bag.getUpdateState().getAction();
+//
+//            if (action.startsWith("publish")) {
+//                handlePublishAction(pid);
+//            }
+//            else if (action.equals("submit-for-review")) {
+//                handleSubmitForReviewAction(pid);
+//            }
+//            else {
+//                throw new RuntimeException("Unknown update action: " + action);
+//            }
+//        }
+//        catch (IOException | ConfigurationException e) {
+//            throw new RuntimeException("Error processing onSuccess", e);
+//        }
     }
 
     private void handlePublishAction(String pid) {

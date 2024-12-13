@@ -26,7 +26,9 @@ import nl.knaw.dans.dvingest.core.yaml.EditPermissions;
 import nl.knaw.dans.dvingest.core.yaml.EditPermissionsRoot;
 import nl.knaw.dans.dvingest.core.yaml.Init;
 import nl.knaw.dans.dvingest.core.yaml.InitRoot;
+import nl.knaw.dans.dvingest.core.yaml.UpdateAction;
 import nl.knaw.dans.dvingest.core.yaml.UpdateState;
+import nl.knaw.dans.dvingest.core.yaml.UpdateStateRoot;
 import nl.knaw.dans.lib.dataverse.model.dataset.Dataset;
 
 import java.io.IOException;
@@ -100,11 +102,12 @@ public class DataverseIngestBag implements Comparable<DataverseIngestBag> {
         return editPermissionsRoot.getEditPermissions();
     }
 
-    public UpdateState getUpdateState() throws IOException, ConfigurationException {
+    public UpdateAction getUpdateState() throws IOException, ConfigurationException {
         if (!Files.exists(bagDir.resolve(UPDATE_STATE_YML))) {
             return null;
         }
-        return yamService.readYaml(bagDir.resolve(UPDATE_STATE_YML), UpdateState.class);
+        var updateStateRoot =  yamService.readYaml(bagDir.resolve(UPDATE_STATE_YML), UpdateStateRoot.class);
+        return updateStateRoot.getUpdateState();
     }
 
     @Override

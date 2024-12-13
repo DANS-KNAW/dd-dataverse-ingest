@@ -15,11 +15,15 @@
  */
 package nl.knaw.dans.dvingest.core.yaml;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.util.Map;
 
 @Data
-public class UpdateState {
-    private Map<String, String> action;
+@AllArgsConstructor
+@NoArgsConstructor
+public class UpdateStateRoot {
+    private UpdateAction updateState;
 }

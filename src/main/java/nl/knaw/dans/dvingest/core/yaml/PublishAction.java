@@ -15,11 +15,14 @@
  */
 package nl.knaw.dans.dvingest.core.yaml;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
-
-import java.util.Map;
+import lombok.NoArgsConstructor;
+import nl.knaw.dans.lib.dataverse.model.dataset.UpdateType;
 
 @Data
-public class UpdateState {
-    private Map<String, String> action;
+@AllArgsConstructor
+@NoArgsConstructor
+public class PublishAction implements UpdateAction {
+    private UpdateType updateType;
 }

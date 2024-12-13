@@ -15,11 +15,5 @@
  */
 package nl.knaw.dans.dvingest.core.yaml;
 
-import lombok.Data;
-
-import java.util.Map;
-
-@Data
-public class UpdateState {
-    private Map<String, String> action;
+public interface UpdateAction {
 }

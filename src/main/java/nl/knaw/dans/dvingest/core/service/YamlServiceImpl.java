@@ -25,11 +25,12 @@ import io.dropwizard.configuration.ConfigurationException;
 import io.dropwizard.configuration.YamlConfigurationFactory;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
+import nl.knaw.dans.dvingest.core.yaml.DataverseIngestModule;
 import nl.knaw.dans.dvingest.core.yaml.EditFilesRoot;
 import nl.knaw.dans.dvingest.core.yaml.EditMetadataRoot;
 import nl.knaw.dans.dvingest.core.yaml.EditPermissionsRoot;
 import nl.knaw.dans.dvingest.core.yaml.InitRoot;
-import nl.knaw.dans.dvingest.core.yaml.UpdateState;
+import nl.knaw.dans.dvingest.core.yaml.UpdateStateRoot;
 import nl.knaw.dans.lib.dataverse.MetadataFieldDeserializer;
 import nl.knaw.dans.lib.dataverse.model.dataset.Dataset;
 import nl.knaw.dans.lib.dataverse.model.dataset.MetadataField;
@@ -70,12 +71,13 @@ public class YamlServiceImpl implements YamlService {
             mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, true);
             mapper.addMixIn(FileMeta.class, FileMetaMixin.class);
             mapper.registerModule(module);
+            mapper.registerModule(new DataverseIngestModule());
             yamlConfigurationFactories.put(InitRoot.class, new YamlConfigurationFactory<>(InitRoot.class, factory.getValidator(), mapper, "dw"));
             yamlConfigurationFactories.put(Dataset.class, new YamlConfigurationFactory<>(Dataset.class, factory.getValidator(), mapper, "dw"));
             yamlConfigurationFactories.put(EditFilesRoot.class, new YamlConfigurationFactory<>(EditFilesRoot.class, factory.getValidator(), mapper, "dw"));
             yamlConfigurationFactories.put(EditMetadataRoot.class, new YamlConfigurationFactory<>(EditMetadataRoot.class, factory.getValidator(), mapper, "dw"));
             yamlConfigurationFactories.put(EditPermissionsRoot.class, new YamlConfigurationFactory<>(EditPermissionsRoot.class, factory.getValidator(), mapper, "dw"));
-            yamlConfigurationFactories.put(UpdateState.class, new YamlConfigurationFactory<>(UpdateState.class, factory.getValidator(), mapper, "dw"));
+            yamlConfigurationFactories.put(UpdateStateRoot.class, new YamlConfigurationFactory<>(UpdateStateRoot.class, factory.getValidator(), mapper, "dw"));
         }
         catch (Throwable e) {
             // This ctor is called from a static context, so we log the error to make sure it is not lost

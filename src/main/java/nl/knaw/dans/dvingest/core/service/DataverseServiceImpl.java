@@ -224,6 +224,13 @@ public class DataverseServiceImpl implements DataverseService {
         log.debug("End importing dataset for deposit {}", pid);
     }
 
+    @Override
+    public void releaseMigratedDataset(String pid, String date) throws DataverseException, IOException {
+        var datePublishJsonLd = String.format("{\"http://schema.org/datePublished\": \"%s\"}", date);
+        var result = dataverseClient.dataset(pid).releaseMigrated(datePublishJsonLd, true);
+        log.debug(result.getEnvelopeAsString());
+    }
+
     // TODO: move this to dans-dataverse-client-lib; it is similar to awaitLockState.
     public void waitForState(String datasetId, String expectedState) {
         var numberOfTimesTried = 0;

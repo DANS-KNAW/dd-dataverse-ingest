@@ -15,11 +15,11 @@
  */
 package nl.knaw.dans.dvingest.core.yaml;
 
-import lombok.Data;
+import com.fasterxml.jackson.databind.module.SimpleModule;
 
-import java.util.Map;
-
-@Data
-public class UpdateState {
-    private Map<String, String> action;
+public class DataverseIngestModule extends SimpleModule {
+    public DataverseIngestModule() {
+        addDeserializer(UpdateStateRoot.class, new UpdateStateRootDeserializer(UpdateStateRoot.class));
+        addSerializer(UpdateStateRoot.class, new UpdateStateRootSerializer(UpdateStateRoot.class));
+    }
 }

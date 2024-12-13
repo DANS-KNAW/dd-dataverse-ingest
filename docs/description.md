@@ -212,13 +212,15 @@ Allows you to selectively delete or add role assignments on the dataset. The for
 ##### update-state.yml
 
 ```yaml
-action: 'submit-for-review'
-# One of the following actions:
-# - 'leave-draft' (default)
-# - 'publish-major-version'
-# - 'publish-minor-version'
-# - 'submit-for-review'
+updateState:
+    publish: major # or 'minor'
 ```
+
+```yaml
+updateState:
+   releaseMigrated: 2021-01-01
+```
+
 
 #### New versions of existing datasets
 

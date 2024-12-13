@@ -78,4 +78,6 @@ public interface DataverseService {
     String getDatasetState(String targetPid) throws IOException, DataverseException;
 
     void importDataset(String pid, Dataset dataset) throws IOException, DataverseException;
+
+    void releaseMigratedDataset(String pid, String date) throws DataverseException, IOException;
 }

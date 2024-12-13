@@ -16,10 +16,25 @@
 package nl.knaw.dans.dvingest.core.yaml;
 
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
-import java.util.Map;
+import java.util.regex.Pattern;
 
 @Data
-public class UpdateState {
-    private Map<String, String> action;
+@NoArgsConstructor
+public class ReleaseMigratedAction implements UpdateAction {
+    private static final Pattern DATE_PATTERN = Pattern.compile("\\d{4}-\\d{2}-\\d{2}");
+
+    private String releaseDate;
+
+    public ReleaseMigratedAction(String releaseDate) {
+        setReleaseDate(releaseDate);
+    }
+
+    public void setReleaseDate(String releaseDate) {
+        if (!DATE_PATTERN.matcher(releaseDate).matches()) {
+            throw new IllegalArgumentException("Release date must be in the format YYYY-MM-DD");
+        }
+        this.releaseDate = releaseDate;
+    }
 }
