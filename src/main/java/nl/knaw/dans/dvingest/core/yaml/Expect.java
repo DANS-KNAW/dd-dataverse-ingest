@@ -15,9 +15,14 @@
  */
 package nl.knaw.dans.dvingest.core.yaml;
 
+import io.dropwizard.util.Duration;
 import lombok.Data;
 
 @Data
 public class Expect {
-    private String state;
+    public enum State {
+        draft, released, absent
+    }
+
+    private State state;
 }

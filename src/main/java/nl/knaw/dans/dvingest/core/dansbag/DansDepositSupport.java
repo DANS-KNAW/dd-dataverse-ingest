@@ -32,7 +32,9 @@ import nl.knaw.dans.lib.dataverse.DataverseException;
 import nl.knaw.dans.lib.dataverse.model.dataset.DatasetVersion;
 
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -47,13 +49,15 @@ public class DansDepositSupport implements Deposit {
     private final YamlService yamlService;
     private final DataverseIngestDeposit ingestDataverseIngestDeposit;
     private final boolean isDansDeposit;
+    private final boolean isMigration;
 
     private DansBagDeposit dansDeposit;
 
-    public DansDepositSupport(DataverseIngestDeposit dataverseIngestDeposit, ValidateDansBagService validateDansBagService, DansBagMappingService dansBagMappingService,
+    public DansDepositSupport(DataverseIngestDeposit dataverseIngestDeposit, boolean isMigration, ValidateDansBagService validateDansBagService, DansBagMappingService dansBagMappingService,
         DataverseService dataverseService, YamlService yamlService) {
-        this.validateDansBagService = validateDansBagService;
         this.ingestDataverseIngestDeposit = dataverseIngestDeposit;
+        this.isMigration = isMigration;
+        this.validateDansBagService = validateDansBagService;
         this.dansBagMappingService = dansBagMappingService;
         this.dataverseService = dataverseService;
         this.yamlService = yamlService;
@@ -62,6 +66,12 @@ public class DansDepositSupport implements Deposit {
         }
         catch (IOException e) {
             throw new RuntimeException("Error reading bags", e);
+        }
+        try {
+            Files.deleteIfExists(dataverseIngestDeposit.getBags().get(0).getDataDir().resolve("original-metadata.zip"));
+        }
+        catch (IOException e) {
+            throw new RuntimeException("Error deleting original-metadata.zip", e);
         }
     }
 
@@ -111,43 +121,49 @@ public class DansDepositSupport implements Deposit {
     @Override
     public void onSuccess(@NonNull String pid, String message) {
         try {
-            // todo: skip for migration deposit
-
             var bag = ingestDataverseIngestDeposit.getBags().get(0);
             var action = bag.getUpdateState().getAction();
+
             if (action.startsWith("publish")) {
-                try {
-                    var nbn = dataverseService.getDatasetUrnNbn(pid);
-                    ingestDataverseIngestDeposit.updateProperties(Map.of(
-                            "state.label", "PUBLISHED",
-                            "state.description", "The dataset is published",
-                            "identifier.doi", pid,
-                            "identifier.urn", nbn
-                        )
-                    );
-                }
-                catch (IOException | DataverseException e) {
-                    throw new RuntimeException("Error getting URN:NBN", e); // Cancelling the "success"
-                }
+                handlePublishAction(pid);
             }
             else if (action.equals("submit-for-review")) {
-                ingestDataverseIngestDeposit.updateProperties(Map.of(
-                        "state.label", "ACCEPTED",
-                        "state.description", "The dataset is submitted for review",
-                        "identifier.doi", pid
-                    )
-                );
+                handleSubmitForReviewAction(pid);
             }
             else {
                 throw new RuntimeException("Unknown update action: " + action);
             }
         }
-        catch (IOException e) {
-            throw new RuntimeException("Error reading bag", e);
+        catch (IOException | ConfigurationException e) {
+            throw new RuntimeException("Error processing onSuccess", e);
         }
-        catch (ConfigurationException e) {
-            throw new RuntimeException(e);
+    }
+
+    private void handlePublishAction(String pid) {
+        try {
+            var nbn = dataverseService.getDatasetUrnNbn(pid);
+            var newProps = new HashMap<String, String>();
+            newProps.put("state.label", "PUBLISHED");
+            newProps.put("state.description", "The dataset is published");
+            if (!isMigration) {
+                newProps.put("identifier.doi", pid);
+                newProps.put("identifier.urn", nbn);
+            }
+            ingestDataverseIngestDeposit.updateProperties(newProps);
         }
+        catch (IOException | DataverseException e) {
+            throw new RuntimeException("Error getting URN:NBN", e);
+        }
+    }
+
+    private void handleSubmitForReviewAction(String pid) {
+        var newProps = new HashMap<String, String>();
+        newProps.put("state.label", "SUBMITTED");
+        newProps.put("state.description", "The dataset is submitted for review");
+        if (!isMigration) {
+            newProps.put("identifier.doi", pid);
+        }
+        ingestDataverseIngestDeposit.updateProperties(newProps);
     }
 
     @Override
@@ -179,6 +195,7 @@ public class DansDepositSupport implements Deposit {
                 if (!result.getIsCompliant()) {
                     throw new RejectedDepositException(ingestDataverseIngestDeposit, objectMapper.writeValueAsString(result));
                 }
+                log.debug("Validation successful. Bag is compliant.");
             }
             catch (IOException e) {
                 throw new RuntimeException(e);

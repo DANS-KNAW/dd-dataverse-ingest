@@ -56,8 +56,8 @@ init:
     state: 'released' # or 'draft', 'absent'.
 ```
 
-If the state of the dataset does not match the expected state, the ingest procedure will be aborted. The state can be either `released` or `draft`. The default
-is 'released', if `updates-dataset` is set in `deposit.properties`, and 'absent' otherwise.
+If the state of the dataset does not match the expected state, the ingest procedure will be aborted. The state can be either `released`, `draft` or `absent`
+(meaning that the dataset should not exist). By default, no check will be performed.
 
 It can also be used to instruct the service to import the bag as a dataset with an existing DOI:
 
@@ -67,8 +67,12 @@ init:
     importPid: 'doi:10.5072/FK2/ABCDEF'
 ```
 
-In this case the `updates-dataset` property in `deposit.properties` must not be set. If 'create' is set, 'expect.state' must either be left out or set to
-'absent'.
+In this case the `updates-dataset` property in `deposit.properties` should not be set. It will be ignored if it is. By default, a new dataset will be created,
+whose persistent identifier will be assigned by Dataverse.
+
+The user is responsible for providing expectations and instructions that do not conflict with each other. For example, if the `importPid` property is set, and
+the `state` property is set to `released`, the service will either abort because the dataset already exists, or it will fail to import the dataset, because
+the dataset already exists.
 
 ##### dataset.yml
 

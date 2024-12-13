@@ -19,12 +19,10 @@ import lombok.AllArgsConstructor;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import nl.knaw.dans.dvingest.core.service.DataverseService;
-import nl.knaw.dans.dvingest.core.yaml.Create;
 import nl.knaw.dans.dvingest.core.yaml.Expect;
 import nl.knaw.dans.dvingest.core.yaml.Init;
 import nl.knaw.dans.lib.dataverse.DataverseException;
 import nl.knaw.dans.lib.dataverse.model.dataset.Dataset;
-import org.apache.commons.lang3.StringUtils;
 
 import java.io.IOException;
 import java.util.UUID;
@@ -45,9 +43,8 @@ public class DatasetVersionCreator {
     private final Dataset dataset;
 
     public String createDatasetVersion(String targetPid) throws IOException, DataverseException {
-        if (init != null) {
-            verifyCreate(init.getCreate(), init.getExpect(), targetPid);
-            verifyExpect(init.getExpect(), targetPid);
+        if (init != null && init.getExpect() != null) {
+            checkExpectations(init.getExpect(), targetPid);
         }
 
         var pid = targetPid;
@@ -71,38 +68,36 @@ public class DatasetVersionCreator {
         return pid;
     }
 
-    private void verifyCreate(Create create, Expect expect, String targetPid) throws IOException, DataverseException {
-        if (create != null && create.getImportPid() != null) {
-            if (targetPid != null) {
-                throw new IllegalArgumentException("Cannot import a dataset when updating an existing dataset.");
-            }
-            if (StringUtils.isBlank(create.getImportPid())) {
-                throw new IllegalArgumentException("Cannot import a dataset without a PID.");
-            }
-            if (expect != null && expect.getState() != null && !"absent".equalsIgnoreCase(expect.getState())) {
-                throw new IllegalArgumentException("Cannot expect a state other than 'absent' when importing a dataset.");
-            }
-        }
-    }
-
-    private void verifyExpect(Expect expect, String targetPid) throws IOException, DataverseException {
-        var expectedState = targetPid == null ? "absent" : "released";
-        if (expect != null && expect.getState() != null) {
-            expectedState = expect.getState().toLowerCase();
-        }
+    private void checkExpectations(Expect expect, String targetPid) throws DataverseException, IOException {
         if (targetPid == null) {
-            if (!expectedState.equals("absent")) {
-                throw new IllegalArgumentException("Cannot expect a state other than 'absent' when creating a new dataset.");
-            }
-            // Nothing to check, the dataset is absent by definition if we are creating it; if we are importing it, the action will fail if the PID already exists.
+            return;
         }
-        else {
-            if (expectedState.equals("absent")) {
-                throw new IllegalArgumentException("Cannot expect state 'absent' when updating an existing dataset.");
-            }
-            var actualState = dataverseService.getDatasetState(targetPid);
-            if (!expectedState.equals(actualState.toLowerCase())) {
-                throw new IllegalStateException("Expected state " + expectedState + " but found " + actualState + " for dataset " + targetPid);
+
+        if (expect != null && expect.getState() != null) {
+            switch (expect.getState()) {
+                case draft:
+                case released:
+                    var state = dataverseService.getDatasetState(targetPid);
+                    if (expect.getState().name().equals(state.toLowerCase())) {
+                        log.debug("Expected state {} found for dataset {}", expect.getState(), targetPid);
+                    }
+                    else {
+                        throw new IllegalStateException("Expected state " + expect.getState() + " but found " + state + " for dataset " + targetPid);
+                    }
+                    break;
+                case absent:
+                    try {
+                        dataverseService.getDatasetState(targetPid);
+                        throw new IllegalStateException("Expected state absent but found for dataset " + targetPid);
+                    }
+                    catch (DataverseException e) {
+                        if (e.getMessage().contains("404")) {
+                            log.debug("Expected state absent found for dataset {}", targetPid);
+                        }
+                        else {
+                            throw e;
+                        }
+                    }
             }
         }
     }
