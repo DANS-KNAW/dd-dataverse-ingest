@@ -54,9 +54,10 @@ public interface DansBagMappingService {
      * Determines what preconditions to expect and whether and how to create a new dataset based on the DANS deposit.
      *
      * @param dansDeposit the DANS deposit
+     * @param isUpdate
      * @return the preconditions to expect and whether and how to create a new dataset
      */
-    Init getInitFromDansDeposit(DansBagDeposit dansDeposit);
+    Init getInitFromDansDeposit(DansBagDeposit dansDeposit, boolean isUpdate);
 
     /**
      * Maps the metadata from the DANS deposit to the new dataset level metadata for the dataset. For some parts the new metadata depends on the current metadata of the dataset. That is why the

@@ -31,6 +31,8 @@ import nl.knaw.dans.dvingest.core.service.DataverseService;
 import nl.knaw.dans.dvingest.core.yaml.Create;
 import nl.knaw.dans.dvingest.core.yaml.EditFiles;
 import nl.knaw.dans.dvingest.core.yaml.EditPermissions;
+import nl.knaw.dans.dvingest.core.yaml.Expect;
+import nl.knaw.dans.dvingest.core.yaml.Expect.State;
 import nl.knaw.dans.dvingest.core.yaml.Init;
 import nl.knaw.dans.lib.dataverse.DataverseException;
 import nl.knaw.dans.lib.dataverse.model.RoleAssignment;
@@ -122,16 +124,21 @@ public class DansBagMappingServiceImpl implements DansBagMappingService {
     }
 
     @Override
-    public Init getInitFromDansDeposit(DansBagDeposit dansDeposit) {
-        if (depositToDvDatasetMetadataMapper.isMigration()) {
-            var init = new Init();
-            var create = new Create();
+    public Init getInitFromDansDeposit(DansBagDeposit dansDeposit, boolean isUpdate) {
+        if (!isUpdate && depositToDvDatasetMetadataMapper.isMigration()) {
             if (StringUtils.isBlank(dansDeposit.getDoi())) {
                 throw new IllegalArgumentException("Migration deposit must have a DOI");
             }
+            var create = new Create();
             create.setImportPid(dansDeposit.getDoi());
+            var init = new Init();
             init.setCreate(create);
-            return init;
+        }
+        else if (isUpdate) {
+            var expect = new Expect();
+            expect.setState(State.released);
+            var init = new Init();
+            init.setExpect(expect);
         }
         return null;
     }

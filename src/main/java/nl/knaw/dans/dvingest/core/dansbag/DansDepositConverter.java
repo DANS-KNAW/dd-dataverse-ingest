@@ -38,7 +38,7 @@ public class DansDepositConverter {
         // TODO: pass to getEditFilesFromDansDeposit so that update-deposit can register it as a replaced file
         var originalMetadataPath = mappingService.packageOriginalMetadata(dansDeposit);
 
-        var init = mappingService.getInitFromDansDeposit(dansDeposit);
+        var init = mappingService.getInitFromDansDeposit(dansDeposit, updatesDataset != null);
         yamlService.writeYaml(new InitRoot(init), dansDeposit.getBagDir().resolve("init.yml"));
 
         var dataset = mappingService.getDatasetMetadataFromDansDeposit(dansDeposit, currentMetadata);
