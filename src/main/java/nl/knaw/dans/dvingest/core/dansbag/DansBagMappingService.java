@@ -73,8 +73,8 @@ public interface DansBagMappingService {
     /**
      * Maps file information in the DANS bag to edit actions for the files in the dataset. The edit actions are used to update the files in the dataset.
      *
-     * @param dansDeposit    the DANS deposit
-     * @param updatesDataset the DOI of the dataset that needs to be updated, or null if the deposit is to create a new dataset
+     * @param dansDeposit             the DANS deposit
+     * @param updatesDataset          the DOI of the dataset that needs to be updated, or null if the deposit is to create a new dataset
      * @return the edit actions for the files in the dataset
      */
     EditFiles getEditFilesFromDansDeposit(DansBagDeposit dansDeposit, String updatesDataset);
@@ -95,13 +95,4 @@ public interface DansBagMappingService {
      * @return the update action for the dataset
      */
     UpdateAction getUpdateActionFromDansDeposit(DansBagDeposit dansDeposit);
-
-    /**
-     * Packages the original metadata of the DANS bag into a ZIP file and returns the local path to the ZIP file.
-     *
-     * @param dansDeposit the DANS deposit
-     * @return the local path to the ZIP file
-     * @throws IOException if there was an error reading the deposit or writing the ZIP file
-     */
-    String packageOriginalMetadata(DansBagDeposit dansDeposit) throws IOException;
 }

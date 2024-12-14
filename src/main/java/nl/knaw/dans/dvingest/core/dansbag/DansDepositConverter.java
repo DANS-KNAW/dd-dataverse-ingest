@@ -42,10 +42,6 @@ public class DansDepositConverter {
 
     public void run() throws IOException {
         deleteOldYamlFilesIfPresent();
-
-        // TODO: pass to getEditFilesFromDansDeposit so that update-deposit can register it as a replaced file
-        var originalMetadataPath = mappingService.packageOriginalMetadata(dansDeposit);
-
         var init = mappingService.getInitFromDansDeposit(dansDeposit, updatesDataset != null);
         if (init != null) {
             yamlService.writeYaml(new InitRoot(init), dansDeposit.getBagDir().resolve("init.yml"));

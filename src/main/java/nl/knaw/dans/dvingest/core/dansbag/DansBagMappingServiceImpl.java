@@ -43,13 +43,18 @@ import nl.knaw.dans.lib.dataverse.model.RoleAssignment;
 import nl.knaw.dans.lib.dataverse.model.dataset.Dataset;
 import nl.knaw.dans.lib.dataverse.model.dataset.DatasetVersion;
 import nl.knaw.dans.lib.dataverse.model.dataset.UpdateType;
+import nl.knaw.dans.lib.dataverse.model.file.Checksum;
+import nl.knaw.dans.lib.dataverse.model.file.DataFile;
+import nl.knaw.dans.lib.dataverse.model.file.FileMeta;
 import nl.knaw.dans.lib.dataverse.model.user.AuthenticatedUser;
 import nl.knaw.dans.lib.util.ZipUtil;
+import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -68,6 +73,7 @@ import java.util.stream.Collectors;
 
 @Slf4j
 public class DansBagMappingServiceImpl implements DansBagMappingService {
+    private static final String ORIGINAL_METADATA_ZIP = "original-metadata.zip";
     private static final DateTimeFormatter yyyymmddPattern = DateTimeFormat.forPattern("YYYY-MM-dd");
 
     private final DepositToDvDatasetMetadataMapper depositToDvDatasetMetadataMapper;
@@ -186,6 +192,14 @@ public class DansBagMappingServiceImpl implements DansBagMappingService {
     @Override
     public EditFiles getEditFilesFromDansDeposit(DansBagDeposit dansDeposit, String updatesDataset) {
         var files = getFileInfo(dansDeposit);
+        if (!depositToDvDatasetMetadataMapper.isMigration()) {
+            try {
+                files.put(Path.of(ORIGINAL_METADATA_ZIP), createOriginalMetadataFileInfo(dansDeposit));
+            }
+            catch (IOException e) {
+                throw new RuntimeException("Error creating original metadata zip", e);
+            }
+        }
         var dateAvailable = getDateAvailable(dansDeposit);
         if (updatesDataset == null) {
             return new EditFilesComposer(files, dateAvailable, fileExclusionPattern, embargoExclusions).composeEditFiles();
@@ -193,6 +207,24 @@ public class DansBagMappingServiceImpl implements DansBagMappingService {
         else {
             return new EditFilesComposerForUpdate(files, dateAvailable, updatesDataset, fileExclusionPattern, embargoExclusions, dataverseService).composeEditFiles();
         }
+    }
+
+    private FileInfo createOriginalMetadataFileInfo(DansBagDeposit dansDeposit) throws IOException {
+        var metadataDir = dansDeposit.getBagDir().resolve("metadata");
+        var zipFile = dansDeposit.getBagDir().resolve("data/" + ORIGINAL_METADATA_ZIP);
+        ZipUtil.zipDirectory(metadataDir, zipFile, false);
+        var checksum = DigestUtils.sha1Hex(new FileInputStream(zipFile.toFile()));
+        var fileMeta = new FileMeta();
+        fileMeta.setLabel(ORIGINAL_METADATA_ZIP);
+        var dataFile = new DataFile();
+        dataFile.setFilename(ORIGINAL_METADATA_ZIP);
+        var dfChecksum = new Checksum();
+        dfChecksum.setType("SHA-1");
+        dfChecksum.setValue(checksum);
+        dataFile.setChecksum(dfChecksum);
+        fileMeta.setDataFile(dataFile);
+        fileMeta.setRestrict(false);
+        return new FileInfo(zipFile, checksum, false, fileMeta);
     }
 
     @Override
@@ -231,18 +263,6 @@ public class DansBagMappingServiceImpl implements DansBagMappingService {
         else {
             return new PublishAction(UpdateType.major);
         }
-    }
-
-    @Override
-    public String packageOriginalMetadata(DansBagDeposit dansDeposit) throws IOException {
-        if (!depositToDvDatasetMetadataMapper.isMigration()) {
-            // Zip the contents of the metadata directory of the bag
-            var metadataDir = dansDeposit.getBagDir().resolve("metadata");
-            var zipFile = dansDeposit.getBagDir().resolve("data/original-metadata.zip");
-            ZipUtil.zipDirectory(metadataDir, zipFile, false);
-            return zipFile.toString();
-        }
-        return null;
     }
 
     // todo: move to mapping package
