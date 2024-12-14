@@ -122,14 +122,32 @@ public class FilesEditor {
         log.debug("End deleting files for deposit {}", depositId);
     }
 
-    private void replaceFiles() throws IOException, DataverseException {
+    private void replaceFiles() throws IOException {
         log.debug("Start replacing {} files for deposit {}", depositId, editFiles.getReplaceFiles().size());
         for (var filepath : editFiles.getReplaceFiles()) {
             log.debug("Replacing file: {}", filepath);
             var fileMeta = filesInDatasetCache.get(filepath);
-            dataverseService.replaceFile(pid, fileMeta, dataDir.resolve(filepath));
+            utilityServices.wrapIfZipFile(dataDir.resolve(filepath)).ifPresentOrElse(
+                zipFile -> {
+                    replaceFileOrThrow(pid, fileMeta, zipFile);
+                    FileUtils.deleteQuietly(zipFile.toFile());
+                },
+                () -> {
+                    var fileToUpload = dataDir.resolve(filepath);
+                    replaceFileOrThrow(pid, fileMeta, fileToUpload);
+                }
+            );
         }
         log.debug("End replacing files for deposit {}", depositId);
+    }
+
+    private void replaceFileOrThrow(String pid, FileMeta fileMeta, Path fileToUpload) {
+        try {
+            dataverseService.replaceFile(pid, fileMeta, fileToUpload);
+        }
+        catch (IOException | DataverseException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     private void addRestrictedFiles() throws IOException, DataverseException {

@@ -20,6 +20,7 @@ import nl.knaw.dans.lib.util.PathIteratorZipper.PathIteratorZipperBuilder;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Map;
+import java.util.Optional;
 
 public interface UtilityServices {
 
@@ -28,4 +29,6 @@ public interface UtilityServices {
     PathIteratorZipperBuilder createPathIteratorZipperBuilder();
 
     PathIteratorZipperBuilder createPathIteratorZipperBuilder(Map<String, String> renameMap);
+
+    Optional<Path> wrapIfZipFile(Path path) throws IOException;
 }

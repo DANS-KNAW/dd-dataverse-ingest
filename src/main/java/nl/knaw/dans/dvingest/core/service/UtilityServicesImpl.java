@@ -16,19 +16,34 @@
 package nl.knaw.dans.dvingest.core.service;
 
 import lombok.Builder;
+import lombok.extern.slf4j.Slf4j;
+import net.lingala.zip4j.ZipFile;
+import net.lingala.zip4j.model.ZipParameters;
+import net.lingala.zip4j.model.enums.CompressionMethod;
 import nl.knaw.dans.lib.util.PathIteratorZipper;
 import nl.knaw.dans.lib.util.PathIteratorZipper.PathIteratorZipperBuilder;
+import org.apache.tika.Tika;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.UUID;
 
+@Slf4j
 @Builder
 public class UtilityServicesImpl implements UtilityServices {
+    private final Set<String> needToBeZipWrapped = Set.of(
+        "application/zip",
+        "application/zipped-shapefile",
+        "application/fits-gzipped"
+    );
     private final Path tempDir;
     private final int maxNumberOfFilesPerUpload;
     private final long maxUploadSize;
+    private final Tika tika = new Tika();
 
     @Override
     public Path createTempZipFile() throws IOException {
@@ -52,4 +67,51 @@ public class UtilityServicesImpl implements UtilityServices {
             .maxNumberOfFiles(maxNumberOfFilesPerUpload)
             .maxNumberOfBytes(maxUploadSize);
     }
+
+    @Override
+    public Optional<Path> wrapIfZipFile(Path path) throws IOException {
+        if (needsToBeWrapped(path)) {
+            var filename = Optional.ofNullable(path.getFileName())
+                .map(Path::toString)
+                .orElse("");
+
+            var randomName = String.format("zip-wrapped-%s-%s.zip",
+                filename, UUID.randomUUID());
+
+            var tempFile = tempDir.resolve(randomName);
+
+            try (var zip = new ZipFile(tempFile.toFile())) {
+                zip.addFile(path.toFile(), zipWithoutCompressing());
+            }
+
+            return Optional.of(tempFile);
+        }
+        else {
+            return Optional.empty();
+        }
+   }
+
+    private ZipParameters zipWithoutCompressing() {
+        var params = new ZipParameters();
+        params.setCompressionMethod(CompressionMethod.STORE);
+        return params;
+    }
+
+    private boolean needsToBeWrapped(Path path) throws IOException {
+        var endsWithZip = Optional.ofNullable(path.getFileName())
+            .map(Path::toString)
+            .map(x -> x.endsWith(".zip"))
+            .orElse(false);
+
+        log.debug("Checking if path {} needs to be wrapped: endsWithZip={}", path, endsWithZip);
+
+        return endsWithZip || needToBeZipWrapped.contains(getMimeType(path));
+    }
+
+    private String getMimeType(Path path) throws IOException {
+        String result = tika.detect(path);
+        log.debug("MimeType of path {} is {}", path, result);
+        return result;
+    }
+
 }

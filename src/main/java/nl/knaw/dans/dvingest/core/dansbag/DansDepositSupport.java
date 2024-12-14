@@ -28,6 +28,8 @@ import nl.knaw.dans.dvingest.core.dansbag.exception.InvalidDepositException;
 import nl.knaw.dans.dvingest.core.dansbag.exception.RejectedDepositException;
 import nl.knaw.dans.dvingest.core.service.DataverseService;
 import nl.knaw.dans.dvingest.core.service.YamlService;
+import nl.knaw.dans.dvingest.core.yaml.PublishAction;
+import nl.knaw.dans.dvingest.core.yaml.ReleaseMigratedAction;
 import nl.knaw.dans.lib.dataverse.DataverseException;
 import nl.knaw.dans.lib.dataverse.model.dataset.DatasetVersion;
 
@@ -49,14 +51,12 @@ public class DansDepositSupport implements Deposit {
     private final YamlService yamlService;
     private final DataverseIngestDeposit ingestDataverseIngestDeposit;
     private final boolean isDansDeposit;
-    private final boolean isMigration;
 
     private DansBagDeposit dansDeposit;
 
-    public DansDepositSupport(DataverseIngestDeposit dataverseIngestDeposit, boolean isMigration, ValidateDansBagService validateDansBagService, DansBagMappingService dansBagMappingService,
+    public DansDepositSupport(DataverseIngestDeposit dataverseIngestDeposit, ValidateDansBagService validateDansBagService, DansBagMappingService dansBagMappingService,
         DataverseService dataverseService, YamlService yamlService) {
         this.ingestDataverseIngestDeposit = dataverseIngestDeposit;
-        this.isMigration = isMigration;
         this.validateDansBagService = validateDansBagService;
         this.dansBagMappingService = dansBagMappingService;
         this.dataverseService = dataverseService;
@@ -120,26 +120,26 @@ public class DansDepositSupport implements Deposit {
 
     @Override
     public void onSuccess(@NonNull String pid, String message) {
-//        try {
-//            var bag = ingestDataverseIngestDeposit.getBags().get(0);
-//            var action = bag.getUpdateState().getAction();
-//
-//            if (action.startsWith("publish")) {
-//                handlePublishAction(pid);
-//            }
-//            else if (action.equals("submit-for-review")) {
-//                handleSubmitForReviewAction(pid);
-//            }
-//            else {
-//                throw new RuntimeException("Unknown update action: " + action);
-//            }
-//        }
-//        catch (IOException | ConfigurationException e) {
-//            throw new RuntimeException("Error processing onSuccess", e);
-//        }
+        try {
+            var bag = ingestDataverseIngestDeposit.getBags().get(0);
+            var action = bag.getUpdateState();
+
+            if (action instanceof PublishAction) {
+                handlePublishAction(pid, false);
+            }
+            else if (action instanceof ReleaseMigratedAction) {
+                handlePublishAction(pid, true);
+            }
+            else {
+                throw new RuntimeException("Unknown update action: " + action);
+            }
+        }
+        catch (IOException | ConfigurationException e) {
+            throw new RuntimeException("Error processing onSuccess", e);
+        }
     }
 
-    private void handlePublishAction(String pid) {
+    private void handlePublishAction(String pid, boolean isMigration) {
         try {
             var nbn = dataverseService.getDatasetUrnNbn(pid);
             var newProps = new HashMap<String, String>();
@@ -154,16 +154,6 @@ public class DansDepositSupport implements Deposit {
         catch (IOException | DataverseException e) {
             throw new RuntimeException("Error getting URN:NBN", e);
         }
-    }
-
-    private void handleSubmitForReviewAction(String pid) {
-        var newProps = new HashMap<String, String>();
-        newProps.put("state.label", "SUBMITTED");
-        newProps.put("state.description", "The dataset is submitted for review");
-        if (!isMigration) {
-            newProps.put("identifier.doi", pid);
-        }
-        ingestDataverseIngestDeposit.updateProperties(newProps);
     }
 
     @Override

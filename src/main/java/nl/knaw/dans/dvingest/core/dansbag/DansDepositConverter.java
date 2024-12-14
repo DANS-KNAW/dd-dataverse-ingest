@@ -16,6 +16,7 @@
 package nl.knaw.dans.dvingest.core.dansbag;
 
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import nl.knaw.dans.dvingest.core.dansbag.deposit.DansBagDeposit;
 import nl.knaw.dans.dvingest.core.service.YamlService;
 import nl.knaw.dans.dvingest.core.yaml.EditFilesRoot;
@@ -23,11 +24,16 @@ import nl.knaw.dans.dvingest.core.yaml.EditPermissionsRoot;
 import nl.knaw.dans.dvingest.core.yaml.InitRoot;
 import nl.knaw.dans.dvingest.core.yaml.UpdateStateRoot;
 import nl.knaw.dans.lib.dataverse.model.dataset.DatasetVersion;
+import org.apache.commons.io.FileUtils;
 
 import java.io.IOException;
+import java.util.List;
 
+@Slf4j
 @AllArgsConstructor
 public class DansDepositConverter {
+    private static final List<String> YAML_FILES = List.of("init.yml", "dataset.yml", "edit-files.yml", "edit-permissions.yml", "update-state.yml");
+
     private final DansBagDeposit dansDeposit;
     private final String updatesDataset;
     private final DatasetVersion currentMetadata;
@@ -35,11 +41,15 @@ public class DansDepositConverter {
     private final YamlService yamlService;
 
     public void run() throws IOException {
+        deleteOldYamlFilesIfPresent();
+
         // TODO: pass to getEditFilesFromDansDeposit so that update-deposit can register it as a replaced file
         var originalMetadataPath = mappingService.packageOriginalMetadata(dansDeposit);
 
         var init = mappingService.getInitFromDansDeposit(dansDeposit, updatesDataset != null);
-        yamlService.writeYaml(new InitRoot(init), dansDeposit.getBagDir().resolve("init.yml"));
+        if (init != null) {
+            yamlService.writeYaml(new InitRoot(init), dansDeposit.getBagDir().resolve("init.yml"));
+        }
 
         var dataset = mappingService.getDatasetMetadataFromDansDeposit(dansDeposit, currentMetadata);
         yamlService.writeYaml(dataset, dansDeposit.getBagDir().resolve("dataset.yml"));
@@ -50,8 +60,20 @@ public class DansDepositConverter {
         var editPermissions = mappingService.getEditPermissionsFromDansDeposit(dansDeposit, updatesDataset);
         yamlService.writeYaml(new EditPermissionsRoot(editPermissions), dansDeposit.getBagDir().resolve("edit-permissions.yml"));
 
-        var updateState = new UpdateStateRoot();
-//        updateState.setAction("publish-major");
-        yamlService.writeYaml(updateState, dansDeposit.getBagDir().resolve("update-state.yml"));
+        var updateState = mappingService.getUpdateActionFromDansDeposit(dansDeposit);
+        yamlService.writeYaml(new UpdateStateRoot(updateState), dansDeposit.getBagDir().resolve("update-state.yml"));
+    }
+
+    private void deleteOldYamlFilesIfPresent() {
+        log.debug("Starting with clean slate, deleting old YAML files if present");
+        for (String file : YAML_FILES) {
+            var deleted = FileUtils.deleteQuietly(dansDeposit.getBagDir().resolve(file).toFile());
+            if (deleted) {
+                log.debug("Deleted old YAML file: {}", file);
+            }
+            else {
+                log.debug("No old YAML file found or could not be deleted: {}", file);
+            }
+        }
     }
 }

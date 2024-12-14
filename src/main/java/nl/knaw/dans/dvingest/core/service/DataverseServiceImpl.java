@@ -219,7 +219,7 @@ public class DataverseServiceImpl implements DataverseService {
     @Override
     public void importDataset(String pid, Dataset dataset) throws IOException, DataverseException {
         log.debug("Start importing dataset for deposit {}", pid);
-        var result = dataverseClient.dataverse("root").importDataset(dataset, pid, false);
+        var result = dataverseClient.dataverse("root").importDataset(dataset, pid, false, metadataKeys);
         log.debug(result.getEnvelopeAsString());
         log.debug("End importing dataset for deposit {}", pid);
     }

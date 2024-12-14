@@ -23,6 +23,7 @@ import nl.knaw.dans.dvingest.core.dansbag.deposit.DansBagDepositReaderImpl;
 import nl.knaw.dans.dvingest.core.dansbag.deposit.FileInfo;
 import nl.knaw.dans.dvingest.core.dansbag.exception.InvalidDepositException;
 import nl.knaw.dans.dvingest.core.dansbag.mapper.DepositToDvDatasetMetadataMapper;
+import nl.knaw.dans.dvingest.core.dansbag.mapper.mapping.Amd;
 import nl.knaw.dans.dvingest.core.dansbag.mapper.mapping.FileElement;
 import nl.knaw.dans.dvingest.core.dansbag.xml.XPathEvaluator;
 import nl.knaw.dans.dvingest.core.dansbag.xml.XmlReader;
@@ -34,10 +35,14 @@ import nl.knaw.dans.dvingest.core.yaml.EditPermissions;
 import nl.knaw.dans.dvingest.core.yaml.Expect;
 import nl.knaw.dans.dvingest.core.yaml.Expect.State;
 import nl.knaw.dans.dvingest.core.yaml.Init;
+import nl.knaw.dans.dvingest.core.yaml.PublishAction;
+import nl.knaw.dans.dvingest.core.yaml.ReleaseMigratedAction;
+import nl.knaw.dans.dvingest.core.yaml.UpdateAction;
 import nl.knaw.dans.lib.dataverse.DataverseException;
 import nl.knaw.dans.lib.dataverse.model.RoleAssignment;
 import nl.knaw.dans.lib.dataverse.model.dataset.Dataset;
 import nl.knaw.dans.lib.dataverse.model.dataset.DatasetVersion;
+import nl.knaw.dans.lib.dataverse.model.dataset.UpdateType;
 import nl.knaw.dans.lib.dataverse.model.user.AuthenticatedUser;
 import nl.knaw.dans.lib.util.ZipUtil;
 import org.apache.commons.lang3.StringUtils;
@@ -130,15 +135,21 @@ public class DansBagMappingServiceImpl implements DansBagMappingService {
                 throw new IllegalArgumentException("Migration deposit must have a DOI");
             }
             var create = new Create();
-            create.setImportPid(dansDeposit.getDoi());
+            var doi = dansDeposit.getDoi();
+            if (!doi.startsWith("doi:")) {
+                doi = "doi:" + doi;
+            }
+            create.setImportPid(doi);
             var init = new Init();
             init.setCreate(create);
+            return init;
         }
         else if (isUpdate) {
             var expect = new Expect();
             expect.setState(State.released);
             var init = new Init();
             init.setExpect(expect);
+            return init;
         }
         return null;
     }
@@ -197,6 +208,28 @@ public class DansBagMappingServiceImpl implements DansBagMappingService {
         }
         else {
             return new EditPermissions();
+        }
+    }
+
+    @Override
+    public UpdateAction getUpdateActionFromDansDeposit(DansBagDeposit dansDeposit) {
+        if (depositToDvDatasetMetadataMapper.isMigration()) {
+            var amd = dansDeposit.getAmd();
+
+            if (amd == null) {
+                throw new RuntimeException(String.format("no AMD found for %s", dansDeposit.getDoi()));
+            }
+
+            var date = Amd.toPublicationDate(amd);
+
+            if (date.isEmpty()) {
+                throw new IllegalArgumentException(String.format("no publication date found in AMD for %s", dansDeposit.getDoi()));
+            }
+
+            return new ReleaseMigratedAction(date.get());
+        }
+        else {
+            return new PublishAction(UpdateType.major);
         }
     }
 

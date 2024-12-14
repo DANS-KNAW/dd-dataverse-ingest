@@ -20,6 +20,7 @@ import nl.knaw.dans.dvingest.core.dansbag.exception.InvalidDepositException;
 import nl.knaw.dans.dvingest.core.yaml.EditFiles;
 import nl.knaw.dans.dvingest.core.yaml.EditPermissions;
 import nl.knaw.dans.dvingest.core.yaml.Init;
+import nl.knaw.dans.dvingest.core.yaml.UpdateAction;
 import nl.knaw.dans.lib.dataverse.DataverseException;
 import nl.knaw.dans.lib.dataverse.model.dataset.Dataset;
 import nl.knaw.dans.lib.dataverse.model.dataset.DatasetVersion;
@@ -86,6 +87,14 @@ public interface DansBagMappingService {
      * @return the edit actions for the permissions of the dataset
      */
     EditPermissions getEditPermissionsFromDansDeposit(DansBagDeposit dansDeposit, String updatesDataset);
+
+    /**
+     * Maps the DANS deposit to an update action for the dataset. This determines how to publish the dataset (as migrated or as new).
+     *
+     * @param dansDeposit the DANS deposit
+     * @return the update action for the dataset
+     */
+    UpdateAction getUpdateActionFromDansDeposit(DansBagDeposit dansDeposit);
 
     /**
      * Packages the original metadata of the DANS bag into a ZIP file and returns the local path to the ZIP file.

@@ -92,7 +92,7 @@ public class DdDataverseIngestApplication extends Application<DdDataverseIngestC
         if (dansDepositConversionConfig != null) {
             var dansBagMappingServiceImport = createDansBagMappingService(false, dansDepositConversionConfig, dataverseService);
             var validateDansBagImport = new ValidateDansBagServiceImpl(dansDepositConversionConfig.getValidateDansBag(), false);
-            dansDepositSupportFactoryImport = new DansDepositSupportFactoryImpl(validateDansBagImport, dansBagMappingServiceImport, dataverseService, yamlService, false);
+            dansDepositSupportFactoryImport = new DansDepositSupportFactoryImpl(validateDansBagImport, dansBagMappingServiceImport, dataverseService, yamlService);
         }
         var depositTaskFactoryImport = new DepositTaskFactoryImpl(bagProcessorFactory, dansDepositSupportFactoryImport);
         var importJobFactory = new ImportJobFactoryImpl(dataverseIngestDepositFactory, depositTaskFactoryImport);
@@ -107,7 +107,7 @@ public class DdDataverseIngestApplication extends Application<DdDataverseIngestC
         if (dansDepositConversionConfig != null) {
             var dansBagMappingServiceMigration = createDansBagMappingService(true, dansDepositConversionConfig, dataverseService);
             var validateDansBagMigration = new ValidateDansBagServiceImpl(dansDepositConversionConfig.getValidateDansBag(), true);
-            dansDepositSupportFactoryMigration = new DansDepositSupportFactoryImpl(validateDansBagMigration, dansBagMappingServiceMigration, dataverseService, yamlService, true);
+            dansDepositSupportFactoryMigration = new DansDepositSupportFactoryImpl(validateDansBagMigration, dansBagMappingServiceMigration, dataverseService, yamlService);
         }
         var depositTaskFactoryMigration = new DepositTaskFactoryImpl(bagProcessorFactory, dansDepositSupportFactoryMigration);
         var migrationJobFactory = new ImportJobFactoryImpl(dataverseIngestDepositFactory, depositTaskFactoryMigration);
