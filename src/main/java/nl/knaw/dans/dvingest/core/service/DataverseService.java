@@ -47,8 +47,6 @@ public interface DataverseService {
 
     String getDatasetUrnNbn(String datasetId) throws IOException, DataverseException;
 
-    void waitForState(String persistentId, String state) throws DataverseException;
-
     void updateMetadata(String targetDatasetPid, DatasetVersion datasetMetadata) throws DataverseException, IOException;
 
     void updateFileMetadata(int id, FileMeta newMeta) throws DataverseException, IOException;
@@ -80,4 +78,6 @@ public interface DataverseService {
     void importDataset(String pid, Dataset dataset) throws IOException, DataverseException;
 
     void releaseMigratedDataset(String pid, String date) throws DataverseException, IOException;
+
+    void waitForReleasedState(String persistentId, int numberOfFilesInDataset) throws DataverseException, IOException;
 }

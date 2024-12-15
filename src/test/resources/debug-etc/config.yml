@@ -64,10 +64,18 @@ ingest:
   # See: https://guides.dataverse.org/en/latest/installation/config.html#zipuploadfileslimit
   #
   maxNumberOfFilesPerUploadBatch: 1000
+
+  #
+  # The service waits for the dataset to reach the released state before it continues processing the next deposit. These settings control how long the service waits,
+  # before giving up and marking the deposit as failed.
+  #
   waitForReleasedState:
-    # 10s * 360 = 1 hour
-    maxNumberOfRetries: 360
-    timeBetweenChecks: 2s
+    # Start polling for the dataset state after this time x number of files in the dataset. It is expected that releasing a dataset takes at least this amount of time.
+    leadTimePerFile: 200ms
+    # Give up waiting for the dataset to be in the expected state after this time. The lead time is *not* included in this timeout.
+    timeout: 5m
+    # The interval between polling the dataset state.
+    pollingInterval: 1s
 
 #
 # Settings related to the conversion of deposits from the legacy format to the format used by the ingest service. Set to null to disable.

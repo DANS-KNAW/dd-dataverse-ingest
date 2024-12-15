@@ -21,15 +21,13 @@ import lombok.extern.slf4j.Slf4j;
 import nl.knaw.dans.dvingest.core.DataverseIngestBag;
 import nl.knaw.dans.dvingest.core.service.DataverseService;
 import nl.knaw.dans.dvingest.core.service.UtilityServices;
-import nl.knaw.dans.dvingest.core.yaml.UpdateState;
-import nl.knaw.dans.dvingest.core.yaml.UpdateStateRoot;
 import nl.knaw.dans.lib.dataverse.DataverseException;
 
 import java.io.IOException;
 import java.util.UUID;
 
 /**
- * Processes a bag, creating and/or editing a dataset version in Dataverse.
+ * Processes a bag, creating and/or editing a dataset version in Dataverse. A BagProcessor is created for each deposit.
  */
 @Slf4j
 public class BagProcessor {
@@ -53,7 +51,7 @@ public class BagProcessor {
         filesEditor.editFiles(targetPid);
         metadataEditor.editMetadata(targetPid);
         permissionsEditor.editPermissions(targetPid);
-        stateUpdater.updateState(targetPid);
+        stateUpdater.updateState(targetPid, filesEditor.getFilesInDatasetCache().getNumberOfFilesInDataset());
         return targetPid;
     }
 }

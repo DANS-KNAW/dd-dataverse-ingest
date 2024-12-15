@@ -20,7 +20,11 @@ import lombok.Data;
 
 @Data
 public class WaitForReleasedStateConfig {
-    private int maxNumberOfRetries = 10;
 
-    private Duration timeBetweenChecks = Duration.seconds(10);
+    private Duration timeout = Duration.minutes(30);
+
+    private Duration leadTimePerFile = Duration.seconds(5);
+
+    private Duration pollingInterval = Duration.seconds(10);
+
 }

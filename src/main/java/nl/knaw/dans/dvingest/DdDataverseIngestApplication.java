@@ -72,8 +72,9 @@ public class DdDataverseIngestApplication extends Application<DdDataverseIngestC
         var dataverseService = DataverseServiceImpl.builder()
             .dataverseClient(dataverseClient)
             .metadataKeys(configuration.getIngest().getMetadataKeys())
-            .millisecondsBetweenChecks(configuration.getIngest().getWaitForReleasedState().getTimeBetweenChecks().toMilliseconds())
-            .maxNumberOfRetries(configuration.getIngest().getWaitForReleasedState().getMaxNumberOfRetries())
+            .timeout(configuration.getIngest().getWaitForReleasedState().getTimeout().toMilliseconds())
+            .leadTimePerFile(configuration.getIngest().getWaitForReleasedState().getLeadTimePerFile().toMilliseconds())
+            .pollingInterval(configuration.getIngest().getWaitForReleasedState().getPollingInterval().toMilliseconds())
             .build();
         var utilityServices = UtilityServicesImpl.builder()
             .tempDir(configuration.getIngest().getTempDir())

@@ -63,14 +63,18 @@ ingest:
   #
   maxNumberOfFilesPerUploadBatch: 1000
   maxByteSizePerUploadBatch: 500MiB
+
+  #
+  # The service waits for the dataset to reach the released state before it continues processing the next deposit. These settings control how long the service waits,
+  # before giving up and marking the deposit as failed.
+  #
   waitForReleasedState:
-    # maxWaitTime = 5h
-    # # It is not useful to check directly after sending the publication request. The publication will verify all checksums.
-    # initialWaitTimePerMegaByte = 10s (or initialWaitTimePerFile = 10s)
-    # timeBetweenChecks = 10s
-    # 10s * 720 = 2 hours
-    maxNumberOfRetries: 720
-    timeBetweenChecks: 10s
+    # Start polling for the dataset state after this time x number of files in the dataset. It is expected that releasing a dataset takes at least this amount of time.
+    leadTimePerFile: 200ms
+    # Give up waiting for the dataset to be in the expected state after this time. The lead time is *not* included in this timeout.
+    timeout: 3h
+    # The interval between polling the dataset state.
+    pollingInterval: 5s
 
 #
 # Settings related to the conversion of deposits from the legacy format to the format used by the ingest service. Set to null to disable.

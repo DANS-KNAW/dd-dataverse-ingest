@@ -117,6 +117,15 @@ public class FilesInDatasetCache {
         initialized = true;
     }
 
+    /**
+     * Returns the number of files in the dataset.
+     *
+     * @return the number of files in the dataset
+     */
+    public int getNumberOfFilesInDataset() {
+        return filesInDataset.size();
+    }
+
     private String getPath(@NonNull FileMeta file) {
         var dataversePath = new DataversePath(file.getDirectoryLabel(), file.getLabel());
         return dataversePath.toString();

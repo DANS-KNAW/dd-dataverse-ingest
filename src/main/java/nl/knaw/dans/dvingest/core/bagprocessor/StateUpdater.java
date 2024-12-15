@@ -32,12 +32,16 @@ import java.util.UUID;
 public class StateUpdater {
     private final UUID depositId;
     private final UpdateAction updateAction;
+
     private final DataverseService dataverseService;
 
     private String pid;
+    private int numberOfFilesInDataset;
 
-    public void updateState(String pid) throws DataverseException, IOException {
+    public void updateState(String pid, int numberOfFilesInDataset) throws DataverseException, IOException {
         this.pid = pid;
+        this.numberOfFilesInDataset = numberOfFilesInDataset;
+
         if (updateAction instanceof PublishAction) {
             publishVersion(((PublishAction) updateAction).getUpdateType());
         }
@@ -49,14 +53,14 @@ public class StateUpdater {
     private void publishVersion(UpdateType updateType) throws DataverseException, IOException {
         log.debug("Start publishing version for deposit {}", depositId);
         dataverseService.publishDataset(pid, updateType);
-        dataverseService.waitForState(pid, "RELEASED");
+        dataverseService.waitForReleasedState(pid, numberOfFilesInDataset);
         log.debug("End publishing version for deposit {}", depositId);
     }
 
     public void releaseMigrated(String date) throws DataverseException, IOException {
         log.debug("Start releasing migrated version for deposit {}", depositId);
         dataverseService.releaseMigratedDataset(pid, date);
-        dataverseService.waitForState(pid, "RELEASED");
+        dataverseService.waitForReleasedState(pid, numberOfFilesInDataset);
         log.debug("End releasing migrated version for deposit {}", depositId);
     }
 }

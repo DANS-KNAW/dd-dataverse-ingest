@@ -54,10 +54,13 @@ public class DataverseServiceImpl implements DataverseService {
     private final DataverseClient dataverseClient;
 
     @Builder.Default
-    private int maxNumberOfRetries = 10;
+    private long pollingInterval = 3000; // 3 seconds
 
     @Builder.Default
-    private long millisecondsBetweenChecks = 3000;
+    private long leadTimePerFile = 200;
+
+    @Builder.Default
+    private long timeout = 1800000; // 30 minutes
 
     @Builder.Default
     private Map<String, String> metadataKeys = new HashMap<>();
@@ -231,35 +234,15 @@ public class DataverseServiceImpl implements DataverseService {
         log.debug(result.getEnvelopeAsString());
     }
 
-    // TODO: move this to dans-dataverse-client-lib; it is similar to awaitLockState.
-    public void waitForState(String datasetId, String expectedState) {
-        var numberOfTimesTried = 0;
-        var state = "";
-
+    public void waitForReleasedState(String pid, int numberOfFilesInDataset) throws DataverseException, IOException {
+        long leadTime = numberOfFilesInDataset * leadTimePerFile;
+        log.debug("Waiting {} ms before first check", leadTime);
         try {
-            state = getDatasetState(datasetId);
-            log.debug("Initial state for dataset {} is {}", datasetId, state);
-            while (!expectedState.equals(state) && numberOfTimesTried < maxNumberOfRetries) {
-                log.debug("Sleeping for {} milliseconds before checking again", millisecondsBetweenChecks);
-                Thread.sleep(millisecondsBetweenChecks);
-
-                state = getDatasetState(datasetId);
-                numberOfTimesTried += 1;
-                log.debug("Current state for dataset {} is {}, tried {} of {} times", datasetId, state, numberOfTimesTried, maxNumberOfRetries);
-            }
-
-            if (!expectedState.equals(state)) {
-                throw new IllegalStateException(String.format(
-                    "Dataset did not become %s within the wait period (%d seconds); current state is %s",
-                    expectedState, (maxNumberOfRetries * millisecondsBetweenChecks), state
-                ));
-            }
+            Thread.sleep(leadTime);
         }
         catch (InterruptedException e) {
-            throw new RuntimeException("Dataset state check was interrupted; last know state is " + state);
+            log.error("Interrupted during lead time. Continuing", e);
         }
-        catch (IOException | DataverseException e) {
-            throw new RuntimeException(e);
-        }
+        dataverseClient.dataset(pid).awaitState("RELEASED", timeout, pollingInterval);
     }
 }
