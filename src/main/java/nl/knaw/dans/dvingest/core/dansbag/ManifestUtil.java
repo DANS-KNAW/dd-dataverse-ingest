@@ -23,7 +23,10 @@ import gov.loc.repository.bagit.hash.Hasher;
 import gov.loc.repository.bagit.hash.StandardSupportedAlgorithms;
 import gov.loc.repository.bagit.util.PathUtils;
 import gov.loc.repository.bagit.writer.ManifestWriter;
+import lombok.NonNull;
+import lombok.extern.slf4j.Slf4j;
 
+import javax.validation.constraints.NotNull;
 import java.io.IOException;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
@@ -37,13 +40,16 @@ import java.util.stream.Collectors;
 
 import static gov.loc.repository.bagit.hash.StandardSupportedAlgorithms.SHA1;
 
+@Slf4j
 public class ManifestUtil  {
 
     public static void ensureSha1ManifestPresent(Bag bag) throws NoSuchAlgorithmException, IOException {
+        log.debug("Ensure SHA-1 manifest is present in bag {}", bag.getRootDir());
         var manifests = bag.getPayLoadManifests();
         var algorithms = manifests.stream().map(Manifest::getAlgorithm);
 
         if (algorithms.anyMatch(SHA1::equals)) {
+            log.debug("SHA-1 manifest already present in bag {}", bag.getRootDir());
             return;
         }
 
@@ -54,6 +60,7 @@ public class ManifestUtil  {
         ManifestWriter.writePayloadManifests(manifests, PathUtils.getBagitDir(bag), bag.getRootDir(), bag.getFileEncoding());
 
         updateTagManifests(bag);
+        log.debug("SHA-1 manifest added to bag {}", bag.getRootDir());
     }
 
     private static void updateTagManifests(Bag bag) throws NoSuchAlgorithmException, IOException {
@@ -65,7 +72,7 @@ public class ManifestUtil  {
         var tagVisitor = new CreateTagManifestsVistor(tagFilesMap, true) {
 
             @Override
-            public FileVisitResult visitFile(Path path, BasicFileAttributes attrs) throws IOException {
+            public @NotNull FileVisitResult visitFile(@NotNull Path path, @NotNull BasicFileAttributes attrs) throws IOException {
                 /*
                  * Fix for EASY-1306: a tag manifest must not contain an entry for itself, as this is practically
                  * impossible to calculate. It could in theory contain entries for other tag manifests. However,

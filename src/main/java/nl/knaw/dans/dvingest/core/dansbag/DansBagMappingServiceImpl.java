@@ -58,7 +58,6 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.security.NoSuchAlgorithmException;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -326,13 +325,6 @@ public class DansBagMappingServiceImpl implements DansBagMappingService {
 
     @Override
     public DansBagDeposit readDansDeposit(Path depositDir) throws InvalidDepositException {
-        var deposit = dansBagDepositReader.readDeposit(depositDir);
-        try {
-            ManifestUtil.ensureSha1ManifestPresent(deposit.getBag());
-            return deposit;
-        }
-        catch (IOException | NoSuchAlgorithmException e) {
-            throw new IllegalStateException("Error reading deposit", e);
-        }
+        return dansBagDepositReader.readDeposit(depositDir);
     }
 }

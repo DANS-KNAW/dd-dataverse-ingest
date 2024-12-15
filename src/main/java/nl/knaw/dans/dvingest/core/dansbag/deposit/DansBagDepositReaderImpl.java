@@ -61,6 +61,7 @@ public class DansBagDepositReaderImpl implements DansBagDepositReader {
 
             var depositProperties = readDepositProperties(depositDir);
             var bag = bagReader.read(bagDir);
+            ManifestUtil.ensureSha1ManifestPresent(bag);
 
             var deposit = mapToDeposit(bag, depositProperties);
 
