@@ -81,11 +81,15 @@ public class DansBagMappingServiceImpl implements DansBagMappingService {
     private final SupportedLicenses supportedLicenses;
     private final Pattern fileExclusionPattern;
     private final List<String> embargoExclusions;
+    private final String depositorRoleAutoIngest;
+    private final String depositorRoleMigration;
 
     public DansBagMappingServiceImpl(DepositToDvDatasetMetadataMapper depositToDvDatasetMetadataMapper, DataverseService dataverseService, SupportedLicenses supportedLicenses,
-        Pattern fileExclusionPattern, List<String> embargoExclusions) {
+        Pattern fileExclusionPattern, List<String> embargoExclusions, String depositorRoleAutoIngest, String depositorRoleMigration) {
         this.depositToDvDatasetMetadataMapper = depositToDvDatasetMetadataMapper;
         this.dataverseService = dataverseService;
+        this.depositorRoleAutoIngest = depositorRoleAutoIngest;
+        this.depositorRoleMigration = depositorRoleMigration;
         BagReader bagReader = new BagReader();
         XmlReader xmlReader = new XmlReaderImpl();
 
@@ -227,19 +231,20 @@ public class DansBagMappingServiceImpl implements DansBagMappingService {
     }
 
     @Override
-    public EditPermissions getEditPermissionsFromDansDeposit(DansBagDeposit dansDeposit, String updatesDataset) {
-        if (updatesDataset == null) {
-            var userId = dansDeposit.getDepositorUserId();
-            var editPermissions = new EditPermissions();
-            var roleAssignment = new RoleAssignment();
-            roleAssignment.setAssignee("@" + userId);
-            roleAssignment.setRole("contributorplus"); // TODO: make this configurable
-            editPermissions.setAddRoleAssignments(List.of(roleAssignment));
-            return editPermissions;
-        }
-        else {
+    public EditPermissions getEditPermissionsFromDansDeposit(DansBagDeposit dansDeposit, boolean isUpdate) {
+        if (isUpdate) {
+            log.debug("Not changing permissions for update deposit");
             return new EditPermissions();
         }
+        var userId = dansDeposit.getDepositorUserId();
+        var editPermissions = new EditPermissions();
+        var roleAssignment = new RoleAssignment();
+        roleAssignment.setAssignee("@" + userId);
+        String role = depositToDvDatasetMetadataMapper.isMigration() ? depositorRoleMigration : depositorRoleAutoIngest;
+        log.debug("Setting role for {} to {}", userId, role);
+        roleAssignment.setRole(role);
+        editPermissions.setAddRoleAssignments(List.of(roleAssignment));
+        return editPermissions;
     }
 
     @Override

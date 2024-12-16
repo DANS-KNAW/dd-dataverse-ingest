@@ -111,6 +111,14 @@ dansDepositConversion:
   mappingDefsDir: /etc/opt/dans.knaw.nl/dd-dataverse-ingest
 
   #
+  # Role to assign to the depositor of the dataset, per use-case.
+  #
+  assignDepositorRole:
+    autoIngest: swordupdater
+    migration: contributorplus
+
+
+  #
   # List of fields to skip, even when they are in active metadata blocks. This can be used if hidden fields in active metadata blocks are the target of a mapping. Normally, the mapping
   # would be applied to the hidden field. This leads to values that are displayed but cannot be edited (the normal Dataverse behavior for hidden fields). In cases where this is not desired,
   # the field can be skipped by adding it to the list below.

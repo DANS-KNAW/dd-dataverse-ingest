@@ -104,6 +104,13 @@ dansDepositConversion:
   #
   mappingDefsDir: etc/
 
+  #
+  # Role to assign to the depositor of the dataset, per use-case.
+  #
+  assignDepositorRole:
+    autoIngest: swordupdater
+    migration: contributorplus
+
   validateDansBag:
     url: 'http://localhost:20330/'
     httpClient:

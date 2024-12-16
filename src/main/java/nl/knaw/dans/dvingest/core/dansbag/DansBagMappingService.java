@@ -82,11 +82,11 @@ public interface DansBagMappingService {
     /**
      * Maps the permissions in the DANS deposit to edit actions for the permissions of the dataset. The edit actions are used to update the permissions of the dataset.
      *
-     * @param dansDeposit    the DANS deposit
-     * @param updatesDataset the DOI of the dataset that needs to be updated, or null if the deposit is to create a new dataset
+     * @param dansDeposit the DANS deposit
+     * @param isUpdate    the DOI of the dataset that needs to be updated, or null if the deposit is to create a new dataset
      * @return the edit actions for the permissions of the dataset
      */
-    EditPermissions getEditPermissionsFromDansDeposit(DansBagDeposit dansDeposit, String updatesDataset);
+    EditPermissions getEditPermissionsFromDansDeposit(DansBagDeposit dansDeposit, boolean isUpdate);
 
     /**
      * Maps the DANS deposit to an update action for the dataset. This determines how to publish the dataset (as migrated or as new).

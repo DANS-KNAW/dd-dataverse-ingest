@@ -142,7 +142,9 @@ public class DdDataverseIngestApplication extends Application<DdDataverseIngestC
                 new SupportedLicenses(dataverseService),
                 dansDepositConversionConfig.getFileExclusionPattern() == null ? null :
                     Pattern.compile(dansDepositConversionConfig.getFileExclusionPattern()),
-                dansDepositConversionConfig.getEmbargoExclusions());
+                dansDepositConversionConfig.getEmbargoExclusions(),
+                dansDepositConversionConfig.getAssignDepositorRole().getAutoIngest(),
+                dansDepositConversionConfig.getAssignDepositorRole().getMigration());
         }
         catch (IOException e) {
             throw new IllegalStateException("Failed to read configuration files", e);
