@@ -313,11 +313,19 @@ public class DansBagMappingServiceImpl implements DansBagMappingService {
     }
 
     Optional<String> getDateOfDeposit(DansBagDeposit dansDeposit) {
-        if (dansDeposit.isUpdate()) {
-            return Optional.empty(); // See for implementation CIT025B in DatasetUpdater
+        if (depositToDvDatasetMetadataMapper.isMigration()) {
+            return Optional.ofNullable(dansDeposit.getAmd())
+                .map(Amd::toDateOfDeposit)
+                .flatMap(i -> i);
+
         }
         else {
-            return Optional.of(yyyymmddPattern.print(DateTime.now())); // CIT025B
+            if (dansDeposit.isUpdate()) {
+                return Optional.empty(); // See for implementation CIT025B in DatasetUpdater
+            }
+            else {
+                return Optional.of(yyyymmddPattern.print(DateTime.now())); // CIT025B
+            }
         }
     }
 

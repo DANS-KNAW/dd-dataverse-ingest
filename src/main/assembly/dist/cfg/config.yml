@@ -103,7 +103,7 @@ dansDepositConversion:
   #
   # If true, try to deduplicate multi-value metadata fields. If false, do not deduplicate.
   #
-  deduplicate: false
+  deduplicate: true
 
   #
   # The directory where various metadata term mappings are stored.
