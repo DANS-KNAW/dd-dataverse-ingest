@@ -113,7 +113,7 @@ public class EditFilesComposer {
             .toList();
     }
 
-    private boolean forIndividualUpload(Path path) {
+    protected boolean forIndividualUpload(Path path) {
         return filesForIndividualUploadPattern != null && filesForIndividualUploadPattern.matcher(path.toString()).matches();
     }
 
