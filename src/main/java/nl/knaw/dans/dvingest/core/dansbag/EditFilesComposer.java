@@ -50,6 +50,9 @@ public class EditFilesComposer {
     protected final Instant dateAvailable;
 
     protected final Pattern fileExclusionPattern;
+
+    protected final Pattern filesForIndividualUploadPattern;
+
     @NonNull
     protected final List<String> embargoExclusions;
 
@@ -62,8 +65,10 @@ public class EditFilesComposer {
         pathFileInfoMap = removeIgnoredFiles(pathFileInfoMap, ignoredFiles);
 
         editFiles.setAutoRenameFiles(getAutoRenamedFiles(renamedFiles));
-        editFiles.setAddRestrictedFiles(getRestrictedFilesToAdd(pathFileInfoMap));
-        editFiles.setAddUnrestrictedFiles(getUnrestrictedFilesToAdd(pathFileInfoMap));
+        editFiles.setAddRestrictedFiles(getRestrictedFilesToAdd(pathFileInfoMap, false));
+        editFiles.setAddUnrestrictedFiles(getUnrestrictedFilesToAdd(pathFileInfoMap, false));
+        editFiles.setAddRestrictedIndividually(getRestrictedFilesToAdd(pathFileInfoMap, true));
+        editFiles.setAddUnrestrictedIndividually(getUnrestrictedFilesToAdd(pathFileInfoMap, true));
         editFiles.setUpdateFileMetas(getUpdatedFileMetas(pathFileInfoMap));
 
         addEmbargo(editFiles, pathFileInfoMap.keySet());
@@ -92,18 +97,24 @@ public class EditFilesComposer {
      * @param files the file infos found in files.xml
      * @return a list of file paths that should be added as restricted files
      */
-    private List<String> getRestrictedFilesToAdd(Map<Path, FileInfo> files) {
+    private List<String> getRestrictedFilesToAdd(Map<Path, FileInfo> files, boolean individualUpload) {
         return files.entrySet().stream()
+            .filter(entry -> individualUpload == forIndividualUpload(entry.getKey()))
             .filter(entry -> entry.getValue().getMetadata().getRestricted())
             .map(entry -> entry.getKey().toString())
             .toList();
     }
 
-    private List<String> getUnrestrictedFilesToAdd(Map<Path, FileInfo> files) {
+    private List<String> getUnrestrictedFilesToAdd(Map<Path, FileInfo> files, boolean individualUpload) {
         return files.entrySet().stream()
+            .filter(entry -> individualUpload == forIndividualUpload(entry.getKey()))
             .filter(entry -> !entry.getValue().getMetadata().getRestricted())
             .map(entry -> entry.getKey().toString())
             .toList();
+    }
+
+    private boolean forIndividualUpload(Path path) {
+        return filesForIndividualUploadPattern != null && filesForIndividualUploadPattern.matcher(path.toString()).matches();
     }
 
     /**
@@ -130,17 +141,6 @@ public class EditFilesComposer {
                 addEmbargo.setFilePaths(filesToEmbargo.stream().map(Path::toString).toList());
                 editFiles.setAddEmbargoes(List.of(addEmbargo));
             }
-        }
-    }
-
-    private List<Path> getEmbargoedFiles(Set<Path> candidates, Instant dateAvailable) {
-        if (dateAvailable.isAfter(Instant.now())) {
-            return candidates.stream()
-                .filter(f -> !embargoExclusions.contains(f.toString())).toList();
-        }
-        else {
-            log.debug("Date available in the past, no embargo: {}", dateAvailable);
-            return List.of();
         }
     }
 

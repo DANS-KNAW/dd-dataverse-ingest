@@ -83,7 +83,8 @@ public abstract class DansConversionFixture extends TestDirFixture {
             Collections.emptyMap(),
             List.of());
         var supportedLicenses = new SupportedLicenses(licenses("http://opensource.org/licenses/MIT"));
-        mappingService = new DansBagMappingServiceImpl(mapper, dataverseServiceMock, supportedLicenses, Pattern.compile("a^"), List.of(), "swordupdater", "contributorplus"); // never match
+        mappingService = new DansBagMappingServiceImpl(mapper, dataverseServiceMock, supportedLicenses, Pattern.compile("a^"), Pattern.compile("a^"), List.of(), "swordupdater",
+            "contributorplus"); // never match
 
         Mockito.reset(dataverseServiceMock);
     }

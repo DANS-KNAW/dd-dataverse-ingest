@@ -84,7 +84,12 @@ dansDepositConversion:
   # Filtering. Files with a path matching the pattern will not be added to the dataset. Renaming/moving files is not affected.
   # By default, no files are excluded.
   #
-  fileExclusionPattern: a^
+  fileExclusionPattern: 'a^'
+
+  #
+  # Files that must be uploaded individually, and not in batch. By default, no files are uploaded individually.
+  #
+  filesForIndividualUploadPattern: 'a^'
 
   #
   # File paths to exclude from embargoes.

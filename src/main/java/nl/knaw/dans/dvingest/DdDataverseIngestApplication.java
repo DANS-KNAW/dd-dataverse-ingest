@@ -142,6 +142,8 @@ public class DdDataverseIngestApplication extends Application<DdDataverseIngestC
                 new SupportedLicenses(dataverseService),
                 dansDepositConversionConfig.getFileExclusionPattern() == null ? null :
                     Pattern.compile(dansDepositConversionConfig.getFileExclusionPattern()),
+                dansDepositConversionConfig.getFilesForIndividualUploadPattern() == null ? null :
+                    Pattern.compile(dansDepositConversionConfig.getFilesForIndividualUploadPattern()),
                 dansDepositConversionConfig.getEmbargoExclusions(),
                 dansDepositConversionConfig.getAssignDepositorRole().getAutoIngest(),
                 dansDepositConversionConfig.getAssignDepositorRole().getMigration());

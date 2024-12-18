@@ -1,0 +1,4 @@
+# Rename this file to init.yml to create a dataset with the DOI specified in the importPid field
+init:
+  create:
+    importPid: 'doi:10.5072/FK2/8QZQZM'

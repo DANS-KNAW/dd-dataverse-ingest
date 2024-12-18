@@ -42,9 +42,9 @@ public class EditFilesComposerForUpdate extends EditFilesComposer {
     private final String updatesDatasetPid;
     private final DataverseService dataverseService;
 
-    public EditFilesComposerForUpdate(Map<Path, FileInfo> files, Instant dateAvailable, String updatesDatasetPid, Pattern fileExclusionPattern, List<String> embargoExclusions,
+    public EditFilesComposerForUpdate(Map<Path, FileInfo> files, Instant dateAvailable, String updatesDatasetPid, Pattern fileExclusionPattern, Pattern filesForIndividualUploadPattern, List<String> embargoExclusions,
         DataverseService dataverseService) {
-        super(files, dateAvailable, fileExclusionPattern, embargoExclusions);
+        super(files, dateAvailable, fileExclusionPattern, filesForIndividualUploadPattern, embargoExclusions);
         this.updatesDatasetPid = updatesDatasetPid;
         this.dataverseService = dataverseService;
     }

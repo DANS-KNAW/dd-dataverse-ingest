@@ -9,6 +9,10 @@ editFiles:
     - 'file1.txt'
     - 'file3-desc.txt'
     - 'file5-to-be-replaced-in-v2.txt'
+  addRestrictedIndividually:
+    - 'subdir-restricted.zip'
+  addUnrestrictedIndividually:
+    - 'subdir-unrestricted.zip'
   updateFileMetas:
     - label: 'file3-desc.txt'
       description: 'Description of file3'

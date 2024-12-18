@@ -80,12 +80,13 @@ public class DansBagMappingServiceImpl implements DansBagMappingService {
     private final DansBagDepositReader dansBagDepositReader;
     private final SupportedLicenses supportedLicenses;
     private final Pattern fileExclusionPattern;
+    private final Pattern filesForIndividualUploadPattern;
     private final List<String> embargoExclusions;
     private final String depositorRoleAutoIngest;
     private final String depositorRoleMigration;
 
     public DansBagMappingServiceImpl(DepositToDvDatasetMetadataMapper depositToDvDatasetMetadataMapper, DataverseService dataverseService, SupportedLicenses supportedLicenses,
-        Pattern fileExclusionPattern, List<String> embargoExclusions, String depositorRoleAutoIngest, String depositorRoleMigration) {
+        Pattern fileExclusionPattern, Pattern filesForIndividualUploadPattern, List<String> embargoExclusions, String depositorRoleAutoIngest, String depositorRoleMigration) {
         this.depositToDvDatasetMetadataMapper = depositToDvDatasetMetadataMapper;
         this.dataverseService = dataverseService;
         this.depositorRoleAutoIngest = depositorRoleAutoIngest;
@@ -96,6 +97,7 @@ public class DansBagMappingServiceImpl implements DansBagMappingService {
         dansBagDepositReader = new DansBagDepositReaderImpl(xmlReader, bagReader);
         this.supportedLicenses = supportedLicenses;
         this.fileExclusionPattern = fileExclusionPattern;
+        this.filesForIndividualUploadPattern = filesForIndividualUploadPattern;
         this.embargoExclusions = embargoExclusions;
     }
 
@@ -205,10 +207,10 @@ public class DansBagMappingServiceImpl implements DansBagMappingService {
         }
         var dateAvailable = getDateAvailable(dansDeposit);
         if (updatesDataset == null) {
-            return new EditFilesComposer(files, dateAvailable, fileExclusionPattern, embargoExclusions).composeEditFiles();
+            return new EditFilesComposer(files, dateAvailable, fileExclusionPattern, filesForIndividualUploadPattern, embargoExclusions).composeEditFiles();
         }
         else {
-            return new EditFilesComposerForUpdate(files, dateAvailable, updatesDataset, fileExclusionPattern, embargoExclusions, dataverseService).composeEditFiles();
+            return new EditFilesComposerForUpdate(files, dateAvailable, updatesDataset, fileExclusionPattern, filesForIndividualUploadPattern, embargoExclusions, dataverseService).composeEditFiles();
         }
     }
 

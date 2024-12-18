@@ -36,7 +36,7 @@ public class EditFilesComposerTest extends EditFilesComposerFixture {
         Map<Path, FileInfo> map = new HashMap<>();
         add(map, file("file1.txt", "checksum1"));
         add(map, file("file2.txt", "checksum2"));
-        editFilesComposer = new EditFilesComposer(map, inThePast, null, List.of());
+        editFilesComposer = new EditFilesComposer(map, inThePast, null, null,  List.of());
 
         // When
         var editFiles = editFilesComposer.composeEditFiles();
@@ -56,7 +56,7 @@ public class EditFilesComposerTest extends EditFilesComposerFixture {
         add(map, file("file1.txt", "checksum1", true));
         add(map, file("file2.txt", "checksum2", true));
         add(map, file("file3.txt", "checksum3", false));
-        editFilesComposer = new EditFilesComposer(map, inThePast, null, List.of());
+        editFilesComposer = new EditFilesComposer(map, inThePast, null, null, List.of());
 
         // When
         var editFiles = editFilesComposer.composeEditFiles();
@@ -80,7 +80,7 @@ public class EditFilesComposerTest extends EditFilesComposerFixture {
         add(map, file("file1.txt", "checksum1", false, "description1"));
         add(map, file("file2.txt", "checksum2", false, "description2"));
         add(map, file("file3.txt", "checksum3", false));
-        editFilesComposer = new EditFilesComposer(map, inThePast, null, List.of());
+        editFilesComposer = new EditFilesComposer(map, inThePast, null, null, List.of());
 
         // When
         var editFiles = editFilesComposer.composeEditFiles();
@@ -104,7 +104,7 @@ public class EditFilesComposerTest extends EditFilesComposerFixture {
         add(map, file("file1.txt", "checksum1", false, null, List.of("category1")));
         add(map, file("file2.txt", "checksum2", false, null, List.of("category2")));
         add(map, file("file3.txt", "checksum3", false));
-        editFilesComposer = new EditFilesComposer(map, inThePast, null, List.of());
+        editFilesComposer = new EditFilesComposer(map, inThePast, null, null, List.of());
 
         // When
         var editFiles = editFilesComposer.composeEditFiles();
@@ -127,7 +127,7 @@ public class EditFilesComposerTest extends EditFilesComposerFixture {
         Map<Path, FileInfo> map = new HashMap<>();
         add(map, file("file1.txt", "checksum1"));
         add(map, file("file2.txt", "checksum2"));
-        editFilesComposer = new EditFilesComposer(map, inTheFuture, null, List.of());
+        editFilesComposer = new EditFilesComposer(map, inTheFuture, null, null, List.of());
 
         // When
         var editFiles = editFilesComposer.composeEditFiles();
@@ -150,7 +150,7 @@ public class EditFilesComposerTest extends EditFilesComposerFixture {
         Map<Path, FileInfo> map = new HashMap<>();
         add(map, sanitizedFile("file1.txt", "file1_sanitized.txt", "checksum1"));
         add(map, file("file2.txt", "checksum2"));
-        editFilesComposer = new EditFilesComposer(map, inThePast, null, List.of());
+        editFilesComposer = new EditFilesComposer(map, inThePast, null, null, List.of());
 
         // When
         var editFiles = editFilesComposer.composeEditFiles();
@@ -174,7 +174,7 @@ public class EditFilesComposerTest extends EditFilesComposerFixture {
         Map<Path, FileInfo> map = new HashMap<>();
         add(map, file("file1.txt", "checksum1"));
         add(map, file("file2.txt", "checksum2"));
-        editFilesComposer = new EditFilesComposer(map, inThePast, Pattern.compile("file1.*"), List.of());
+        editFilesComposer = new EditFilesComposer(map, inThePast, Pattern.compile("file1.*"), null, List.of());
 
         // When
         var editFiles = editFilesComposer.composeEditFiles();
@@ -194,7 +194,7 @@ public class EditFilesComposerTest extends EditFilesComposerFixture {
         add(map, file("file1.txt", "checksum1"));
         add(map, file("file2.txt", "checksum2"));
         add(map, file("subdir/file3.txt", "checksum3"));
-        editFilesComposer = new EditFilesComposer(map, inTheFuture, null, List.of("file2.txt", "subdir/file3.txt"));
+        editFilesComposer = new EditFilesComposer(map, inTheFuture, null, null, List.of("file2.txt", "subdir/file3.txt"));
 
         // When
         var editFiles = editFilesComposer.composeEditFiles();

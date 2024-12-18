@@ -1,1 +1,2 @@
-action: 'publish-major'
+updateState:
+  publish: major

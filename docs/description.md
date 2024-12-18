@@ -101,52 +101,74 @@ datasetVersion:
 
 ##### edit-files.yml
 
+See the inline comments for more information. The steps are performed in the order here given. You **cannot** change the order of the steps by changing the
+order
+of the items in the file.
+
+The actions specified in this file correspond roughly to the actions available in the dropdown menu in the file view of a dataset in Dataverse.
+
+`updateFileMetas` contains items in the format of the JSON that is passed to the [updateFileMetadata]{:target=_blank} endpoint of the Dataverse API.
+
+[updateFileMetadata]: {{ dataverse_api_url }}/native-api.html#updating-file-metadata
+
 ```yaml
 editFiles:
+  # Deletes the files from the dataset. The files are looked up by their path in the dataset. Note, that it is possible to add files back to the same location 
+  # in the dataset in the same deposit. In that case, there will be no continuous history of the file in the dataset.  
   deleteFiles:
     - 'file1.txt'
     - 'subdirectory/file3.txt'
+  # Replaces the files in the dataset. The files are looked up by their path in the dataset. The replacement file is looked up in the bag, under the `data`
+  # directory under the same path as the original file has in the dataset. Note that files in `replaceFiles` will automatically be skipped in the add files step, 
   replaceFiles:
     - 'file2.txt'
+  # Adds files to the dataset and makes them restricted. The files are processed in batches, meaning they are uploaded as ZIP files to Dataverse, for Dataverse
+  # to unzip them. This is more efficient than adding the files one by one. 
   addRestrictedFiles:
     - 'file4.txt'
     - 'subdirectory/file5.txt'
+  # The same as above, but the files are added unrestricted.
   addUnrestrictedFiles:
     - 'file6.txt'
+  # Adds files to the dataset and makes them restricted. The files are processed one by one, meaning they are uploaded as individual files to Dataverse. This is
+  # useful if you need to circumvent special processing by Dataverse, such as re-zipping Shapefile projects. 
+  # See: https://guides.dataverse.org/en/6.3/developers/geospatial.html#geospatial-data 
+  # 
+  # Conversely, you could use this to make sure a ZIP file in your bag is expanded by Dataverse, since Dataverse will not expand ZIP files that are uploaded 
+  # inside another ZIP file, as is the case with the batch upload method.
+  addRestrictedFilesIndividually:
+    - 'bicycles.shp'
+    - 'bicycles.shx'
+    - 'bicycles.dbf'
+    - 'bicycles.prj'
+  # The same as above, but the files are added unrestricted.  
+  addUnrestrictedFilesIndividually:
+    - 'bicycles.shp'
+    - 'bicycles.shx'
+    - 'bicycles.dbf'
+    - 'bicycles.prj'
+  # Moves files in the dataset. This is essentially a metadata change: the label and/or directoryLabel of the file is changed.
   moveFiles:
     - from: 'file6.txt' # Old location in the dataset
       to: 'subdirectory/file6.txt' # New location in the dataset
+  # Updates the metadata of the files in the dataset. The files are looked up by their path in the dataset, so it is not possible to change the label or 
+  # directoryLabel of the file in this step; use moveFiles for that.
   updateFileMetas:
     - description: "This is the first file"
       label: "file1.txt"
       directoryLabel: "subdirectory"
       restricted: false
       categories: [ 'Testlabel' ]
+  # This is not a separate step, but the auto-renaming takes place whenever a local filepath is translated to a dataset filepath.    
   autoRenameFiles:
     - from: "Unsanitize'd/file?" # Local file name
       to: "Sanitize_d/file_" # The file name assigned in the dataset
+  # Sets one or more embargoes on the files in the dataset.     
   addEmbargoes:
     - filePaths: [ 'file1.txt' ] # All other files will NOT be embargoed
       dateAvailable: '2030-01-01'
       reason: 'Pending publication'
-    - filePaths: [ 'file2.txt' ] # All other files will be embargoed
-      dateAvailable: '2040-01-01'
-      reason: 'Pending publication'
 ```
-
-The actions specified in this file correspond roughly to the actions available in the dropdown menu in the file view of a dataset in Dataverse.
-
-The replacement file is looked up in the bag, under the `data` directory under the same path as the original file has in the dataset. Note that files in
-`replaceFiles` will automatically be skipped in the add files step, the deleted files, however, will not. In other words, it is also possible to remove a
-file and add a file back to the same location in one deposit. In that case, there will be no continuous history of the file in the dataset.
-
-The `addRestrictedFiles` action is included, because it allows you to add a large number of restricted files in a more efficient way than by updating the file
-metadata of each file individually after adding them unrestricted first. The default action is to add files unrestricted, so there is no explicit action for
-that.
-
-`updateFileMetas` contains items in the format of the JSON that is passed to the [updateFileMetadata]{:target=_blank} endpoint of the Dataverse API.
-
-[updateFileMetadata]: {{ dataverse_api_url }}/native-api.html#updating-file-metadata
 
 ##### edit-metadata.yml
 
@@ -213,14 +235,13 @@ Allows you to selectively delete or add role assignments on the dataset. The for
 
 ```yaml
 updateState:
-    publish: major # or 'minor'
+  publish: major # or 'minor'
 ```
 
 ```yaml
 updateState:
-   releaseMigrated: 2021-01-01
+  releaseMigrated: 2021-01-01
 ```
-
 
 #### New versions of existing datasets
 

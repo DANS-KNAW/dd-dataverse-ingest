@@ -39,7 +39,7 @@ public class EditFilesComposerForUpdateTest extends EditFilesComposerFixture {
         Map<Path, FileInfo> map = new HashMap<>();
         add(map, file("file1.txt", "newchecksum"));
 
-        editFilesComposer = new EditFilesComposerForUpdate(map, inThePast, "doi:some", null, List.of(), dataverseServiceMock);
+        editFilesComposer = new EditFilesComposerForUpdate(map, inThePast, "doi:some", null, null, List.of(), dataverseServiceMock);
 
         // When
         var editFiles = editFilesComposer.composeEditFiles();
@@ -58,7 +58,7 @@ public class EditFilesComposerForUpdateTest extends EditFilesComposerFixture {
         Map<Path, FileInfo> map = new HashMap<>();
         add(map, file("file1.txt", "oldchecksum"));
 
-        editFilesComposer = new EditFilesComposerForUpdate(map, inThePast, "doi:some", null, List.of(), dataverseServiceMock);
+        editFilesComposer = new EditFilesComposerForUpdate(map, inThePast, "doi:some", null, null, List.of(), dataverseServiceMock);
 
         // When
         var editFiles = editFilesComposer.composeEditFiles();
@@ -76,7 +76,7 @@ public class EditFilesComposerForUpdateTest extends EditFilesComposerFixture {
         Map<Path, FileInfo> map = new HashMap<>();
         add(map, file("path/three/file2.txt", "oldchecksum"));
 
-        editFilesComposer = new EditFilesComposerForUpdate(map, inThePast, "doi:some", null, List.of(), dataverseServiceMock);
+        editFilesComposer = new EditFilesComposerForUpdate(map, inThePast, "doi:some", null, null, List.of(), dataverseServiceMock);
 
         // When
         var editFiles = editFilesComposer.composeEditFiles();
@@ -96,7 +96,7 @@ public class EditFilesComposerForUpdateTest extends EditFilesComposerFixture {
         Map<Path, FileInfo> map = new HashMap<>();
         add(map, file("path/to/file1.txt", "oldchecksum")); // Confirming that the file is to remain in the dataset
         add(map, file("path/three/file2.txt", "newchecksum"));
-        editFilesComposer = new EditFilesComposerForUpdate(map, inThePast, "doi:some", null, List.of(), dataverseServiceMock);
+        editFilesComposer = new EditFilesComposerForUpdate(map, inThePast, "doi:some", null, null, List.of(), dataverseServiceMock);
 
         // When
         var editFiles = editFilesComposer.composeEditFiles();
@@ -115,7 +115,7 @@ public class EditFilesComposerForUpdateTest extends EditFilesComposerFixture {
         Map<Path, FileInfo> map = new HashMap<>();
         add(map, file("path/to/file1.txt", "oldchecksum")); // Confirming that the file is to remain in the dataset
         add(map, file("path/three/file2.txt", "newchecksum", true));
-        editFilesComposer = new EditFilesComposerForUpdate(map, inThePast, "doi:some", null, List.of(), dataverseServiceMock);
+        editFilesComposer = new EditFilesComposerForUpdate(map, inThePast, "doi:some", null, null, List.of(), dataverseServiceMock);
 
         // When
         var editFiles = editFilesComposer.composeEditFiles();
@@ -135,7 +135,7 @@ public class EditFilesComposerForUpdateTest extends EditFilesComposerFixture {
         add(map, file("path/three/file1.txt", "oldchecksum"));
         add(map, file("path/three/file2.txt", "oldchecksum"));
 
-        editFilesComposer = new EditFilesComposerForUpdate(map, inThePast, "doi:some", null, List.of(), dataverseServiceMock);
+        editFilesComposer = new EditFilesComposerForUpdate(map, inThePast, "doi:some", null, null, List.of(), dataverseServiceMock);
 
         // When
         var editFiles = editFilesComposer.composeEditFiles();
@@ -155,7 +155,7 @@ public class EditFilesComposerForUpdateTest extends EditFilesComposerFixture {
         when(dataverseServiceMock.getFiles(anyString())).thenReturn(List.of(fileMeta("path/to/file1.txt", "oldchecksum")));
         Map<Path, FileInfo> map = new HashMap<>();
 
-        editFilesComposer = new EditFilesComposerForUpdate(map, inThePast, "doi:some", null, List.of(), dataverseServiceMock);
+        editFilesComposer = new EditFilesComposerForUpdate(map, inThePast, "doi:some", null, null, List.of(), dataverseServiceMock);
 
         // When
         var editFiles = editFilesComposer.composeEditFiles();
@@ -174,7 +174,7 @@ public class EditFilesComposerForUpdateTest extends EditFilesComposerFixture {
         Map<Path, FileInfo> map = new HashMap<>();
         add(map, file("path/to/file1.txt", "oldchecksum"));
 
-        editFilesComposer = new EditFilesComposerForUpdate(map, inThePast, "doi:some", null, List.of(), dataverseServiceMock);
+        editFilesComposer = new EditFilesComposerForUpdate(map, inThePast, "doi:some", null, null, List.of(), dataverseServiceMock);
 
         // When
         var editFiles = editFilesComposer.composeEditFiles();

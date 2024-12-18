@@ -95,6 +95,8 @@ public class FilesEditor {
             replaceFiles();
             addRestrictedFiles();
             addUnrestrictedFiles();
+            addRestrictedFilesIndividually();
+            addUnrestrictedFilesIndividually();
             moveFiles();
             updateFileMetas();
             addEmbargoes();
@@ -147,6 +149,36 @@ public class FilesEditor {
         }
         catch (IOException | DataverseException e) {
             throw new RuntimeException(e);
+        }
+    }
+
+    public void addRestrictedFilesIndividually() throws IOException, DataverseException {
+        addFilesIndividually(editFiles.getAddRestrictedIndividually(), true);
+    }
+
+    public void addUnrestrictedFilesIndividually() throws IOException, DataverseException {
+        addFilesIndividually(editFiles.getAddUnrestrictedIndividually(), false);
+    }
+
+    public void addFilesIndividually(List<String> files, boolean restricted) throws IOException, DataverseException {
+        log.debug("Start adding {} files individually for deposit {}, restrict = {}", editFiles.getAddRestrictedIndividually().size(), depositId, restricted);
+        for (var filepath : files) {
+            log.debug("Adding restricted file: {}", filepath);
+            var fileMeta = new FileMeta();
+            fileMeta.setRestricted(restricted);
+            String realFilepath = filepath;
+            // TODO: a bit confusing that autorenamedFiles is part of the cache, although the file looked up here has not been added to the dataset yet.
+            if (filesInDatasetCache.getAutoRenamedFiles().containsKey(filepath)) {
+                realFilepath = filesInDatasetCache.getAutoRenamedFiles().get(filepath);
+            }
+            var dataversePath = new DataversePath(realFilepath);
+            fileMeta.setLabel(dataversePath.getLabel());
+            fileMeta.setDirectoryLabel(dataversePath.getDirectoryLabel());
+            var fileToUpload = dataDir.resolve(filepath);
+            var addedFileMeta = dataverseService.addFile(pid, fileToUpload, fileMeta);
+            for (var fm : addedFileMeta.getFiles()) {
+                filesInDatasetCache.put(fm);
+            }
         }
     }
 
