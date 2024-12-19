@@ -29,8 +29,6 @@ import static nl.knaw.dans.dvingest.core.dansbag.mapper.DepositDatasetFieldNames
 public class Language extends Base {
     public static CompoundFieldGenerator<Node> toKeywordValue = (builder, value) -> {
         builder.addSubfield(KEYWORD_VALUE, value.getTextContent());
-        builder.addSubfield(KEYWORD_VOCABULARY, "");
-        builder.addSubfield(KEYWORD_VOCABULARY_URI, "");
     };
 
     public static boolean isIsoLanguage(Node node) {

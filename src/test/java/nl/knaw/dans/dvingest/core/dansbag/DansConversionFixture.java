@@ -70,7 +70,7 @@ public abstract class DansConversionFixture extends TestDirFixture {
         var defaultConfigDir = Paths.get("src/main/assembly/dist/cfg");
         var mapper = new DepositToDvDatasetMetadataMapper(
             false,
-            false, // Always false ?
+            true,
             Set.of("citation", "dansRights", "dansRelationMetadata", "dansArchaeologyMetadata", "dansTemporalSpatial", "dansDataVaultMetadata"),
             MappingLoader.builder().csvFile(defaultConfigDir.resolve("iso639-1-to-dv.csv")).keyColumn("ISO639-1").valueColumn("Dataverse-language").build().load(),
             MappingLoader.builder().csvFile(defaultConfigDir.resolve("iso639-2-to-dv.csv")).keyColumn("ISO639-2").valueColumn("Dataverse-language").build().load(),

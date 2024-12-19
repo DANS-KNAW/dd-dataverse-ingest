@@ -17,6 +17,8 @@ package nl.knaw.dans.dvingest.core.dansbag.mapper.mapping;
 
 import lombok.extern.slf4j.Slf4j;
 import nl.knaw.dans.dvingest.core.dansbag.mapper.builder.CompoundFieldGenerator;
+import org.apache.commons.lang3.StringUtils;
+import org.eclipse.jetty.util.StringUtil;
 import org.w3c.dom.Node;
 
 import static nl.knaw.dans.dvingest.core.dansbag.mapper.DepositDatasetFieldNames.AUTHOR_NAME;
@@ -24,6 +26,6 @@ import static nl.knaw.dans.dvingest.core.dansbag.mapper.DepositDatasetFieldNames
 @Slf4j
 public final class Creator extends Base {
     public static CompoundFieldGenerator<Node> toAuthorValueObject = (builder, node) -> {
-        builder.addSubfield(AUTHOR_NAME, node.getTextContent());
+        builder.addSubfield(AUTHOR_NAME, StringUtil.isNotBlank(node.getTextContent()) ? node.getTextContent().trim() : "");
     };
 }

@@ -57,7 +57,7 @@ public final class DcxDaiAuthor extends Base {
         var name = formatName(author);
 
         if (StringUtils.isNotBlank(name)) {
-            builder.addSubfield(AUTHOR_NAME, name);
+            builder.addSubfield(AUTHOR_NAME, name.trim());
         }
 
         if (author.getOrcid() != null) {
