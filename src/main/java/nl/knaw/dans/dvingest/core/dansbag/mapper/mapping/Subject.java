@@ -36,8 +36,6 @@ public class Subject extends Base {
     private final static Pattern matchPrefix = Pattern.compile("^\\s*[a-zA-Z]+\\s+Match:\\s*");
     public static CompoundFieldGenerator<Node> toKeywordValue = (builder, value) -> {
         builder.addSubfield(KEYWORD_VALUE, value.getTextContent().trim());
-        builder.addSubfield(KEYWORD_VOCABULARY, "");
-        builder.addSubfield(KEYWORD_VOCABULARY_URI, "");
     };
     public static CompoundFieldGenerator<Node> toPanKeywordValue = (builder, value) -> {
         builder.addSubfield(KEYWORD_VALUE, removeMatchPrefix(value.getTextContent().trim()));

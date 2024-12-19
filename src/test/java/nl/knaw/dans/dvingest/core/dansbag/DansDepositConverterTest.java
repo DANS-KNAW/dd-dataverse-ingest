@@ -65,7 +65,77 @@ public class DansDepositConverterTest extends DansConversionFixture {
             Map.of("otherIdAgency", "", "otherIdValue", "DC_ID002"),
             Map.of("otherIdAgency", "", "otherIdValue", "DCTERMS_ID003"),
             Map.of("otherIdAgency", "TESTPREFIX", "otherIdValue", "1234"));
-
+        assertCompoundMultiValueFieldContainsValues(citationBlockFields, "author",
+            Map.of("authorName", "I Lastname",
+                "authorAffiliation", "Example Org",
+                "authorIdentifierScheme", "ORCID",
+                "authorIdentifier", "0000-0001-9183-9538"),
+            Map.of("authorName", "Creator Organization"),
+            Map.of("authorName", "Unformatted Creator"),
+            Map.of("authorName", "Another Unformatted Creator"));
+        assertCompoundMultiValueFieldContainsValues(citationBlockFields, "datasetContact",
+            Map.of("datasetContactName", "John Doe",
+                "datasetContactEmail", "jdoe@foo.com"));
+        assertCompoundMultiValueFieldContainsValues(citationBlockFields, "dsDescription",
+            Map.of("dsDescriptionValue", "<p>This bags contains one or more examples of each mapping rule.</p>"),
+            Map.of("dsDescriptionValue", "<p>A second description</p>"),
+            Map.of("dsDescriptionValue", "<p>DC title 2</p>"),
+            Map.of("dsDescriptionValue", "<p>DCTERMS alt title 1</p>"),
+            Map.of("dsDescriptionValue", "<p>DCTERMS alt title 2</p>"),
+            Map.of("dsDescriptionValue", "Date: some date"),
+            Map.of("dsDescriptionValue", "Date: some other date"),
+            Map.of("dsDescriptionValue", "Date Accepted: some acceptance date"),
+            Map.of("dsDescriptionValue", "Date Copyrighted: some copyright date"),
+            Map.of("dsDescriptionValue", "Date Submitted: some submission date"),
+            Map.of("dsDescriptionValue", "Modified: some modified date"),
+            Map.of("dsDescriptionValue", "Issued: some issuing date"),
+            Map.of("dsDescriptionValue", "Valid: some validation date"),
+            Map.of("dsDescriptionValue", "Coverage: some coverage description"),
+            Map.of("dsDescriptionValue", "Coverage: some other coverage description"),
+            Map.of("dsDescriptionValue", "<p>Even more descriptions</p>"),
+            Map.of("dsDescriptionValue", "<p>And yet more</p>")
+        );
+        assertControlledMultiValueFieldContainsValues(citationBlockFields, "subject",
+            "Chemistry",
+            "Computer and Information Science");
+        assertCompoundMultiValueFieldContainsValues(citationBlockFields, "keyword",
+            Map.of("keywordValue", "keyword1"),
+            Map.of("keywordValue", "keyword2"),
+            Map.of("keywordValue", "non-military uniform button",
+                "keywordVocabulary", "PAN thesaurus ideaaltypes",
+                "keywordVocabularyURI", "https://data.cultureelerfgoed.nl/term/id/pan/PAN"),
+            Map.of("keywordValue", "buttons (fasteners)",
+                "keywordVocabulary", "Art and Architecture Thesaurus",
+                "keywordVocabularyURI", "http://vocab.getty.edu/aat/"),
+            Map.of("keywordValue", "Old School Latin"),
+            Map.of("keywordValue", "Ithkuil"));
+        assertControlledMultiValueFieldContainsValues(citationBlockFields, "language",
+            "Basque",
+            "Kalaallisut, Greenlandic",
+            "Western Frisian");
+        assertPrimitiveSinglevalueFieldContainsValue(citationBlockFields, "productionDate", "2015-09-09");
+        assertCompoundMultiValueFieldContainsValues(citationBlockFields, "contributor",
+            Map.of("contributorName", "CON van Tributor (Contributing Org)", "contributorType", "Project Member"),
+            Map.of("contributorName", "Contributing Org - DataCollector", "contributorType", "Data Collector"),
+            Map.of("contributorName", "Contributing Org - DataCurator", "contributorType", "Data Curator"),
+            Map.of("contributorName", "Contributing Org - DataManager", "contributorType", "Data Manager"),
+            Map.of("contributorName", "Contributing Org - Editor", "contributorType", "Editor"),
+            Map.of("contributorName", "Contributing Org - HostingInstitution", "contributorType", "Hosting Institution"),
+            Map.of("contributorName", "Contributing Org - ProjectLeader", "contributorType", "Project Leader"),
+            Map.of("contributorName", "Contributing Org - ProjectManager", "contributorType", "Project Manager"),
+            Map.of("contributorName", "Contributing Org - ProjectMember", "contributorType", "Project Member"),
+            Map.of("contributorName", "Contributing Org - RelatedPerson", "contributorType", "Related Person"),
+            Map.of("contributorName", "Contributing Org - ResearchGroup", "contributorType", "Research Group"),
+            Map.of("contributorName", "Contributing Org - Researcher", "contributorType", "Researcher"),
+            Map.of("contributorName", "Contributing Org - Sponsor", "contributorType", "Sponsor"),
+            Map.of("contributorName", "Contributing Org - Supervisor", "contributorType", "Supervisor"),
+            Map.of("contributorName", "Contributing Org - WorkPackageLeader", "contributorType", "Work Package Leader"),
+            Map.of("contributorName", "Contributing Org - Producer", "contributorType", "Other"),
+            Map.of("contributorName", "Contributing Org - Other", "contributorType", "Other"),
+            Map.of("contributorName", "Contributing Org - RegistrationAuthority", "contributorType", "Other"),
+            Map.of("contributorName", "Contributing Org - RegistrationAgency", "contributorType", "Other"),
+            Map.of("contributorName", "Contributing Org - ContactPerson", "contributorType", "Other")
+        );
 
         // TODO: CHECK ALL THE OTHER FIELDS
 

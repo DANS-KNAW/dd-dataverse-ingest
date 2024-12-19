@@ -92,7 +92,7 @@ public class CitationFieldBuilder extends FieldBuilder {
     }
 
     public void addLanguages(Stream<Node> stream, Function<Node, String> mapper) {
-        addMultipleControlledFields(LANGUAGE, stream.map(mapper));
+        addMultipleControlledFields(LANGUAGE, stream.map(mapper).sorted());
     }
 
     public void addProductionDate(Stream<String> stream) {
