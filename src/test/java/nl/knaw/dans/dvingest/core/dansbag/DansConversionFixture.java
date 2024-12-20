@@ -19,7 +19,6 @@ import gov.loc.repository.bagit.reader.BagReader;
 import nl.knaw.dans.dvingest.core.TestDirFixture;
 import nl.knaw.dans.dvingest.core.dansbag.deposit.DansBagDepositReader;
 import nl.knaw.dans.dvingest.core.dansbag.deposit.DansBagDepositReaderImpl;
-import nl.knaw.dans.dvingest.core.dansbag.mapper.DepositToDvDatasetMetadataMapper;
 import nl.knaw.dans.dvingest.core.dansbag.xml.XmlReader;
 import nl.knaw.dans.dvingest.core.dansbag.xml.XmlReaderImpl;
 import nl.knaw.dans.dvingest.core.service.DataverseService;
@@ -30,27 +29,15 @@ import nl.knaw.dans.lib.dataverse.model.dataset.License;
 import nl.knaw.dans.lib.dataverse.model.dataset.MetadataField;
 import nl.knaw.dans.lib.dataverse.model.dataset.PrimitiveMultiValueField;
 import nl.knaw.dans.lib.dataverse.model.dataset.PrimitiveSingleValueField;
-import nl.knaw.dans.lib.util.MappingLoader;
-import org.apache.commons.io.FileUtils;
+import nl.knaw.dans.lib.dataverse.model.user.AuthenticatedUser;
 import org.junit.jupiter.api.BeforeEach;
 import org.mockito.Mockito;
 
 import java.net.URI;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.time.Instant;
-import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
-import java.util.Set;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -58,64 +45,31 @@ import static org.assertj.core.api.Assertions.assertThat;
 public abstract class DansConversionFixture extends TestDirFixture {
     protected final DataverseService dataverseServiceMock = Mockito.mock(DataverseService.class);
     protected DansBagDepositReader dansBagDepositReader;
-    protected DansBagMappingService mappingService;
 
     @BeforeEach
     public void setUp() throws Exception {
         super.setUp();
         BagReader bagReader = new BagReader();
         XmlReader xmlReader = new XmlReaderImpl();
-
         dansBagDepositReader = new DansBagDepositReaderImpl(xmlReader, bagReader);
-        var defaultConfigDir = Paths.get("src/main/assembly/dist/cfg");
-        var mapper = new DepositToDvDatasetMetadataMapper(
-            false,
-            true,
-            Set.of("citation", "dansRights", "dansRelationMetadata", "dansArchaeologyMetadata", "dansTemporalSpatial", "dansDataVaultMetadata"),
-            MappingLoader.builder().csvFile(defaultConfigDir.resolve("iso639-1-to-dv.csv")).keyColumn("ISO639-1").valueColumn("Dataverse-language").build().load(),
-            MappingLoader.builder().csvFile(defaultConfigDir.resolve("iso639-2-to-dv.csv")).keyColumn("ISO639-2").valueColumn("Dataverse-language").build().load(),
-            MappingLoader.builder().csvFile(defaultConfigDir.resolve("abr-report-code-to-term.csv")).keyColumn("code").valueColumn("subject").build().load(),
-            MappingLoader.builder().csvFile(defaultConfigDir.resolve("verwervingswijzen-code-to-term.csv")).keyColumn("code").valueColumn("subject").build().load(),
-            MappingLoader.builder().csvFile(defaultConfigDir.resolve("abr-complextype-code-to-term.csv")).keyColumn("code").valueColumn("subject").build().load(),
-            MappingLoader.builder().csvFile(defaultConfigDir.resolve("abr-artifact-code-to-term.csv")).keyColumn("code").valueColumn("subject").build().load(),
-            MappingLoader.builder().csvFile(defaultConfigDir.resolve("abr-period-code-to-term.csv")).keyColumn("code").valueColumn("subject").build().load(),
-            FileUtils.readLines(defaultConfigDir.resolve("spatial-coverage-country-terms.txt").toFile(), StandardCharsets.UTF_8),
-            Collections.emptyMap(),
-            List.of());
-        var supportedLicenses = new SupportedLicenses(licenses("http://opensource.org/licenses/MIT"));
-        mappingService = new DansBagMappingServiceImpl(mapper, dataverseServiceMock, supportedLicenses, Pattern.compile("a^"), Pattern.compile("a^"), List.of(), "swordupdater",
-            "contributorplus"); // never match
-
         Mockito.reset(dataverseServiceMock);
     }
 
-    private Map<URI, License> licenses(String... uri) {
-        var licenses = new HashMap<URI, License>();
-        for (String s : uri) {
+    protected List<License> licenses(String... uris) {
+        return Arrays.stream(uris).map((String uri) -> {
             var license = new License();
-            license.setUri(URI.create(s));
-            licenses.put(license.getUri(), license);
-        }
-        return licenses;
+            license.setUri(URI.create(uri));
+            return license;
+        }).toList();
     }
 
-    protected Path createValidDeposit(String validExample, String depositDir) throws Exception {
-        var deposit = testDir.resolve(depositDir);
-        Files.createDirectory(deposit);
-        // Create deposit.properties
-        var props = new Properties();
-        props.setProperty("state.label", "SUBMITTED");
-        props.setProperty("state.description", "Deposit is submitted");
-        props.setProperty("deposit.origin", "SWORD");
-        props.setProperty("creation.timestamp", DateTimeFormatter.ISO_INSTANT
-            .withZone(ZoneId.of("UTC"))
-            .format(Instant.now()));
-        props.setProperty("depositor.userId", "jdoe");
-        try (var out = Files.newBufferedWriter(deposit.resolve("deposit.properties"))) {
-            props.store(out, null);
-        }
-        FileUtils.copyDirectoryToDirectory(Paths.get("target/test/example-bags/valid").resolve(validExample).toFile(), deposit.toFile());
-        return deposit;
+    protected AuthenticatedUser authenticatedUser(String firstName, String lastName, String email, String displayName) {
+        var user = new AuthenticatedUser();
+        user.setFirstName(firstName);
+        user.setLastName(lastName);
+        user.setEmail(email);
+        user.setDisplayName(displayName);
+        return user;
     }
 
     protected void assertPrimitiveSinglevalueFieldContainsValue(List<MetadataField> fields, String typeName, String value) {
@@ -169,4 +123,9 @@ public abstract class DansConversionFixture extends TestDirFixture {
 
         assertThat(actualValuesList).containsExactlyInAnyOrderElementsOf(List.of(expectedValues));
     }
+
+    protected void assertFieldIsAbsent(List<MetadataField> fields, String typeName) {
+        assertThat(fields).noneMatch(f -> typeName.equals(f.getTypeName()));
+    }
+
 }

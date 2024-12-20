@@ -41,12 +41,6 @@ public class SupportedLicenses {
         }
     }
 
-    // For testing purposes
-    SupportedLicenses(Map<URI, License> supportedLicenses) {
-        this.supportedLicenses = supportedLicenses;
-    }
-
-
     public License getLicenseFromDansDeposit(DansBagDeposit dansDeposit) {
         var optLicenseUri = XPathEvaluator.nodes(dansDeposit.getDdm(), DDM_DCMI_METADATA + "/dcterms:license")
             .filter(LicenseElem::isLicenseUri)

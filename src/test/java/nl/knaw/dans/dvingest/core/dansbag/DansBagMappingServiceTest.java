@@ -15,6 +15,7 @@
  */
 package nl.knaw.dans.dvingest.core.dansbag;
 
+import nl.knaw.dans.dvingest.core.dansbag.testhelpers.DansBagMappingServiceBuilder;
 import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.Test;
 
@@ -31,6 +32,7 @@ public class DansBagMappingServiceTest extends DansConversionFixture {
         // Given
         var testDepositDir = testDir.resolve("00000000-0000-0000-0000-000000000001");
         FileUtils.copyDirectory(Paths.get("src/test/resources/unit-test/update-deposits/00000000-0000-0000-0000-000000000001").toFile(), testDepositDir.toFile());
+        var mappingService = DansBagMappingServiceBuilder.builder().dataverseService(dataverseServiceMock).build();
 
         // When / Then
         assertThat(mappingService.getUpdatesDataset(testDepositDir)).isNull();
@@ -43,6 +45,7 @@ public class DansBagMappingServiceTest extends DansConversionFixture {
         when(dataverseServiceMock.findDoiByMetadataField("dansSwordToken", "sword:00000000-0000-0000-0000-000000000001")).thenReturn(List.of(doi));
         var testDepositDir = testDir.resolve("00000000-0000-0000-0000-000000000002");
         FileUtils.copyDirectory(Paths.get("src/test/resources/unit-test/update-deposits/00000000-0000-0000-0000-000000000002").toFile(), testDepositDir.toFile());
+        var mappingService = DansBagMappingServiceBuilder.builder().dataverseService(dataverseServiceMock).build();
 
         // When / Then
         assertThat(mappingService.getUpdatesDataset(testDepositDir)).isEqualTo(doi);

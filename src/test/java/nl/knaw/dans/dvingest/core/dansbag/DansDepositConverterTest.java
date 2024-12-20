@@ -15,18 +15,24 @@
  */
 package nl.knaw.dans.dvingest.core.dansbag;
 
+import nl.knaw.dans.dvingest.core.dansbag.testhelpers.DansBagMappingServiceBuilder;
+import nl.knaw.dans.dvingest.core.dansbag.testhelpers.DansDepositCreator;
 import nl.knaw.dans.dvingest.core.service.YamlService;
 import nl.knaw.dans.dvingest.core.service.YamlServiceImpl;
 import nl.knaw.dans.lib.dataverse.model.dataset.Dataset;
-import nl.knaw.dans.lib.dataverse.model.user.AuthenticatedUser;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
+import java.nio.file.Paths;
 import java.util.Map;
 import java.util.Optional;
 
+import static nl.knaw.dans.dvingest.core.dansbag.mapper.DepositDatasetFieldNames.ABR_ARTIFACT;
+import static nl.knaw.dans.dvingest.core.dansbag.mapper.DepositDatasetFieldNames.ABR_COMPLEX;
+import static nl.knaw.dans.dvingest.core.dansbag.mapper.DepositDatasetFieldNames.ABR_PERIOD;
 import static nl.knaw.dans.dvingest.core.dansbag.mapper.DepositDatasetFieldNames.ABR_RAPPORT_NUMMER;
 import static nl.knaw.dans.dvingest.core.dansbag.mapper.DepositDatasetFieldNames.ABR_RAPPORT_TYPE;
+import static nl.knaw.dans.dvingest.core.dansbag.mapper.DepositDatasetFieldNames.ABR_VERWERVINGSWIJZE;
 import static nl.knaw.dans.dvingest.core.dansbag.mapper.DepositDatasetFieldNames.ALTERNATIVE_TITLE;
 import static nl.knaw.dans.dvingest.core.dansbag.mapper.DepositDatasetFieldNames.ARCHIS_NUMBER;
 import static nl.knaw.dans.dvingest.core.dansbag.mapper.DepositDatasetFieldNames.ARCHIS_NUMBER_ID;
@@ -38,14 +44,19 @@ import static nl.knaw.dans.dvingest.core.dansbag.mapper.DepositDatasetFieldNames
 import static nl.knaw.dans.dvingest.core.dansbag.mapper.DepositDatasetFieldNames.AUTHOR_IDENTIFIER;
 import static nl.knaw.dans.dvingest.core.dansbag.mapper.DepositDatasetFieldNames.AUTHOR_IDENTIFIER_SCHEME;
 import static nl.knaw.dans.dvingest.core.dansbag.mapper.DepositDatasetFieldNames.AUTHOR_NAME;
+import static nl.knaw.dans.dvingest.core.dansbag.mapper.DepositDatasetFieldNames.BAG_ID;
 import static nl.knaw.dans.dvingest.core.dansbag.mapper.DepositDatasetFieldNames.COLLECTION;
 import static nl.knaw.dans.dvingest.core.dansbag.mapper.DepositDatasetFieldNames.CONTRIBUTOR;
 import static nl.knaw.dans.dvingest.core.dansbag.mapper.DepositDatasetFieldNames.CONTRIBUTOR_NAME;
 import static nl.knaw.dans.dvingest.core.dansbag.mapper.DepositDatasetFieldNames.CONTRIBUTOR_TYPE;
+import static nl.knaw.dans.dvingest.core.dansbag.mapper.DepositDatasetFieldNames.DANS_OTHER_ID;
 import static nl.knaw.dans.dvingest.core.dansbag.mapper.DepositDatasetFieldNames.DATASET_CONTACT;
 import static nl.knaw.dans.dvingest.core.dansbag.mapper.DepositDatasetFieldNames.DATASET_CONTACT_EMAIL;
 import static nl.knaw.dans.dvingest.core.dansbag.mapper.DepositDatasetFieldNames.DATASET_CONTACT_NAME;
+import static nl.knaw.dans.dvingest.core.dansbag.mapper.DepositDatasetFieldNames.DATAVERSE_PID;
+import static nl.knaw.dans.dvingest.core.dansbag.mapper.DepositDatasetFieldNames.DATAVERSE_PID_VERSION;
 import static nl.knaw.dans.dvingest.core.dansbag.mapper.DepositDatasetFieldNames.DATA_SOURCES;
+import static nl.knaw.dans.dvingest.core.dansbag.mapper.DepositDatasetFieldNames.DATA_SUPPLIER;
 import static nl.knaw.dans.dvingest.core.dansbag.mapper.DepositDatasetFieldNames.DATE_OF_COLLECTION;
 import static nl.knaw.dans.dvingest.core.dansbag.mapper.DepositDatasetFieldNames.DATE_OF_COLLECTION_END;
 import static nl.knaw.dans.dvingest.core.dansbag.mapper.DepositDatasetFieldNames.DATE_OF_COLLECTION_START;
@@ -63,6 +74,7 @@ import static nl.knaw.dans.dvingest.core.dansbag.mapper.DepositDatasetFieldNames
 import static nl.knaw.dans.dvingest.core.dansbag.mapper.DepositDatasetFieldNames.KEYWORD_VOCABULARY_URI;
 import static nl.knaw.dans.dvingest.core.dansbag.mapper.DepositDatasetFieldNames.LANGUAGE;
 import static nl.knaw.dans.dvingest.core.dansbag.mapper.DepositDatasetFieldNames.LANGUAGE_OF_METADATA;
+import static nl.knaw.dans.dvingest.core.dansbag.mapper.DepositDatasetFieldNames.NBN;
 import static nl.knaw.dans.dvingest.core.dansbag.mapper.DepositDatasetFieldNames.OTHER_ID;
 import static nl.knaw.dans.dvingest.core.dansbag.mapper.DepositDatasetFieldNames.OTHER_ID_AGENCY;
 import static nl.knaw.dans.dvingest.core.dansbag.mapper.DepositDatasetFieldNames.OTHER_ID_VALUE;
@@ -75,7 +87,21 @@ import static nl.knaw.dans.dvingest.core.dansbag.mapper.DepositDatasetFieldNames
 import static nl.knaw.dans.dvingest.core.dansbag.mapper.DepositDatasetFieldNames.RIGHTS_HOLDER;
 import static nl.knaw.dans.dvingest.core.dansbag.mapper.DepositDatasetFieldNames.SERIES;
 import static nl.knaw.dans.dvingest.core.dansbag.mapper.DepositDatasetFieldNames.SERIES_INFORMATION;
+import static nl.knaw.dans.dvingest.core.dansbag.mapper.DepositDatasetFieldNames.SPATIAL_BOX;
+import static nl.knaw.dans.dvingest.core.dansbag.mapper.DepositDatasetFieldNames.SPATIAL_BOX_EAST;
+import static nl.knaw.dans.dvingest.core.dansbag.mapper.DepositDatasetFieldNames.SPATIAL_BOX_NORTH;
+import static nl.knaw.dans.dvingest.core.dansbag.mapper.DepositDatasetFieldNames.SPATIAL_BOX_SCHEME;
+import static nl.knaw.dans.dvingest.core.dansbag.mapper.DepositDatasetFieldNames.SPATIAL_BOX_SOUTH;
+import static nl.knaw.dans.dvingest.core.dansbag.mapper.DepositDatasetFieldNames.SPATIAL_BOX_WEST;
+import static nl.knaw.dans.dvingest.core.dansbag.mapper.DepositDatasetFieldNames.SPATIAL_COVERAGE_CONTROLLED;
+import static nl.knaw.dans.dvingest.core.dansbag.mapper.DepositDatasetFieldNames.SPATIAL_COVERAGE_UNCONTROLLED;
+import static nl.knaw.dans.dvingest.core.dansbag.mapper.DepositDatasetFieldNames.SPATIAL_POINT;
+import static nl.knaw.dans.dvingest.core.dansbag.mapper.DepositDatasetFieldNames.SPATIAL_POINT_SCHEME;
+import static nl.knaw.dans.dvingest.core.dansbag.mapper.DepositDatasetFieldNames.SPATIAL_POINT_X;
+import static nl.knaw.dans.dvingest.core.dansbag.mapper.DepositDatasetFieldNames.SPATIAL_POINT_Y;
 import static nl.knaw.dans.dvingest.core.dansbag.mapper.DepositDatasetFieldNames.SUBJECT;
+import static nl.knaw.dans.dvingest.core.dansbag.mapper.DepositDatasetFieldNames.SWORD_TOKEN;
+import static nl.knaw.dans.dvingest.core.dansbag.mapper.DepositDatasetFieldNames.TEMPORAL_COVERAGE;
 import static nl.knaw.dans.dvingest.core.dansbag.mapper.DepositDatasetFieldNames.TITLE;
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -88,20 +114,34 @@ public class DansDepositConverterTest extends DansConversionFixture {
 
     @Test
     public void run_converts_dans_sword_all_mappings_example_to_dataverse_ingest_deposit() throws Exception {
-        // Given
-        var depositDir = createValidDeposit("all-mappings", "00000000-0000-0000-0000-000000000001");
-        var authenticatedUser = new AuthenticatedUser();
-        authenticatedUser.setFirstName("John");
-        authenticatedUser.setLastName("Doe");
-        authenticatedUser.setEmail("jdoe@foo.com");
-        authenticatedUser.setDisplayName("John Doe");
+        /*
+         * Given
+         */
+        var swordToken = "sword:64c59184-7667-4ea0-b4fd-09f421ecb3cf";
+        var depositDir = testDir.resolve("00000000-0000-0000-0000-000000000001");
+        DansDepositCreator.creator()
+            .copyBagFrom(Paths.get("target/test/example-bags/valid/all-mappings"))
+            .depositDir(depositDir)
+            .withProperty("dataverse.sword-token", swordToken)
+            .withProperty("deposit.origin", "SWORD")
+            .withProperty("depositor.userId", "jdoe")
+            .create();
+        var authenticatedUser = authenticatedUser("John", "Doe", "jdoe@foo.com", "John Doe");
         Mockito.when(dataverseServiceMock.getUserById(Mockito.anyString())).thenReturn(Optional.of(authenticatedUser));
+        Mockito.when(dataverseServiceMock.getSupportedLicenses()).thenReturn(licenses("http://opensource.org/licenses/MIT"));
         var deposit = dansBagDepositReader.readDeposit(depositDir);
+        var mappingService = DansBagMappingServiceBuilder.builder()
+            .dataSuppliers(Map.of("jdoe", "Supplier Joe"))
+            .dataverseService(dataverseServiceMock).build();
 
-        // When
+        /*
+         * When
+         */
         new DansDepositConverter(deposit, null, null, mappingService, yamlService).run();
 
-        // Then
+        /*
+         * Then
+         */
         assertThat(deposit.getBagDir().resolve("dataset.yml")).exists();
         var datasetYml = yamlService.readYaml(deposit.getBagDir().resolve("dataset.yml"), Dataset.class);
 
@@ -290,7 +330,62 @@ public class DansDepositConverterTest extends DansConversionFixture {
         assertPrimitiveMultiValueFieldContainsValues(archaeologyMetadataBlockFields, ABR_RAPPORT_NUMMER,
             "BAAC 123-A",
             "RCE Rapportage Archeologische Monumentenzorg");
+        assertPrimitiveMultiValueFieldContainsValues(archaeologyMetadataBlockFields, ABR_VERWERVINGSWIJZE,
+            "https://data.cultureelerfgoed.nl/term/id/abr/967bfdf8-c44d-4c69-8318-34ed1ab1e784",
+            "https://data.cultureelerfgoed.nl/term/id/abr/2f851932-e4a1-4a11-be5e-aa988fb39278");
+        assertPrimitiveMultiValueFieldContainsValues(archaeologyMetadataBlockFields, ABR_COMPLEX,
+            "https://data.cultureelerfgoed.nl/term/id/abr/9a758542-8d0d-4afa-b664-104b938fe13e",
+            "https://data.cultureelerfgoed.nl/term/id/abr/60bc20cd-0010-48ea-8d6f-42d333bfb39d",
+            "https://data.cultureelerfgoed.nl/term/id/abr/2ac4deb4-a12a-4aa1-baa1-496b0e649941");
+        assertPrimitiveMultiValueFieldContainsValues(archaeologyMetadataBlockFields, ABR_ARTIFACT,
+            "https://data.cultureelerfgoed.nl/term/id/abr/88d17503-7f04-4310-843d-e9e6005a163b",
+            "https://data.cultureelerfgoed.nl/term/id/abr/5bd97bc0-697c-4128-b7b2-d2324bc4a2e1",
+            "https://data.cultureelerfgoed.nl/term/id/abr/5c166519-c182-43c3-941c-551b3bed7136",
+            "https://data.cultureelerfgoed.nl/term/id/abr/84bccabd-a463-4fda-8a7c-60390699436b");
+        assertPrimitiveMultiValueFieldContainsValues(archaeologyMetadataBlockFields, ABR_PERIOD,
+            "https://data.cultureelerfgoed.nl/term/id/abr/5b253754-ddd0-4ae0-a5bb-555176bca858",
+            "https://data.cultureelerfgoed.nl/term/id/abr/6264b6bd-899e-4c34-a88e-03a36e1d4008");
 
+        // Temporal and Spatial Metadata block
+        var temporalSpatialMetadataBlockFields = datasetYml.getDatasetVersion().getMetadataBlocks().get("dansTemporalSpatial").getFields();
+        assertPrimitiveMultiValueFieldContainsValues(temporalSpatialMetadataBlockFields, TEMPORAL_COVERAGE,
+            "Het Romeinse Rijk",
+            "De Oudheid");
+        assertCompoundMultiValueFieldContainsValues(temporalSpatialMetadataBlockFields, SPATIAL_POINT,
+            Map.of(SPATIAL_POINT_X, "126466",
+                SPATIAL_POINT_Y, "529006",
+                SPATIAL_POINT_SCHEME, "RD (in m.)"),
+            Map.of(SPATIAL_POINT_X, "4.288788",
+                SPATIAL_POINT_Y, "52.078663",
+                SPATIAL_POINT_SCHEME, "longitude/latitude (degrees)"));
+        assertCompoundMultiValueFieldContainsValues(temporalSpatialMetadataBlockFields, SPATIAL_BOX,
+            Map.of(SPATIAL_BOX_NORTH, "628000",
+                SPATIAL_BOX_EAST, "140000",
+                SPATIAL_BOX_SOUTH, "335000",
+                SPATIAL_BOX_WEST, "102000",
+                SPATIAL_BOX_SCHEME, "RD (in m.)"),
+            Map.of(SPATIAL_BOX_NORTH, "53.23074335194507",
+                SPATIAL_BOX_EAST, "6.563118076315912",
+                SPATIAL_BOX_SOUTH, "51.46343658020442",
+                SPATIAL_BOX_WEST, "3.5621054065986075",
+                SPATIAL_BOX_SCHEME, "longitude/latitude (degrees)"));
+        assertControlledMultiValueFieldContainsValues(temporalSpatialMetadataBlockFields, SPATIAL_COVERAGE_CONTROLLED,
+            "Japan", "South Africa");
+        assertPrimitiveMultiValueFieldContainsValues(temporalSpatialMetadataBlockFields, SPATIAL_COVERAGE_UNCONTROLLED,
+            "Roman Empire");
+
+        // Vault Metadata block
+        var dataVaultMetadata = datasetYml.getDatasetVersion().getMetadataBlocks().get("dansDataVaultMetadata").getFields();
+        // Assigned by pre-publication workflow, which hasn't run yet at this point
+        assertFieldIsAbsent(dataVaultMetadata, DATAVERSE_PID);
+        assertFieldIsAbsent(dataVaultMetadata, DATAVERSE_PID_VERSION);
+        assertFieldIsAbsent(dataVaultMetadata, BAG_ID);
+        assertFieldIsAbsent(dataVaultMetadata, NBN);
+
+        assertPrimitiveSinglevalueFieldContainsValue(dataVaultMetadata, DANS_OTHER_ID, "TESTPREFIX:1234"); // From bag-info.txt Has-Organizational-Identifier
+        // TODO: add Has-Organizational-Identifier-Version to input bag
+
+        assertPrimitiveSinglevalueFieldContainsValue(dataVaultMetadata, SWORD_TOKEN, swordToken);
+        assertPrimitiveSinglevalueFieldContainsValue(dataVaultMetadata, DATA_SUPPLIER, "Supplier Joe");
     }
-
 }

@@ -93,6 +93,7 @@ public abstract class FieldBuilder {
         var values = data
             .filter(Objects::nonNull)
             .filter(StringUtils::isNotBlank)
+            .sorted()
             .collect(Collectors.toList());
 
         setControlledFields(name, values);
