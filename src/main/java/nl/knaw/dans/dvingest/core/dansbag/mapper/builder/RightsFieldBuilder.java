@@ -34,6 +34,6 @@ public class RightsFieldBuilder extends FieldBuilder {
     }
 
     public void addLanguageOfMetadata(Stream<String> stream) {
-        addMultipleControlledFields(LANGUAGE_OF_METADATA, stream);
+        addMultipleControlledFields(LANGUAGE_OF_METADATA, stream.sorted());
     }
 }

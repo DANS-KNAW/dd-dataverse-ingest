@@ -26,6 +26,7 @@ import java.util.Map;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static nl.knaw.dans.dvingest.core.dansbag.mapper.DepositDatasetFieldNames.*;
 
 /**
  * Test class for {@link DansDepositConverter}. It uses the valid examples from the dd-dans-sword2-examples project.
@@ -52,13 +53,14 @@ public class DansDepositConverterTest extends DansConversionFixture {
         // Then
         assertThat(deposit.getBagDir().resolve("dataset.yml")).exists();
         var datasetYml = yamlService.readYaml(deposit.getBagDir().resolve("dataset.yml"), Dataset.class);
+
+        // Citation block
         var citationBlockFields = datasetYml.getDatasetVersion().getMetadataBlocks().get("citation").getFields();
-        // Find the metadata field with property typeName = "title"
-        assertPrimitiveSinglevalueFieldContainsValue(citationBlockFields, "title", "A bag containing examples for each mapping rule");
-        assertPrimitiveMultiValueFieldContainsValues(citationBlockFields, "alternativeTitle", "DCTERMS title 1");
+        assertPrimitiveSinglevalueFieldContainsValue(citationBlockFields, TITLE, "A bag containing examples for each mapping rule");
+        assertPrimitiveMultiValueFieldContainsValues(citationBlockFields, ALTERNATIVE_TITLE, "DCTERMS title 1");
         assertCompoundMultiValueFieldContainsValues(citationBlockFields, "datasetContact", Map.of(
-            "datasetContactName", "John Doe",
-            "datasetContactEmail", "jdoe@foo.com"
+            DATASET_CONTACT_NAME, "John Doe",
+            DATASET_CONTACT_EMAIL, "jdoe@foo.com"
         ));
         assertCompoundMultiValueFieldContainsValues(citationBlockFields, "otherId",
             Map.of("otherIdAgency", "", "otherIdValue", "DCTERMS_ID001"),
@@ -136,8 +138,33 @@ public class DansDepositConverterTest extends DansConversionFixture {
             Map.of("contributorName", "Contributing Org - RegistrationAgency", "contributorType", "Other"),
             Map.of("contributorName", "Contributing Org - ContactPerson", "contributorType", "Other")
         );
+        assertCompoundMultiValueFieldContainsValues(citationBlockFields, "grantNumber",
+            Map.of("grantNumberAgency", "NWO",
+                "grantNumberValue", "54321"));
+        assertCompoundMultiValueFieldContainsValues(citationBlockFields, "distributor",
+            Map.of("distributorName", "D. I. Stributor"),
+            Map.of("distributorName", "P. Ublisher"));
+        assertPrimitiveSinglevalueFieldContainsValue(citationBlockFields, "distributionDate", "2015-09-09");
+        assertCompoundMultiValueFieldContainsValues(citationBlockFields, "dateOfCollection",
+            Map.of("dateOfCollectionStart", "2015-06-01",
+                "dateOfCollectionEnd", "2016-12-31"));
+        assertCompoundMultiValueFieldContainsValues(citationBlockFields, "series",
+            Map.of("seriesInformation", "<p>Information about a series: first</p>"),
+            Map.of("seriesInformation", "<p>Information about a series: second</p>"));
+        assertPrimitiveMultiValueFieldContainsValues(citationBlockFields, "dataSources",
+            "Source 2",
+            "Sous an ayisyen",
+            "Source 3");
 
-        // TODO: CHECK ALL THE OTHER FIELDS
+
+        // Rights Metadata block
+        var rightsMetadataBlockFields = datasetYml.getDatasetVersion().getMetadataBlocks().get("dansRights").getFields();
+        assertPrimitiveMultiValueFieldContainsValues(rightsMetadataBlockFields, "dansRightsHolder", "I Lastname");
+        assertControlledSingleValueFieldContainsValue(rightsMetadataBlockFields, "dansPersonalDataPresent", "No");
+        assertControlledMultiValueFieldContainsValues(rightsMetadataBlockFields, "dansMetadataLanguage",
+            "English",
+            "Georgian",
+            "Haitian, Haitian Creole");
 
     }
 

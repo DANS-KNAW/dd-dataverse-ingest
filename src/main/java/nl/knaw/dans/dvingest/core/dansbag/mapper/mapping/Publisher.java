@@ -32,10 +32,6 @@ public class Publisher extends Base {
 
     public static CompoundFieldGenerator<Node> toDistributorValueObject = (builder, node) -> {
         builder.addSubfield(DISTRIBUTOR_NAME, node.getTextContent());
-        builder.addSubfield(DISTRIBUTOR_URL, "");
-        builder.addSubfield(DISTRIBUTOR_LOGO_URL, "");
-        builder.addSubfield(DISTRIBUTOR_ABBREVIATION, "");
-        builder.addSubfield(DISTRIBUTOR_AFFILIATION, "");
     };
 
     private static final Set<String> dansNames = Set.of("DANS", "DANS-KNAW", "DANS/KNAW");
