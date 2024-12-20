@@ -25,8 +25,53 @@ import org.mockito.Mockito;
 import java.util.Map;
 import java.util.Optional;
 
+import static nl.knaw.dans.dvingest.core.dansbag.mapper.DepositDatasetFieldNames.ALTERNATIVE_TITLE;
+import static nl.knaw.dans.dvingest.core.dansbag.mapper.DepositDatasetFieldNames.AUDIENCE;
+import static nl.knaw.dans.dvingest.core.dansbag.mapper.DepositDatasetFieldNames.AUTHOR;
+import static nl.knaw.dans.dvingest.core.dansbag.mapper.DepositDatasetFieldNames.AUTHOR_AFFILIATION;
+import static nl.knaw.dans.dvingest.core.dansbag.mapper.DepositDatasetFieldNames.AUTHOR_IDENTIFIER;
+import static nl.knaw.dans.dvingest.core.dansbag.mapper.DepositDatasetFieldNames.AUTHOR_IDENTIFIER_SCHEME;
+import static nl.knaw.dans.dvingest.core.dansbag.mapper.DepositDatasetFieldNames.AUTHOR_NAME;
+import static nl.knaw.dans.dvingest.core.dansbag.mapper.DepositDatasetFieldNames.COLLECTION;
+import static nl.knaw.dans.dvingest.core.dansbag.mapper.DepositDatasetFieldNames.CONTRIBUTOR;
+import static nl.knaw.dans.dvingest.core.dansbag.mapper.DepositDatasetFieldNames.CONTRIBUTOR_NAME;
+import static nl.knaw.dans.dvingest.core.dansbag.mapper.DepositDatasetFieldNames.CONTRIBUTOR_TYPE;
+import static nl.knaw.dans.dvingest.core.dansbag.mapper.DepositDatasetFieldNames.DATASET_CONTACT;
+import static nl.knaw.dans.dvingest.core.dansbag.mapper.DepositDatasetFieldNames.DATASET_CONTACT_EMAIL;
+import static nl.knaw.dans.dvingest.core.dansbag.mapper.DepositDatasetFieldNames.DATASET_CONTACT_NAME;
+import static nl.knaw.dans.dvingest.core.dansbag.mapper.DepositDatasetFieldNames.DATA_SOURCES;
+import static nl.knaw.dans.dvingest.core.dansbag.mapper.DepositDatasetFieldNames.DATE_OF_COLLECTION;
+import static nl.knaw.dans.dvingest.core.dansbag.mapper.DepositDatasetFieldNames.DATE_OF_COLLECTION_END;
+import static nl.knaw.dans.dvingest.core.dansbag.mapper.DepositDatasetFieldNames.DATE_OF_COLLECTION_START;
+import static nl.knaw.dans.dvingest.core.dansbag.mapper.DepositDatasetFieldNames.DESCRIPTION;
+import static nl.knaw.dans.dvingest.core.dansbag.mapper.DepositDatasetFieldNames.DESCRIPTION_VALUE;
+import static nl.knaw.dans.dvingest.core.dansbag.mapper.DepositDatasetFieldNames.DISTRIBUTION_DATE;
+import static nl.knaw.dans.dvingest.core.dansbag.mapper.DepositDatasetFieldNames.DISTRIBUTOR;
+import static nl.knaw.dans.dvingest.core.dansbag.mapper.DepositDatasetFieldNames.DISTRIBUTOR_NAME;
+import static nl.knaw.dans.dvingest.core.dansbag.mapper.DepositDatasetFieldNames.GRANT_NUMBER;
+import static nl.knaw.dans.dvingest.core.dansbag.mapper.DepositDatasetFieldNames.GRANT_NUMBER_AGENCY;
+import static nl.knaw.dans.dvingest.core.dansbag.mapper.DepositDatasetFieldNames.GRANT_NUMBER_VALUE;
+import static nl.knaw.dans.dvingest.core.dansbag.mapper.DepositDatasetFieldNames.KEYWORD;
+import static nl.knaw.dans.dvingest.core.dansbag.mapper.DepositDatasetFieldNames.KEYWORD_VALUE;
+import static nl.knaw.dans.dvingest.core.dansbag.mapper.DepositDatasetFieldNames.KEYWORD_VOCABULARY;
+import static nl.knaw.dans.dvingest.core.dansbag.mapper.DepositDatasetFieldNames.KEYWORD_VOCABULARY_URI;
+import static nl.knaw.dans.dvingest.core.dansbag.mapper.DepositDatasetFieldNames.LANGUAGE;
+import static nl.knaw.dans.dvingest.core.dansbag.mapper.DepositDatasetFieldNames.LANGUAGE_OF_METADATA;
+import static nl.knaw.dans.dvingest.core.dansbag.mapper.DepositDatasetFieldNames.OTHER_ID;
+import static nl.knaw.dans.dvingest.core.dansbag.mapper.DepositDatasetFieldNames.OTHER_ID_AGENCY;
+import static nl.knaw.dans.dvingest.core.dansbag.mapper.DepositDatasetFieldNames.OTHER_ID_VALUE;
+import static nl.knaw.dans.dvingest.core.dansbag.mapper.DepositDatasetFieldNames.PERSONAL_DATA_PRESENT;
+import static nl.knaw.dans.dvingest.core.dansbag.mapper.DepositDatasetFieldNames.PRODUCTION_DATE;
+import static nl.knaw.dans.dvingest.core.dansbag.mapper.DepositDatasetFieldNames.RELATION;
+import static nl.knaw.dans.dvingest.core.dansbag.mapper.DepositDatasetFieldNames.RELATION_TEXT;
+import static nl.knaw.dans.dvingest.core.dansbag.mapper.DepositDatasetFieldNames.RELATION_TYPE;
+import static nl.knaw.dans.dvingest.core.dansbag.mapper.DepositDatasetFieldNames.RELATION_URI;
+import static nl.knaw.dans.dvingest.core.dansbag.mapper.DepositDatasetFieldNames.RIGHTS_HOLDER;
+import static nl.knaw.dans.dvingest.core.dansbag.mapper.DepositDatasetFieldNames.SERIES;
+import static nl.knaw.dans.dvingest.core.dansbag.mapper.DepositDatasetFieldNames.SERIES_INFORMATION;
+import static nl.knaw.dans.dvingest.core.dansbag.mapper.DepositDatasetFieldNames.SUBJECT;
+import static nl.knaw.dans.dvingest.core.dansbag.mapper.DepositDatasetFieldNames.TITLE;
 import static org.assertj.core.api.Assertions.assertThat;
-import static nl.knaw.dans.dvingest.core.dansbag.mapper.DepositDatasetFieldNames.*;
 
 /**
  * Test class for {@link DansDepositConverter}. It uses the valid examples from the dd-dans-sword2-examples project.
@@ -58,113 +103,167 @@ public class DansDepositConverterTest extends DansConversionFixture {
         var citationBlockFields = datasetYml.getDatasetVersion().getMetadataBlocks().get("citation").getFields();
         assertPrimitiveSinglevalueFieldContainsValue(citationBlockFields, TITLE, "A bag containing examples for each mapping rule");
         assertPrimitiveMultiValueFieldContainsValues(citationBlockFields, ALTERNATIVE_TITLE, "DCTERMS title 1");
-        assertCompoundMultiValueFieldContainsValues(citationBlockFields, "datasetContact", Map.of(
+        assertCompoundMultiValueFieldContainsValues(citationBlockFields, DATASET_CONTACT, Map.of(
             DATASET_CONTACT_NAME, "John Doe",
             DATASET_CONTACT_EMAIL, "jdoe@foo.com"
         ));
-        assertCompoundMultiValueFieldContainsValues(citationBlockFields, "otherId",
-            Map.of("otherIdAgency", "", "otherIdValue", "DCTERMS_ID001"),
-            Map.of("otherIdAgency", "", "otherIdValue", "DC_ID002"),
-            Map.of("otherIdAgency", "", "otherIdValue", "DCTERMS_ID003"),
-            Map.of("otherIdAgency", "TESTPREFIX", "otherIdValue", "1234"));
-        assertCompoundMultiValueFieldContainsValues(citationBlockFields, "author",
-            Map.of("authorName", "I Lastname",
-                "authorAffiliation", "Example Org",
-                "authorIdentifierScheme", "ORCID",
-                "authorIdentifier", "0000-0001-9183-9538"),
-            Map.of("authorName", "Creator Organization"),
-            Map.of("authorName", "Unformatted Creator"),
-            Map.of("authorName", "Another Unformatted Creator"));
-        assertCompoundMultiValueFieldContainsValues(citationBlockFields, "datasetContact",
-            Map.of("datasetContactName", "John Doe",
-                "datasetContactEmail", "jdoe@foo.com"));
-        assertCompoundMultiValueFieldContainsValues(citationBlockFields, "dsDescription",
-            Map.of("dsDescriptionValue", "<p>This bags contains one or more examples of each mapping rule.</p>"),
-            Map.of("dsDescriptionValue", "<p>A second description</p>"),
-            Map.of("dsDescriptionValue", "<p>DC title 2</p>"),
-            Map.of("dsDescriptionValue", "<p>DCTERMS alt title 1</p>"),
-            Map.of("dsDescriptionValue", "<p>DCTERMS alt title 2</p>"),
-            Map.of("dsDescriptionValue", "Date: some date"),
-            Map.of("dsDescriptionValue", "Date: some other date"),
-            Map.of("dsDescriptionValue", "Date Accepted: some acceptance date"),
-            Map.of("dsDescriptionValue", "Date Copyrighted: some copyright date"),
-            Map.of("dsDescriptionValue", "Date Submitted: some submission date"),
-            Map.of("dsDescriptionValue", "Modified: some modified date"),
-            Map.of("dsDescriptionValue", "Issued: some issuing date"),
-            Map.of("dsDescriptionValue", "Valid: some validation date"),
-            Map.of("dsDescriptionValue", "Coverage: some coverage description"),
-            Map.of("dsDescriptionValue", "Coverage: some other coverage description"),
-            Map.of("dsDescriptionValue", "<p>Even more descriptions</p>"),
-            Map.of("dsDescriptionValue", "<p>And yet more</p>")
+        assertCompoundMultiValueFieldContainsValues(citationBlockFields, OTHER_ID,
+            Map.of(OTHER_ID_AGENCY, "", OTHER_ID_VALUE, "DCTERMS_ID001"),
+            Map.of(OTHER_ID_AGENCY, "", OTHER_ID_VALUE, "DC_ID002"),
+            Map.of(OTHER_ID_AGENCY, "", OTHER_ID_VALUE, "DCTERMS_ID003"),
+            Map.of(OTHER_ID_AGENCY, "TESTPREFIX", OTHER_ID_VALUE, "1234"));
+        assertCompoundMultiValueFieldContainsValues(citationBlockFields, AUTHOR,
+            Map.of(AUTHOR_NAME, "I Lastname",
+                AUTHOR_AFFILIATION, "Example Org",
+                AUTHOR_IDENTIFIER_SCHEME, "ORCID",
+                AUTHOR_IDENTIFIER, "0000-0001-9183-9538"),
+            Map.of(AUTHOR_NAME, "Creator Organization"),
+            Map.of(AUTHOR_NAME, "Unformatted Creator"),
+            Map.of(AUTHOR_NAME, "Another Unformatted Creator"));
+        assertCompoundMultiValueFieldContainsValues(citationBlockFields, DATASET_CONTACT,
+            Map.of(DATASET_CONTACT_NAME, "John Doe",
+                DATASET_CONTACT_EMAIL, "jdoe@foo.com"));
+        assertCompoundMultiValueFieldContainsValues(citationBlockFields, DESCRIPTION,
+            Map.of(DESCRIPTION_VALUE, "<p>This bags contains one or more examples of each mapping rule.</p>"),
+            Map.of(DESCRIPTION_VALUE, "<p>A second description</p>"),
+            Map.of(DESCRIPTION_VALUE, "<p>DC title 2</p>"),
+            Map.of(DESCRIPTION_VALUE, "<p>DCTERMS alt title 1</p>"),
+            Map.of(DESCRIPTION_VALUE, "<p>DCTERMS alt title 2</p>"),
+            Map.of(DESCRIPTION_VALUE, "Date: some date"),
+            Map.of(DESCRIPTION_VALUE, "Date: some other date"),
+            Map.of(DESCRIPTION_VALUE, "Date Accepted: some acceptance date"),
+            Map.of(DESCRIPTION_VALUE, "Date Copyrighted: some copyright date"),
+            Map.of(DESCRIPTION_VALUE, "Date Submitted: some submission date"),
+            Map.of(DESCRIPTION_VALUE, "Modified: some modified date"),
+            Map.of(DESCRIPTION_VALUE, "Issued: some issuing date"),
+            Map.of(DESCRIPTION_VALUE, "Valid: some validation date"),
+            Map.of(DESCRIPTION_VALUE, "Coverage: some coverage description"),
+            Map.of(DESCRIPTION_VALUE, "Coverage: some other coverage description"),
+            Map.of(DESCRIPTION_VALUE, "<p>Even more descriptions</p>"),
+            Map.of(DESCRIPTION_VALUE, "<p>And yet more</p>")
         );
-        assertControlledMultiValueFieldContainsValues(citationBlockFields, "subject",
+        assertControlledMultiValueFieldContainsValues(citationBlockFields, SUBJECT,
             "Chemistry",
             "Computer and Information Science");
-        assertCompoundMultiValueFieldContainsValues(citationBlockFields, "keyword",
-            Map.of("keywordValue", "keyword1"),
-            Map.of("keywordValue", "keyword2"),
-            Map.of("keywordValue", "non-military uniform button",
-                "keywordVocabulary", "PAN thesaurus ideaaltypes",
-                "keywordVocabularyURI", "https://data.cultureelerfgoed.nl/term/id/pan/PAN"),
-            Map.of("keywordValue", "buttons (fasteners)",
-                "keywordVocabulary", "Art and Architecture Thesaurus",
-                "keywordVocabularyURI", "http://vocab.getty.edu/aat/"),
-            Map.of("keywordValue", "Old School Latin"),
-            Map.of("keywordValue", "Ithkuil"));
-        assertControlledMultiValueFieldContainsValues(citationBlockFields, "language",
+        assertCompoundMultiValueFieldContainsValues(citationBlockFields, KEYWORD,
+            Map.of(KEYWORD_VALUE, "keyword1"),
+            Map.of(KEYWORD_VALUE, "keyword2"),
+            Map.of(KEYWORD_VALUE, "non-military uniform button",
+                KEYWORD_VOCABULARY, "PAN thesaurus ideaaltypes",
+                KEYWORD_VOCABULARY_URI, "https://data.cultureelerfgoed.nl/term/id/pan/PAN"),
+            Map.of(KEYWORD_VALUE, "buttons (fasteners)",
+                KEYWORD_VOCABULARY, "Art and Architecture Thesaurus",
+                KEYWORD_VOCABULARY_URI, "http://vocab.getty.edu/aat/"),
+            Map.of(KEYWORD_VALUE, "Old School Latin"),
+            Map.of(KEYWORD_VALUE, "Ithkuil"));
+        assertControlledMultiValueFieldContainsValues(citationBlockFields, LANGUAGE,
             "Basque",
             "Kalaallisut, Greenlandic",
             "Western Frisian");
-        assertPrimitiveSinglevalueFieldContainsValue(citationBlockFields, "productionDate", "2015-09-09");
-        assertCompoundMultiValueFieldContainsValues(citationBlockFields, "contributor",
-            Map.of("contributorName", "CON van Tributor (Contributing Org)", "contributorType", "Project Member"),
-            Map.of("contributorName", "Contributing Org - DataCollector", "contributorType", "Data Collector"),
-            Map.of("contributorName", "Contributing Org - DataCurator", "contributorType", "Data Curator"),
-            Map.of("contributorName", "Contributing Org - DataManager", "contributorType", "Data Manager"),
-            Map.of("contributorName", "Contributing Org - Editor", "contributorType", "Editor"),
-            Map.of("contributorName", "Contributing Org - HostingInstitution", "contributorType", "Hosting Institution"),
-            Map.of("contributorName", "Contributing Org - ProjectLeader", "contributorType", "Project Leader"),
-            Map.of("contributorName", "Contributing Org - ProjectManager", "contributorType", "Project Manager"),
-            Map.of("contributorName", "Contributing Org - ProjectMember", "contributorType", "Project Member"),
-            Map.of("contributorName", "Contributing Org - RelatedPerson", "contributorType", "Related Person"),
-            Map.of("contributorName", "Contributing Org - ResearchGroup", "contributorType", "Research Group"),
-            Map.of("contributorName", "Contributing Org - Researcher", "contributorType", "Researcher"),
-            Map.of("contributorName", "Contributing Org - Sponsor", "contributorType", "Sponsor"),
-            Map.of("contributorName", "Contributing Org - Supervisor", "contributorType", "Supervisor"),
-            Map.of("contributorName", "Contributing Org - WorkPackageLeader", "contributorType", "Work Package Leader"),
-            Map.of("contributorName", "Contributing Org - Producer", "contributorType", "Other"),
-            Map.of("contributorName", "Contributing Org - Other", "contributorType", "Other"),
-            Map.of("contributorName", "Contributing Org - RegistrationAuthority", "contributorType", "Other"),
-            Map.of("contributorName", "Contributing Org - RegistrationAgency", "contributorType", "Other"),
-            Map.of("contributorName", "Contributing Org - ContactPerson", "contributorType", "Other")
+        assertPrimitiveSinglevalueFieldContainsValue(citationBlockFields, PRODUCTION_DATE, "2015-09-09");
+        assertCompoundMultiValueFieldContainsValues(citationBlockFields, CONTRIBUTOR,
+            Map.of(CONTRIBUTOR_NAME, "CON van Tributor (Contributing Org)", CONTRIBUTOR_TYPE, "Project Member"),
+            Map.of(CONTRIBUTOR_NAME, "Contributing Org - DataCollector", CONTRIBUTOR_TYPE, "Data Collector"),
+            Map.of(CONTRIBUTOR_NAME, "Contributing Org - DataCurator", CONTRIBUTOR_TYPE, "Data Curator"),
+            Map.of(CONTRIBUTOR_NAME, "Contributing Org - DataManager", CONTRIBUTOR_TYPE, "Data Manager"),
+            Map.of(CONTRIBUTOR_NAME, "Contributing Org - Editor", CONTRIBUTOR_TYPE, "Editor"),
+            Map.of(CONTRIBUTOR_NAME, "Contributing Org - HostingInstitution", CONTRIBUTOR_TYPE, "Hosting Institution"),
+            Map.of(CONTRIBUTOR_NAME, "Contributing Org - ProjectLeader", CONTRIBUTOR_TYPE, "Project Leader"),
+            Map.of(CONTRIBUTOR_NAME, "Contributing Org - ProjectManager", CONTRIBUTOR_TYPE, "Project Manager"),
+            Map.of(CONTRIBUTOR_NAME, "Contributing Org - ProjectMember", CONTRIBUTOR_TYPE, "Project Member"),
+            Map.of(CONTRIBUTOR_NAME, "Contributing Org - RelatedPerson", CONTRIBUTOR_TYPE, "Related Person"),
+            Map.of(CONTRIBUTOR_NAME, "Contributing Org - ResearchGroup", CONTRIBUTOR_TYPE, "Research Group"),
+            Map.of(CONTRIBUTOR_NAME, "Contributing Org - Researcher", CONTRIBUTOR_TYPE, "Researcher"),
+            Map.of(CONTRIBUTOR_NAME, "Contributing Org - Sponsor", CONTRIBUTOR_TYPE, "Sponsor"),
+            Map.of(CONTRIBUTOR_NAME, "Contributing Org - Supervisor", CONTRIBUTOR_TYPE, "Supervisor"),
+            Map.of(CONTRIBUTOR_NAME, "Contributing Org - WorkPackageLeader", CONTRIBUTOR_TYPE, "Work Package Leader"),
+            Map.of(CONTRIBUTOR_NAME, "Contributing Org - Producer", CONTRIBUTOR_TYPE, "Other"),
+            Map.of(CONTRIBUTOR_NAME, "Contributing Org - Other", CONTRIBUTOR_TYPE, "Other"),
+            Map.of(CONTRIBUTOR_NAME, "Contributing Org - RegistrationAuthority", CONTRIBUTOR_TYPE, "Other"),
+            Map.of(CONTRIBUTOR_NAME, "Contributing Org - RegistrationAgency", CONTRIBUTOR_TYPE, "Other"),
+            Map.of(CONTRIBUTOR_NAME, "Contributing Org - ContactPerson", CONTRIBUTOR_TYPE, "Other")
         );
-        assertCompoundMultiValueFieldContainsValues(citationBlockFields, "grantNumber",
-            Map.of("grantNumberAgency", "NWO",
-                "grantNumberValue", "54321"));
-        assertCompoundMultiValueFieldContainsValues(citationBlockFields, "distributor",
-            Map.of("distributorName", "D. I. Stributor"),
-            Map.of("distributorName", "P. Ublisher"));
-        assertPrimitiveSinglevalueFieldContainsValue(citationBlockFields, "distributionDate", "2015-09-09");
-        assertCompoundMultiValueFieldContainsValues(citationBlockFields, "dateOfCollection",
-            Map.of("dateOfCollectionStart", "2015-06-01",
-                "dateOfCollectionEnd", "2016-12-31"));
-        assertCompoundMultiValueFieldContainsValues(citationBlockFields, "series",
-            Map.of("seriesInformation", "<p>Information about a series: first</p>"),
-            Map.of("seriesInformation", "<p>Information about a series: second</p>"));
-        assertPrimitiveMultiValueFieldContainsValues(citationBlockFields, "dataSources",
+        assertCompoundMultiValueFieldContainsValues(citationBlockFields, GRANT_NUMBER,
+            Map.of(GRANT_NUMBER_AGENCY, "NWO",
+                GRANT_NUMBER_VALUE, "54321"));
+        assertCompoundMultiValueFieldContainsValues(citationBlockFields, DISTRIBUTOR,
+            Map.of(DISTRIBUTOR_NAME, "D. I. Stributor"),
+            Map.of(DISTRIBUTOR_NAME, "P. Ublisher"));
+        assertPrimitiveSinglevalueFieldContainsValue(citationBlockFields, DISTRIBUTION_DATE, "2015-09-09");
+        assertCompoundMultiValueFieldContainsValues(citationBlockFields, DATE_OF_COLLECTION,
+            Map.of(DATE_OF_COLLECTION_START, "2015-06-01",
+                DATE_OF_COLLECTION_END, "2016-12-31"));
+        assertCompoundMultiValueFieldContainsValues(citationBlockFields, SERIES,
+            Map.of(SERIES_INFORMATION, "<p>Information about a series: first</p>"),
+            Map.of(SERIES_INFORMATION, "<p>Information about a series: second</p>"));
+        assertPrimitiveMultiValueFieldContainsValues(citationBlockFields, DATA_SOURCES,
             "Source 2",
             "Sous an ayisyen",
             "Source 3");
 
-
         // Rights Metadata block
         var rightsMetadataBlockFields = datasetYml.getDatasetVersion().getMetadataBlocks().get("dansRights").getFields();
-        assertPrimitiveMultiValueFieldContainsValues(rightsMetadataBlockFields, "dansRightsHolder", "I Lastname");
-        assertControlledSingleValueFieldContainsValue(rightsMetadataBlockFields, "dansPersonalDataPresent", "No");
-        assertControlledMultiValueFieldContainsValues(rightsMetadataBlockFields, "dansMetadataLanguage",
+        assertPrimitiveMultiValueFieldContainsValues(rightsMetadataBlockFields, RIGHTS_HOLDER, "I Lastname");
+        assertControlledSingleValueFieldContainsValue(rightsMetadataBlockFields, PERSONAL_DATA_PRESENT, "No");
+        assertControlledMultiValueFieldContainsValues(rightsMetadataBlockFields, LANGUAGE_OF_METADATA,
             "English",
             "Georgian",
             "Haitian, Haitian Creole");
+
+        // Relation Metadata block
+        var relationMetadataBlockFields = datasetYml.getDatasetVersion().getMetadataBlocks().get("dansRelationMetadata").getFields();
+        assertPrimitiveMultiValueFieldContainsValues(relationMetadataBlockFields, AUDIENCE,
+            "https://www.narcis.nl/classification/D13400", // Inorganic Chemistry
+            "https://www.narcis.nl/classification/D16300", // Theoretical computer science
+            "https://www.narcis.nl/classification/D16100", // Computer systems, architectures, networks
+            "https://www.narcis.nl/classification/D16200", // Software, algorithms, control systems
+            "https://www.narcis.nl/classification/D16400", // Information systems, databases
+            "https://www.narcis.nl/classification/D16500", // User interfaces, multimedia
+            "https://www.narcis.nl/classification/E16000"); // Nanotechnology
+        assertPrimitiveMultiValueFieldContainsValues(relationMetadataBlockFields, COLLECTION,
+            "https://vocabularies.dans.knaw.nl/collections/ssh/ce21b6fb-4283-4194-9369-b3ff4c3d76e7"); // Erfgoed van de Oorlog
+        assertCompoundMultiValueFieldContainsValues(relationMetadataBlockFields, RELATION,
+            // RELATION_TYPE is capitalized in Dataverse's controlled vocabulary, but Dataverse picks it up anyway.
+            Map.of(RELATION_TEXT, "Test relation",
+                RELATION_TYPE, "relation",
+                RELATION_URI, "https://example.com/relation"),
+            Map.of(RELATION_TEXT, "Test conforms to",
+                RELATION_TYPE, "conforms to",
+                RELATION_URI, "https://example.com/conformsTo"),
+            Map.of(RELATION_TEXT, "Test has format",
+                RELATION_TYPE, "has format",
+                RELATION_URI, "https://example.com/hasFormat"),
+            Map.of(RELATION_TEXT, "Test has part",
+                RELATION_TYPE, "has part",
+                RELATION_URI, "https://example.com/hasPart"),
+            Map.of(RELATION_TEXT, "Test references",
+                RELATION_TYPE, "references",
+                RELATION_URI, "https://example.com/references"),
+            Map.of(RELATION_TEXT, "Test replaces",
+                RELATION_TYPE, "replaces",
+                RELATION_URI, "https://example.com/replaces"),
+            Map.of(RELATION_TEXT, "Test requires",
+                RELATION_TYPE, "requires",
+                RELATION_URI, "https://example.com/requires"),
+            Map.of(RELATION_TEXT, "Test has version",
+                RELATION_TYPE, "has version",
+                RELATION_URI, "https://example.com/hasVersion"),
+            Map.of(RELATION_TEXT, "Test is format of",
+                RELATION_TYPE, "is format of",
+                RELATION_URI, "https://example.com/isFormatOf"),
+            Map.of(RELATION_TEXT, "Test is part of",
+                RELATION_TYPE, "is part of",
+                RELATION_URI, "https://example.com/isPartOf"),
+            Map.of(RELATION_TEXT, "Test is referenced by",
+                RELATION_TYPE, "is referenced by",
+                RELATION_URI, "https://example.com/isReferencedBy"),
+            Map.of(RELATION_TEXT, "Test is required by",
+                RELATION_TYPE, "is required by",
+                RELATION_URI, "https://example.com/isRequiredBy"),
+            Map.of(RELATION_TEXT, "Test is version of",
+                RELATION_TYPE, "is version of",
+                RELATION_URI, "https://example.com/isVersionOf")
+        );
 
     }
 
