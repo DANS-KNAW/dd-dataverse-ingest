@@ -25,7 +25,13 @@ import org.mockito.Mockito;
 import java.util.Map;
 import java.util.Optional;
 
+import static nl.knaw.dans.dvingest.core.dansbag.mapper.DepositDatasetFieldNames.ABR_RAPPORT_NUMMER;
+import static nl.knaw.dans.dvingest.core.dansbag.mapper.DepositDatasetFieldNames.ABR_RAPPORT_TYPE;
 import static nl.knaw.dans.dvingest.core.dansbag.mapper.DepositDatasetFieldNames.ALTERNATIVE_TITLE;
+import static nl.knaw.dans.dvingest.core.dansbag.mapper.DepositDatasetFieldNames.ARCHIS_NUMBER;
+import static nl.knaw.dans.dvingest.core.dansbag.mapper.DepositDatasetFieldNames.ARCHIS_NUMBER_ID;
+import static nl.knaw.dans.dvingest.core.dansbag.mapper.DepositDatasetFieldNames.ARCHIS_NUMBER_TYPE;
+import static nl.knaw.dans.dvingest.core.dansbag.mapper.DepositDatasetFieldNames.ARCHIS_ZAAK_ID;
 import static nl.knaw.dans.dvingest.core.dansbag.mapper.DepositDatasetFieldNames.AUDIENCE;
 import static nl.knaw.dans.dvingest.core.dansbag.mapper.DepositDatasetFieldNames.AUTHOR;
 import static nl.knaw.dans.dvingest.core.dansbag.mapper.DepositDatasetFieldNames.AUTHOR_AFFILIATION;
@@ -264,6 +270,26 @@ public class DansDepositConverterTest extends DansConversionFixture {
                 RELATION_TYPE, "is version of",
                 RELATION_URI, "https://example.com/isVersionOf")
         );
+
+        // Archaeology Specific Metadata block
+        var archaeologyMetadataBlockFields = datasetYml.getDatasetVersion().getMetadataBlocks().get("dansArchaeologyMetadata").getFields();
+        assertPrimitiveMultiValueFieldContainsValues(archaeologyMetadataBlockFields, ARCHIS_ZAAK_ID, "12345");
+        assertCompoundMultiValueFieldContainsValues(archaeologyMetadataBlockFields, ARCHIS_NUMBER,
+            // In the UI the identifier from the CV will be displayed. Strangely, for the relation field the value is displayed, although capitalized.
+            Map.of(ARCHIS_NUMBER_TYPE, "onderzoek",
+                ARCHIS_NUMBER_ID, "12345"),
+            Map.of(ARCHIS_NUMBER_TYPE, "vondstmelding",
+                ARCHIS_NUMBER_ID, "67890"),
+            Map.of(ARCHIS_NUMBER_TYPE, "monument",
+                ARCHIS_NUMBER_ID, "12345"),
+            Map.of(ARCHIS_NUMBER_TYPE, "waarneming",
+                ARCHIS_NUMBER_ID, "67890"));
+        assertPrimitiveMultiValueFieldContainsValues(archaeologyMetadataBlockFields, ABR_RAPPORT_TYPE,
+            "https://data.cultureelerfgoed.nl/term/id/abr/d6b2e162-3f49-4027-8f03-28194db2905e", // BAAC-rapport
+            "https://data.cultureelerfgoed.nl/term/id/abr/a881708a-4545-4ca3-ac5e-bc096e98e9f7"); // RCE Rapportage Archeologische Monumentenzorg
+        assertPrimitiveMultiValueFieldContainsValues(archaeologyMetadataBlockFields, ABR_RAPPORT_NUMMER,
+            "BAAC 123-A",
+            "RCE Rapportage Archeologische Monumentenzorg");
 
     }
 
