@@ -69,6 +69,23 @@ public class IngestArea {
         return importJob.getStatus();
     }
 
+    public List<ImportJobStatusDto> cancel(String path) {
+        if (path == null) {
+            return importJobs.values().stream().filter(j -> !j.getStatus().getStatus().equals(StatusEnum.DONE))
+                .peek(ImportJob::cancel)
+                .map(ImportJob::getStatus)
+                .toList();
+        }
+        else {
+            var importJob = importJobs.get(path);
+            if (importJob == null) {
+                throw new IllegalArgumentException("No job found for path: " + path);
+            }
+            importJob.cancel();
+            return List.of(importJob.getStatus());
+        }
+    }
+
     public List<ImportJobStatusDto> getStatus(String path) {
         if (path == null) {
             return importJobs.values().stream().map(ImportJob::getStatus).toList();
@@ -111,4 +128,5 @@ public class IngestArea {
             throw new IllegalArgumentException("Path must be in inbox: " + path);
         }
     }
+
 }

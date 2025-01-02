@@ -41,6 +41,9 @@ public class ImportJob implements Runnable {
     @Getter
     private final ImportJobStatusDto status;
 
+
+    private boolean cancelled = false;
+
     public ImportJob(ImportCommandDto importCommand, String path, Path outputDir, boolean onlyConvertDansDeposit, DataverseIngestDepositFactory depositFactory, DepositTaskFactory depositTaskFactory) {
         this.importCommand = importCommand;
         this.outputDir = outputDir;
@@ -48,6 +51,10 @@ public class ImportJob implements Runnable {
         this.depositFactory = depositFactory;
         this.depositTaskFactory = depositTaskFactory;
         this.status = new ImportJobStatusDto().status(StatusEnum.PENDING).path(path).singleObject(importCommand.getSingleObject());
+    }
+
+    public void cancel() {
+        cancelled = true;
     }
 
     @Override
@@ -72,6 +79,13 @@ public class ImportJob implements Runnable {
             initOutputDir();
 
             for (DataverseIngestDeposit dataverseIngestDeposit : deposits) {
+                if (cancelled) {
+                    log.info("Import job cancelled");
+                    status.setStatus(StatusEnum.DONE);
+                    status.setMessage("Import job cancelled");
+                    return;
+                }
+
                 log.info("START Processing deposit: {}", dataverseIngestDeposit.getId());
                 var task = depositTaskFactory.createDepositTask(dataverseIngestDeposit, outputDir, onlyConvertDansDeposit);
                 task.run();

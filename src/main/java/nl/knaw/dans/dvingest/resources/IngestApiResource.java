@@ -27,6 +27,16 @@ public class IngestApiResource implements IngestApi {
     private final IngestArea migrationArea;
 
     @Override
+    public Response ingestCancelPost(String path, Boolean migration) {
+        if (migration) {
+            return Response.accepted(migrationArea.cancel(path)).build();
+        }
+        else {
+            return Response.accepted(ingestArea.cancel(path)).build();
+        }
+    }
+
+    @Override
     public Response ingestGet(String path, Boolean migration) {
         if (migration) {
             return Response.ok(migrationArea.getStatus(path)).build();
@@ -45,4 +55,6 @@ public class IngestApiResource implements IngestApi {
             return Response.ok(ingestArea.submit(importCommandDto)).build();
         }
     }
+
+
 }
