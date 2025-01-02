@@ -21,5 +21,5 @@ import java.nio.file.Path;
 
 public interface ImportJobFactory {
 
-    ImportJob createImportJob(ImportCommandDto importCommand, Path outputDir, boolean onlyConvertDansDeposit);
+    ImportJob createImportJob(ImportCommandDto importCommand, String path, Path outputDir, boolean onlyConvertDansDeposit);
 }

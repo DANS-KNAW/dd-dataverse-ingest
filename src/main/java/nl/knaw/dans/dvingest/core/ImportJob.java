@@ -15,7 +15,6 @@
  */
 package nl.knaw.dans.dvingest.core;
 
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
@@ -29,7 +28,6 @@ import java.nio.file.Path;
 import java.util.TreeSet;
 
 @Slf4j
-@AllArgsConstructor
 public class ImportJob implements Runnable {
     @NonNull
     @Getter
@@ -41,15 +39,22 @@ public class ImportJob implements Runnable {
     private final DepositTaskFactory depositTaskFactory;
 
     @Getter
-    private final ImportJobStatusDto status = new ImportJobStatusDto();
+    private final ImportJobStatusDto status;
+
+    public ImportJob(ImportCommandDto importCommand, String path, Path outputDir, boolean onlyConvertDansDeposit, DataverseIngestDepositFactory depositFactory, DepositTaskFactory depositTaskFactory) {
+        this.importCommand = importCommand;
+        this.outputDir = outputDir;
+        this.onlyConvertDansDeposit = onlyConvertDansDeposit;
+        this.depositFactory = depositFactory;
+        this.depositTaskFactory = depositTaskFactory;
+        this.status = new ImportJobStatusDto().status(StatusEnum.PENDING).path(path).singleObject(importCommand.getSingleObject());
+    }
 
     @Override
     public void run() {
         try {
             log.debug("Starting import job: {}", importCommand);
             status.setStatus(StatusEnum.RUNNING);
-            status.setPath(importCommand.getPath());
-            status.setSingleObject(importCommand.getSingleObject());
             var deposits = new TreeSet<DataverseIngestDeposit>();
 
             if (importCommand.getSingleObject()) {
@@ -79,6 +84,7 @@ public class ImportJob implements Runnable {
         catch (Exception e) {
             log.error("Failed to process import job", e);
             status.setStatus(StatusEnum.FAILED);
+            status.setMessage(e.getMessage());
         }
     }
 
@@ -88,7 +94,7 @@ public class ImportJob implements Runnable {
         createDirectoryIfNotExists(outputDir.resolve("processed"));
         createDirectoryIfNotExists(outputDir.resolve("failed"));
         createDirectoryIfNotExists(outputDir.resolve("rejected"));
-        if (!importCommand.getSingleObject()) {
+        if (!importCommand.getSingleObject() && !importCommand.getContinueBatch()) {
             checkDirectoryEmpty(outputDir.resolve("processed"));
             checkDirectoryEmpty(outputDir.resolve("failed"));
             checkDirectoryEmpty(outputDir.resolve("rejected"));

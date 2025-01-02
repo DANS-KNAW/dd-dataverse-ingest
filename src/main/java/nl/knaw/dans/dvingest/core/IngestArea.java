@@ -52,7 +52,7 @@ public class IngestArea {
         }
     }
 
-    public void submit(ImportCommandDto importCommand) {
+    public ImportJobStatusDto submit(ImportCommandDto importCommand) {
         log.debug("Received import command: {}", importCommand);
         var existingJob = importJobs.get(importCommand.getPath());
         if (existingJob != null && !List.of(StatusEnum.FAILED, StatusEnum.DONE).contains(existingJob.getStatus().getStatus())) {
@@ -60,11 +60,13 @@ public class IngestArea {
         }
         validatePath(importCommand.getPath());
         log.debug("Path validation successful");
-        var importJob = createImportJob(importCommand);
+        var relativePath = getRelativePath(importCommand);
+        var importJob = createImportJob(importCommand, relativePath);
         log.debug("Created import job: {}", importJob);
-        importJobs.put(importCommand.getPath(), importJob);
+        importJobs.put(relativePath, importJob);
         log.debug("Submitted import job");
         executorService.submit(importJob);
+        return importJob.getStatus();
     }
 
     public List<ImportJobStatusDto> getStatus(String path) {
@@ -79,15 +81,17 @@ public class IngestArea {
         }
     }
 
-    private ImportJob createImportJob(ImportCommandDto importCommand) {
-        Path relativePath;
+    private String getRelativePath(ImportCommandDto importCommand) {
         if (importCommand.getSingleObject()) {
-            relativePath = inbox.relativize(Path.of(importCommand.getPath()).getParent());
+            return inbox.relativize(Path.of(importCommand.getPath()).getParent()).toString();
         }
         else {
-            relativePath = inbox.relativize(Path.of(importCommand.getPath()));
+            return inbox.relativize(Path.of(importCommand.getPath())).toString();
         }
-        return importJobFactory.createImportJob(importCommand, outbox.resolve(relativePath), importCommand.getOnlyConvertDansBag());
+    }
+
+    private ImportJob createImportJob(ImportCommandDto importCommand, String relativePath) {
+        return importJobFactory.createImportJob(importCommand, relativePath, outbox.resolve(relativePath), importCommand.getOnlyConvertDansBag());
     }
 
     private void validatePath(String path) {

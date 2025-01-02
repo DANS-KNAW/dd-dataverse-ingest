@@ -33,7 +33,7 @@ public class ImportJobFactoryImpl implements ImportJobFactory {
     private final DepositTaskFactory depositTaskFactory;
 
     @Override
-    public ImportJob createImportJob(ImportCommandDto importCommand, Path outputDir, boolean onlyConvertDansDeposit) {
-        return new ImportJob(importCommand, outputDir, onlyConvertDansDeposit, dataverseIngestDepositFactory, depositTaskFactory);
+    public ImportJob createImportJob(ImportCommandDto importCommand, String path, Path outputDir, boolean onlyConvertDansDeposit) {
+        return new ImportJob(importCommand, path, outputDir, onlyConvertDansDeposit, dataverseIngestDepositFactory, depositTaskFactory);
     }
 }

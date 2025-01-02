@@ -27,19 +27,22 @@ public class IngestApiResource implements IngestApi {
     private final IngestArea migrationArea;
 
     @Override
-    public Response ingestGet(String path) {
-        return Response.ok(ingestArea.getStatus(path)).build();
+    public Response ingestGet(String path, Boolean migration) {
+        if (migration) {
+            return Response.ok(migrationArea.getStatus(path)).build();
+        }
+        else {
+            return Response.ok(ingestArea.getStatus(path)).build();
+        }
     }
 
     @Override
     public Response ingestPost(ImportCommandDto importCommandDto) {
         if (importCommandDto.getMigration()) {
-            migrationArea.submit(importCommandDto);
-            return Response.ok(migrationArea.getStatus(importCommandDto.getPath()).get(0)).build();
+            return Response.ok(migrationArea.submit(importCommandDto)).build();
         }
         else {
-            ingestArea.submit(importCommandDto);
-            return Response.ok(ingestArea.getStatus(importCommandDto.getPath()).get(0)).build();
+            return Response.ok(ingestArea.submit(importCommandDto)).build();
         }
     }
 }
