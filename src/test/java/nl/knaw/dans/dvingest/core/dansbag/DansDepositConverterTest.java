@@ -27,6 +27,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import java.nio.file.Paths;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -472,7 +473,6 @@ public class DansDepositConverterTest extends DansConversionFixture {
         assertPrimitiveSinglevalueFieldContainsValue(citationBlockFields, PRODUCTION_DATE, "2015-09-09");
         assertPrimitiveSinglevalueFieldContainsValue(citationBlockFields, DISTRIBUTION_DATE, "2015-09-09");
 
-
         // Rights Metadata block
         var rightsMetadataBlockFields = datasetYml.getDatasetVersion().getMetadataBlocks().get("dansRights").getFields();
         assertPrimitiveMultiValueFieldContainsValues(rightsMetadataBlockFields, RIGHTS_HOLDER, "I Lastname");
@@ -489,7 +489,6 @@ public class DansDepositConverterTest extends DansConversionFixture {
             "https://www.narcis.nl/classification/D16400", // Information systems, databases
             "https://www.narcis.nl/classification/D16500", // User interfaces, multimedia
             "https://www.narcis.nl/classification/E16000"); // Nanotechnology
-
 
         // Vault Metadata block
         var dataVaultMetadata = datasetYml.getDatasetVersion().getMetadataBlocks().get("dansDataVaultMetadata").getFields();
@@ -519,6 +518,124 @@ public class DansDepositConverterTest extends DansConversionFixture {
         assertThat(editFilesYml.getEditFiles().getDeleteFiles()).isEmpty();
         assertThat(editFilesYml.getEditFiles().getMoveFiles()).isEmpty();
         assertThat(editFilesYml.getEditFiles().getAddEmbargoes()).isEmpty();
+        assertThat(editFilesYml.getEditFiles().getAddRestrictedIndividually()).isEmpty();
+        assertThat(editFilesYml.getEditFiles().getAddUnrestrictedIndividually()).isEmpty();
+        assertThat(editFilesYml.getEditFiles().getAutoRenameFiles()).isEmpty();
+
+        // Read edit-permissions.yml
+        assertThat(deposit.getBagDir().resolve("edit-permissions.yml")).exists();
+        var editPermissionsYml = yamlService.readYaml(deposit.getBagDir().resolve("edit-permissions.yml"), EditPermissionsRoot.class);
+
+        var expectedRoleAssignment = new RoleAssignment();
+        expectedRoleAssignment.setAssignee("@jdoe");
+        expectedRoleAssignment.setRole("swordupdater");
+
+        assertThat(editPermissionsYml.getEditPermissions().getAddRoleAssignments()).containsExactlyInAnyOrder(expectedRoleAssignment);
+        assertThat(editPermissionsYml.getEditPermissions().getDeleteRoleAssignments()).isEmpty();
+    }
+
+    @Test
+    public void run_converts_dans_sword_embargoed_example_to_dataverse_ingest_deposit() throws Exception {
+        /*
+         * Given
+         */
+        var swordToken = "sword:64c59184-7667-4ea0-b4fd-09f421ecb3cf";
+        var depositDir = testDir.resolve("00000000-0000-0000-0000-000000000003");
+        DansDepositCreator.creator()
+            .copyBagFrom(Paths.get("target/test/example-bags/valid/embargoed"))
+            .depositDir(depositDir)
+            .withProperty("dataverse.sword-token", swordToken)
+            .withProperty("deposit.origin", "SWORD")
+            .withProperty("depositor.userId", "jdoe")
+            .create();
+        var authenticatedUser = authenticatedUser("John", "Doe", "jdoe@foo.com", "John Doe");
+        Mockito.when(dataverseServiceMock.getUserById(Mockito.anyString())).thenReturn(Optional.of(authenticatedUser));
+        Mockito.when(dataverseServiceMock.getSupportedLicenses()).thenReturn(licenses("http://opensource.org/licenses/MIT"));
+        var deposit = dansBagDepositReader.readDeposit(depositDir);
+        var mappingService = DansBagMappingServiceBuilder.builder()
+            .dataSuppliers(Map.of("jdoe", "Supplier Joe"))
+            .embargoExclusions(List.of("original-metadata.zip"))
+            .dataverseService(dataverseServiceMock).build();
+
+        /*
+         * When
+         */
+        new DansDepositConverter(deposit, null, null, mappingService, yamlService).run();
+
+        /*
+         * Then
+         */
+        assertThat(deposit.getBagDir().resolve("dataset.yml")).exists();
+        var datasetYml = yamlService.readYaml(deposit.getBagDir().resolve("dataset.yml"), Dataset.class);
+
+        // Citation block
+        var citationBlockFields = datasetYml.getDatasetVersion().getMetadataBlocks().get("citation").getFields();
+        assertPrimitiveSinglevalueFieldContainsValue(citationBlockFields, TITLE, "A dataset that is under embargo");
+        assertCompoundMultiValueFieldContainsValues(citationBlockFields, AUTHOR,
+            Map.of(AUTHOR_NAME, "I Lastname",
+                AUTHOR_AFFILIATION, "Example Org"));
+        assertCompoundMultiValueFieldContainsValues(citationBlockFields, DATASET_CONTACT, Map.of(
+            DATASET_CONTACT_NAME, "John Doe",
+            DATASET_CONTACT_EMAIL, "jdoe@foo.com"
+        ));
+        assertCompoundMultiValueFieldContainsValues(citationBlockFields, DESCRIPTION,
+            Map.of(DESCRIPTION_VALUE,
+                "<p>This dataset makes use of the ddm:available field to put all files under embargo until a specified date.</p>")
+        );
+        assertControlledMultiValueFieldContainsValues(citationBlockFields, SUBJECT,
+            "Medicine, Health and Life Sciences");
+        assertPrimitiveSinglevalueFieldContainsValue(citationBlockFields, PRODUCTION_DATE, "2015-09-09");
+        assertPrimitiveSinglevalueFieldContainsValue(citationBlockFields, DISTRIBUTION_DATE, "2026-01-01");
+
+        // Rights Metadata block
+        var rightsMetadataBlockFields = datasetYml.getDatasetVersion().getMetadataBlocks().get("dansRights").getFields();
+        assertPrimitiveMultiValueFieldContainsValues(rightsMetadataBlockFields, RIGHTS_HOLDER, "I Lastname");
+        assertControlledSingleValueFieldContainsValue(rightsMetadataBlockFields, PERSONAL_DATA_PRESENT, "No");
+        assertControlledMultiValueFieldContainsValues(rightsMetadataBlockFields, LANGUAGE_OF_METADATA,
+            "English");
+
+        // Relation Metadata block
+        var relationMetadataBlockFields = datasetYml.getDatasetVersion().getMetadataBlocks().get("dansRelationMetadata").getFields();
+        assertPrimitiveMultiValueFieldContainsValues(relationMetadataBlockFields, AUDIENCE,
+            "https://www.narcis.nl/classification/D23320" // Anesthesiology
+        );
+
+        // Vault Metadata block
+        var dataVaultMetadata = datasetYml.getDatasetVersion().getMetadataBlocks().get("dansDataVaultMetadata").getFields();
+        // Assigned by pre-publication workflow, which hasn't run yet at this point
+        assertFieldIsAbsent(dataVaultMetadata, DATAVERSE_PID);
+        assertFieldIsAbsent(dataVaultMetadata, DATAVERSE_PID_VERSION);
+        assertFieldIsAbsent(dataVaultMetadata, BAG_ID);
+        assertFieldIsAbsent(dataVaultMetadata, NBN);
+
+        assertPrimitiveSinglevalueFieldContainsValue(dataVaultMetadata, SWORD_TOKEN, swordToken);
+        assertPrimitiveSinglevalueFieldContainsValue(dataVaultMetadata, DATA_SUPPLIER, "Supplier Joe");
+
+        // Read edit-files.yml
+        assertThat(deposit.getBagDir().resolve("edit-files.yml")).exists();
+        var editFilesYml = yamlService.readYaml(deposit.getBagDir().resolve("edit-files.yml"), EditFilesRoot.class);
+
+        assertThat(editFilesYml.getEditFiles().getAddUnrestrictedFiles()).containsExactlyInAnyOrder(
+            "a/deeper/path/With some file.txt",
+            "random images/image01.png",
+            "random images/image02.jpeg",
+            "random images/image03.jpeg",
+            "original-metadata.zip"
+        );
+
+        assertThat(editFilesYml.getEditFiles().getAddEmbargoes()).hasSize(1);
+        assertThat(editFilesYml.getEditFiles().getAddEmbargoes().get(0).getFilePaths()).containsExactlyInAnyOrder(
+            "a/deeper/path/With some file.txt",
+            "random images/image01.png",
+            "random images/image02.jpeg",
+            "random images/image03.jpeg");
+        assertThat(editFilesYml.getEditFiles().getAddEmbargoes().get(0)).extracting("dateAvailable").isEqualTo("2026-01-01");
+
+        assertThat(editFilesYml.getEditFiles().getAddRestrictedFiles()).isEmpty();
+        assertThat(editFilesYml.getEditFiles().getUpdateFileMetas()).isEmpty();
+        assertThat(editFilesYml.getEditFiles().getReplaceFiles()).isEmpty();
+        assertThat(editFilesYml.getEditFiles().getDeleteFiles()).isEmpty();
+        assertThat(editFilesYml.getEditFiles().getMoveFiles()).isEmpty();
         assertThat(editFilesYml.getEditFiles().getAddRestrictedIndividually()).isEmpty();
         assertThat(editFilesYml.getEditFiles().getAddUnrestrictedIndividually()).isEmpty();
         assertThat(editFilesYml.getEditFiles().getAutoRenameFiles()).isEmpty();
