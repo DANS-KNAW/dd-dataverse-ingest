@@ -15,22 +15,15 @@
  */
 package nl.knaw.dans.dvingest.config;
 
-import io.dropwizard.client.JerseyClientConfiguration;
 import lombok.Data;
 
-import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import java.net.URI;
 
 @Data
-public class ValidateDansBagConfig {
+public class PingHealtCheckConfig {
     @NotNull
-    private URI url;
-
+    private String name;
     @NotNull
-    @Valid
-    private PingHealtCheckConfig healthCheck;
-
-    @NotNull
-    private JerseyClientConfiguration httpClient;
+    private URI pingUrl;
 }

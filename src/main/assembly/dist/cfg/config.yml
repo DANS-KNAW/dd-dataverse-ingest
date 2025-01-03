@@ -141,6 +141,9 @@ dansDepositConversion:
 
   validateDansBag:
     url: 'http://localhost:20330/'
+    healthCheck:
+      name: dd-validate-dans-bag
+      pingUrl: 'http://localhost:20331/ping'
     httpClient:
       timeout: 45min
       connectionTimeout: 15s
@@ -149,6 +152,24 @@ dansDepositConversion:
       retries: 2
       userAgent: dd-dataverse-ingest
 
+
+#
+# Health check scheduling
+#
+health:
+  delayedShutdownHandlerEnabled: false
+  initialOverallState: false
+  healthChecks:
+    - name: dataverse
+      critical: true
+      initialState: false
+      schedule:
+        checkInterval: 60s
+    - name: dd-validate-dans-bag
+      critical: true
+      initialState: false
+      schedule:
+        checkInterval: 60s
 
 
 
