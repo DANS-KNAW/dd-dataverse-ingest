@@ -26,4 +26,6 @@ public class IngestAreaConfig {
     private Path inbox;
     @NotNull
     private Path outbox;
+
+    private Boolean requireDansBag = true;
 }

@@ -50,11 +50,11 @@ public class DansDepositSupport implements Deposit {
     private final DataverseService dataverseService;
     private final YamlService yamlService;
     private final DataverseIngestDeposit ingestDataverseIngestDeposit;
-    private final boolean isDansDeposit;
+    private final boolean mustConvertDansDeposit;
 
     private DansBagDeposit dansDeposit;
 
-    public DansDepositSupport(DataverseIngestDeposit dataverseIngestDeposit, ValidateDansBagService validateDansBagService, DansBagMappingService dansBagMappingService,
+    public DansDepositSupport(DataverseIngestDeposit dataverseIngestDeposit, boolean requireDansBag, ValidateDansBagService validateDansBagService, DansBagMappingService dansBagMappingService,
         DataverseService dataverseService, YamlService yamlService) {
         this.ingestDataverseIngestDeposit = dataverseIngestDeposit;
         this.validateDansBagService = validateDansBagService;
@@ -62,7 +62,7 @@ public class DansDepositSupport implements Deposit {
         this.dataverseService = dataverseService;
         this.yamlService = yamlService;
         try {
-            this.isDansDeposit = dataverseIngestDeposit.getBags().get(0).looksLikeDansBag();
+            this.mustConvertDansDeposit = dataverseIngestDeposit.getBags().get(0).looksLikeDansBag() || requireDansBag;
         }
         catch (IOException e) {
             throw new RuntimeException("Error reading bags", e);
@@ -77,7 +77,7 @@ public class DansDepositSupport implements Deposit {
 
     @Override
     public boolean convertDansDepositIfNeeded() {
-        if (isDansDeposit && dansDeposit == null) {
+        if (mustConvertDansDeposit && dansDeposit == null) {
             log.info("Converting deposit to Dataverse ingest metadata");
             try {
                 var updatesDataset = dansBagMappingService.getUpdatesDataset(ingestDataverseIngestDeposit.getLocation());
@@ -173,7 +173,7 @@ public class DansDepositSupport implements Deposit {
 
     @Override
     public void validate() {
-        if (isDansDeposit) {
+        if (mustConvertDansDeposit) {
             log.debug("Validating DANS deposit");
             try {
                 var result = validateDansBagService.validate(ingestDataverseIngestDeposit.getBags().get(0).getLocation().toAbsolutePath());
