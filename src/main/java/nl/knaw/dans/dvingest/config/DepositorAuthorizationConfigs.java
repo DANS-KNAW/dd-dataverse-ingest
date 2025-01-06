@@ -17,16 +17,8 @@ package nl.knaw.dans.dvingest.config;
 
 import lombok.Data;
 
-import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
-import java.nio.file.Path;
-
 @Data
-public class IngestAreaConfig {
-    @NotNull
-    private Path inbox;
-    @NotNull
-    private Path outbox;
-
-    private Boolean requireDansBag = true;
+public class DepositorAuthorizationConfigs {
+    private DepositorAuthorizationConfig migration;
+    private DepositorAuthorizationConfig autoIngest;
 }

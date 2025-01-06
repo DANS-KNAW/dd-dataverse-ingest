@@ -130,6 +130,16 @@ dansDepositConversion:
     autoIngest: swordupdater
     migration: contributorplus
 
+  #
+  # Roles the depositor must have to be able to edit and publish the dataset, per use-case.
+  #
+  depositorAuthorization:
+    autoIngest:
+      editDataset: swordupdater
+      publishDataset: swordpublisher
+    migration:
+      editDataset: contributorplus
+      publishDataset: dsContributor
 
   #
   # List of fields to skip, even when they are in active metadata blocks. This can be used if hidden fields in active metadata blocks are the target of a mapping. Normally, the mapping

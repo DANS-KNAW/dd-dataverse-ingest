@@ -116,6 +116,17 @@ dansDepositConversion:
     autoIngest: swordupdater
     migration: contributorplus
 
+  #
+  # Roles the depositor must have to be able to edit and publish the dataset, per use-case.
+  #
+  depositorAuthorization:
+    autoIngest:
+      editDataset: swordupdater
+      publishDataset: swordpublisher
+    migration:
+      editDataset: contributorplus
+      publishDataset: dsContributor
+
   validateDansBag:
     url: 'http://localhost:20330/'
     healthCheck:

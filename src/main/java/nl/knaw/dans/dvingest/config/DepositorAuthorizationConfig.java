@@ -17,37 +17,12 @@ package nl.knaw.dans.dvingest.config;
 
 import lombok.Data;
 
-import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
-import java.nio.file.Path;
-import java.util.List;
-import java.util.Map;
 
 @Data
-public class DansDepositConversionConfig {
-    private String fileExclusionPattern;
-
-    private String filesForIndividualUploadPattern;
-
-    private List<String> embargoExclusions = List.of();
-
-    private Map<String, String> dataSuppliers = Map.of();
-
-    private boolean deduplicate;
-
+public class DepositorAuthorizationConfig {
     @NotNull
-    private Path mappingDefsDir;
-
+    private String editDataset;
     @NotNull
-    private AssignDepositorRoleConfig assignDepositorRole;
-
-    private List<String> skipFields = List.of();
-
-    @NotNull
-    @Valid
-    private ValidateDansBagConfig validateDansBag;
-
-    @NotNull
-    @Valid
-    private DepositorAuthorizationConfigs depositorAuthorization;
+    private String publishDataset;
 }

@@ -130,10 +130,15 @@ public class DataverseIngestDeposit implements Comparable<DataverseIngestDeposit
     }
 
     @Override
-    public void moveTo(Path targetDir) throws IOException {
-        log.debug("Moving deposit {} to {}", location, targetDir);
-        Files.move(location, targetDir.resolve(location.getFileName()));
-        location = targetDir.resolve(location.getFileName());
+    public void checkAuthorized() {
+        log.debug("No authorization check implemented for DataverseIngestDeposit");
+    }
+
+    @Override
+    public void moveTo(Path toPath) throws IOException {
+        log.debug("Moving deposit {} to {}", location, toPath);
+        Files.move(location, toPath.resolve(location.getFileName()));
+        location = toPath.resolve(location.getFileName());
     }
 
     @Override

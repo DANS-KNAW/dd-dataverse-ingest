@@ -80,4 +80,8 @@ public interface DataverseService {
     void releaseMigratedDataset(String pid, String date) throws DataverseException, IOException;
 
     void waitForReleasedState(String persistentId, int numberOfFilesInDataset) throws DataverseException, IOException;
+
+    List<String> getDatasetRolesFor(String depositorUserId, String doi) throws DataverseException, IOException;
+
+    List<String> getDataverseRolesFor(String depositorUserId) throws DataverseException, IOException;
 }

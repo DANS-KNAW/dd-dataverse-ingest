@@ -50,13 +50,16 @@ public class DansDepositSupport implements Deposit {
     private final DataverseService dataverseService;
     private final YamlService yamlService;
     private final DataverseIngestDeposit ingestDataverseIngestDeposit;
-    private final boolean mustConvertDansDeposit;
+    private final DepositorAuthorizationValidator authValidator;
 
+    private final boolean mustConvertDansDeposit;
     private DansBagDeposit dansDeposit;
 
-    public DansDepositSupport(DataverseIngestDeposit dataverseIngestDeposit, boolean requireDansBag, ValidateDansBagService validateDansBagService, DansBagMappingService dansBagMappingService,
+    public DansDepositSupport(DataverseIngestDeposit dataverseIngestDeposit, DepositorAuthorizationValidator authValidator, boolean requireDansBag, ValidateDansBagService validateDansBagService,
+        DansBagMappingService dansBagMappingService,
         DataverseService dataverseService, YamlService yamlService) {
         this.ingestDataverseIngestDeposit = dataverseIngestDeposit;
+        this.authValidator = authValidator;
         this.validateDansBagService = validateDansBagService;
         this.dansBagMappingService = dansBagMappingService;
         this.dataverseService = dataverseService;
@@ -87,6 +90,10 @@ public class DansDepositSupport implements Deposit {
                     currentMetadata = dataverseService.getDatasetMetadata(updatesDataset);
                 }
                 dansDeposit = dansBagMappingService.readDansDeposit(ingestDataverseIngestDeposit.getLocation());
+                if (updatesDataset != null) {
+                    // A bit ugly, copied from dd-ingest-flow (necessary for the checkAuthorized method)
+                    dansDeposit.setDataverseDoi(updatesDataset);
+                }
                 new DansDepositConverter(dansDeposit, updatesDataset, currentMetadata, dansBagMappingService, yamlService).run();
                 log.info("Conversion successful");
                 return true;
@@ -167,8 +174,8 @@ public class DansDepositSupport implements Deposit {
     }
 
     @Override
-    public void moveTo(Path processed) throws IOException {
-        ingestDataverseIngestDeposit.moveTo(processed);
+    public void moveTo(Path toPath) throws IOException {
+        ingestDataverseIngestDeposit.moveTo(toPath);
     }
 
     @Override
@@ -190,6 +197,21 @@ public class DansDepositSupport implements Deposit {
             catch (IOException e) {
                 throw new RuntimeException(e);
             }
+        }
+    }
+
+    @Override
+    public void checkAuthorized() {
+        if (dansDeposit == null) {
+            throw new RuntimeException("Deposit not converted yet");
+        }
+        if (dansDeposit.isUpdate()) {
+            if (!authValidator.isDatasetUpdateAllowed(dansDeposit)) {
+                throw new RejectedDepositException(ingestDataverseIngestDeposit, "Depositor is not allowed to update the dataset");
+            }
+        }
+        if (!authValidator.isDatasetPublicationAllowed(dansDeposit)) {
+            throw new RejectedDepositException(ingestDataverseIngestDeposit, "Depositor is not allowed to publish the dataset");
         }
     }
 

@@ -58,6 +58,7 @@ public class DepositTask implements Runnable {
                 log.info("Only converting DANS deposit, LEAVING CONVERTED DEPOSIT IN PLACE");
                 return;
             }
+            deposit.checkAuthorized();
             pid = deposit.getUpdatesDataset();
 
             for (DataverseIngestBag bag : deposit.getBags()) {

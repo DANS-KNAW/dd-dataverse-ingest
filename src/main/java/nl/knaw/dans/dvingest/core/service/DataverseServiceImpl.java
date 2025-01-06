@@ -37,6 +37,7 @@ import nl.knaw.dans.lib.dataverse.model.file.FileMeta;
 import nl.knaw.dans.lib.dataverse.model.search.DatasetResultItem;
 import nl.knaw.dans.lib.dataverse.model.user.AuthenticatedUser;
 
+import javax.validation.Valid;
 import java.io.IOException;
 import java.net.URI;
 import java.nio.file.Path;
@@ -234,6 +235,7 @@ public class DataverseServiceImpl implements DataverseService {
         log.debug(result.getEnvelopeAsString());
     }
 
+    @Override
     public void waitForReleasedState(String pid, int numberOfFilesInDataset) throws DataverseException, IOException {
         long leadTime = numberOfFilesInDataset * leadTimePerFile;
         log.debug("Waiting {} ms before first check", leadTime);
@@ -244,5 +246,23 @@ public class DataverseServiceImpl implements DataverseService {
             log.error("Interrupted during lead time. Continuing", e);
         }
         dataverseClient.dataset(pid).awaitState("RELEASED", timeout, pollingInterval);
+    }
+
+    @Override
+    public List<String> getDatasetRolesFor(String depositorUserId, String doi) throws DataverseException, IOException {
+        var result = dataverseClient.dataset(doi).listRoleAssignments();
+        return result.getData().stream()
+            .filter(ra -> ra.getAssignee().equals("@" + depositorUserId))
+            .map(RoleAssignmentReadOnly::get_roleAlias)
+            .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<String> getDataverseRolesFor(String depositorUserId) throws DataverseException, IOException {
+        var result = dataverseClient.dataverse("root").listRoleAssignments();
+        return result.getData().stream()
+            .filter(ra -> ra.getAssignee().equals("@"+ depositorUserId) || ra.getAssignee().equals(":authenticated-users"))
+            .map(RoleAssignmentReadOnly::get_roleAlias)
+            .collect(Collectors.toList());
     }
 }
