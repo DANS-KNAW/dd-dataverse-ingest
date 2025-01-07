@@ -23,6 +23,9 @@ dataverse:
   apiKey: 'changeme'
   awaitLockStateMaxNumberOfRetries: 30
   awaitLockStateMillisecondsBetweenRetries: 500
+  # Await indexing for a maximum of 1 hour (720 * 5 sec = 3600 sec = 1 h).
+  awaitIndexingMaxNumberOfRetries: 720
+  awaitIndexingMillisecondsBetweenRetries: 5000
   httpClient:
     timeout: 45min
     connectionTimeout: 15s
