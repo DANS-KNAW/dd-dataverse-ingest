@@ -225,7 +225,7 @@ public class FilesEditor {
             fileMeta.setRestricted(restrict);
             log.debug("Start uploading zip file at {} for deposit {}", zipFile, depositId);
             var addedFileMetaList = dataverseService.addFile(pid, zipFile, fileMeta);
-            log.debug("Uploaded {} files, {} cumulative)", addedFileMetaList.getFiles().size(), iterator.getIteratedCount());
+            log.debug("Uploaded {} files, ({} cumulative)", addedFileMetaList.getFiles().size(), iterator.getIteratedCount());
             for (var fm : addedFileMetaList.getFiles()) {
                 filesInDatasetCache.put(fm); // auto-rename is done by PathIteratorZipper
             }
