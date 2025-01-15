@@ -98,9 +98,4 @@ public interface Deposit {
      * TODO: implement validation for DataverseIngestDeposit
      */
     void validate();
-
-    /**
-     * Check if the user is authorized to perform the actions in the deposit.
-     */
-    void checkAuthorized();
 }

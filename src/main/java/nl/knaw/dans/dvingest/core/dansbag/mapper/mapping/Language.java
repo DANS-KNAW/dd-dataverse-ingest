@@ -23,8 +23,6 @@ import java.util.Optional;
 import java.util.Set;
 
 import static nl.knaw.dans.dvingest.core.dansbag.mapper.DepositDatasetFieldNames.KEYWORD_VALUE;
-import static nl.knaw.dans.dvingest.core.dansbag.mapper.DepositDatasetFieldNames.KEYWORD_VOCABULARY;
-import static nl.knaw.dans.dvingest.core.dansbag.mapper.DepositDatasetFieldNames.KEYWORD_VOCABULARY_URI;
 
 public class Language extends Base {
     public static CompoundFieldGenerator<Node> toKeywordValue = (builder, value) -> {

@@ -15,8 +15,8 @@
  */
 package nl.knaw.dans.dvingest.core.yaml;
 
-import io.dropwizard.util.Duration;
 import lombok.Data;
+import nl.knaw.dans.lib.dataverse.model.RoleAssignment;
 
 @Data
 public class Expect {
@@ -25,4 +25,6 @@ public class Expect {
     }
 
     private State state;
+    private RoleAssignment dataverseRoleAssignment;
+    private RoleAssignment datasetRoleAssignment;
 }

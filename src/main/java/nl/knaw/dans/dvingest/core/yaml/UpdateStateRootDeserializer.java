@@ -23,7 +23,6 @@ import com.fasterxml.jackson.databind.node.ValueNode;
 import nl.knaw.dans.lib.dataverse.model.dataset.UpdateType;
 
 import java.io.IOException;
-import java.time.Instant;
 
 public class UpdateStateRootDeserializer extends StdDeserializer<UpdateStateRoot> {
 

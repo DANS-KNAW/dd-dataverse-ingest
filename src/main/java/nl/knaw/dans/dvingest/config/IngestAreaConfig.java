@@ -17,7 +17,6 @@ package nl.knaw.dans.dvingest.config;
 
 import lombok.Data;
 
-import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import java.nio.file.Path;
 

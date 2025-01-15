@@ -17,7 +17,6 @@ package nl.knaw.dans.dvingest.core.dansbag.mapper.mapping;
 
 import lombok.extern.slf4j.Slf4j;
 import nl.knaw.dans.dvingest.core.dansbag.mapper.builder.CompoundFieldGenerator;
-import org.apache.commons.lang3.StringUtils;
 import org.eclipse.jetty.util.StringUtil;
 import org.w3c.dom.Node;
 

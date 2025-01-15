@@ -43,9 +43,7 @@ public class DansDepositConverter {
     public void run() throws IOException {
         deleteOldYamlFilesIfPresent();
         var init = mappingService.getInitFromDansDeposit(dansDeposit, updatesDataset != null);
-        if (init != null) {
-            yamlService.writeYaml(new InitRoot(init), dansDeposit.getBagDir().resolve("init.yml"));
-        }
+        yamlService.writeYaml(new InitRoot(init), dansDeposit.getBagDir().resolve("init.yml"));
 
         var dataset = mappingService.getDatasetMetadataFromDansDeposit(dansDeposit, currentMetadata);
         yamlService.writeYaml(dataset, dansDeposit.getBagDir().resolve("dataset.yml"));

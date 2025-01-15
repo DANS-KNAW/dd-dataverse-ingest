@@ -54,12 +54,26 @@ The init file initializes the ingest process. It can be used to verify that an e
 init:
   expect:
     state: 'released' # or 'draft', 'absent'.
+    dataverseRoleAssignment:
+       assignee: '@myuser'
+       role: ':autenticated-user'
+    datasetRoleAssignment:
+       assignee: '@myuser'
+       role: 'contributor'
+
 ```
 
-If the state of the dataset does not match the expected state, the ingest procedure will be aborted. The state can be either `released`, `draft` or `absent`
-(meaning that the dataset should not exist). By default, no check will be performed.
+If the state of the dataset does not match the expected state, the ingest procedure will be aborted and the deposit will be put in the FAILED state. The 
+expected state can be either `released`, `draft` or `absent` (meaning that the dataset should not exist). By default, no check will be performed. 
 
-It can also be used to instruct the service to import the bag as a dataset with an existing DOI:
+If the role assignment in  `dataverseRoleAssignment` does not exist on the target dataverse collection (currently always `root`) the ingest procedure will be 
+aborted putting the deposit in a REJECTED state. The same happens if the role assignment in `datasetRoleAssignment` does not exist on the target dataset
+(only applicable to update-deposits). 
+
+Note the difference in the resulting deposit state when expectations are not met. The rationale is that an unexpected dataset state is likely an error by the 
+service or Dataverse and the expected role assignments are a kind of authorization check.
+
+The `init.yml` file can also be used to instruct the service to import the bag as a dataset with an existing DOI:
 
 ```yaml
 init:

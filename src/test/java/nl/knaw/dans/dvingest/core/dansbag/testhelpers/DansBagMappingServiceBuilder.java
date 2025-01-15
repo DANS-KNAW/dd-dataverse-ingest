@@ -22,6 +22,7 @@ import nl.knaw.dans.dvingest.core.dansbag.DansBagMappingServiceImpl;
 import nl.knaw.dans.dvingest.core.dansbag.SupportedLicenses;
 import nl.knaw.dans.dvingest.core.dansbag.mapper.DepositToDvDatasetMetadataMapper;
 import nl.knaw.dans.dvingest.core.service.DataverseService;
+import nl.knaw.dans.lib.dataverse.model.RoleAssignmentReadOnly;
 import nl.knaw.dans.lib.util.MappingLoader;
 import org.apache.commons.io.FileUtils;
 
@@ -51,6 +52,8 @@ public class DansBagMappingServiceBuilder {
     private List<String> embargoExclusions = List.of();
     private String depositorRoleAutoIngest = "swordupdater";
     private String depositorRoleMigration = "contributorplus";
+    private String expectedDataverseRole;
+    private String expectedDatasetRole;
 
     private DansBagMappingServiceBuilder() {
     }
@@ -77,6 +80,6 @@ public class DansBagMappingServiceBuilder {
             skipFields);
         var supportedLicenses = new SupportedLicenses(dataverseService);
         return new DansBagMappingServiceImpl(mapper, dataverseService, supportedLicenses, fileExclusionPattern, filesForIndividualUploadPattern, embargoExclusions, depositorRoleAutoIngest,
-            depositorRoleMigration);
+            depositorRoleMigration, expectedDataverseRole, expectedDatasetRole);
     }
 }
