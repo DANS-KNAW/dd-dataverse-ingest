@@ -74,6 +74,9 @@ public class DatasetVersionCreator {
 
     private void checkExpectations(Expect expect, String targetPid) throws DataverseException, IOException {
         if (expect != null) {
+            if (expect.getState() != null && targetPid == null) {
+                log.warn("Expectation of state {} but no target dataset, ignoring check ...", expect.getState());
+            }
             if (expect.getState() != null && targetPid != null) {
                 switch (expect.getState()) {
                     case draft:
