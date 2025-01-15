@@ -20,6 +20,8 @@ import lombok.NonNull;
 import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
 import nl.knaw.dans.dvingest.core.service.YamlService;
+import org.apache.commons.configuration2.PropertiesConfiguration;
+import org.apache.commons.configuration2.ex.ConfigurationException;
 
 import javax.validation.constraints.NotNull;
 import java.io.IOException;
@@ -29,7 +31,6 @@ import java.time.OffsetDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 import java.util.UUID;
 
 @Getter
@@ -42,30 +43,31 @@ public class DataverseIngestDeposit implements Comparable<DataverseIngestDeposit
 
     private Path location;
 
-    private final Properties depositProperties;
+    private final PropertiesConfiguration depositProperties;
     private final YamlService yamlService;
 
     public DataverseIngestDeposit(@NonNull Path location, @NonNull YamlService yamlService) {
         this.location = location;
         this.yamlService = yamlService;
-        this.depositProperties = new Properties();
+        depositProperties = new PropertiesConfiguration();
         try {
-            depositProperties.load(Files.newBufferedReader(location.resolve("deposit.properties")));
-            var creationTimestamp = depositProperties.getProperty("creation.timestamp");
+            depositProperties.read(Files.newBufferedReader(location.resolve("deposit.properties")));
+            var creationTimestamp = depositProperties.getString(CREATION_TIMESTAMP_KEY);
             if (creationTimestamp == null) {
                 throw new IllegalStateException("Deposit " + location + " does not contain a creation timestamp");
             }
             this.creationTimestamp = OffsetDateTime.parse(creationTimestamp);
             this.id = UUID.fromString(location.getFileName().toString());
         }
-        catch (IOException e) {
+        catch (IOException | ConfigurationException e) {
             throw new IllegalStateException("Error loading deposit properties from " + location.resolve("deposit.properties"), e);
         }
+
     }
 
     @Override
     public String getUpdatesDataset() {
-        return depositProperties.getProperty(UPDATES_DATASET_KEY);
+        return depositProperties.getString(UPDATES_DATASET_KEY);
     }
 
     @Override
@@ -88,27 +90,27 @@ public class DataverseIngestDeposit implements Comparable<DataverseIngestDeposit
         properties.forEach(depositProperties::setProperty);
         // Save the updated properties
         try (var writer = Files.newBufferedWriter(location.resolve("deposit.properties"))) {
-            depositProperties.store(writer, "Updated by DANS Dataverse Ingest");
+            depositProperties.write(writer);
         }
-        catch (IOException e) {
-            log.error("Error updating deposit properties", e);
+        catch (ConfigurationException | IOException e) {
+            throw new RuntimeException("Error updating deposit properties", e);
         }
     }
 
     @Override
     public void onSuccess(@NonNull String pid, String message) {
         var map = new HashMap<String, String>();
-        map.put("identifier.doi", pid);
+        map.put(IDENTIFIER_DOI_KEY, pid);
         updateProperties(map);
     }
 
     @Override
     public void onFailed(String pid, String message) {
         var map = new HashMap<String, String>();
-        map.put("state.label", "FAILED");
-        map.put("state.description", message);
+        map.put(STATE_LABEL_KEY, "FAILED");
+        map.put(STATE_DESCRIPTION_KEY, message);
         if (pid != null) {
-            map.put("identifier.doi", pid);
+            map.put(IDENTIFIER_DOI_KEY, pid);
         }
         updateProperties(map);
     }
@@ -116,10 +118,10 @@ public class DataverseIngestDeposit implements Comparable<DataverseIngestDeposit
     @Override
     public void onRejected(String pid, String message) {
         var map = new HashMap<String, String>();
-        map.put("state.label", "REJECTED");
-        map.put("state.description", message);
+        map.put(STATE_LABEL_KEY, "REJECTED");
+        map.put(STATE_DESCRIPTION_KEY, message);
         if (pid != null) {
-            map.put("identifier.doi", pid);
+            map.put(IDENTIFIER_DOI_KEY, pid);
         }
         updateProperties(map);
     }

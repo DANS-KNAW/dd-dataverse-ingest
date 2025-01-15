@@ -24,6 +24,10 @@ import java.util.UUID;
 
 public interface Deposit {
     String UPDATES_DATASET_KEY = "updates-dataset";
+    String CREATION_TIMESTAMP_KEY = "creation.timestamp";
+    String IDENTIFIER_DOI_KEY = "identifier.doi";
+    String STATE_LABEL_KEY = "state.label";
+    String STATE_DESCRIPTION_KEY = "state.description";
 
     /**
      * Convert the deposit to a DANS deposit if necessary. It is necessary if a DANS bag is required; in this case the deposit fails if it is not a DANS deposit. If a DANS bag is not required, but the

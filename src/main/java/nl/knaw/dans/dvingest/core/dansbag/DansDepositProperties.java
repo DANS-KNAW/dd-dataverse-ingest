@@ -15,40 +15,37 @@
  */
 package nl.knaw.dans.dvingest.core.dansbag;
 
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.configuration2.PropertiesConfiguration;
+import org.apache.commons.configuration2.ex.ConfigurationException;
 
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Properties;
 
 /**
  * Represents the properties of a DANS bag deposit.
  */
 @Slf4j
 public class DansDepositProperties {
-    private final Properties properties;
+    private final PropertiesConfiguration properties;
+    @Getter
     private final String depositId;
 
     public DansDepositProperties(Path depositPropertiesFile) throws IOException {
-        // Load the properties from the file
-        properties = new Properties();
-        properties.load(depositPropertiesFile.toUri().toURL().openStream());
-        depositId = depositPropertiesFile.getParent().getFileName().toString();
-    }
-
-    public String getDepositorUserId() {
-        return properties.getProperty("depositor.userId");
+        try {
+            properties = new PropertiesConfiguration();
+            properties.read(Files.newBufferedReader(depositPropertiesFile));
+            depositId = properties.getString("depositId");
+        }
+        catch (ConfigurationException e) {
+            log.error("Error reading deposit properties file", e);
+            throw new RuntimeException("Error reading deposit properties file", e);
+        }
     }
 
     public String getSwordToken() {
-        return properties.getProperty("dataverse.sword-token");
-    }
-
-    public String getBagId() {
-        return properties.getProperty("dataverse.bag-id");
-    }
-
-    public String getDepositId() {
-        return depositId;
+        return properties.getString("dataverse.sword-token");
     }
 }
