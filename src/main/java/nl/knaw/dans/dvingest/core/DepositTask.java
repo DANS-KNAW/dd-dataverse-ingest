@@ -58,7 +58,6 @@ public class DepositTask implements Runnable {
                 log.info("Only converting DANS deposit, LEAVING CONVERTED DEPOSIT IN PLACE");
                 return;
             }
-            deposit.checkAuthorized();
             pid = deposit.getUpdatesDataset();
 
             for (DataverseIngestBag bag : deposit.getBags()) {
@@ -69,7 +68,6 @@ public class DepositTask implements Runnable {
             deposit.onSuccess(pid, "Deposit processed successfully");
             deposit.moveTo(outputDir.resolve("processed"));
         }
-        // TODO: move RejectedDepositException to a package that is not specific to DANS
         catch (RejectedDepositException e) {
             try {
                 log.error("Deposit rejected", e);

@@ -23,7 +23,6 @@ import nl.knaw.dans.dvingest.core.Deposit;
 import nl.knaw.dans.dvingest.core.dansbag.DansBagMappingService;
 import nl.knaw.dans.dvingest.core.dansbag.DansDepositSupport;
 import nl.knaw.dans.dvingest.core.dansbag.DansDepositSupportFactory;
-import nl.knaw.dans.dvingest.core.dansbag.DepositorAuthorizationValidator;
 import nl.knaw.dans.dvingest.core.service.DataverseService;
 import nl.knaw.dans.dvingest.core.service.YamlService;
 
@@ -34,13 +33,10 @@ public class DansDepositSupportFactoryImpl implements DansDepositSupportFactory 
     private final DansBagMappingService dansBagMappingService;
     private final DataverseService dataverseService;
     private final YamlService yamlService;
-    private final DepositorAuthorizationValidator authValidator;
-
-
     private final boolean requireDansBag;
 
     @Override
     public Deposit addDansDepositSupportIfEnabled(DataverseIngestDeposit deposit) {
-        return new DansDepositSupport(deposit, authValidator, requireDansBag, validateDansBagService, dansBagMappingService, dataverseService, yamlService);
+        return new DansDepositSupport(deposit, requireDansBag, validateDansBagService, dansBagMappingService, dataverseService, yamlService);
     }
 }

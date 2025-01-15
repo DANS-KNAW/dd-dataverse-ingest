@@ -27,7 +27,6 @@ import nl.knaw.dans.dvingest.core.yaml.EditPermissionsRoot;
 import nl.knaw.dans.dvingest.core.yaml.Init;
 import nl.knaw.dans.dvingest.core.yaml.InitRoot;
 import nl.knaw.dans.dvingest.core.yaml.UpdateAction;
-import nl.knaw.dans.dvingest.core.yaml.UpdateState;
 import nl.knaw.dans.dvingest.core.yaml.UpdateStateRoot;
 import nl.knaw.dans.lib.dataverse.model.dataset.Dataset;
 

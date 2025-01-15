@@ -17,6 +17,7 @@ package nl.knaw.dans.dvingest.core.service;
 
 import nl.knaw.dans.lib.dataverse.DataverseException;
 import nl.knaw.dans.lib.dataverse.model.RoleAssignment;
+import nl.knaw.dans.lib.dataverse.model.RoleAssignmentReadOnly;
 import nl.knaw.dans.lib.dataverse.model.dataset.Dataset;
 import nl.knaw.dans.lib.dataverse.model.dataset.DatasetVersion;
 import nl.knaw.dans.lib.dataverse.model.dataset.Embargo;
@@ -81,7 +82,7 @@ public interface DataverseService {
 
     void waitForReleasedState(String persistentId, int numberOfFilesInDataset) throws DataverseException, IOException;
 
-    List<String> getDatasetRolesFor(String depositorUserId, String doi) throws DataverseException, IOException;
+    List<RoleAssignmentReadOnly> getRoleAssignmentsOnDataverse(String dataverseAlias) throws DataverseException, IOException;
 
-    List<String> getDataverseRolesFor(String depositorUserId) throws DataverseException, IOException;
+    List<RoleAssignmentReadOnly> getRoleAssignmentsOnDataset(String persistentId) throws DataverseException, IOException;
 }

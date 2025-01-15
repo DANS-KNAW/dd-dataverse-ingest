@@ -84,13 +84,18 @@ public class DansBagMappingServiceImpl implements DansBagMappingService {
     private final List<String> embargoExclusions;
     private final String depositorRoleAutoIngest;
     private final String depositorRoleMigration;
+    private final String expectedDataverseRole;
+    private final String expectedDatasetRole;
 
     public DansBagMappingServiceImpl(DepositToDvDatasetMetadataMapper depositToDvDatasetMetadataMapper, DataverseService dataverseService, SupportedLicenses supportedLicenses,
-        Pattern fileExclusionPattern, Pattern filesForIndividualUploadPattern, List<String> embargoExclusions, String depositorRoleAutoIngest, String depositorRoleMigration) {
+        Pattern fileExclusionPattern, Pattern filesForIndividualUploadPattern, List<String> embargoExclusions, String depositorRoleAutoIngest, String depositorRoleMigration,
+        String expectedDataverseRole, String expectedDatasetRole) {
         this.depositToDvDatasetMetadataMapper = depositToDvDatasetMetadataMapper;
         this.dataverseService = dataverseService;
         this.depositorRoleAutoIngest = depositorRoleAutoIngest;
         this.depositorRoleMigration = depositorRoleMigration;
+        this.expectedDataverseRole = expectedDataverseRole;
+        this.expectedDatasetRole = expectedDatasetRole;
         BagReader bagReader = new BagReader();
         XmlReader xmlReader = new XmlReaderImpl();
 
@@ -141,28 +146,45 @@ public class DansBagMappingServiceImpl implements DansBagMappingService {
 
     @Override
     public Init getInitFromDansDeposit(DansBagDeposit dansDeposit, boolean isUpdate) {
-        if (!isUpdate && depositToDvDatasetMetadataMapper.isMigration()) {
-            if (StringUtils.isBlank(dansDeposit.getDoi())) {
-                throw new IllegalArgumentException("Migration deposit must have a DOI");
-            }
-            var create = new Create();
-            var doi = dansDeposit.getDoi();
-            if (!doi.startsWith("doi:")) {
-                doi = "doi:" + doi;
-            }
-            create.setImportPid(doi);
-            var init = new Init();
-            init.setCreate(create);
-            return init;
-        }
-        else if (isUpdate) {
+        var init = new Init();
+        if (isUpdate) {
             var expect = new Expect();
             expect.setState(State.released);
-            var init = new Init();
+            var expectedDataverseRoleAssignment = createRoleAssignment(expectedDataverseRole, "@" + dansDeposit.getDepositorUserId());
+            var expectedDatasetRoleAssignment = createRoleAssignment(expectedDatasetRole, "@" + dansDeposit.getDepositorUserId());
+            expect.setDataverseRoleAssignment(expectedDataverseRoleAssignment);
+            expect.setDatasetRoleAssignment(expectedDatasetRoleAssignment);
             init.setExpect(expect);
             return init;
         }
-        return null;
+        else {
+            if (depositToDvDatasetMetadataMapper.isMigration()) {
+                if (StringUtils.isBlank(dansDeposit.getDoi())) {
+                    throw new IllegalArgumentException("Migration deposit must have a DOI");
+                }
+                var create = new Create();
+                var doi = dansDeposit.getDoi();
+                if (!doi.startsWith("doi:")) {
+                    doi = "doi:" + doi;
+                }
+                create.setImportPid(doi);
+                init.setCreate(create);
+                return init;
+            }
+            var expect = new Expect();
+            expect.setState(State.absent);
+            var expectedDataverseRoleAssignment = createRoleAssignment(expectedDataverseRole, "@" + dansDeposit.getDepositorUserId());
+            expect.setDataverseRoleAssignment(expectedDataverseRoleAssignment);
+            init.setExpect(expect);
+        }
+        return init;
+    }
+
+    private RoleAssignment createRoleAssignment(String roleAlias, String assignee) {
+        var roleAssignment = new RoleAssignment();
+        roleAssignment.setRole(roleAlias);
+        roleAssignment.setAssignee(assignee);
+        return roleAssignment;
     }
 
     @Override

@@ -23,13 +23,13 @@ import lombok.extern.slf4j.Slf4j;
 import nl.knaw.dans.dvingest.client.ValidateDansBagServiceImpl;
 import nl.knaw.dans.dvingest.config.DansDepositConversionConfig;
 import nl.knaw.dans.dvingest.config.DdDataverseIngestConfiguration;
+import nl.knaw.dans.dvingest.config.DepositorAuthorizationConfig;
 import nl.knaw.dans.dvingest.config.IngestAreaConfig;
 import nl.knaw.dans.dvingest.core.AutoIngestArea;
 import nl.knaw.dans.dvingest.core.IngestArea;
 import nl.knaw.dans.dvingest.core.dansbag.DansBagMappingService;
 import nl.knaw.dans.dvingest.core.dansbag.DansBagMappingServiceImpl;
 import nl.knaw.dans.dvingest.core.dansbag.DansDepositSupportFactory;
-import nl.knaw.dans.dvingest.core.dansbag.DepositorAuthorizationValidator;
 import nl.knaw.dans.dvingest.core.dansbag.SupportedLicenses;
 import nl.knaw.dans.dvingest.core.dansbag.mapper.DepositToDvDatasetMetadataMapper;
 import nl.knaw.dans.dvingest.core.service.DataverseService;
@@ -119,11 +119,9 @@ public class DdDataverseIngestApplication extends Application<DdDataverseIngestC
         DataverseServiceImpl dataverseService, YamlServiceImpl yamlService, BagProcessorFactoryImpl bagProcessorFactory, DataverseIngestDepositFactoryImpl dataverseIngestDepositFactory) {
         DansDepositSupportFactory dansDepositSupportFactory = new DansDepositSupportDisabledFactory();
         if (dansDepositConversionConfig != null) {
-            var dansBagMappingService = createDansBagMappingService(false, dansDepositConversionConfig, dataverseService);
+            var dansBagMappingService = createDansBagMappingService(false, dansDepositConversionConfig, dansDepositConversionConfig.getDepositorAuthorization().getAutoIngest(), dataverseService);
             var validateDansBagService = new ValidateDansBagServiceImpl(dansDepositConversionConfig.getValidateDansBag(), false, environment);
-            var depositorAuth = dansDepositConversionConfig.getDepositorAuthorization().getAutoIngest();
-            dansDepositSupportFactory = new DansDepositSupportFactoryImpl(validateDansBagService, dansBagMappingService, dataverseService, yamlService,
-                new DepositorAuthorizationValidator(dataverseService, depositorAuth.getPublishDataset(), depositorAuth.getEditDataset()), ingestAreaConfig.getRequireDansBag());
+            dansDepositSupportFactory = new DansDepositSupportFactoryImpl(validateDansBagService, dansBagMappingService, dataverseService, yamlService, ingestAreaConfig.getRequireDansBag());
         }
         var depositTaskFactory = new DepositTaskFactoryImpl(bagProcessorFactory, dansDepositSupportFactory);
         var inboxTaskFactory = new InboxTaskFactoryImpl(dataverseIngestDepositFactory, depositTaskFactory, ingestAreaConfig.getOutbox());
@@ -136,11 +134,10 @@ public class DdDataverseIngestApplication extends Application<DdDataverseIngestC
         boolean isMigration = name.equals("migration");
         DansDepositSupportFactory dansDepositSupportFactory = new DansDepositSupportDisabledFactory();
         if (dansDepositConversionConfig != null) {
-            var dansBagMappingService = createDansBagMappingService(isMigration, dansDepositConversionConfig, dataverseService);
+            var dansBagMappingService = createDansBagMappingService(isMigration, dansDepositConversionConfig, dansDepositConversionConfig.getDepositorAuthorization().getMigration(), dataverseService);
             var validateDansBag = new ValidateDansBagServiceImpl(dansDepositConversionConfig.getValidateDansBag(), isMigration, environment);
-            var depositorAuth = isMigration ? dansDepositConversionConfig.getDepositorAuthorization().getMigration() : dansDepositConversionConfig.getDepositorAuthorization().getAutoIngest();
             dansDepositSupportFactory = new DansDepositSupportFactoryImpl(validateDansBag, dansBagMappingService, dataverseService, yamlService,
-                new DepositorAuthorizationValidator(dataverseService, depositorAuth.getPublishDataset(), depositorAuth.getEditDataset()), ingestAreaConfig.getRequireDansBag());
+                ingestAreaConfig.getRequireDansBag());
         }
         var depositTaskFactory = new DepositTaskFactoryImpl(bagProcessorFactory, dansDepositSupportFactory);
         var jobFactory = new ImportJobFactoryImpl(dataverseIngestDepositFactory, depositTaskFactory);
@@ -148,7 +145,8 @@ public class DdDataverseIngestApplication extends Application<DdDataverseIngestC
             environment.lifecycle().executorService(name).minThreads(1).maxThreads(1).build());
     }
 
-    private DansBagMappingService createDansBagMappingService(boolean isMigration, DansDepositConversionConfig dansDepositConversionConfig, DataverseService dataverseService) {
+    private DansBagMappingService createDansBagMappingService(boolean isMigration, DansDepositConversionConfig dansDepositConversionConfig, DepositorAuthorizationConfig depositorAuthorizationConfig,
+        DataverseService dataverseService) {
         log.info("Configuring DANS Deposit conversion");
         try {
             var mapper = createMapper(isMigration, dansDepositConversionConfig, dataverseService);
@@ -162,7 +160,9 @@ public class DdDataverseIngestApplication extends Application<DdDataverseIngestC
                     Pattern.compile(dansDepositConversionConfig.getFilesForIndividualUploadPattern()),
                 dansDepositConversionConfig.getEmbargoExclusions(),
                 dansDepositConversionConfig.getAssignDepositorRole().getAutoIngest(),
-                dansDepositConversionConfig.getAssignDepositorRole().getMigration());
+                dansDepositConversionConfig.getAssignDepositorRole().getMigration(),
+                depositorAuthorizationConfig.getPublishDataset(),
+                depositorAuthorizationConfig.getEditDataset());
         }
         catch (IOException e) {
             throw new IllegalStateException("Failed to read configuration files", e);

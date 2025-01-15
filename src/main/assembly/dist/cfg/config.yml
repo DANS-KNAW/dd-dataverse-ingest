@@ -131,7 +131,8 @@ dansDepositConversion:
   #
   assignDepositorRole:
     autoIngest: swordupdater
-    migration: contributorplus
+    migration: contributorplus # Also used for import. In practice, the import use-case is not used for conversion
+
 
   #
   # Roles the depositor must have to be able to edit and publish the dataset, per use-case.
@@ -140,7 +141,7 @@ dansDepositConversion:
     autoIngest:
       editDataset: swordupdater
       publishDataset: swordpublisher
-    migration:
+    migration: # Also used for import. In practice, the import use-case is not used for conversion
       editDataset: contributorplus
       publishDataset: dsContributor
 

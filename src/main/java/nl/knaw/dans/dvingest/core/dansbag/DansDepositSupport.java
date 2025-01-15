@@ -50,16 +50,14 @@ public class DansDepositSupport implements Deposit {
     private final DataverseService dataverseService;
     private final YamlService yamlService;
     private final DataverseIngestDeposit ingestDataverseIngestDeposit;
-    private final DepositorAuthorizationValidator authValidator;
 
     private final boolean mustConvertDansDeposit;
     private DansBagDeposit dansDeposit;
 
-    public DansDepositSupport(DataverseIngestDeposit dataverseIngestDeposit, DepositorAuthorizationValidator authValidator, boolean requireDansBag, ValidateDansBagService validateDansBagService,
+    public DansDepositSupport(DataverseIngestDeposit dataverseIngestDeposit, boolean requireDansBag, ValidateDansBagService validateDansBagService,
         DansBagMappingService dansBagMappingService,
         DataverseService dataverseService, YamlService yamlService) {
         this.ingestDataverseIngestDeposit = dataverseIngestDeposit;
-        this.authValidator = authValidator;
         this.validateDansBagService = validateDansBagService;
         this.dansBagMappingService = dansBagMappingService;
         this.dataverseService = dataverseService;
@@ -199,20 +197,4 @@ public class DansDepositSupport implements Deposit {
             }
         }
     }
-
-    @Override
-    public void checkAuthorized() {
-        if (dansDeposit == null) {
-            throw new RuntimeException("Deposit not converted yet");
-        }
-        if (dansDeposit.isUpdate()) {
-            if (!authValidator.isDatasetUpdateAllowed(dansDeposit)) {
-                throw new RejectedDepositException(ingestDataverseIngestDeposit, "Depositor is not allowed to update the dataset");
-            }
-        }
-        if (!authValidator.isDatasetPublicationAllowed(dansDeposit)) {
-            throw new RejectedDepositException(ingestDataverseIngestDeposit, "Depositor is not allowed to publish the dataset");
-        }
-    }
-
 }

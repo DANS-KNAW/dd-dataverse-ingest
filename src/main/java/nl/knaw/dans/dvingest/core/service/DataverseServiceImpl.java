@@ -37,7 +37,6 @@ import nl.knaw.dans.lib.dataverse.model.file.FileMeta;
 import nl.knaw.dans.lib.dataverse.model.search.DatasetResultItem;
 import nl.knaw.dans.lib.dataverse.model.user.AuthenticatedUser;
 
-import javax.validation.Valid;
 import java.io.IOException;
 import java.net.URI;
 import java.nio.file.Path;
@@ -249,20 +248,14 @@ public class DataverseServiceImpl implements DataverseService {
     }
 
     @Override
-    public List<String> getDatasetRolesFor(String depositorUserId, String doi) throws DataverseException, IOException {
-        var result = dataverseClient.dataset(doi).listRoleAssignments();
-        return result.getData().stream()
-            .filter(ra -> ra.getAssignee().equals("@" + depositorUserId))
-            .map(RoleAssignmentReadOnly::get_roleAlias)
-            .collect(Collectors.toList());
+    public List<RoleAssignmentReadOnly> getRoleAssignmentsOnDataverse(String dataverseAlias) throws DataverseException, IOException {
+        var result = dataverseClient.dataverse(dataverseAlias).listRoleAssignments();
+        return result.getData();
     }
 
     @Override
-    public List<String> getDataverseRolesFor(String depositorUserId) throws DataverseException, IOException {
-        var result = dataverseClient.dataverse("root").listRoleAssignments();
-        return result.getData().stream()
-            .filter(ra -> ra.getAssignee().equals("@"+ depositorUserId) || ra.getAssignee().equals(":authenticated-users"))
-            .map(RoleAssignmentReadOnly::get_roleAlias)
-            .collect(Collectors.toList());
+    public List<RoleAssignmentReadOnly> getRoleAssignmentsOnDataset(String persistentId) throws DataverseException, IOException {
+        var result = dataverseClient.dataset(persistentId).listRoleAssignments();
+        return result.getData();
     }
 }

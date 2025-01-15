@@ -21,11 +21,7 @@ import org.w3c.dom.Node;
 
 import java.util.Set;
 
-import static nl.knaw.dans.dvingest.core.dansbag.mapper.DepositDatasetFieldNames.DISTRIBUTOR_ABBREVIATION;
-import static nl.knaw.dans.dvingest.core.dansbag.mapper.DepositDatasetFieldNames.DISTRIBUTOR_AFFILIATION;
-import static nl.knaw.dans.dvingest.core.dansbag.mapper.DepositDatasetFieldNames.DISTRIBUTOR_LOGO_URL;
 import static nl.knaw.dans.dvingest.core.dansbag.mapper.DepositDatasetFieldNames.DISTRIBUTOR_NAME;
-import static nl.knaw.dans.dvingest.core.dansbag.mapper.DepositDatasetFieldNames.DISTRIBUTOR_URL;
 
 @Slf4j
 public class Publisher extends Base {
