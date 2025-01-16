@@ -19,7 +19,13 @@ import lombok.Data;
 
 @Data
 public class ExpectLog {
-    private CompletableItem state;
-    private CompletableItem dataverseRoleAssignment;
-    private CompletableItem datasetRoleAssignment;
+    private CompletableItem state = new CompletableItem();
+    private CompletableItem dataverseRoleAssignment = new CompletableItem();
+    private CompletableItem datasetRoleAssignment = new CompletableItem();
+
+    public void completeAll() {
+        state.setCompleted(true);
+        dataverseRoleAssignment.setCompleted(true);
+        datasetRoleAssignment.setCompleted(true);
+    }
 }

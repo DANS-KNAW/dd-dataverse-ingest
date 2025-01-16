@@ -28,6 +28,8 @@ import nl.knaw.dans.dvingest.core.yaml.Init;
 import nl.knaw.dans.dvingest.core.yaml.InitRoot;
 import nl.knaw.dans.dvingest.core.yaml.UpdateAction;
 import nl.knaw.dans.dvingest.core.yaml.UpdateStateRoot;
+import nl.knaw.dans.dvingest.core.yaml.actionlog.ActionLog;
+import nl.knaw.dans.dvingest.core.yaml.actionlog.ActionLogRoot;
 import nl.knaw.dans.lib.dataverse.model.dataset.Dataset;
 
 import java.io.IOException;
@@ -44,15 +46,30 @@ public class DataverseIngestBag implements Comparable<DataverseIngestBag> {
     public static final String EDIT_METADATA_YML = "edit-metadata.yml";
     public static final String EDIT_PERMISSIONS_YML = "edit-permissions.yml";
     public static final String UPDATE_STATE_YML = "update-state.yml";
+    public static final String ACTION_LOG_YML = "action-log.yml";
 
     private final Path bagDir;
+    private final ActionLog actionLog;
 
-    public DataverseIngestBag(Path bagDir, YamlService yamlService) {
+    public DataverseIngestBag(Path bagDir, YamlService yamlService) throws IOException {
         this.bagDir = bagDir;
         this.yamService = (YamlServiceImpl) yamlService;
         // Minimal check to see if it is a bag
         if (!Files.exists(bagDir.resolve("bagit.txt"))) {
             throw new IllegalStateException("Not a bag: " + bagDir);
+        }
+        if (!Files.exists(bagDir.resolve(ACTION_LOG_YML))) {
+            actionLog = new ActionLog();
+            saveActionLog();
+        }
+        else {
+            try {
+                var actionLogRoot = yamlService.readYaml(bagDir.resolve(ACTION_LOG_YML), ActionLogRoot.class);
+                actionLog = actionLogRoot.getActionLog();
+            }
+            catch (ConfigurationException e) {
+                throw new IllegalStateException("Error reading action log", e);
+            }
         }
     }
 
@@ -105,8 +122,18 @@ public class DataverseIngestBag implements Comparable<DataverseIngestBag> {
         if (!Files.exists(bagDir.resolve(UPDATE_STATE_YML))) {
             return null;
         }
-        var updateStateRoot =  yamService.readYaml(bagDir.resolve(UPDATE_STATE_YML), UpdateStateRoot.class);
+        var updateStateRoot = yamService.readYaml(bagDir.resolve(UPDATE_STATE_YML), UpdateStateRoot.class);
         return updateStateRoot.getUpdateState();
+    }
+
+    public ActionLog getActionLog() throws IOException, ConfigurationException {
+
+        var actionLogRoot = yamService.readYaml(bagDir.resolve(ACTION_LOG_YML), ActionLogRoot.class);
+        return actionLogRoot.getActionLog();
+    }
+
+    public void saveActionLog() throws IOException {
+        yamService.writeYaml(new ActionLogRoot(actionLog), bagDir.resolve(ACTION_LOG_YML));
     }
 
     @Override

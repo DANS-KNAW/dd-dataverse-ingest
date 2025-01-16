@@ -28,6 +28,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.OffsetDateTime;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -77,13 +78,14 @@ public class DataverseIngestDeposit implements Comparable<DataverseIngestDeposit
 
     @Override
     public List<DataverseIngestBag> getBags() throws IOException {
+        List<DataverseIngestBag> bags = new ArrayList<>();
         try (var files = Files.list(location)) {
-            return files
-                .filter(Files::isDirectory)
-                .map(path -> new DataverseIngestBag(path, yamlService))
-                .sorted()
-                .toList();
+            for (Path path : files.filter(Files::isDirectory).toList()) {
+                bags.add(new DataverseIngestBag(path, yamlService));
+            }
         }
+        bags.sort(null);
+        return bags;
     }
 
     public void updateProperties(Map<String, String> properties) {

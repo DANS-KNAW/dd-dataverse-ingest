@@ -19,6 +19,6 @@ import lombok.Data;
 
 @Data
 public class InitLog {
-    private ExpectLog expect;
-    private CompletableItem create;
+    private ExpectLog expect = new ExpectLog();
+    private CompletableItem create = new CompletableItem();
 }

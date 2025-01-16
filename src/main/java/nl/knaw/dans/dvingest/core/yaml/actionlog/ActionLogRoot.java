@@ -23,5 +23,5 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class ActionLogRoot {
-    private ActionLog actionLog;
+    private ActionLog actionLog = new ActionLog();
 }

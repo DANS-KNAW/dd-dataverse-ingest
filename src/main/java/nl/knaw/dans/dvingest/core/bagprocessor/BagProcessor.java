@@ -36,10 +36,13 @@ public class BagProcessor {
     private final MetadataEditor metadataEditor;
     private final PermissionsEditor permissionsEditor;
     private final StateUpdater stateUpdater;
+    private final DataverseIngestBag bag;
 
     @Builder
     private BagProcessor(UUID depositId, DataverseIngestBag bag, DataverseService dataverseService, UtilityServices utilityServices) throws IOException, ConfigurationException {
-        this.datasetVersionCreator = new DatasetVersionCreator(depositId, dataverseService, bag.getInit(), bag.getDatasetMetadata());
+        this.bag = bag;
+        var actionLog = bag.getActionLog();
+        this.datasetVersionCreator = new DatasetVersionCreator(depositId, dataverseService, bag.getInit(), bag.getDatasetMetadata(), actionLog.getInit(), actionLog.getDataset());
         this.filesEditor = new FilesEditor(depositId, bag.getDataDir(), bag.getEditFiles(), dataverseService, utilityServices);
         this.metadataEditor = new MetadataEditor(depositId, bag.getEditMetadata(), dataverseService);
         this.permissionsEditor = new PermissionsEditor(depositId, bag.getEditPermissions(), dataverseService);
@@ -47,11 +50,16 @@ public class BagProcessor {
     }
 
     public String run(String targetPid) throws IOException, DataverseException {
-        targetPid = datasetVersionCreator.createDatasetVersion(targetPid);
-        filesEditor.editFiles(targetPid);
-        metadataEditor.editMetadata(targetPid);
-        permissionsEditor.editPermissions(targetPid);
-        stateUpdater.updateState(targetPid, filesEditor.getFilesInDatasetCache().getNumberOfFilesInDataset());
-        return targetPid;
+        try {
+            targetPid = datasetVersionCreator.createDatasetVersion(targetPid);
+            filesEditor.editFiles(targetPid);
+            metadataEditor.editMetadata(targetPid);
+            permissionsEditor.editPermissions(targetPid);
+            stateUpdater.updateState(targetPid, filesEditor.getFilesInDatasetCache().getNumberOfFilesInDataset());
+            return targetPid;
+        }
+        finally {
+            bag.saveActionLog();
+        }
     }
 }
