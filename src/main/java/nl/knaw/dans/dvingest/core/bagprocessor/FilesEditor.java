@@ -111,6 +111,10 @@ public class FilesEditor {
     }
 
     private void deleteFiles() throws IOException, DataverseException {
+        if (editFiles.getDeleteFiles().isEmpty()) {
+            log.debug("No files to delete for deposit {}", depositId);
+            return;
+        }
         log.debug("Start deleting {} files for deposit {}", depositId, editFiles.getDeleteFiles().size());
         for (var filepath : editFiles.getDeleteFiles()) {
             log.debug("Deleting file: {}", filepath);
@@ -125,6 +129,10 @@ public class FilesEditor {
     }
 
     private void replaceFiles() throws IOException {
+        if (editFiles.getReplaceFiles().isEmpty()) {
+            log.debug("No files to replace for deposit {}", depositId);
+            return;
+        }
         log.debug("Start replacing {} files for deposit {}", depositId, editFiles.getReplaceFiles().size());
         for (var filepath : editFiles.getReplaceFiles()) {
             log.debug("Replacing file: {}", filepath);
@@ -161,6 +169,10 @@ public class FilesEditor {
     }
 
     public void addFilesIndividually(List<String> files, boolean restricted) throws IOException, DataverseException {
+        if (files.isEmpty()) {
+            log.debug("No files to add individually for deposit {}, restrict = {}", depositId, restricted);
+            return;
+        }
         log.debug("Start adding {} files individually for deposit {}, restrict = {}", editFiles.getAddRestrictedIndividually().size(), depositId, restricted);
         for (var filepath : files) {
             log.debug("Adding restricted file: {}", filepath);
@@ -183,6 +195,10 @@ public class FilesEditor {
     }
 
     private void addRestrictedFiles() throws IOException, DataverseException {
+        if (editFiles.getAddRestrictedFiles().isEmpty()) {
+            log.debug("No restricted files to add for deposit {}", depositId);
+            return;
+        }
         log.debug("Start adding {} restricted files for deposit {}", editFiles.getAddRestrictedFiles().size(), depositId);
         var iterator = new PathIterator(getRestrictedFilesToUpload());
         while (iterator.hasNext()) {
@@ -192,6 +208,10 @@ public class FilesEditor {
     }
 
     private void addUnrestrictedFiles() throws IOException, DataverseException {
+        if (editFiles.getAddUnrestrictedFiles().isEmpty()) {
+            log.debug("No unrestricted files to add for deposit {}", depositId);
+            return;
+        }
         log.debug("Start uploading files for deposit {}", depositId);
         var iterator = new PathIterator(getUnrestrictedFilesToUpload());
         while (iterator.hasNext()) {
@@ -236,7 +256,11 @@ public class FilesEditor {
     }
 
     private void moveFiles() throws IOException, DataverseException {
-        log.debug("Start moving files {} for deposit {}", editFiles.getMoveFiles().size(), depositId);
+        if (editFiles.getMoveFiles().isEmpty()) {
+            log.debug("No files to move for deposit {}", depositId);
+            return;
+        }
+        log.debug("Start moving {} files for deposit {}", editFiles.getMoveFiles().size(), depositId);
         for (var move : editFiles.getMoveFiles()) {
             var fileMeta = filesInDatasetCache.get(move.getFrom());
             fileMeta = filesInDatasetCache.createFileMetaForMovedFile(move.getTo(), fileMeta);
@@ -248,6 +272,10 @@ public class FilesEditor {
     }
 
     private void updateFileMetas() throws IOException, DataverseException {
+        if (editFiles.getUpdateFileMetas().isEmpty()) {
+            log.debug("No file metadata to update for deposit {}", depositId);
+            return;
+        }
         log.debug("Start updating {} file metas for deposit {}", editFiles.getUpdateFileMetas().size(), depositId);
         for (var fileMeta : editFiles.getUpdateFileMetas()) {
             var id = filesInDatasetCache.get(getPath(fileMeta)).getDataFile().getId();
@@ -262,6 +290,10 @@ public class FilesEditor {
     }
 
     private void addEmbargoes() throws IOException, DataverseException {
+        if (editFiles.getAddEmbargoes().isEmpty()) {
+            log.debug("No embargoes to add for deposit {}", depositId);
+            return;
+        }
         log.debug("Start adding {} embargoes for deposit {}", editFiles.getAddEmbargoes().size(), depositId);
         for (var addEmbargo : editFiles.getAddEmbargoes()) {
             var embargo = new Embargo();
