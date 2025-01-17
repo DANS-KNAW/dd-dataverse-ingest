@@ -54,7 +54,7 @@ public class DatasetVersionCreator {
 
     public String createDatasetVersion(String targetPid) throws IOException, DataverseException {
         if (init != null && init.getExpect() != null) {
-            checkExpectations(init.getExpect(), targetPid);
+            checkExpectations(init.getExpect(), targetPid, init.getCreate() == null ? null : init.getCreate().getImportPid());
         }
         else {
             initLog.getExpect().completeAll();
@@ -74,7 +74,8 @@ public class DatasetVersionCreator {
                 pid = createDataset();
                 initLog.getCreate().setCompleted(true);
             }
-        } else {
+        }
+        else {
             initLog.getCreate().setCompleted(true);
         }
 
@@ -84,64 +85,58 @@ public class DatasetVersionCreator {
             updateDataset(pid);
             datasetLog.setCompleted(true);
             initLog.getCreate().setCompleted(true); // In case this is only an update
-        } else {
+        }
+        else {
             datasetLog.setCompleted(true);
         }
         return pid;
     }
 
-    private void checkExpectations(@NonNull Expect expect, String targetPid) throws DataverseException, IOException {
+    private void checkExpectations(@NonNull Expect expect, String targetPid, String importPid) throws DataverseException, IOException {
         if (expect.getState() != null && targetPid == null) {
-            log.warn("Expectation of state {} but no target dataset, ignoring check ...", expect.getState());
+            log.warn("Expected state {} but no target dataset, ignoring check ...", expect.getState());
         }
         if (expect.getState() != null && targetPid != null && !initLog.getExpect().getState().isCompleted()) {
-            switch (expect.getState()) {
-                case draft:
-                case released:
-                    var state = dataverseService.getDatasetState(targetPid);
-                    if (expect.getState().name().equals(state.toLowerCase())) {
-                        log.debug("Expected state {} found for dataset {}", expect.getState(), targetPid);
-                    }
-                    else {
-                        throw new IllegalStateException("Expected state " + expect.getState() + " but found " + state + " for dataset " + targetPid);
-                    }
-                    break;
-                case absent:
-                    try {
-                        dataverseService.getDatasetState(targetPid);
-                        throw new IllegalStateException("Expected state absent but found for dataset " + targetPid);
-                    }
-                    catch (DataverseException e) {
-                        if (e.getMessage().contains("404")) {
-                            log.debug("Expected state absent found for dataset {}", targetPid);
-                        }
-                        else {
-                            throw e;
-                        }
-                    }
+            var state = dataverseService.getDatasetState(targetPid);
+            if (expect.getState().name().equals(state.toLowerCase())) {
+                log.debug("Expected state {} found for dataset {}", expect.getState(), targetPid);
             }
+            else {
+                throw new IllegalStateException("Expected state " + expect.getState() + " but found " + state + " for dataset " + targetPid);
+            }
+            initLog.getExpect().getState().setCompleted(true);
+        }
+        else {
             initLog.getExpect().getState().setCompleted(true);
         }
         if (expect.getDataverseRoleAssignment() != null && !initLog.getExpect().getDataverseRoleAssignment().isCompleted()) {
             var rolesAssignments = dataverseService.getRoleAssignmentsOnDataverse("root");
             if (roleAssignmentsContain(rolesAssignments, expect.getDataverseRoleAssignment(), true)) {
                 log.debug("Expected role assignment found for dataverse root");
+                initLog.getExpect().getDataverseRoleAssignment().setCompleted(true);
             }
             else {
                 throw new RejectedDepositException(depositId, String.format("User '%s' does not have the expected role '%s' on dataverse root", expect.getDataverseRoleAssignment().getAssignee(),
                     expect.getDataverseRoleAssignment().getRole()));
             }
         }
-        if (expect.getDatasetRoleAssignment() != null && targetPid != null) {
+        else {
+            initLog.getExpect().getDataverseRoleAssignment().setCompleted(true);
+        }
+        if (expect.getDatasetRoleAssignment() != null && targetPid != null && !initLog.getExpect().getDatasetRoleAssignment().isCompleted()) {
             var rolesAssignments = dataverseService.getRoleAssignmentsOnDataset(targetPid);
             if (roleAssignmentsContain(rolesAssignments, expect.getDatasetRoleAssignment(), false)) {
                 log.debug("Expected role assignment found for dataset {}", targetPid);
+                initLog.getExpect().getDatasetRoleAssignment().setCompleted(true);
             }
             else {
                 throw new RejectedDepositException(depositId,
                     String.format("User '%s' does not have the expected role '%s' on dataset %s", expect.getDatasetRoleAssignment().getAssignee(), expect.getDatasetRoleAssignment().getRole(),
                         targetPid));
             }
+        }
+        else {
+            initLog.getExpect().getDatasetRoleAssignment().setCompleted(true);
         }
     }
 

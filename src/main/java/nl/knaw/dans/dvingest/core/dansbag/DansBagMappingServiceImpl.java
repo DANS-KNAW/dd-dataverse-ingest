@@ -172,7 +172,6 @@ public class DansBagMappingServiceImpl implements DansBagMappingService {
                 return init;
             }
             var expect = new Expect();
-            expect.setState(State.absent);
             var expectedDataverseRoleAssignment = createRoleAssignment(expectedDataverseRole, "@" + dansDeposit.getDepositorUserId());
             expect.setDataverseRoleAssignment(expectedDataverseRoleAssignment);
             init.setExpect(expect);

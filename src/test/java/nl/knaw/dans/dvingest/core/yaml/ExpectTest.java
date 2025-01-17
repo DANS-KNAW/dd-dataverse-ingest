@@ -40,7 +40,7 @@ public class ExpectTest {
         var yaml = "state: ambiguous";
         assertThatThrownBy(() -> MAPPER.readValue(yaml, Expect.class))
             .isInstanceOf(InvalidFormatException.class)
-            .hasMessageContaining("not one of the values accepted for Enum class: [draft, released, absent]");
+            .hasMessageContaining("not one of the values accepted for Enum class: [draft, released]");
     }
 
 }

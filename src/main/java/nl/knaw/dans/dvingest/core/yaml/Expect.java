@@ -21,7 +21,7 @@ import nl.knaw.dans.lib.dataverse.model.RoleAssignment;
 @Data
 public class Expect {
     public enum State {
-        draft, released, absent
+        draft, released
     }
 
     private State state;

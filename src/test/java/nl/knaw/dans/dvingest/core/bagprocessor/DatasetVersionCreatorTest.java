@@ -15,6 +15,8 @@
  */
 package nl.knaw.dans.dvingest.core.bagprocessor;
 
+import nl.knaw.dans.dvingest.YamlBeanAssert;
+import nl.knaw.dans.dvingest.core.dansbag.exception.RejectedDepositException;
 import nl.knaw.dans.dvingest.core.service.DataverseService;
 import nl.knaw.dans.dvingest.core.service.YamlService;
 import nl.knaw.dans.dvingest.core.service.YamlServiceImpl;
@@ -24,11 +26,14 @@ import nl.knaw.dans.dvingest.core.yaml.Init;
 import nl.knaw.dans.dvingest.core.yaml.InitRoot;
 import nl.knaw.dans.dvingest.core.yaml.actionlog.CompletableItem;
 import nl.knaw.dans.dvingest.core.yaml.actionlog.InitLog;
+import nl.knaw.dans.lib.dataverse.DataverseException;
+import nl.knaw.dans.lib.dataverse.model.RoleAssignmentReadOnly;
 import nl.knaw.dans.lib.dataverse.model.dataset.Dataset;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
+import java.util.List;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -37,6 +42,29 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 public class DatasetVersionCreatorTest {
     private final YamlService yamlService = new YamlServiceImpl();
     private final DataverseService dataverseServiceMock = Mockito.mock(DataverseService.class);
+    private final String noneCompletedYaml = """
+            expect:
+                state:
+                  completed: false
+                dataverseRoleAssignment:
+                  completed: false
+                datasetRoleAssignment:
+                  completed: false
+            create:
+                completed: false
+        """;
+    private final String allCompletedYaml = """
+            expect:
+                state:
+                  completed: true
+                dataverseRoleAssignment:
+                  completed: true
+                datasetRoleAssignment:
+                  completed: true
+            create:
+                completed: true
+        """;
+
 
     @BeforeEach
     public void setUp() throws Exception {
@@ -59,7 +87,7 @@ public class DatasetVersionCreatorTest {
         // Then
         Mockito.verify(dataverseServiceMock).createDataset(dataset);
         Mockito.verify(dataverseServiceMock).updateMetadata("pid", dataset.getDatasetVersion());
-        assertThat(initLog.getCreate().isCompleted()).isTrue();
+        YamlBeanAssert.assertThat(initLog).isEqualTo(allCompletedYaml);
         assertThat(datasetLog.isCompleted()).isTrue();
     }
 
@@ -79,7 +107,7 @@ public class DatasetVersionCreatorTest {
         // Then
         Mockito.verify(dataverseServiceMock, Mockito.never()).createDataset(Mockito.any());
         Mockito.verify(dataverseServiceMock).updateMetadata("pid", dataset.getDatasetVersion());
-        assertThat(initLog.getCreate().isCompleted()).isTrue();
+        YamlBeanAssert.assertThat(initLog).isEqualTo(allCompletedYaml);
         assertThat(datasetLog.isCompleted()).isTrue();
     }
 
@@ -97,10 +125,18 @@ public class DatasetVersionCreatorTest {
         assertThatThrownBy(() -> datasetVersionCreator.createDatasetVersion(null))
             .isInstanceOf(IllegalArgumentException.class)
             .hasMessage("Must have dataset metadata to create a new dataset.");
-        assertThat(initLog.getExpect().getState().isCompleted()).isTrue();
-        assertThat(initLog.getExpect().getDataverseRoleAssignment().isCompleted()).isTrue();
-        assertThat(initLog.getExpect().getDatasetRoleAssignment().isCompleted()).isTrue();
-        assertThat(initLog.getCreate().isCompleted()).isFalse();
+        YamlBeanAssert.assertThat(initLog).isEqualTo("""
+            expect:
+                state:
+                  completed: true
+                dataverseRoleAssignment:
+                  completed: true
+                datasetRoleAssignment:
+                  completed: true
+            # Note that the checks pass but then the creation fails
+            create:
+                completed: false
+            """);
         assertThat(datasetLog.isCompleted()).isFalse();
     }
 
@@ -118,12 +154,9 @@ public class DatasetVersionCreatorTest {
         // Then
         Mockito.verify(dataverseServiceMock, Mockito.never()).createDataset(Mockito.any());
         Mockito.verify(dataverseServiceMock, Mockito.never()).updateMetadata(Mockito.anyString(), Mockito.any());
-        assertThat(initLog.getCreate().isCompleted()).isTrue();
-        assertThat(initLog.getExpect().getState().isCompleted()).isTrue();
-        assertThat(initLog.getExpect().getDataverseRoleAssignment().isCompleted()).isTrue();
-        assertThat(initLog.getExpect().getDatasetRoleAssignment().isCompleted()).isTrue();
+        // Still completed, because there was nothing to do
+        YamlBeanAssert.assertThat(initLog).isEqualTo(allCompletedYaml);
         assertThat(datasetLog.isCompleted()).isTrue();
-
     }
 
     @Test
@@ -136,11 +169,7 @@ public class DatasetVersionCreatorTest {
         // Then
         assertThatThrownBy(() -> new DatasetVersionCreator(depositId, null, null, new Dataset(), initLog, datasetLog))
             .isInstanceOf(NullPointerException.class);
-        assertThat(initLog.getCreate().isCompleted()).isFalse();
-        assertThat(initLog.getExpect().getState().isCompleted()).isFalse();
-        assertThat(initLog.getExpect().getDataverseRoleAssignment().isCompleted()).isFalse();
-        assertThat(initLog.getExpect().getDatasetRoleAssignment().isCompleted()).isFalse();
-        assertThat(datasetLog.isCompleted()).isFalse();
+        YamlBeanAssert.assertThat(initLog).isEqualTo(noneCompletedYaml);
     }
 
     @Test
@@ -152,11 +181,7 @@ public class DatasetVersionCreatorTest {
         // Then
         assertThatThrownBy(() -> new DatasetVersionCreator(null, dataverseServiceMock, null, new Dataset(), new InitLog(), new CompletableItem()))
             .isInstanceOf(NullPointerException.class);
-        assertThat(initLog.getCreate().isCompleted()).isFalse();
-        assertThat(initLog.getExpect().getState().isCompleted()).isFalse();
-        assertThat(initLog.getExpect().getDataverseRoleAssignment().isCompleted()).isFalse();
-        assertThat(initLog.getExpect().getDatasetRoleAssignment().isCompleted()).isFalse();
-        assertThat(datasetLog.isCompleted()).isFalse();
+        YamlBeanAssert.assertThat(initLog).isEqualTo(noneCompletedYaml);
     }
 
     @Test
@@ -180,11 +205,7 @@ public class DatasetVersionCreatorTest {
         assertThatThrownBy(() -> datasetVersionCreator.createDatasetVersion("pid"))
             .isInstanceOf(IllegalStateException.class)
             .hasMessage("Expected state released but found draft for dataset pid");
-        assertThat(initLog.getCreate().isCompleted()).isFalse();
-        assertThat(initLog.getExpect().getState().isCompleted()).isFalse();
-        assertThat(initLog.getExpect().getDataverseRoleAssignment().isCompleted()).isFalse();
-        assertThat(initLog.getExpect().getDatasetRoleAssignment().isCompleted()).isFalse();
-        assertThat(datasetLog.isCompleted()).isFalse();
+        YamlBeanAssert.assertThat(initLog).isEqualTo(noneCompletedYaml);
     }
 
     @Test
@@ -207,23 +228,43 @@ public class DatasetVersionCreatorTest {
         assertThatThrownBy(() -> datasetVersionCreator.createDatasetVersion("pid"))
             .isInstanceOf(IllegalStateException.class)
             .hasMessage("Expected state draft but found released for dataset pid");
-        assertThat(initLog.getCreate().isCompleted()).isFalse();
-        assertThat(initLog.getExpect().getState().isCompleted()).isFalse();
-        assertThat(initLog.getExpect().getDataverseRoleAssignment().isCompleted()).isFalse();
-        assertThat(initLog.getExpect().getDatasetRoleAssignment().isCompleted()).isFalse();
-        assertThat(datasetLog.isCompleted()).isFalse();
+        YamlBeanAssert.assertThat(initLog).isEqualTo(noneCompletedYaml);
     }
 
     @Test
-    public void createDatasetVersion_throws_IllegalStateException_if_dataset_found_while_expected_absent() throws Exception {
+    public void createDatasetVersion_updates_dataset_if_released_state_expected_and_found() throws Exception {
         // Given
         var depositId = UUID.randomUUID();
         var initRoot = yamlService.readYamlFromString("""
             init:
               expect:
-                 state: absent
+                 state: released
             """, InitRoot.class);
+        var dataset = new Dataset();
+        var initLog = new InitLog();
+        var datasetLog = new CompletableItem();
+        Mockito.when(dataverseServiceMock.getDatasetState("pid")).thenReturn("released");
+        var datasetVersionCreator = new DatasetVersionCreator(depositId, dataverseServiceMock, initRoot.getInit(), dataset, initLog, datasetLog);
 
+        // When
+        datasetVersionCreator.createDatasetVersion("pid");
+
+        // Then
+        Mockito.verify(dataverseServiceMock, Mockito.never()).createDataset(Mockito.any());
+        Mockito.verify(dataverseServiceMock).updateMetadata("pid", dataset.getDatasetVersion());
+        YamlBeanAssert.assertThat(initLog).isEqualTo(allCompletedYaml);
+        assertThat(datasetLog.isCompleted()).isTrue();
+    }
+
+    @Test
+    public void createDatasetVersion_updates_dataset_if_draft_state_expected_and_found() throws Exception {
+        // Given
+        var depositId = UUID.randomUUID();
+        var initRoot = yamlService.readYamlFromString("""
+            init:
+              expect:
+                 state: draft
+            """, InitRoot.class);
         var dataset = new Dataset();
         var initLog = new InitLog();
         var datasetLog = new CompletableItem();
@@ -231,15 +272,13 @@ public class DatasetVersionCreatorTest {
         var datasetVersionCreator = new DatasetVersionCreator(depositId, dataverseServiceMock, initRoot.getInit(), dataset, initLog, datasetLog);
 
         // When
+        datasetVersionCreator.createDatasetVersion("pid");
+
         // Then
-        assertThatThrownBy(() -> datasetVersionCreator.createDatasetVersion("pid"))
-            .isInstanceOf(IllegalStateException.class)
-            .hasMessage("Expected state absent but found for dataset pid");
-        assertThat(initLog.getCreate().isCompleted()).isFalse();
-        assertThat(initLog.getExpect().getState().isCompleted()).isFalse();
-        assertThat(initLog.getExpect().getDataverseRoleAssignment().isCompleted()).isFalse();
-        assertThat(initLog.getExpect().getDatasetRoleAssignment().isCompleted()).isFalse();
-        assertThat(datasetLog.isCompleted()).isFalse();
+        Mockito.verify(dataverseServiceMock, Mockito.never()).createDataset(Mockito.any());
+        Mockito.verify(dataverseServiceMock).updateMetadata("pid", dataset.getDatasetVersion());
+        YamlBeanAssert.assertThat(initLog).isEqualTo(allCompletedYaml);
+        assertThat(datasetLog.isCompleted()).isTrue();
     }
 
     @Test
@@ -263,14 +302,141 @@ public class DatasetVersionCreatorTest {
         Mockito.verify(dataverseServiceMock, Mockito.never()).createDataset(dataset);
         Mockito.verify(dataverseServiceMock).importDataset("pid-import", dataset);
         Mockito.verify(dataverseServiceMock).updateMetadata("pid-import", dataset.getDatasetVersion());
-        assertThat(initLog.getCreate().isCompleted()).isTrue();
-        assertThat(initLog.getExpect().getState().isCompleted()).isTrue();
-        assertThat(initLog.getExpect().getDataverseRoleAssignment().isCompleted()).isTrue();
-        assertThat(initLog.getExpect().getDatasetRoleAssignment().isCompleted()).isTrue();
+        YamlBeanAssert.assertThat(initLog).isEqualTo(allCompletedYaml);
+    }
+
+    @Test
+    public void createDatasetVersion_throws_RejectedDepositException_if_expected_role_assignment_not_found_on_dataverse() throws Exception {
+        // Given
+        var depositId = UUID.randomUUID();
+        var initRoot = yamlService.readYamlFromString("""
+            init:
+              expect:
+                dataverseRoleAssignment:
+                  role: admin
+                  assignee: '@user'
+            """, InitRoot.class);
+        var dataset = new Dataset();
+        var initLog = new InitLog();
+        var datasetLog = new CompletableItem();
+        var roleAssignment = new RoleAssignmentReadOnly();
+        roleAssignment.setAssignee("@user");
+        roleAssignment.set_roleAlias("NOT-admin");
+
+        Mockito.when(dataverseServiceMock.getRoleAssignmentsOnDataverse("root"))
+            .thenReturn(List.of(roleAssignment));
+
+        // When / Then
+        assertThatThrownBy(() -> new DatasetVersionCreator(depositId, dataverseServiceMock, initRoot.getInit(), dataset, initLog, datasetLog).createDatasetVersion(null))
+            .isInstanceOf(RejectedDepositException.class)
+            .hasMessage("Rejected " + depositId + ": User '@user' does not have the expected role 'admin' on dataverse root");
+
+        YamlBeanAssert.assertThat(initLog).isEqualTo("""
+            expect:
+                state:
+                  completed: true
+                dataverseRoleAssignment:
+                  completed: false
+                datasetRoleAssignment:
+                  completed: false
+            create:
+                completed: false
+            """);
+    }
+
+    @Test
+    public void createDatasetVersion_creates_new_dataset_when_expected_role_assignment_found_on_dataverse() throws Exception {
+        // Given
+        var depositId = UUID.randomUUID();
+        var initRoot = yamlService.readYamlFromString("""
+            init:
+              expect:
+                dataverseRoleAssignment:
+                  role: admin
+                  assignee: '@user'
+            """, InitRoot.class);
+        var dataset = new Dataset();
+        var initLog = new InitLog();
+        var datasetLog = new CompletableItem();
+        var roleAssignment = new RoleAssignmentReadOnly();
+        roleAssignment.setAssignee("@user");
+        roleAssignment.set_roleAlias("admin");
+        Mockito.when(dataverseServiceMock.getRoleAssignmentsOnDataverse("root"))
+            .thenReturn(List.of(roleAssignment));
+        Mockito.when(dataverseServiceMock.createDataset(dataset)).thenReturn("pid");
+
+        // When
+        new DatasetVersionCreator(depositId, dataverseServiceMock, initRoot.getInit(), dataset, initLog, datasetLog).createDatasetVersion(null);
+
+        // Then
+        Mockito.verify(dataverseServiceMock).createDataset(dataset);
+        Mockito.verify(dataverseServiceMock).updateMetadata("pid", dataset.getDatasetVersion());
+
+        YamlBeanAssert.assertThat(initLog).isEqualTo(allCompletedYaml);
         assertThat(datasetLog.isCompleted()).isTrue();
     }
 
-//    @Test
+    @Test
+    public void createDatasetVersion_throws_RejectedDepositException_if_expected_role_assignment_not_found_on_dataset() throws Exception {
+        // Given
+        var depositId = UUID.randomUUID();
+        var initRoot = yamlService.readYamlFromString("""
+            init:
+              expect:
+                datasetRoleAssignment:
+                  role: admin
+                  assignee: '@user'
+            """, InitRoot.class);
+        var dataset = new Dataset();
+        var initLog = new InitLog();
+        var datasetLog = new CompletableItem();
+        var roleAssignment = new RoleAssignmentReadOnly();
+        roleAssignment.setAssignee("@user");
+        roleAssignment.set_roleAlias("NOT-admin");
+
+        Mockito.when(dataverseServiceMock.getRoleAssignmentsOnDataset("pid"))
+            .thenReturn(List.of(roleAssignment));
+
+        // When / Then
+        assertThatThrownBy(() -> new DatasetVersionCreator(depositId, dataverseServiceMock, initRoot.getInit(), dataset, initLog, datasetLog).createDatasetVersion("pid"))
+            .isInstanceOf(RejectedDepositException.class)
+            .hasMessage("Rejected " + depositId + ": User '@user' does not have the expected role 'admin' on dataset pid");
+
+        YamlBeanAssert.assertThat(initLog).isEqualTo("""
+            expect:
+                state:
+                  completed: true
+                dataverseRoleAssignment:
+                  completed: true
+                datasetRoleAssignment:
+                  completed: false
+            create:
+                completed: false
+            """);
+    }
+
+    @Test
+    public void createDatasetVersion_ignores_state_check_if_no_target_pid_provided() throws Exception {
+        // Given
+        var depositId = UUID.randomUUID();
+        var initRoot = yamlService.readYamlFromString("""
+            init:
+              expect:
+                state: released
+            """, InitRoot.class);
+        var dataset = new Dataset();
+        var initLog = new InitLog();
+        var datasetLog = new CompletableItem();
+        Mockito.when(dataverseServiceMock.getDatasetState("pid")).thenReturn("draft");
+        var datasetVersionCreator = new DatasetVersionCreator(depositId, dataverseServiceMock, initRoot.getInit(), dataset, initLog, datasetLog);
+
+        // When
+        datasetVersionCreator.createDatasetVersion(null);
+
+        // Then
+        Mockito.verify(dataverseServiceMock, Mockito.never()).getDatasetState(Mockito.anyString());
+        YamlBeanAssert.assertThat(initLog).isEqualTo(allCompletedYaml);
+    }
 
 
 }
