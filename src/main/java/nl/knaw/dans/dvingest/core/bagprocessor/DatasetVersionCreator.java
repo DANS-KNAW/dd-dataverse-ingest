@@ -74,13 +74,18 @@ public class DatasetVersionCreator {
                 pid = createDataset();
                 initLog.getCreate().setCompleted(true);
             }
+        } else {
+            initLog.getCreate().setCompleted(true);
         }
+
         // Even if we just created the dataset, we still need to update the metadata, because Dataverse ignores some things
         // in the create request.
         if (dataset != null) {
             updateDataset(pid);
             datasetLog.setCompleted(true);
             initLog.getCreate().setCompleted(true); // In case this is only an update
+        } else {
+            datasetLog.setCompleted(true);
         }
         return pid;
     }
@@ -153,7 +158,7 @@ public class DatasetVersionCreator {
         log.debug("End importing dataset for deposit {}", depositId);
     }
 
-    private String createDataset() throws IOException, DataverseException {
+    private @NonNull String createDataset() throws IOException, DataverseException {
         log.debug("Start creating dataset for deposit {}", depositId);
         var pid = dataverseService.createDataset(dataset);
         log.debug("End creating dataset for deposit {}", depositId);

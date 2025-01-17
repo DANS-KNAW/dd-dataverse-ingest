@@ -13,15 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package nl.knaw.dans.dvingest.core.yaml;
-
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-
-@Data
-public class Init {
-    private Expect expect;
-    private Create create;
-}
+/**
+ * Classes for reading and writing the action log in YAML format. The action log keeps track of the actions that have been performed on a dataset. It can be used to resume an ingest process after a
+ * failure. Optional steps that are absent are assumed to have been completed successfully when the processor reaches them.
+ */
+package nl.knaw.dans.dvingest.core.yaml.actionlog;

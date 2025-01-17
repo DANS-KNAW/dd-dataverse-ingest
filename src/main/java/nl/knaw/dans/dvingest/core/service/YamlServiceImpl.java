@@ -96,6 +96,16 @@ public class YamlServiceImpl implements YamlService {
         return factory.build(yamlFile.toFile());
     }
 
+    @SuppressWarnings("unchecked")
+    @Override
+    public <T> T readYamlFromString(String yamlString, Class<T> target) throws IOException, ConfigurationException {
+        YamlConfigurationFactory<T> factory = (YamlConfigurationFactory<T>) yamlConfigurationFactories.get(target);
+        if (factory == null) {
+            throw new IllegalArgumentException("No factory found for class: " + target.getName());
+        }
+        return mapper.readValue(yamlString, target);
+    }
+
     @Override
     public void writeYaml(Object object, Path yamlFile) throws IOException {
         mapper.writeValue(yamlFile.toFile(), object);

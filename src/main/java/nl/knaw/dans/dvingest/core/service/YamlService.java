@@ -24,5 +24,8 @@ public interface YamlService {
     @SuppressWarnings("unchecked")
     <T> T readYaml(Path yamlFile, Class<T> target) throws IOException, ConfigurationException;
 
+    @SuppressWarnings("unchecked")
+    <T> T readYamlFromString(String yamlString, Class<T> target) throws IOException, ConfigurationException;
+
     void writeYaml(Object object, Path yamlFile) throws IOException;
 }
