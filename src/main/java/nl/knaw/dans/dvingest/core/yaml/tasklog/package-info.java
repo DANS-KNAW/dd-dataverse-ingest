@@ -15,6 +15,6 @@
  */
 /**
  * Classes for reading and writing the task log in YAML format. The action log keeps track of the tasks that have been performed on a dataset. If an optional task is not needed in for the particular
- * dataset, it is considered done by default (vacuously true).
+ * deposit bag, it is considered done by default (vacuously true).
  */
 package nl.knaw.dans.dvingest.core.yaml.tasklog;

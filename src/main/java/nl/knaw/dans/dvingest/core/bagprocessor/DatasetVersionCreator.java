@@ -33,9 +33,6 @@ import java.io.IOException;
 import java.util.List;
 import java.util.UUID;
 
-/**
- * Creates a new dataset version in Dataverse. If the target dataset does not exist, a new dataset is created.
- */
 @Slf4j
 @AllArgsConstructor
 public class DatasetVersionCreator {
@@ -43,114 +40,129 @@ public class DatasetVersionCreator {
     private final UUID depositId;
     @NonNull
     private final DataverseService dataverseService;
-
     private final Init init;
-
     private final Dataset dataset;
-
     private final InitLog initLog;
-
     private final CompletableItem datasetLog;
 
     public String createDatasetVersion(String targetPid) throws IOException, DataverseException {
         if (init != null && init.getExpect() != null) {
-            checkExpectations(init.getExpect(), targetPid, init.getCreate() == null ? null : init.getCreate().getImportPid());
+            checkExpectations(init.getExpect(), targetPid);
         }
         else {
             initLog.getExpect().completeAll();
         }
 
-        var pid = targetPid;
+        String pid = createDatasetIfNeeded(targetPid);
+        if (dataset != null) {
+            updateDataset(pid);
+        }
+        datasetLog.setCompleted(true);
+        return pid;
+    }
+
+    private String createDatasetIfNeeded(String targetPid) throws IOException, DataverseException {
+        String pid;
         if (targetPid == null) {
             if (dataset == null) {
                 throw new IllegalArgumentException("Must have dataset metadata to create a new dataset.");
             }
-            if (init != null && init.getCreate() != null && init.getCreate().getImportPid() != null) {
-                importDataset(init.getCreate().getImportPid());
-                pid = init.getCreate().getImportPid();
-                initLog.getCreate().setCompleted(true);
-            }
-            else {
-                pid = createDataset();
-                initLog.getCreate().setCompleted(true);
-            }
+            pid = createOrImportDataset();
         }
         else {
+            pid = targetPid;
             initLog.getCreate().setCompleted(true);
-        }
-
-        // Even if we just created the dataset, we still need to update the metadata, because Dataverse ignores some things
-        // in the create request.
-        if (dataset != null) {
-            updateDataset(pid);
-            datasetLog.setCompleted(true);
-            initLog.getCreate().setCompleted(true); // In case this is only an update
-        }
-        else {
-            datasetLog.setCompleted(true);
         }
         return pid;
     }
 
-    private void checkExpectations(@NonNull Expect expect, String targetPid, String importPid) throws DataverseException, IOException {
-        if (expect.getState() != null && targetPid == null) {
-            log.warn("Expected state {} but no target dataset, ignoring check ...", expect.getState());
-        }
+    private void checkExpectations(@NonNull Expect expect, String targetPid) throws DataverseException, IOException {
         if (expect.getState() != null && targetPid != null && !initLog.getExpect().getState().isCompleted()) {
-            var state = dataverseService.getDatasetState(targetPid);
-            if (expect.getState().name().equals(state.toLowerCase())) {
-                log.debug("Expected state {} found for dataset {}", expect.getState(), targetPid);
-            }
-            else {
-                throw new IllegalStateException("Expected state " + expect.getState() + " but found " + state + " for dataset " + targetPid);
-            }
-            initLog.getExpect().getState().setCompleted(true);
+            checkDatasetState(expect, targetPid);
         }
         else {
             initLog.getExpect().getState().setCompleted(true);
         }
+
         if (expect.getDataverseRoleAssignment() != null && !initLog.getExpect().getDataverseRoleAssignment().isCompleted()) {
-            var rolesAssignments = dataverseService.getRoleAssignmentsOnDataverse("root");
-            if (roleAssignmentsContain(rolesAssignments, expect.getDataverseRoleAssignment(), true)) {
-                log.debug("Expected role assignment found for dataverse root");
-                initLog.getExpect().getDataverseRoleAssignment().setCompleted(true);
-            }
-            else {
-                throw new RejectedDepositException(depositId, String.format("User '%s' does not have the expected role '%s' on dataverse root", expect.getDataverseRoleAssignment().getAssignee(),
-                    expect.getDataverseRoleAssignment().getRole()));
-            }
+            checkDataverseRoleAssignment(expect);
         }
         else {
             initLog.getExpect().getDataverseRoleAssignment().setCompleted(true);
         }
+
         if (expect.getDatasetRoleAssignment() != null && targetPid != null && !initLog.getExpect().getDatasetRoleAssignment().isCompleted()) {
-            var rolesAssignments = dataverseService.getRoleAssignmentsOnDataset(targetPid);
-            if (roleAssignmentsContain(rolesAssignments, expect.getDatasetRoleAssignment(), false)) {
-                log.debug("Expected role assignment found for dataset {}", targetPid);
-                initLog.getExpect().getDatasetRoleAssignment().setCompleted(true);
-            }
-            else {
-                throw new RejectedDepositException(depositId,
-                    String.format("User '%s' does not have the expected role '%s' on dataset %s", expect.getDatasetRoleAssignment().getAssignee(), expect.getDatasetRoleAssignment().getRole(),
-                        targetPid));
-            }
+            checkDatasetRoleAssignment(expect, targetPid);
         }
         else {
             initLog.getExpect().getDatasetRoleAssignment().setCompleted(true);
         }
     }
 
-    private boolean roleAssignmentsContain(List<RoleAssignmentReadOnly> roleAssignments, RoleAssignment roleAssignment, boolean authenticatedUserSuffices) {
-        return roleAssignments.stream().anyMatch(ra ->
-            (ra.getAssignee().equals(roleAssignment.getAssignee())
-                || ra.getAssignee().equals(":authenticated-users") && authenticatedUserSuffices) &&
-                ra.get_roleAlias().equals(roleAssignment.getRole()));
+    private void checkDatasetState(@NonNull Expect expect, String targetPid) throws DataverseException, IOException {
+        var actualState = dataverseService.getDatasetState(targetPid);
+        if (expect.getState().name().equalsIgnoreCase(actualState)) {
+            log.debug("Expected state {} found for dataset {}", expect.getState(), targetPid);
+            initLog.getExpect().getState().setCompleted(true);
+        }
+        else {
+            throw new IllegalStateException("Expected state " + expect.getState() + " but found " + actualState + " for dataset " + targetPid);
+        }
     }
 
-    private void importDataset(String pid) throws IOException, DataverseException {
+    private void checkDataverseRoleAssignment(@NonNull Expect expect) throws DataverseException, IOException {
+        var actualRoleAssignments = dataverseService.getRoleAssignmentsOnDataverse("root");
+        if (contains(actualRoleAssignments, expect.getDataverseRoleAssignment(), true)) {
+            log.debug("Expected role assignment found for dataverse root");
+            initLog.getExpect().getDataverseRoleAssignment().setCompleted(true);
+        }
+        else {
+            throw new RejectedDepositException(depositId, String.format("User '%s' does not have the expected role '%s' on dataverse root", expect.getDataverseRoleAssignment().getAssignee(),
+                expect.getDataverseRoleAssignment().getRole()));
+        }
+    }
+
+    private void checkDatasetRoleAssignment(@NonNull Expect expect, String targetPid) throws DataverseException, IOException {
+        var actualRoleAssignments = dataverseService.getRoleAssignmentsOnDataset(targetPid);
+        if (contains(actualRoleAssignments, expect.getDatasetRoleAssignment(), false)) {
+            log.debug("Expected role assignment found for dataset {}", targetPid);
+            initLog.getExpect().getDatasetRoleAssignment().setCompleted(true);
+        }
+        else {
+            throw new RejectedDepositException(depositId, String.format("User '%s' does not have the expected role '%s' on dataset %s", expect.getDatasetRoleAssignment().getAssignee(),
+                expect.getDatasetRoleAssignment().getRole(), targetPid));
+        }
+    }
+
+    private boolean contains(List<RoleAssignmentReadOnly> actualRoleAssignments, RoleAssignment expectedRoleAssignment, boolean authenticatedUserSuffices) {
+        return actualRoleAssignments.stream()
+            .anyMatch(ra -> assigneeCorrect(ra, expectedRoleAssignment, authenticatedUserSuffices) && roleCorrect(ra, expectedRoleAssignment));
+    }
+
+    private boolean assigneeCorrect(RoleAssignmentReadOnly ra, RoleAssignment expectedRoleAssignment, boolean authenticatedUserSuffices) {
+        return ra.getAssignee().equals(expectedRoleAssignment.getAssignee()) || ra.getAssignee().equals(":authenticated-users") && authenticatedUserSuffices;
+    }
+
+    private boolean roleCorrect(RoleAssignmentReadOnly ra, RoleAssignment expectedRoleAssignment) {
+        return ra.get_roleAlias().equals(expectedRoleAssignment.getRole());
+    }
+
+    private String createOrImportDataset() throws IOException, DataverseException {
+        String importPid = getImportPid();
+        String pid = (importPid != null) ? importDataset(importPid) : createDataset();
+        initLog.getCreate().setCompleted(true);
+        return pid;
+    }
+
+    private String getImportPid() {
+        return init != null && init.getCreate() != null ? init.getCreate().getImportPid() : null;
+    }
+
+    private @NonNull String importDataset(String pid) throws IOException, DataverseException {
         log.debug("Start importing dataset for deposit {}", depositId);
         dataverseService.importDataset(pid, dataset);
         log.debug("End importing dataset for deposit {}", depositId);
+        return pid;
     }
 
     private @NonNull String createDataset() throws IOException, DataverseException {

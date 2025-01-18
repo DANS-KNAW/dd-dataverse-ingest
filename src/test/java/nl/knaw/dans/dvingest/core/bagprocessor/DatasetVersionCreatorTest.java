@@ -107,7 +107,7 @@ public class DatasetVersionCreatorTest {
     }
 
     @Test
-    public void createDatasetVersion_throws_IllegalArgumentException_if_dataset_is_null() throws Exception {
+    public void createDatasetVersion_throws_IllegalArgumentException_if_dataset_and_target_both_null() throws Exception {
         // Given
         var depositId = UUID.randomUUID();
         var initLog = new InitLog();
