@@ -20,13 +20,9 @@ import nl.knaw.dans.dvingest.core.dansbag.exception.RejectedDepositException;
 import nl.knaw.dans.dvingest.core.service.DataverseService;
 import nl.knaw.dans.dvingest.core.service.YamlService;
 import nl.knaw.dans.dvingest.core.service.YamlServiceImpl;
-import nl.knaw.dans.dvingest.core.yaml.Create;
-import nl.knaw.dans.dvingest.core.yaml.Expect.State;
-import nl.knaw.dans.dvingest.core.yaml.Init;
 import nl.knaw.dans.dvingest.core.yaml.InitRoot;
 import nl.knaw.dans.dvingest.core.yaml.actionlog.CompletableItem;
 import nl.knaw.dans.dvingest.core.yaml.actionlog.InitLog;
-import nl.knaw.dans.lib.dataverse.DataverseException;
 import nl.knaw.dans.lib.dataverse.model.RoleAssignmentReadOnly;
 import nl.knaw.dans.lib.dataverse.model.dataset.Dataset;
 import org.junit.jupiter.api.BeforeEach;
@@ -64,7 +60,6 @@ public class DatasetVersionCreatorTest {
             create:
                 completed: true
         """;
-
 
     @BeforeEach
     public void setUp() throws Exception {
@@ -377,6 +372,38 @@ public class DatasetVersionCreatorTest {
     }
 
     @Test
+    public void createDatasetVersion_creates_new_dataset_when_required_role_on_dataverse_available_to_authenticated_users() throws Exception {
+        // Given
+        var depositId = UUID.randomUUID();
+        var initRoot = yamlService.readYamlFromString("""
+            init:
+              expect:
+                dataverseRoleAssignment:
+                  role: creator
+                  assignee: '@myuser'
+            """, InitRoot.class);
+        var dataset = new Dataset();
+        var initLog = new InitLog();
+        var datasetLog = new CompletableItem();
+        var roleAssignment = new RoleAssignmentReadOnly();
+        roleAssignment.setAssignee(":authenticated-users");
+        roleAssignment.set_roleAlias("creator");
+        Mockito.when(dataverseServiceMock.getRoleAssignmentsOnDataverse("root"))
+            .thenReturn(List.of(roleAssignment));
+        Mockito.when(dataverseServiceMock.createDataset(dataset)).thenReturn("pid");
+
+        // When
+        new DatasetVersionCreator(depositId, dataverseServiceMock, initRoot.getInit(), dataset, initLog, datasetLog).createDatasetVersion(null);
+
+        // Then
+        Mockito.verify(dataverseServiceMock).createDataset(dataset);
+        Mockito.verify(dataverseServiceMock).updateMetadata("pid", dataset.getDatasetVersion());
+
+        YamlBeanAssert.assertThat(initLog).isEqualTo(allCompletedYaml);
+        assertThat(datasetLog.isCompleted()).isTrue();
+    }
+
+    @Test
     public void createDatasetVersion_throws_RejectedDepositException_if_expected_role_assignment_not_found_on_dataset() throws Exception {
         // Given
         var depositId = UUID.randomUUID();
@@ -438,5 +465,43 @@ public class DatasetVersionCreatorTest {
         YamlBeanAssert.assertThat(initLog).isEqualTo(allCompletedYaml);
     }
 
+    @Test
+    public void dcreateDatasetVersion_updates_dataset_when_expected_role_assignment_found_on_dataverse_and_dataset() throws Exception {
+        // Given
+        var depositId = UUID.randomUUID();
+        var initRoot = yamlService.readYamlFromString("""
+            init:
+              expect:
+                dataverseRoleAssignment:
+                  role: creator
+                  assignee: '@user'
+                datasetRoleAssignment:
+                  role: updater
+                  assignee: '@user'
+            """, InitRoot.class);
+        var dataset = new Dataset();
+        var initLog = new InitLog();
+        var datasetLog = new CompletableItem();
+        var dataverseRoleAssignment = new RoleAssignmentReadOnly();
+        dataverseRoleAssignment.setAssignee("@user");
+        dataverseRoleAssignment.set_roleAlias("creator");
+        var datasetRoleAssignment = new RoleAssignmentReadOnly();
+        datasetRoleAssignment.setAssignee("@user");
+        datasetRoleAssignment.set_roleAlias("updater");
+        Mockito.when(dataverseServiceMock.getRoleAssignmentsOnDataverse("root"))
+            .thenReturn(List.of(dataverseRoleAssignment));
+        Mockito.when(dataverseServiceMock.getRoleAssignmentsOnDataset("pid"))
+            .thenReturn(List.of(datasetRoleAssignment));
+        Mockito.when(dataverseServiceMock.createDataset(dataset)).thenReturn("pid");
+
+        // When
+        new DatasetVersionCreator(depositId, dataverseServiceMock, initRoot.getInit(), dataset, initLog, datasetLog).createDatasetVersion("pid");
+
+        // Then
+        Mockito.verify(dataverseServiceMock).updateMetadata("pid", dataset.getDatasetVersion());
+
+        YamlBeanAssert.assertThat(initLog).isEqualTo(allCompletedYaml);
+        assertThat(datasetLog.isCompleted()).isTrue();
+    }
 
 }
