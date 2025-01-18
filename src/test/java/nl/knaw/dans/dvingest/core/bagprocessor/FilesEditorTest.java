@@ -15,10 +15,14 @@
  */
 package nl.knaw.dans.dvingest.core.bagprocessor;
 
+import nl.knaw.dans.dvingest.YamlBeanAssert;
 import nl.knaw.dans.dvingest.core.TestDirFixture;
 import nl.knaw.dans.dvingest.core.service.DataverseService;
 import nl.knaw.dans.dvingest.core.service.UtilityServices;
-import nl.knaw.dans.dvingest.core.yaml.EditFiles;
+import nl.knaw.dans.dvingest.core.service.YamlService;
+import nl.knaw.dans.dvingest.core.service.YamlServiceImpl;
+import nl.knaw.dans.dvingest.core.yaml.EditFilesRoot;
+import nl.knaw.dans.dvingest.core.yaml.tasklog.EditFilesLog;
 import nl.knaw.dans.lib.dataverse.model.file.DataFile;
 import nl.knaw.dans.lib.dataverse.model.file.FileMeta;
 import org.junit.jupiter.api.BeforeEach;
@@ -35,6 +39,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.when;
 
 public class FilesEditorTest extends TestDirFixture {
+    private static final YamlService yamlService = new YamlServiceImpl();
     private final DataverseService dataverseServiceMock = Mockito.mock(DataverseService.class);
     private final UtilityServices utilityServicesMock = Mockito.mock(UtilityServices.class);
 
@@ -67,9 +72,14 @@ public class FilesEditorTest extends TestDirFixture {
             List.of(file("file1", 1),
                 file("file2", 2),
                 file("file3", 3)));
-        var editFiles = new EditFiles();
-        editFiles.setDeleteFiles(List.of("file1", "file3"));
-        var filesEditor = new FilesEditor(UUID.randomUUID(), dataDir, editFiles, dataverseServiceMock, utilityServicesMock);
+        var editFilesRoot = yamlService.readYamlFromString("""
+            editFiles:
+                deleteFiles:
+                  - file1
+                  - file3
+            """, EditFilesRoot.class);
+        var editFilesLog = new EditFilesLog();
+        var filesEditor = new FilesEditor(UUID.randomUUID(), dataDir, editFilesRoot.getEditFiles(), dataverseServiceMock, utilityServicesMock, editFilesLog);
 
         // When
         filesEditor.editFiles("pid");
@@ -78,6 +88,10 @@ public class FilesEditorTest extends TestDirFixture {
         Mockito.verify(dataverseServiceMock).deleteFile(1);
         Mockito.verify(dataverseServiceMock).deleteFile(3);
         assertThat(filesEditor.getFilesInDatasetCache().get("file1")).isNull();
+        YamlBeanAssert.assertThat(editFilesLog.getDeleteFiles()).isEqualTo("""
+            numberCompleted: 2
+            completed: true
+            """);
     }
 
     @Test
@@ -87,16 +101,23 @@ public class FilesEditorTest extends TestDirFixture {
             List.of(file("file1", 1),
                 file("file2", 2),
                 file("file3", 3)));
-        var editFiles = new EditFiles();
-        editFiles.setDeleteFiles(List.of("file1", "file4"));
-        var filesEditor = new FilesEditor(UUID.randomUUID(), dataDir, editFiles, dataverseServiceMock, utilityServicesMock);
+        var editFilesRoot = yamlService.readYamlFromString("""
+            editFiles:
+                deleteFiles:
+                  - file1
+                  - file4
+            """, EditFilesRoot.class);
+        var editFilesLog = new EditFilesLog();
+        var filesEditor = new FilesEditor(UUID.randomUUID(), dataDir, editFilesRoot.getEditFiles(), dataverseServiceMock, utilityServicesMock, editFilesLog);
 
         // When
         assertThatThrownBy(() -> filesEditor.editFiles("pid"))
             .isInstanceOf(IllegalArgumentException.class)
             .hasMessage("File to delete not found in dataset: file4");
+        YamlBeanAssert.assertThat(editFilesLog.getDeleteFiles()).isEqualTo("""
+            numberCompleted: 1
+            completed: false
+            """);
     }
-
-
 
 }

@@ -21,4 +21,9 @@ import lombok.Data;
 public class InitLog {
     private ExpectLog expect = new ExpectLog();
     private CompletableItem create = new CompletableItem();
+
+    public void completeAll() {
+        expect.completeAll();
+        create.setCompleted(true);
+    }
 }

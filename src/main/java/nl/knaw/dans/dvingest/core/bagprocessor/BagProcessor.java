@@ -41,9 +41,9 @@ public class BagProcessor {
     @Builder
     private BagProcessor(UUID depositId, DataverseIngestBag bag, DataverseService dataverseService, UtilityServices utilityServices) throws IOException, ConfigurationException {
         this.bag = bag;
-        var actionLog = bag.getActionLog();
+        var actionLog = bag.getTaskLog();
         this.datasetVersionCreator = new DatasetVersionCreator(depositId, dataverseService, bag.getInit(), bag.getDatasetMetadata(), actionLog.getInit(), actionLog.getDataset());
-        this.filesEditor = new FilesEditor(depositId, bag.getDataDir(), bag.getEditFiles(), dataverseService, utilityServices);
+        this.filesEditor = new FilesEditor(depositId, bag.getDataDir(), bag.getEditFiles(), dataverseService, utilityServices, actionLog.getEditFiles());
         this.metadataEditor = new MetadataEditor(depositId, bag.getEditMetadata(), dataverseService);
         this.permissionsEditor = new PermissionsEditor(depositId, bag.getEditPermissions(), dataverseService);
         this.stateUpdater = new StateUpdater(depositId, bag.getUpdateState(), dataverseService);
@@ -59,7 +59,7 @@ public class BagProcessor {
             return targetPid;
         }
         finally {
-            bag.saveActionLog();
+            bag.saveTaskLog();
         }
     }
 }

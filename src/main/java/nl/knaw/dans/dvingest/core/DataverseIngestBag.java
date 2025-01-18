@@ -46,7 +46,7 @@ public class DataverseIngestBag implements Comparable<DataverseIngestBag> {
     public static final String EDIT_METADATA_YML = "edit-metadata.yml";
     public static final String EDIT_PERMISSIONS_YML = "edit-permissions.yml";
     public static final String UPDATE_STATE_YML = "update-state.yml";
-    public static final String ACTION_LOG_YML = "action-log.yml";
+    public static final String TASK_LOG_YAML = "_tasks.yml";
 
     private final Path bagDir;
     private final TaskLog taskLog;
@@ -58,13 +58,13 @@ public class DataverseIngestBag implements Comparable<DataverseIngestBag> {
         if (!Files.exists(bagDir.resolve("bagit.txt"))) {
             throw new IllegalStateException("Not a bag: " + bagDir);
         }
-        if (!Files.exists(bagDir.resolve(ACTION_LOG_YML))) {
+        if (!Files.exists(bagDir.resolve(TASK_LOG_YAML))) {
             taskLog = new TaskLog();
-            saveActionLog();
+            saveTaskLog();
         }
         else {
             try {
-                var actionLogRoot = yamlService.readYaml(bagDir.resolve(ACTION_LOG_YML), TaskLogRoot.class);
+                var actionLogRoot = yamlService.readYaml(bagDir.resolve(TASK_LOG_YAML), TaskLogRoot.class);
                 taskLog = actionLogRoot.getTaskLog();
             }
             catch (ConfigurationException e) {
@@ -126,14 +126,14 @@ public class DataverseIngestBag implements Comparable<DataverseIngestBag> {
         return updateStateRoot.getUpdateState();
     }
 
-    public TaskLog getActionLog() throws IOException, ConfigurationException {
+    public TaskLog getTaskLog() throws IOException, ConfigurationException {
 
-        var actionLogRoot = yamService.readYaml(bagDir.resolve(ACTION_LOG_YML), TaskLogRoot.class);
+        var actionLogRoot = yamService.readYaml(bagDir.resolve(TASK_LOG_YAML), TaskLogRoot.class);
         return actionLogRoot.getTaskLog();
     }
 
-    public void saveActionLog() throws IOException {
-        yamService.writeYaml(new TaskLogRoot(taskLog), bagDir.resolve(ACTION_LOG_YML));
+    public void saveTaskLog() throws IOException {
+        yamService.writeYaml(new TaskLogRoot(taskLog), bagDir.resolve(TASK_LOG_YAML));
     }
 
     @Override

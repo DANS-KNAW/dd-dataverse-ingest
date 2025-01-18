@@ -36,7 +36,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class DatasetVersionCreatorTest {
-    private final YamlService yamlService = new YamlServiceImpl();
+    private static final YamlService yamlService = new YamlServiceImpl();
     private final DataverseService dataverseServiceMock = Mockito.mock(DataverseService.class);
     private final String noneCompletedYaml = """
             expect:

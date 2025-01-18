@@ -23,6 +23,7 @@ import nl.knaw.dans.dvingest.core.service.DataverseService;
 import nl.knaw.dans.dvingest.core.service.UtilityServices;
 import nl.knaw.dans.dvingest.core.yaml.EditFiles;
 import nl.knaw.dans.dvingest.core.yaml.FromTo;
+import nl.knaw.dans.dvingest.core.yaml.tasklog.EditFilesLog;
 import nl.knaw.dans.lib.dataverse.DataverseException;
 import nl.knaw.dans.lib.dataverse.model.dataset.Embargo;
 import nl.knaw.dans.lib.dataverse.model.file.FileMeta;
@@ -53,16 +54,18 @@ public class FilesEditor {
     private final UtilityServices utilityServices;
     @Getter(AccessLevel.PACKAGE) // for testing
     private final FilesInDatasetCache filesInDatasetCache;
+    private final EditFilesLog editFilesLog;
 
     private String pid;
 
     public FilesEditor(@NonNull UUID depositId, @NonNull Path dataDir, @NonNull EditFiles editFiles, @NonNull DataverseService dataverseService,
-        @NonNull UtilityServices utilityServices) {
+        @NonNull UtilityServices utilityServices, @NonNull EditFilesLog editFilesLog) {
         this.depositId = depositId;
         this.dataDir = dataDir;
         this.editFiles = editFiles;
         this.dataverseService = dataverseService;
         this.utilityServices = utilityServices;
+        this.editFilesLog = editFilesLog;
         this.filesInDatasetCache = new FilesInDatasetCache(dataverseService, getRenameMap(editFiles.getAutoRenameFiles()));
     }
 
@@ -83,6 +86,7 @@ public class FilesEditor {
         if (editFiles == null) {
             if (isEmptyDir(dataDir)) {
                 log.debug("No files to edit for deposit {}", depositId);
+                editFilesLog.completeAll();
                 return;
             }
         }
@@ -111,21 +115,29 @@ public class FilesEditor {
     }
 
     private void deleteFiles() throws IOException, DataverseException {
-        if (editFiles.getDeleteFiles().isEmpty()) {
-            log.debug("No files to delete for deposit {}", depositId);
+        if (editFilesLog.getDeleteFiles().isCompleted()) {
+            log.debug("Task deleteFiles already completed for deposit {}", depositId);
             return;
         }
-        log.debug("Start deleting {} files for deposit {}", depositId, editFiles.getDeleteFiles().size());
-        for (var filepath : editFiles.getDeleteFiles()) {
-            log.debug("Deleting file: {}", filepath);
-            var fileToDelete = filesInDatasetCache.get(filepath);
-            if (fileToDelete == null) {
-                throw new IllegalArgumentException("File to delete not found in dataset: " + filepath);
-            }
-            dataverseService.deleteFile(fileToDelete.getDataFile().getId());
-            filesInDatasetCache.remove(filepath);
+        if (editFiles.getDeleteFiles().isEmpty()) {
+            log.debug("No files to delete for deposit {}", depositId);
         }
-        log.debug("End deleting files for deposit {}", depositId);
+        else {
+            log.debug("Start deleting {} files for deposit {}", depositId, editFiles.getDeleteFiles().size());
+            int numberDeleted = 0;
+            for (var filepath : editFiles.getDeleteFiles()) {
+                log.debug("Deleting file: {}", filepath);
+                var fileToDelete = filesInDatasetCache.get(filepath);
+                if (fileToDelete == null) {
+                    throw new IllegalArgumentException("File to delete not found in dataset: " + filepath);
+                }
+                dataverseService.deleteFile(fileToDelete.getDataFile().getId());
+                filesInDatasetCache.remove(filepath);
+                editFilesLog.getDeleteFiles().setNumberCompleted(++numberDeleted);
+            }
+            log.debug("End deleting files for deposit {}", depositId);
+        }
+        editFilesLog.getDeleteFiles().setCompleted(true);
     }
 
     private void replaceFiles() throws IOException {

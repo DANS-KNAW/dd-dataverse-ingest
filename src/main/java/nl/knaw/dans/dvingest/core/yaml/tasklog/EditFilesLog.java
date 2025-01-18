@@ -28,4 +28,16 @@ public class EditFilesLog {
     private CompletableItemWithCount addEmbargoes = new CompletableItemWithCount();
     private CompletableItemWithCount addUnrestrictedIndividually = new CompletableItemWithCount();
     private CompletableItemWithCount addRestrictedIndividually = new CompletableItemWithCount();
+
+    public void completeAll() {
+        deleteFiles.setCompleted(true);
+        replaceFiles.setCompleted(true);
+        addUnrestrictedFiles.setCompleted(true);
+        addRestrictedFiles.setCompleted(true);
+        moveFiles.setCompleted(true);
+        updateFileMetas.setCompleted(true);
+        addEmbargoes.setCompleted(true);
+        addUnrestrictedIndividually.setCompleted(true);
+        addRestrictedIndividually.setCompleted(true);
+    }
 }
