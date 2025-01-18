@@ -13,19 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package nl.knaw.dans.dvingest.core.yaml.actionlog;
+package nl.knaw.dans.dvingest.core.yaml.tasklog;
 
 import lombok.Data;
 
 @Data
-public class ExpectLog {
-    private CompletableItem state = new CompletableItem();
-    private CompletableItem dataverseRoleAssignment = new CompletableItem();
-    private CompletableItem datasetRoleAssignment = new CompletableItem();
-
-    public void completeAll() {
-        state.setCompleted(true);
-        dataverseRoleAssignment.setCompleted(true);
-        datasetRoleAssignment.setCompleted(true);
-    }
+public class CompletableItem {
+    private boolean completed = false;
 }

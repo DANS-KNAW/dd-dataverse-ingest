@@ -28,8 +28,8 @@ import nl.knaw.dans.dvingest.core.yaml.Init;
 import nl.knaw.dans.dvingest.core.yaml.InitRoot;
 import nl.knaw.dans.dvingest.core.yaml.UpdateAction;
 import nl.knaw.dans.dvingest.core.yaml.UpdateStateRoot;
-import nl.knaw.dans.dvingest.core.yaml.actionlog.ActionLog;
-import nl.knaw.dans.dvingest.core.yaml.actionlog.ActionLogRoot;
+import nl.knaw.dans.dvingest.core.yaml.tasklog.TaskLog;
+import nl.knaw.dans.dvingest.core.yaml.tasklog.TaskLogRoot;
 import nl.knaw.dans.lib.dataverse.model.dataset.Dataset;
 
 import java.io.IOException;
@@ -49,7 +49,7 @@ public class DataverseIngestBag implements Comparable<DataverseIngestBag> {
     public static final String ACTION_LOG_YML = "action-log.yml";
 
     private final Path bagDir;
-    private final ActionLog actionLog;
+    private final TaskLog taskLog;
 
     public DataverseIngestBag(Path bagDir, YamlService yamlService) throws IOException {
         this.bagDir = bagDir;
@@ -59,13 +59,13 @@ public class DataverseIngestBag implements Comparable<DataverseIngestBag> {
             throw new IllegalStateException("Not a bag: " + bagDir);
         }
         if (!Files.exists(bagDir.resolve(ACTION_LOG_YML))) {
-            actionLog = new ActionLog();
+            taskLog = new TaskLog();
             saveActionLog();
         }
         else {
             try {
-                var actionLogRoot = yamlService.readYaml(bagDir.resolve(ACTION_LOG_YML), ActionLogRoot.class);
-                actionLog = actionLogRoot.getActionLog();
+                var actionLogRoot = yamlService.readYaml(bagDir.resolve(ACTION_LOG_YML), TaskLogRoot.class);
+                taskLog = actionLogRoot.getTaskLog();
             }
             catch (ConfigurationException e) {
                 throw new IllegalStateException("Error reading action log", e);
@@ -126,14 +126,14 @@ public class DataverseIngestBag implements Comparable<DataverseIngestBag> {
         return updateStateRoot.getUpdateState();
     }
 
-    public ActionLog getActionLog() throws IOException, ConfigurationException {
+    public TaskLog getActionLog() throws IOException, ConfigurationException {
 
-        var actionLogRoot = yamService.readYaml(bagDir.resolve(ACTION_LOG_YML), ActionLogRoot.class);
-        return actionLogRoot.getActionLog();
+        var actionLogRoot = yamService.readYaml(bagDir.resolve(ACTION_LOG_YML), TaskLogRoot.class);
+        return actionLogRoot.getTaskLog();
     }
 
     public void saveActionLog() throws IOException {
-        yamService.writeYaml(new ActionLogRoot(actionLog), bagDir.resolve(ACTION_LOG_YML));
+        yamService.writeYaml(new TaskLogRoot(taskLog), bagDir.resolve(ACTION_LOG_YML));
     }
 
     @Override

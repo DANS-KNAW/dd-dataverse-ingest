@@ -13,12 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package nl.knaw.dans.dvingest.core.yaml.actionlog;
+package nl.knaw.dans.dvingest.core.yaml.tasklog;
 
 import lombok.Data;
 
 @Data
-public class InitLog {
-    private ExpectLog expect = new ExpectLog();
-    private CompletableItem create = new CompletableItem();
+public class EditPermissionsLog {
+    private CompletableItemWithCount deleteRoleAssignments = new CompletableItemWithCount();
+    private CompletableItemWithCount addRoleAssignments = new CompletableItemWithCount();
 }

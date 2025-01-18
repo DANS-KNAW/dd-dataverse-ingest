@@ -13,15 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package nl.knaw.dans.dvingest.core.yaml.actionlog;
+package nl.knaw.dans.dvingest.core.yaml.tasklog;
 
-import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
 @Data
-@AllArgsConstructor
-@NoArgsConstructor
-public class ActionLogRoot {
-    private ActionLog actionLog = new ActionLog();
+public class TaskLog {
+    private InitLog init = new InitLog();
+    private CompletableItem dataset = new CompletableItem();
+    private EditFilesLog editFiles = new EditFilesLog();
+    private EditMetadataLog editMetadata = new EditMetadataLog();
+    private EditPermissionsLog editPermissions = new EditPermissionsLog();
+    private CompletableItem updateState = new CompletableItem();
 }

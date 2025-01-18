@@ -13,12 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package nl.knaw.dans.dvingest.core.yaml.actionlog;
-
-import lombok.Data;
-
-@Data
-public class EditPermissionsLog {
-    private CompletableItemWithCount deleteRoleAssignments = new CompletableItemWithCount();
-    private CompletableItemWithCount addRoleAssignments = new CompletableItemWithCount();
-}
+/**
+ * Classes for reading and writing the task log in YAML format. The action log keeps track of the tasks that have been performed on a dataset. If an optional task is not needed in for the particular
+ * dataset, it is considered done by default (vacuously true).
+ */
+package nl.knaw.dans.dvingest.core.yaml.tasklog;

@@ -13,12 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package nl.knaw.dans.dvingest.core.yaml.actionlog;
+package nl.knaw.dans.dvingest.core.yaml.tasklog;
 
 import lombok.Data;
 
 @Data
-public class CompletableItemWithCount {
-    private boolean completed = false;
-    private int numberCompleted = 0;
+public class EditMetadataLog {
+    private CompletableItem addFieldValues = new CompletableItem();
+    private CompletableItem replaceFieldValues = new CompletableItem();
+    private CompletableItem deleteFieldValues = new CompletableItem();
 }

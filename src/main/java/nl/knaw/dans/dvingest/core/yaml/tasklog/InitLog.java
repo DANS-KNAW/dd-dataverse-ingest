@@ -13,8 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-/**
- * Classes for reading and writing the action log in YAML format. The action log keeps track of the actions that have been performed on a dataset. It can be used to resume an ingest process after a
- * failure. Optional steps that are absent are assumed to have been completed successfully when the processor reaches them.
- */
-package nl.knaw.dans.dvingest.core.yaml.actionlog;
+package nl.knaw.dans.dvingest.core.yaml.tasklog;
+
+import lombok.Data;
+
+@Data
+public class InitLog {
+    private ExpectLog expect = new ExpectLog();
+    private CompletableItem create = new CompletableItem();
+}
