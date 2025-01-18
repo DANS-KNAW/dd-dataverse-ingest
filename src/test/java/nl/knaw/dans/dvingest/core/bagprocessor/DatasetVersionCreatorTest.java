@@ -466,7 +466,7 @@ public class DatasetVersionCreatorTest {
     }
 
     @Test
-    public void dcreateDatasetVersion_updates_dataset_when_expected_role_assignment_found_on_dataverse_and_dataset() throws Exception {
+    public void createDatasetVersion_updates_dataset_when_expected_role_assignment_found_on_dataverse_and_dataset() throws Exception {
         // Given
         var depositId = UUID.randomUUID();
         var initRoot = yamlService.readYamlFromString("""
@@ -504,4 +504,182 @@ public class DatasetVersionCreatorTest {
         assertThat(datasetLog.isCompleted()).isTrue();
     }
 
+    @Test
+    public void state_check_is_skipped_if_already_completed() throws Exception {
+        // Given
+        var depositId = UUID.randomUUID();
+        var initRoot = yamlService.readYamlFromString("""
+            init:
+              expect:
+                 state: released
+            """, InitRoot.class);
+        var dataset = new Dataset();
+        var initLog = yamlService.readYamlFromString("""
+            expect:
+                state:
+                  completed: true
+                dataverseRoleAssignment:
+                  completed: false
+                datasetRoleAssignment:
+                  completed: false
+            create:
+                completed: false
+            """, InitLog.class);
+        var datasetLog = new CompletableItem();
+        Mockito.when(dataverseServiceMock.getDatasetState("pid")).thenReturn("released");
+        var datasetVersionCreator = new DatasetVersionCreator(depositId, dataverseServiceMock, initRoot.getInit(), dataset, initLog, datasetLog);
+
+        // When
+        datasetVersionCreator.createDatasetVersion("pid");
+
+        // Then
+        Mockito.verify(dataverseServiceMock, Mockito.never()).getDatasetState(Mockito.anyString());
+        Mockito.verify(dataverseServiceMock, Mockito.never()).createDataset(Mockito.any());
+        Mockito.verify(dataverseServiceMock).updateMetadata("pid", dataset.getDatasetVersion());
+        YamlBeanAssert.assertThat(initLog).isEqualTo(allCompletedYaml);
+        assertThat(datasetLog.isCompleted()).isTrue();
+    }
+
+    @Test
+    public void dataverse_role_assignment_check_is_skipped_if_already_completed() throws Exception {
+        // Given
+        var depositId = UUID.randomUUID();
+        var initRoot = yamlService.readYamlFromString("""
+            init:
+              expect:
+                dataverseRoleAssignment:
+                  role: creator
+                  assignee: '@user'
+            """, InitRoot.class);
+        var dataset = new Dataset();
+        var initLog = yamlService.readYamlFromString("""
+            expect:
+                state:
+                  completed: true
+                dataverseRoleAssignment:
+                  completed: true
+                datasetRoleAssignment:
+                  completed: false
+            create:
+                completed: false
+            """, InitLog.class);
+        var datasetLog = new CompletableItem();
+        var roleAssignment = new RoleAssignmentReadOnly();
+        roleAssignment.setAssignee("@user");
+        roleAssignment.set_roleAlias("creator");
+        Mockito.when(dataverseServiceMock.getRoleAssignmentsOnDataverse("root"))
+            .thenReturn(List.of(roleAssignment));
+        Mockito.when(dataverseServiceMock.createDataset(dataset)).thenReturn("pid");
+
+        // When
+        new DatasetVersionCreator(depositId, dataverseServiceMock, initRoot.getInit(), dataset, initLog, datasetLog).createDatasetVersion(null);
+
+        // Then
+        Mockito.verify(dataverseServiceMock, Mockito.never()).getRoleAssignmentsOnDataverse(Mockito.anyString());
+        Mockito.verify(dataverseServiceMock).createDataset(dataset);
+        Mockito.verify(dataverseServiceMock).updateMetadata("pid", dataset.getDatasetVersion());
+        YamlBeanAssert.assertThat(initLog).isEqualTo(allCompletedYaml);
+        assertThat(datasetLog.isCompleted()).isTrue();
+    }
+
+    @Test
+    public void dataset_role_assignment_check_is_skipped_if_already_completed() throws Exception {
+        // Given
+        var depositId = UUID.randomUUID();
+        var initRoot = yamlService.readYamlFromString("""
+            init:
+              expect:
+                datasetRoleAssignment:
+                  role: creator
+                  assignee: '@user'
+            """, InitRoot.class);
+        var dataset = new Dataset();
+        var initLog = yamlService.readYamlFromString("""
+            expect:
+                state:
+                  completed: true
+                dataverseRoleAssignment:
+                  completed: true
+                datasetRoleAssignment:
+                  completed: true
+            create:
+                completed: false
+            """, InitLog.class);
+        var datasetLog = new CompletableItem();
+        var roleAssignment = new RoleAssignmentReadOnly();
+        roleAssignment.setAssignee("@user");
+        roleAssignment.set_roleAlias("creator");
+        Mockito.when(dataverseServiceMock.getRoleAssignmentsOnDataset("pid"))
+            .thenReturn(List.of(roleAssignment));
+
+        // When
+        new DatasetVersionCreator(depositId, dataverseServiceMock, initRoot.getInit(), dataset, initLog, datasetLog).createDatasetVersion("pid");
+
+        // Then
+        Mockito.verify(dataverseServiceMock, Mockito.never()).getRoleAssignmentsOnDataset(Mockito.anyString());
+        Mockito.verify(dataverseServiceMock).updateMetadata("pid", dataset.getDatasetVersion());
+        YamlBeanAssert.assertThat(initLog).isEqualTo(allCompletedYaml);
+        assertThat(datasetLog.isCompleted()).isTrue();
+    }
+
+    @Test
+    public void import_step_is_skipped_if_already_completed() throws Exception {
+        // Given
+        var depositId = UUID.randomUUID();
+        var initRoot = yamlService.readYamlFromString("""
+            init:
+              create:
+                importPid: pid-import
+            """, InitRoot.class);
+        var dataset = new Dataset();
+        var initLog = yamlService.readYamlFromString("""
+            expect:
+                state:
+                  completed: true
+                dataverseRoleAssignment:
+                  completed: true
+                datasetRoleAssignment:
+                  completed: true
+            create:
+                completed: true
+            """, InitLog.class);
+        var datasetLog = new CompletableItem();
+
+        // When
+        new DatasetVersionCreator(depositId, dataverseServiceMock, initRoot.getInit(), dataset, initLog, datasetLog).createDatasetVersion(null);
+
+        // Then
+        Mockito.verify(dataverseServiceMock, Mockito.never()).importDataset(Mockito.anyString(), Mockito.any());
+        Mockito.verify(dataverseServiceMock, Mockito.never()).createDataset(Mockito.any());
+        YamlBeanAssert.assertThat(initLog).isEqualTo(allCompletedYaml);
+        assertThat(datasetLog.isCompleted()).isTrue();
+    }
+
+    @Test
+    public void create_step_is_skipped_if_already_completed() throws Exception {
+        // Given
+        var depositId = UUID.randomUUID();
+        var dataset = new Dataset();
+        var initLog = yamlService.readYamlFromString("""
+            expect:
+                state:
+                  completed: true
+                dataverseRoleAssignment:
+                  completed: true
+                datasetRoleAssignment:
+                  completed: true
+            create:
+                completed: true
+            """, InitLog.class);
+        var datasetLog = new CompletableItem();
+
+        // When
+        new DatasetVersionCreator(depositId, dataverseServiceMock, null, dataset, initLog, datasetLog).createDatasetVersion(null);
+
+        // Then
+        Mockito.verify(dataverseServiceMock, Mockito.never()).importDataset(Mockito.anyString(), Mockito.any());
+        Mockito.verify(dataverseServiceMock, Mockito.never()).createDataset(Mockito.any());
+        YamlBeanAssert.assertThat(initLog).isEqualTo(allCompletedYaml);
+        assertThat(datasetLog.isCompleted()).isTrue();
+    }
 }

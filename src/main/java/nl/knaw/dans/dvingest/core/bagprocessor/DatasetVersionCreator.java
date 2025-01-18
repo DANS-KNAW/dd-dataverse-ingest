@@ -61,22 +61,8 @@ public class DatasetVersionCreator {
         return pid;
     }
 
-    private String createDatasetIfNeeded(String targetPid) throws IOException, DataverseException {
-        String pid;
-        if (targetPid == null) {
-            if (dataset == null) {
-                throw new IllegalArgumentException("Must have dataset metadata to create a new dataset.");
-            }
-            pid = createOrImportDataset();
-        }
-        else {
-            pid = targetPid;
-            initLog.getCreate().setCompleted(true);
-        }
-        return pid;
-    }
-
     private void checkExpectations(@NonNull Expect expect, String targetPid) throws DataverseException, IOException {
+        log.debug("Start checking expectations for deposit {}", depositId);
         if (expect.getState() != null && targetPid != null && !initLog.getExpect().getState().isCompleted()) {
             checkDatasetState(expect, targetPid);
         }
@@ -97,6 +83,7 @@ public class DatasetVersionCreator {
         else {
             initLog.getExpect().getDatasetRoleAssignment().setCompleted(true);
         }
+        log.debug("End checking expectations for deposit {}", depositId);
     }
 
     private void checkDatasetState(@NonNull Expect expect, String targetPid) throws DataverseException, IOException {
@@ -145,6 +132,28 @@ public class DatasetVersionCreator {
 
     private boolean roleCorrect(RoleAssignmentReadOnly ra, RoleAssignment expectedRoleAssignment) {
         return ra.get_roleAlias().equals(expectedRoleAssignment.getRole());
+    }
+
+    private String createDatasetIfNeeded(String targetPid) throws IOException, DataverseException {
+        if (initLog.getCreate().isCompleted()) {
+            log.debug("Create task already completed for deposit {}", depositId);
+            return targetPid;
+        }
+
+        String pid;
+        if (targetPid == null) {
+            log.debug("Start creating dataset for deposit {}", depositId);
+            if (dataset == null) {
+                throw new IllegalArgumentException("Must have dataset metadata to create a new dataset.");
+            }
+            pid = createOrImportDataset();
+        }
+        else {
+            log.debug("Target PID provided, dataset does not need to be created for deposit {}", depositId);
+            pid = targetPid;
+            initLog.getCreate().setCompleted(true);
+        }
+        return pid;
     }
 
     private String createOrImportDataset() throws IOException, DataverseException {
