@@ -23,6 +23,7 @@ import nl.knaw.dans.dvingest.core.service.DataverseService;
 import nl.knaw.dans.dvingest.core.service.UtilityServices;
 import nl.knaw.dans.dvingest.core.yaml.EditFiles;
 import nl.knaw.dans.dvingest.core.yaml.FromTo;
+import nl.knaw.dans.dvingest.core.yaml.tasklog.CompletableItemWithCount;
 import nl.knaw.dans.dvingest.core.yaml.tasklog.EditFilesLog;
 import nl.knaw.dans.lib.dataverse.DataverseException;
 import nl.knaw.dans.lib.dataverse.model.dataset.Embargo;
@@ -31,11 +32,9 @@ import nl.knaw.dans.lib.util.PathIterator;
 import org.apache.commons.collections4.IteratorUtils;
 import org.apache.commons.io.FileUtils;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -198,7 +197,8 @@ public class FilesEditor {
         }
         if (editFiles.getAddRestrictedIndividually().isEmpty()) {
             log.debug("No restricted files to add individually for deposit {}", depositId);
-        } else {
+        }
+        else {
             addFilesIndividually(editFiles.getAddRestrictedIndividually(), true);
         }
         editFilesLog.getAddRestrictedIndividually().setCompleted(true);
@@ -211,7 +211,8 @@ public class FilesEditor {
         }
         if (editFiles.getAddUnrestrictedIndividually().isEmpty()) {
             log.debug("No unrestricted files to add individually for deposit {}", depositId);
-        } else {
+        }
+        else {
             addFilesIndividually(editFiles.getAddUnrestrictedIndividually(), false);
         }
         editFilesLog.getAddUnrestrictedIndividually().setCompleted(true);
@@ -244,9 +245,10 @@ public class FilesEditor {
             for (var fm : addedFileMeta.getFiles()) {
                 filesInDatasetCache.put(fm);
             }
-            if (restricted)  {
+            if (restricted) {
                 editFilesLog.getAddRestrictedIndividually().setNumberCompleted(++numberAdded);
-            } else {
+            }
+            else {
                 editFilesLog.getAddUnrestrictedIndividually().setNumberCompleted(++numberAdded);
             }
 
@@ -254,44 +256,50 @@ public class FilesEditor {
     }
 
     private void addRestrictedFiles() throws IOException, DataverseException {
-        if (editFiles.getAddRestrictedFiles().isEmpty()) {
-            log.debug("No restricted files to add for deposit {}", depositId);
+        if (editFilesLog.getAddRestrictedFiles().isCompleted()) {
+            log.debug("Task addRestrictedFiles already completed for deposit {}", depositId);
             return;
         }
-        log.debug("Start adding {} restricted files for deposit {}", editFiles.getAddRestrictedFiles().size(), depositId);
-        var iterator = new PathIterator(getRestrictedFilesToUpload());
-        while (iterator.hasNext()) {
-            uploadFileBatch(iterator, true);
+        if (editFiles.getAddRestrictedFiles().isEmpty()) {
+            log.debug("No restricted files to add for deposit {}", depositId);
         }
-        log.debug("End adding {} restricted files for deposit {}", iterator.getIteratedCount(), depositId);
+        else {
+            log.debug("Start adding {} restricted files for deposit {}", editFiles.getAddRestrictedFiles().size(), depositId);
+            var iterator = new PathIterator(
+                IteratorUtils.skippingIterator(
+                    editFiles.getAddRestrictedFiles().stream().map(dataDir::resolve).map(Path::toFile).iterator(),
+                    editFilesLog.getAddRestrictedFiles().getNumberCompleted()));
+            while (iterator.hasNext()) {
+                uploadFileBatch(iterator, true, editFilesLog.getAddRestrictedFiles());
+            }
+            log.debug("End adding {} restricted files for deposit {}", iterator.getIteratedCount(), depositId);
+        }
+        editFilesLog.getAddRestrictedFiles().setCompleted(true);
     }
 
     private void addUnrestrictedFiles() throws IOException, DataverseException {
-        if (editFiles.getAddUnrestrictedFiles().isEmpty()) {
-            log.debug("No unrestricted files to add for deposit {}", depositId);
+        if (editFilesLog.getAddUnrestrictedFiles().isCompleted()) {
+            log.debug("Task addUnrestrictedFiles already completed for deposit {}", depositId);
             return;
         }
-        log.debug("Start uploading files for deposit {}", depositId);
-        var iterator = new PathIterator(getUnrestrictedFilesToUpload());
-        while (iterator.hasNext()) {
-            uploadFileBatch(iterator, false);
+        if (editFiles.getAddUnrestrictedFiles().isEmpty()) {
+            log.debug("No unrestricted files to add for deposit {}", depositId);
         }
-        log.debug("End uploading {} unrestricted files for deposit {}", iterator.getIteratedCount(), depositId);
+        else {
+            log.debug("Start adding {} unrestricted files for deposit {}", editFiles.getAddUnrestrictedFiles().size(), depositId);
+            var iterator = new PathIterator(
+                IteratorUtils.skippingIterator(
+                    editFiles.getAddUnrestrictedFiles().stream().map(dataDir::resolve).map(Path::toFile).iterator(),
+                    editFilesLog.getAddUnrestrictedFiles().getNumberCompleted()));
+            while (iterator.hasNext()) {
+                uploadFileBatch(iterator, false, editFilesLog.getAddUnrestrictedFiles());
+            }
+            log.debug("End uploading {} unrestricted files for deposit {}", iterator.getIteratedCount(), depositId);
+        }
+        editFilesLog.getAddUnrestrictedFiles().setCompleted(true);
     }
 
-    private Iterator<File> getUnrestrictedFilesToUpload() {
-        return IteratorUtils.filteredIterator(
-            FileUtils.iterateFiles(dataDir.toFile(), null, true),
-            new FileUploadInclusionPredicate(editFiles, dataDir, false));
-    }
-
-    private Iterator<File> getRestrictedFilesToUpload() {
-        return IteratorUtils.filteredIterator(
-            FileUtils.iterateFiles(dataDir.toFile(), null, true),
-            new FileUploadInclusionPredicate(editFiles, dataDir, true));
-    }
-
-    private void uploadFileBatch(PathIterator iterator, boolean restrict) throws IOException, DataverseException {
+    private void uploadFileBatch(PathIterator iterator, boolean restrict, CompletableItemWithCount trackLog) throws IOException, DataverseException {
         var tempZipFile = utilityServices.createTempZipFile();
         try {
             var zipFile = utilityServices.createPathIteratorZipperBuilder(filesInDatasetCache.getAutoRenamedFiles())
@@ -305,6 +313,7 @@ public class FilesEditor {
             log.debug("Start uploading zip file at {} for deposit {}", zipFile, depositId);
             var addedFileMetaList = dataverseService.addFile(pid, zipFile, fileMeta);
             log.debug("Uploaded {} files, ({} cumulative)", addedFileMetaList.getFiles().size(), iterator.getIteratedCount());
+            trackLog.setNumberCompleted(trackLog.getNumberCompleted() + addedFileMetaList.getFiles().size());
             for (var fm : addedFileMetaList.getFiles()) {
                 filesInDatasetCache.put(fm); // auto-rename is done by PathIteratorZipper
             }
