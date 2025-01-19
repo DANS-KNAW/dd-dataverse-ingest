@@ -192,24 +192,43 @@ public class FilesEditor {
     }
 
     public void addRestrictedFilesIndividually() throws IOException, DataverseException {
-        addFilesIndividually(editFiles.getAddRestrictedIndividually(), true);
+        if (editFilesLog.getAddRestrictedIndividually().isCompleted()) {
+            log.debug("Task addRestrictedIndividually already completed for deposit {}", depositId);
+            return;
+        }
+        if (editFiles.getAddRestrictedIndividually().isEmpty()) {
+            log.debug("No restricted files to add individually for deposit {}", depositId);
+        } else {
+            addFilesIndividually(editFiles.getAddRestrictedIndividually(), true);
+        }
+        editFilesLog.getAddRestrictedIndividually().setCompleted(true);
     }
 
     public void addUnrestrictedFilesIndividually() throws IOException, DataverseException {
-        addFilesIndividually(editFiles.getAddUnrestrictedIndividually(), false);
+        if (editFilesLog.getAddUnrestrictedIndividually().isCompleted()) {
+            log.debug("Task addUnrestrictedIndividually already completed for deposit {}", depositId);
+            return;
+        }
+        if (editFiles.getAddUnrestrictedIndividually().isEmpty()) {
+            log.debug("No unrestricted files to add individually for deposit {}", depositId);
+        } else {
+            addFilesIndividually(editFiles.getAddUnrestrictedIndividually(), false);
+        }
+        editFilesLog.getAddUnrestrictedIndividually().setCompleted(true);
     }
 
     public void addFilesIndividually(List<String> files, boolean restricted) throws IOException, DataverseException {
-        if (files.isEmpty()) {
-            log.debug("No files to add individually for deposit {}, restrict = {}", depositId, restricted);
-            return;
-        }
         log.debug("Start adding {} files individually for deposit {}, restrict = {}", editFiles.getAddRestrictedIndividually().size(), depositId, restricted);
-        for (var filepath : files) {
-            log.debug("Adding restricted file: {}", filepath);
+        int numberAdded = editFilesLog.getAddRestrictedIndividually().getNumberCompleted();
+        if (numberAdded > 0) {
+            log.debug("Resuming adding files from number {}", numberAdded);
+        }
+        for (int i = numberAdded; i < files.size(); i++) {
+            var filepath = files.get(i);
+            log.debug("Adding file: {}", filepath);
             var fileMeta = new FileMeta();
             fileMeta.setRestricted(restricted);
-            String realFilepath = filepath;
+            var realFilepath = filepath;
             // TODO: a bit confusing that autorenamedFiles is part of the cache, although the file looked up here has not been added to the dataset yet.
             if (filesInDatasetCache.getAutoRenamedFiles().containsKey(filepath)) {
                 realFilepath = filesInDatasetCache.getAutoRenamedFiles().get(filepath);
@@ -218,10 +237,19 @@ public class FilesEditor {
             fileMeta.setLabel(dataversePath.getLabel());
             fileMeta.setDirectoryLabel(dataversePath.getDirectoryLabel());
             var fileToUpload = dataDir.resolve(filepath);
+            if (!Files.exists(fileToUpload)) {
+                throw new IllegalArgumentException("File to add not found in bag: " + filepath);
+            }
             var addedFileMeta = dataverseService.addFile(pid, fileToUpload, fileMeta);
             for (var fm : addedFileMeta.getFiles()) {
                 filesInDatasetCache.put(fm);
             }
+            if (restricted)  {
+                editFilesLog.getAddRestrictedIndividually().setNumberCompleted(++numberAdded);
+            } else {
+                editFilesLog.getAddUnrestrictedIndividually().setNumberCompleted(++numberAdded);
+            }
+
         }
     }
 
