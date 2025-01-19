@@ -124,8 +124,12 @@ public class FilesEditor {
         }
         else {
             log.debug("Start deleting {} files for deposit {}", depositId, editFiles.getDeleteFiles().size());
-            int numberDeleted = 0;
-            for (var filepath : editFiles.getDeleteFiles()) {
+            int numberDeleted = editFilesLog.getDeleteFiles().getNumberCompleted();
+            if (numberDeleted > 0) {
+                log.debug("Resuming deleting files from number {}", numberDeleted);
+            }
+            for (int i = numberDeleted; i < editFiles.getDeleteFiles().size(); i++) {
+                var filepath = editFiles.getDeleteFiles().get(i);
                 log.debug("Deleting file: {}", filepath);
                 var fileToDelete = filesInDatasetCache.get(filepath);
                 if (fileToDelete == null) {
@@ -141,26 +145,41 @@ public class FilesEditor {
     }
 
     private void replaceFiles() throws IOException {
-        if (editFiles.getReplaceFiles().isEmpty()) {
-            log.debug("No files to replace for deposit {}", depositId);
+        if (editFilesLog.getReplaceFiles().isCompleted()) {
+            log.debug("Task replaceFiles already completed for deposit {}", depositId);
             return;
         }
-        log.debug("Start replacing {} files for deposit {}", depositId, editFiles.getReplaceFiles().size());
-        for (var filepath : editFiles.getReplaceFiles()) {
-            log.debug("Replacing file: {}", filepath);
-            var fileMeta = filesInDatasetCache.get(filepath);
-            utilityServices.wrapIfZipFile(dataDir.resolve(filepath)).ifPresentOrElse(
-                zipFile -> {
-                    replaceFileOrThrow(pid, fileMeta, zipFile);
-                    FileUtils.deleteQuietly(zipFile.toFile());
-                },
-                () -> {
-                    var fileToUpload = dataDir.resolve(filepath);
-                    replaceFileOrThrow(pid, fileMeta, fileToUpload);
-                }
-            );
+        if (editFiles.getReplaceFiles().isEmpty()) {
+            log.debug("No files to replace for deposit {}", depositId);
         }
-        log.debug("End replacing files for deposit {}", depositId);
+        else {
+            log.debug("Start replacing {} files for deposit {}", depositId, editFiles.getReplaceFiles().size());
+            int numberReplaced = editFilesLog.getReplaceFiles().getNumberCompleted();
+            if (numberReplaced > 0) {
+                log.debug("Resuming replacing files from number {}", numberReplaced);
+            }
+            for (int i = numberReplaced; i < editFiles.getReplaceFiles().size(); i++) {
+                var filepath = editFiles.getReplaceFiles().get(i);
+                log.debug("Replacing file: {}", filepath);
+                var fileToReplace = filesInDatasetCache.get(filepath);
+                if (fileToReplace == null) {
+                    throw new IllegalArgumentException("File to replace not found in dataset: " + filepath);
+                }
+                utilityServices.wrapIfZipFile(dataDir.resolve(filepath)).ifPresentOrElse(
+                    zipFile -> {
+                        replaceFileOrThrow(pid, fileToReplace, zipFile);
+                        FileUtils.deleteQuietly(zipFile.toFile());
+                    },
+                    () -> {
+                        var fileToUpload = dataDir.resolve(filepath);
+                        replaceFileOrThrow(pid, fileToReplace, fileToUpload);
+                    }
+                );
+                editFilesLog.getReplaceFiles().setNumberCompleted(++numberReplaced);
+            }
+            log.debug("End replacing files for deposit {}", depositId);
+        }
+        editFilesLog.getReplaceFiles().setCompleted(true);
     }
 
     private void replaceFileOrThrow(String pid, FileMeta fileMeta, Path fileToUpload) {

@@ -16,54 +16,22 @@
 package nl.knaw.dans.dvingest.core.bagprocessor;
 
 import nl.knaw.dans.dvingest.YamlBeanAssert;
-import nl.knaw.dans.dvingest.core.TestDirFixture;
-import nl.knaw.dans.dvingest.core.service.DataverseService;
-import nl.knaw.dans.dvingest.core.service.UtilityServices;
-import nl.knaw.dans.dvingest.core.service.YamlService;
-import nl.knaw.dans.dvingest.core.service.YamlServiceImpl;
 import nl.knaw.dans.dvingest.core.yaml.EditFilesRoot;
 import nl.knaw.dans.dvingest.core.yaml.tasklog.EditFilesLog;
-import nl.knaw.dans.lib.dataverse.model.file.DataFile;
-import nl.knaw.dans.lib.dataverse.model.file.FileMeta;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.when;
 
-public class FilesEditorTest extends TestDirFixture {
-    private static final YamlService yamlService = new YamlServiceImpl();
-    private final DataverseService dataverseServiceMock = Mockito.mock(DataverseService.class);
-    private final UtilityServices utilityServicesMock = Mockito.mock(UtilityServices.class);
-
-    private Path dataDir;
-
-    @BeforeEach
-    public void setUp() throws Exception {
-        super.setUp();
-        Mockito.reset(dataverseServiceMock);
-        Mockito.reset(utilityServicesMock);
-        dataDir = testDir.resolve("data");
-        Files.createDirectories(dataDir);
-    }
-
-    private FileMeta file(String path, int id) {
-        var dvPath = new DataversePath(path);
-        var fileMeta = new FileMeta();
-        var dataFile = new DataFile();
-        dataFile.setId(id);
-        fileMeta.setDataFile(dataFile);
-        fileMeta.setLabel(dvPath.getLabel());
-        fileMeta.setDirectoryLabel(dvPath.getDirectoryLabel());
-        return fileMeta;
-    }
+public class FilesEditorDeleteFilesTest extends FilesEditorTestFixture {
 
     @Test
     public void deleteFiles_deletes_files_from_dataset() throws Exception {
@@ -119,5 +87,85 @@ public class FilesEditorTest extends TestDirFixture {
             completed: false
             """);
     }
+
+    @Test
+    public void deleteFiles_is_skipped_when_already_completed() throws Exception {
+        // Given
+        var editFilesRoot = yamlService.readYamlFromString("""
+            editFiles:
+                deleteFiles:
+                  - file1
+                  - file3
+            """, EditFilesRoot.class);
+        var editFilesLog = new EditFilesLog();
+        editFilesLog.getDeleteFiles().setCompleted(true);
+        editFilesLog.getDeleteFiles().setNumberCompleted(2);
+        var filesEditor = new FilesEditor(UUID.randomUUID(), dataDir, editFilesRoot.getEditFiles(), dataverseServiceMock, utilityServicesMock, editFilesLog);
+
+        // When
+        filesEditor.editFiles("pid");
+
+        // Then
+        Mockito.verify(dataverseServiceMock, Mockito.never()).deleteFile(anyInt());
+        YamlBeanAssert.assertThat(editFilesLog.getDeleteFiles()).isEqualTo("""
+            numberCompleted: 2
+            completed: true
+            """);
+    }
+
+    @Test
+    public void deleteFiles_is_skipped_when_list_is_empty() throws Exception {
+        // Given
+        var editFilesRoot = yamlService.readYamlFromString("""
+            editFiles:
+                deleteFiles: []
+            """, EditFilesRoot.class);
+        var editFilesLog = new EditFilesLog();
+        var filesEditor = new FilesEditor(UUID.randomUUID(), dataDir, editFilesRoot.getEditFiles(), dataverseServiceMock, utilityServicesMock, editFilesLog);
+
+        // When
+        filesEditor.editFiles("pid");
+
+        // Then
+        Mockito.verify(dataverseServiceMock, Mockito.never()).deleteFile(anyInt());
+        YamlBeanAssert.assertThat(editFilesLog.getDeleteFiles()).isEqualTo("""
+            numberCompleted: 0
+            completed: true
+            """);
+    }
+
+    @Test
+    public void deleteFiles_will_continue_after_number_already_completed() throws Exception {
+        // Given
+        when(dataverseServiceMock.getFiles("pid")).thenReturn(
+            List.of(file("file2", 2),
+                file("file3", 3)));
+        var editFilesRoot = yamlService.readYamlFromString("""
+            editFiles:
+                deleteFiles:
+                  - file1 # already deleted
+                  # file2 will not be deleted
+                  - file3
+            """, EditFilesRoot.class);
+        var editFilesLog = new EditFilesLog();
+        editFilesLog.getDeleteFiles().setCompleted(false);
+        editFilesLog.getDeleteFiles().setNumberCompleted(1);
+        var filesEditor = new FilesEditor(UUID.randomUUID(), dataDir, editFilesRoot.getEditFiles(), dataverseServiceMock, utilityServicesMock, editFilesLog);
+
+        // When
+        filesEditor.editFiles("pid");
+
+        // Then
+        Mockito.verify(dataverseServiceMock).deleteFile(3);
+        assertThat(filesEditor.getFilesInDatasetCache().get("file1")).isNull(); // already deleted
+        assertThat(filesEditor.getFilesInDatasetCache().get("file2")).isNotNull(); // not on delete list
+        assertThat(filesEditor.getFilesInDatasetCache().get("file3")).isNull(); // just deleted
+        YamlBeanAssert.assertThat(editFilesLog.getDeleteFiles()).isEqualTo("""
+            numberCompleted: 2
+            completed: true
+            """);
+    }
+
+
 
 }
