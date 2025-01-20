@@ -20,11 +20,21 @@ import nl.knaw.dans.dvingest.core.service.UtilityServices;
 import nl.knaw.dans.dvingest.core.service.UtilityServicesImpl;
 import nl.knaw.dans.dvingest.core.yaml.EditFilesRoot;
 import nl.knaw.dans.dvingest.core.yaml.tasklog.EditFilesLog;
+import nl.knaw.dans.lib.dataverse.model.dataset.FileList;
+import nl.knaw.dans.lib.dataverse.model.file.FileMeta;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.List;
 import java.util.UUID;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 public class FilesEditorAddFilesTest extends FilesEditorTestFixture {
@@ -32,14 +42,15 @@ public class FilesEditorAddFilesTest extends FilesEditorTestFixture {
     @Test
     public void addRestrictedFiles_adds_one_batch() throws Exception {
         // Given
+        Files.createDirectory(testDir.resolve("temp"));
         UtilityServices utilityServices = UtilityServicesImpl.builder()
             .tempDir(testDir.resolve("temp"))
             .maxUploadSize(1000000)
             .maxNumberOfFilesPerUpload(100).build();
         when(dataverseServiceMock.getFiles("pid")).thenReturn(
             List.of());
-        when(dataverseServiceMock.getFiles("pid")).thenReturn(
-            List.of());
+        when(dataverseServiceMock.addFile(anyString(), any(Path.class), any(FileMeta.class))).thenReturn(
+            new FileList(List.of(file("file1", 1), file("file2", 2), file("file3", 3))));
         var editFilesRoot = yamlService.readYamlFromString("""
             editFiles:
                 addRestrictedFiles:
@@ -54,6 +65,17 @@ public class FilesEditorAddFilesTest extends FilesEditorTestFixture {
         filesEditor.editFiles("pid");
 
         // Then
+        ArgumentCaptor<Path> pathCaptor = ArgumentCaptor.forClass(Path.class);
+        ArgumentCaptor<FileMeta> fileMetaCaptor = ArgumentCaptor.forClass(FileMeta.class);
+        verify(dataverseServiceMock).addFile(eq("pid"), pathCaptor.capture(), fileMetaCaptor.capture());
+        assertThat(pathCaptor.getValue().toString())
+            .withFailMessage("Uploaded file shoul be a ZIP file in the temp directory")
+            .contains(testDir.resolve("temp").toString())
+            .endsWith(".zip");
+        assertThat(pathCaptor.getValue())
+            .withFailMessage("ZIP file should be deleted after upload")
+            .doesNotExist();
+        assertThat(fileMetaCaptor.getValue().getRestricted()).isTrue();
         YamlBeanAssert.assertThat(editFilesLog.getAddRestrictedFiles()).isEqualTo("""
             numberCompleted: 3
             completed: true
