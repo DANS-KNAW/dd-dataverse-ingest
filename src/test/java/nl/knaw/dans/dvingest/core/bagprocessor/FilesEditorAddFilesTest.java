@@ -357,4 +357,217 @@ public class FilesEditorAddFilesTest extends FilesEditorTestFixture {
             """);
     }
 
+    @Test
+    public void addUnrestrictedFiles_skips_if_already_completed() throws Exception {
+        // Given
+        var tempDir = Files.createDirectory(testDir.resolve("temp"));
+        UtilityServices utilityServices = UtilityServicesImpl.builder()
+            .tempDir(testDir.resolve("temp"))
+            .maxUploadSize(1000000)
+            .maxNumberOfFilesPerUpload(2).build(); // Causes first batch to be limited to 2 files
+        Files.createFile(dataDir.resolve("file1"));
+        Files.createFile(dataDir.resolve("file2"));
+        Files.createFile(dataDir.resolve("file3"));
+
+        when(dataverseServiceMock.getFiles("pid")).thenReturn(
+            List.of());
+        /*
+         * (Ab?)using the "thenAnswer" to save then upload the ZIP file, because it is deleted after upload.
+         */
+        when(dataverseServiceMock.addFile(anyString(), any(Path.class), any(FileMeta.class)))
+            .thenAnswer(invocation -> {
+                var path = invocation.getArgument(1, Path.class);
+                FileUtils.copyFile(path.toFile(), path.resolveSibling("batch1.zip").toFile());
+                return createFileMetaPerZipEntry(path, false);
+            });
+        var editFilesRoot = yamlService.readYamlFromString("""
+            editFiles:
+                addUnrestrictedFiles:
+                  - file1
+                  - file2
+                  - file3
+            """, EditFilesRoot.class);
+        var editFilesLog = new EditFilesLog();
+        editFilesLog.getAddUnrestrictedFiles().setCompleted(true);
+        editFilesLog.getAddUnrestrictedFiles().setNumberCompleted(3);
+        var filesEditor = new FilesEditor(UUID.randomUUID(), dataDir, editFilesRoot.getEditFiles(), dataverseServiceMock, utilityServices, editFilesLog);
+
+        // When
+        filesEditor.editFiles("pid");
+
+        // Then
+        verify(dataverseServiceMock, times(0)).addFile(anyString(), any(Path.class), any(FileMeta.class));
+        YamlBeanAssert.assertThat(editFilesLog.getAddUnrestrictedFiles()).isEqualTo("""
+            numberCompleted: 3
+            completed: true
+            """);
+    }
+
+    @Test
+    public void addRestrictedFiles_skips_if_already_completed() throws Exception {
+        // Given
+        var tempDir = Files.createDirectory(testDir.resolve("temp"));
+        UtilityServices utilityServices = UtilityServicesImpl.builder()
+            .tempDir(testDir.resolve("temp"))
+            .maxUploadSize(1000000)
+            .maxNumberOfFilesPerUpload(2).build(); // Causes first batch to be limited to 2 files
+        Files.createFile(dataDir.resolve("file1"));
+        Files.createFile(dataDir.resolve("file2"));
+        Files.createFile(dataDir.resolve("file3"));
+
+        when(dataverseServiceMock.getFiles("pid")).thenReturn(
+            List.of());
+        /*
+         * (Ab?)using the "thenAnswer" to save then upload the ZIP file, because it is deleted after upload.
+         */
+        when(dataverseServiceMock.addFile(anyString(), any(Path.class), any(FileMeta.class)))
+            .thenAnswer(invocation -> {
+                var path = invocation.getArgument(1, Path.class);
+                FileUtils.copyFile(path.toFile(), path.resolveSibling("batch1.zip").toFile());
+                return createFileMetaPerZipEntry(path, true);
+            });
+        var editFilesRoot = yamlService.readYamlFromString("""
+            editFiles:
+                addRestrictedFiles:
+                  - file1
+                  - file2
+                  - file3
+            """, EditFilesRoot.class);
+        var editFilesLog = new EditFilesLog();
+        editFilesLog.getAddRestrictedFiles().setCompleted(true);
+        editFilesLog.getAddRestrictedFiles().setNumberCompleted(3);
+        var filesEditor = new FilesEditor(UUID.randomUUID(), dataDir, editFilesRoot.getEditFiles(), dataverseServiceMock, utilityServices, editFilesLog);
+
+        // When
+        filesEditor.editFiles("pid");
+
+        // Then
+        verify(dataverseServiceMock, times(0)).addFile(anyString(), any(Path.class), any(FileMeta.class));
+        YamlBeanAssert.assertThat(editFilesLog.getAddRestrictedFiles()).isEqualTo("""
+            numberCompleted: 3
+            completed: true
+            """);
+    }
+
+    @Test
+    public void addUnrestrictedFiles_is_noop_if_list_is_empty() throws Exception {
+        // Given
+        var tempDir = Files.createDirectory(testDir.resolve("temp"));
+        UtilityServices utilityServices = UtilityServicesImpl.builder()
+            .tempDir(testDir.resolve("temp"))
+            .maxUploadSize(1000000)
+            .maxNumberOfFilesPerUpload(2).build(); // Causes first batch to be limited to 2 files
+        Files.createFile(dataDir.resolve("file1"));
+        Files.createFile(dataDir.resolve("file2"));
+        Files.createFile(dataDir.resolve("file3"));
+
+        when(dataverseServiceMock.getFiles("pid")).thenReturn(
+            List.of());
+        /*
+         * (Ab?)using the "thenAnswer" to save then upload the ZIP file, because it is deleted after upload.
+         */
+        when(dataverseServiceMock.addFile(anyString(), any(Path.class), any(FileMeta.class)))
+            .thenAnswer(invocation -> {
+                var path = invocation.getArgument(1, Path.class);
+                FileUtils.copyFile(path.toFile(), path.resolveSibling("batch1.zip").toFile());
+                return createFileMetaPerZipEntry(path, false);
+            });
+        var editFilesRoot = yamlService.readYamlFromString("""
+            editFiles:
+                addUnrestrictedFiles: [] # NO FILES ACTUALLY ADDED
+            """, EditFilesRoot.class);
+        var editFilesLog = new EditFilesLog();
+        var filesEditor = new FilesEditor(UUID.randomUUID(), dataDir, editFilesRoot.getEditFiles(), dataverseServiceMock, utilityServices, editFilesLog);
+
+        // When
+        filesEditor.editFiles("pid");
+
+        // Then
+        verify(dataverseServiceMock, times(0)).addFile(anyString(), any(Path.class), any(FileMeta.class));
+        YamlBeanAssert.assertThat(editFilesLog.getAddUnrestrictedFiles()).isEqualTo("""
+            numberCompleted: 0
+            completed: true
+            """);
+    }
+
+    @Test
+    public void both_restricted_and_unrestricted_files_added() throws Exception {
+        // Given
+        var tempDir = Files.createDirectory(testDir.resolve("temp"));
+        UtilityServices utilityServices = UtilityServicesImpl.builder()
+            .tempDir(testDir.resolve("temp"))
+            .maxUploadSize(1000000)
+            .maxNumberOfFilesPerUpload(2).build(); // Causes first batch to be limited to 2 files
+        Files.createFile(dataDir.resolve("file1"));
+        Files.createFile(dataDir.resolve("file2"));
+        Files.createFile(dataDir.resolve("file3"));
+        Files.createFile(dataDir.resolve("file4"));
+        Files.createFile(dataDir.resolve("file5"));
+        Files.createFile(dataDir.resolve("file6"));
+        when(dataverseServiceMock.getFiles("pid")).thenReturn(
+            List.of());
+        /*
+         * (Ab?)using the "thenAnswer" to save then upload the ZIP file, because it is deleted after upload.
+         */
+        when(dataverseServiceMock.addFile(anyString(), any(Path.class), any(FileMeta.class)))
+            .thenAnswer(invocation -> {
+                var path = invocation.getArgument(1, Path.class);
+                FileUtils.copyFile(path.toFile(), path.resolveSibling("batch1.zip").toFile());
+                return createFileMetaPerZipEntry(path, true);
+            }).thenAnswer(
+                invocation -> {
+                    var path = invocation.getArgument(1, Path.class);
+                    FileUtils.copyFile(path.toFile(), path.resolveSibling("batch2.zip").toFile());
+                    return createFileMetaPerZipEntry(path, true);
+                })
+            .thenAnswer(invocation -> {
+                var path = invocation.getArgument(1, Path.class);
+                FileUtils.copyFile(path.toFile(), path.resolveSibling("batch3.zip").toFile());
+                return createFileMetaPerZipEntry(path, false);
+            }).thenAnswer(
+                invocation -> {
+                    var path = invocation.getArgument(1, Path.class);
+                    FileUtils.copyFile(path.toFile(), path.resolveSibling("batch4.zip").toFile());
+                    return createFileMetaPerZipEntry(path, false);
+                });
+        var editFilesRoot = yamlService.readYamlFromString("""
+            editFiles:
+                # Note that the order of execution is always as follows: restricted files first, then unrestricted files, no matter the order in the YAML
+                addRestrictedFiles:
+                  - file1
+                  - file2
+                  - file3
+                addUnrestrictedFiles:
+                  - file4
+                  - file5
+                  - file6
+            """, EditFilesRoot.class);
+        var editFilesLog = new EditFilesLog();
+        var filesEditor = new FilesEditor(UUID.randomUUID(), dataDir, editFilesRoot.getEditFiles(), dataverseServiceMock, utilityServices, editFilesLog);
+
+        // When
+        filesEditor.editFiles("pid");
+
+        // Then
+        ArgumentCaptor<Path> pathCaptor = ArgumentCaptor.forClass(Path.class);
+        ArgumentCaptor<FileMeta> fileMetaCaptor = ArgumentCaptor.forClass(FileMeta.class);
+        verify(dataverseServiceMock, times(4)).addFile(eq("pid"), pathCaptor.capture(), fileMetaCaptor.capture());
+        assertThat(fileMetaCaptor.getAllValues().get(0).getRestricted()).isTrue();
+        assertThat(fileMetaCaptor.getAllValues().get(1).getRestricted()).isTrue();
+        assertThat(fileMetaCaptor.getAllValues().get(2).getRestricted()).isFalse();
+        assertThat(fileMetaCaptor.getAllValues().get(3).getRestricted()).isFalse();
+        assertThat(pathCaptor.getValue().toString())
+            .withFailMessage("Uploaded file should be a ZIP file in the temp directory")
+            .contains(testDir.resolve("temp").toString())
+            .endsWith(".zip");
+        assertThat(pathCaptor.getValue())
+            .withFailMessage("ZIP file should be deleted after upload")
+            .doesNotExist();
+        assertZipFileContainsFiles(tempDir.resolve("batch1.zip"), "file1", "file2");
+        assertZipFileContainsFiles(tempDir.resolve("batch2.zip"), "file3");
+        assertZipFileContainsFiles(tempDir.resolve("batch3.zip"), "file4", "file5");
+        assertZipFileContainsFiles(tempDir.resolve("batch4.zip"), "file6");
+
+    }
+
 }
