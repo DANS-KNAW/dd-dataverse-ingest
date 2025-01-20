@@ -16,6 +16,7 @@
 package nl.knaw.dans.dvingest.core;
 
 import io.dropwizard.configuration.ConfigurationException;
+import lombok.Getter;
 import nl.knaw.dans.dvingest.core.service.YamlService;
 import nl.knaw.dans.dvingest.core.service.YamlServiceImpl;
 import nl.knaw.dans.dvingest.core.yaml.EditFiles;
@@ -49,6 +50,7 @@ public class DataverseIngestBag implements Comparable<DataverseIngestBag> {
     public static final String TASK_LOG_YAML = "_tasks.yml";
 
     private final Path bagDir;
+    @Getter
     private final TaskLog taskLog;
 
     public DataverseIngestBag(Path bagDir, YamlService yamlService) throws IOException {
@@ -124,12 +126,6 @@ public class DataverseIngestBag implements Comparable<DataverseIngestBag> {
         }
         var updateStateRoot = yamService.readYaml(bagDir.resolve(UPDATE_STATE_YML), UpdateStateRoot.class);
         return updateStateRoot.getUpdateState();
-    }
-
-    public TaskLog getTaskLog() throws IOException, ConfigurationException {
-
-        var actionLogRoot = yamService.readYaml(bagDir.resolve(TASK_LOG_YAML), TaskLogRoot.class);
-        return actionLogRoot.getTaskLog();
     }
 
     public void saveTaskLog() throws IOException {

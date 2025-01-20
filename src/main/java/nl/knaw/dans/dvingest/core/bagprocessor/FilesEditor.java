@@ -324,32 +324,55 @@ public class FilesEditor {
     }
 
     private void moveFiles() throws IOException, DataverseException {
-        if (editFiles.getMoveFiles().isEmpty()) {
-            log.debug("No files to move for deposit {}", depositId);
+        if (editFilesLog.getMoveFiles().isCompleted()) {
+            log.debug("Task moveFiles already completed for deposit {}", depositId);
             return;
         }
-        log.debug("Start moving {} files for deposit {}", editFiles.getMoveFiles().size(), depositId);
-        for (var move : editFiles.getMoveFiles()) {
-            var fileMeta = filesInDatasetCache.get(move.getFrom());
-            fileMeta = filesInDatasetCache.createFileMetaForMovedFile(move.getTo(), fileMeta);
-            dataverseService.updateFileMetadata(fileMeta.getDataFile().getId(), fileMeta);
-            filesInDatasetCache.remove(move.getFrom());
-            filesInDatasetCache.put(fileMeta); // auto-rename is done by getMovedFile
+        if (editFiles.getMoveFiles().isEmpty()) {
+            log.debug("No files to move for deposit {}", depositId);
+        } else {
+            log.debug("Start moving {} files for deposit {}", editFiles.getMoveFiles().size(), depositId);
+            int numberMoved = editFilesLog.getMoveFiles().getNumberCompleted();
+            if (numberMoved > 0) {
+                log.debug("Resuming moving files from number {}", numberMoved);
+            }
+            for (int i = numberMoved; i < editFiles.getMoveFiles().size(); i++) {
+                var move = editFiles.getMoveFiles().get(i);
+                var fileMeta = filesInDatasetCache.get(move.getFrom());
+                fileMeta = filesInDatasetCache.createFileMetaForMovedFile(move.getTo(), fileMeta);
+                dataverseService.updateFileMetadata(fileMeta.getDataFile().getId(), fileMeta);
+                filesInDatasetCache.remove(move.getFrom());
+                filesInDatasetCache.put(fileMeta); // auto-rename is done by getMovedFile
+                editFilesLog.getMoveFiles().setNumberCompleted(++numberMoved);
+            }
+            log.debug("End moving files for deposit {}", depositId);
         }
-        log.debug("End moving files for deposit {}", depositId);
+        editFilesLog.getMoveFiles().setCompleted(true);
     }
 
     private void updateFileMetas() throws IOException, DataverseException {
-        if (editFiles.getUpdateFileMetas().isEmpty()) {
-            log.debug("No file metadata to update for deposit {}", depositId);
+        if (editFilesLog.getUpdateFileMetas().isCompleted()) {
+            log.debug("Task updateFileMetas already completed for deposit {}", depositId);
             return;
         }
-        log.debug("Start updating {} file metas for deposit {}", editFiles.getUpdateFileMetas().size(), depositId);
-        for (var fileMeta : editFiles.getUpdateFileMetas()) {
-            var id = filesInDatasetCache.get(getPath(fileMeta)).getDataFile().getId();
-            dataverseService.updateFileMetadata(id, fileMeta);
+        if (editFiles.getUpdateFileMetas().isEmpty()) {
+            log.debug("No file metadata to update for deposit {}", depositId);
+            editFilesLog.getUpdateFileMetas().setCompleted(true);
+        } else {
+            log.debug("Start updating {} file metas for deposit {}", editFiles.getUpdateFileMetas().size(), depositId);
+            int numberUpdated = editFilesLog.getUpdateFileMetas().getNumberCompleted();
+            if (numberUpdated > 0) {
+                log.debug("Resuming updating file metadata from number {}", numberUpdated);
+            }
+            for (int i = numberUpdated; i < editFiles.getUpdateFileMetas().size(); i++) {
+                var fileMeta = editFiles.getUpdateFileMetas().get(i);
+                var id = filesInDatasetCache.get(getPath(fileMeta)).getDataFile().getId();
+                dataverseService.updateFileMetadata(id, fileMeta);
+                editFilesLog.getUpdateFileMetas().setNumberCompleted(++numberUpdated);
+            }
+            log.debug("End updating file metadata for deposit {}", depositId);
         }
-        log.debug("End updating file metadata for deposit {}", depositId);
+        editFilesLog.getUpdateFileMetas().setCompleted(true);
     }
 
     private String getPath(FileMeta file) {
@@ -358,22 +381,33 @@ public class FilesEditor {
     }
 
     private void addEmbargoes() throws IOException, DataverseException {
-        if (editFiles.getAddEmbargoes().isEmpty()) {
-            log.debug("No embargoes to add for deposit {}", depositId);
+        if (editFilesLog.getAddEmbargoes().isCompleted()) {
+            log.debug("Task addEmbargoes already completed for deposit {}", depositId);
             return;
         }
-        log.debug("Start adding {} embargoes for deposit {}", editFiles.getAddEmbargoes().size(), depositId);
-        for (var addEmbargo : editFiles.getAddEmbargoes()) {
-            var embargo = new Embargo();
-            embargo.setDateAvailable(addEmbargo.getDateAvailable());
-            embargo.setReason(addEmbargo.getReason());
-            var fileIds = addEmbargo.getFilePaths()
-                .stream()
-                .map(filesInDatasetCache::get)
-                .mapToInt(file -> file.getDataFile().getId()).toArray();
-            embargo.setFileIds(fileIds);
-            dataverseService.addEmbargo(pid, embargo);
+        if (editFiles.getAddEmbargoes().isEmpty()) {
+            log.debug("No embargoes to add for deposit {}", depositId);
+        } else {
+            log.debug("Start adding {} embargoes for deposit {}", editFiles.getAddEmbargoes().size(), depositId);
+            int numberOfEmbargoesAdded = editFilesLog.getAddEmbargoes().getNumberCompleted();
+            if (numberOfEmbargoesAdded > 0) {
+                log.debug("Resuming adding embargoes from number {}", numberOfEmbargoesAdded);
+            }
+            for (int i = numberOfEmbargoesAdded; i < editFiles.getAddEmbargoes().size(); i++) {
+                var addEmbargo = editFiles.getAddEmbargoes().get(i);
+                var embargo = new Embargo();
+                embargo.setDateAvailable(addEmbargo.getDateAvailable());
+                embargo.setReason(addEmbargo.getReason());
+                var fileIds = addEmbargo.getFilePaths()
+                    .stream()
+                    .map(filesInDatasetCache::get)
+                    .mapToInt(file -> file.getDataFile().getId()).toArray();
+                embargo.setFileIds(fileIds);
+                dataverseService.addEmbargo(pid, embargo);
+                editFilesLog.getAddEmbargoes().setNumberCompleted(++numberOfEmbargoesAdded);
+            }
+            log.debug("End adding embargoes for deposit {}", depositId);
         }
-        log.debug("End adding embargoes for deposit {}", depositId);
+        editFilesLog.getAddEmbargoes().setCompleted(true);
     }
 }

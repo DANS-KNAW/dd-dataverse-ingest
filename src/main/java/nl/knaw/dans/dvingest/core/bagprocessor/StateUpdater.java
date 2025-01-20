@@ -21,6 +21,7 @@ import nl.knaw.dans.dvingest.core.service.DataverseService;
 import nl.knaw.dans.dvingest.core.yaml.PublishAction;
 import nl.knaw.dans.dvingest.core.yaml.ReleaseMigratedAction;
 import nl.knaw.dans.dvingest.core.yaml.UpdateAction;
+import nl.knaw.dans.dvingest.core.yaml.tasklog.CompletableItem;
 import nl.knaw.dans.lib.dataverse.DataverseException;
 import nl.knaw.dans.lib.dataverse.model.dataset.UpdateType;
 
@@ -32,6 +33,7 @@ import java.util.UUID;
 public class StateUpdater {
     private final UUID depositId;
     private final UpdateAction updateAction;
+    private final CompletableItem updateStateLog;
 
     private final DataverseService dataverseService;
 
@@ -39,6 +41,11 @@ public class StateUpdater {
     private int numberOfFilesInDataset;
 
     public void updateState(String pid, int numberOfFilesInDataset) throws DataverseException, IOException {
+        if (updateStateLog.isCompleted()) {
+            log.debug("Update action already completed. Skipping update.");
+            return;
+        }
+
         this.pid = pid;
         this.numberOfFilesInDataset = numberOfFilesInDataset;
 
@@ -48,6 +55,7 @@ public class StateUpdater {
         else if (updateAction instanceof ReleaseMigratedAction) {
             releaseMigrated(((ReleaseMigratedAction) updateAction).getReleaseDate());
         }
+        updateStateLog.setCompleted(true);
     }
 
     private void publishVersion(UpdateType updateType) throws DataverseException, IOException {

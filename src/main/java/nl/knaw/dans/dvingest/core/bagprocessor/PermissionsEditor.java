@@ -19,6 +19,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import nl.knaw.dans.dvingest.core.service.DataverseService;
 import nl.knaw.dans.dvingest.core.yaml.EditPermissions;
+import nl.knaw.dans.dvingest.core.yaml.tasklog.EditPermissionsLog;
 import nl.knaw.dans.lib.dataverse.DataverseException;
 
 import java.io.IOException;
@@ -29,6 +30,7 @@ import java.util.UUID;
 public class PermissionsEditor {
     private final UUID depositId;
     private final EditPermissions editPermissions;
+    private final EditPermissionsLog editPermissionsLog;
     private final DataverseService dataverseService;
 
     private String pid;
@@ -47,20 +49,46 @@ public class PermissionsEditor {
     }
 
     private void addRoleAssignments() throws IOException, DataverseException {
-        log.debug("Start adding {} role assignments for deposit {}", depositId, editPermissions.getAddRoleAssignments().size());
-        for (var roleAssignment : editPermissions.getAddRoleAssignments()) {
-            log.debug("Adding role assignment: {}", roleAssignment);
-            dataverseService.addRoleAssignment(pid, roleAssignment);
+        if (editPermissionsLog.getAddRoleAssignments().isCompleted()) {
+            log.debug("Adding of role assignments already completed. Skipping addition.");
+            return;
         }
-        log.debug("End adding role assignments for deposit {}", depositId);
+        if (editPermissions.getAddRoleAssignments().isEmpty()) {
+            log.debug("No role assignments to add. Skipping addition.");
+        }
+        else {
+            log.debug("Start adding {} role assignments for deposit {}", depositId, editPermissions.getAddRoleAssignments().size());
+            int numberCompleted = editPermissionsLog.getAddRoleAssignments().getNumberCompleted();
+            if (numberCompleted > 0) {
+                log.debug("Resuming adding role assignments from index {}", numberCompleted);
+                for (int i = numberCompleted; i < editPermissions.getAddRoleAssignments().size(); i++) {
+                    var roleAssignment = editPermissions.getAddRoleAssignments().get(i);
+                    log.debug("Adding role assignment: {}", roleAssignment);
+                    dataverseService.addRoleAssignment(pid, roleAssignment);
+                    editPermissionsLog.getAddRoleAssignments().setNumberCompleted(i + 1);
+                }
+            }
+            log.debug("End adding role assignments for deposit {}", depositId);
+        }
+        editPermissionsLog.getAddRoleAssignments().setCompleted(true);
     }
 
     private void deleteRoleAssignments() throws IOException, DataverseException {
-        log.debug("Start deleting {} role assignments for deposit {}", depositId, editPermissions.getDeleteRoleAssignments().size());
-        for (var roleAssignment : editPermissions.getDeleteRoleAssignments()) {
-            log.debug("Deleting role assignment: {}", roleAssignment);
-            dataverseService.deleteRoleAssignment(pid, roleAssignment);
+        if (editPermissionsLog.getDeleteRoleAssignments().isCompleted()) {
+            log.debug("Deletion of role assignments already completed. Skipping deletion.");
+            return;
         }
-        log.debug("End deleting role assignments for deposit {}", depositId);
+        if (editPermissions.getDeleteRoleAssignments().isEmpty()) {
+            log.debug("No role assignments to delete. Skipping deletion.");
+        }
+        else {
+            log.debug("Start deleting {} role assignments for deposit {}", depositId, editPermissions.getDeleteRoleAssignments().size());
+            for (var roleAssignment : editPermissions.getDeleteRoleAssignments()) {
+                log.debug("Deleting role assignment: {}", roleAssignment);
+                dataverseService.deleteRoleAssignment(pid, roleAssignment);
+            }
+            log.debug("End deleting role assignments for deposit {}", depositId);
+        }
+        editPermissionsLog.getDeleteRoleAssignments().setCompleted(true);
     }
 }

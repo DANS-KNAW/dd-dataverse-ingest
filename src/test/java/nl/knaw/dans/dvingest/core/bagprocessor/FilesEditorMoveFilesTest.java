@@ -13,19 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package nl.knaw.dans.dvingest.core.yaml.tasklog;
+package nl.knaw.dans.dvingest.core.bagprocessor;
 
-import lombok.Data;
+public class FilesEditorMoveFilesTest extends FilesEditorTestFixture {
 
-@Data
-public class EditMetadataLog {
-    private CompletableItem addFieldValues = new CompletableItem();
-    private CompletableItem replaceFieldValues = new CompletableItem();
-    private CompletableItem deleteFieldValues = new CompletableItem();
 
-    public void completeAll() {
-        addFieldValues.setCompleted(true);
-        replaceFieldValues.setCompleted(true);
-        deleteFieldValues.setCompleted(true);
-    }
+
 }

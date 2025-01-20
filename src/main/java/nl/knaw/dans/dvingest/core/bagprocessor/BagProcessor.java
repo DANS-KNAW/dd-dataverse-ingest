@@ -41,12 +41,12 @@ public class BagProcessor {
     @Builder
     private BagProcessor(UUID depositId, DataverseIngestBag bag, DataverseService dataverseService, UtilityServices utilityServices) throws IOException, ConfigurationException {
         this.bag = bag;
-        var actionLog = bag.getTaskLog();
-        this.datasetVersionCreator = new DatasetVersionCreator(depositId, dataverseService, bag.getInit(), bag.getDatasetMetadata(), actionLog.getInit(), actionLog.getDataset());
-        this.filesEditor = new FilesEditor(depositId, bag.getDataDir(), bag.getEditFiles(), dataverseService, utilityServices, actionLog.getEditFiles());
-        this.metadataEditor = new MetadataEditor(depositId, bag.getEditMetadata(), dataverseService);
-        this.permissionsEditor = new PermissionsEditor(depositId, bag.getEditPermissions(), dataverseService);
-        this.stateUpdater = new StateUpdater(depositId, bag.getUpdateState(), dataverseService);
+        var taskLog = bag.getTaskLog();
+        this.datasetVersionCreator = new DatasetVersionCreator(depositId, dataverseService, bag.getInit(), bag.getDatasetMetadata(), taskLog.getInit(), taskLog.getDataset());
+        this.filesEditor = new FilesEditor(depositId, bag.getDataDir(), bag.getEditFiles(), dataverseService, utilityServices, taskLog.getEditFiles());
+        this.metadataEditor = new MetadataEditor(depositId, bag.getEditMetadata(), taskLog.getEditMetadata(), dataverseService);
+        this.permissionsEditor = new PermissionsEditor(depositId, bag.getEditPermissions(), taskLog.getEditPermissions(), dataverseService);
+        this.stateUpdater = new StateUpdater(depositId, bag.getUpdateState(), taskLog.getUpdateState(), dataverseService);
     }
 
     public String run(String targetPid) throws IOException, DataverseException {

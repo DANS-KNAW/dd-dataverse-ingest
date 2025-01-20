@@ -33,6 +33,7 @@ import nl.knaw.dans.dvingest.core.yaml.InitRoot;
 import nl.knaw.dans.dvingest.core.yaml.UpdateStateRoot;
 import nl.knaw.dans.dvingest.core.yaml.tasklog.EditFilesLog;
 import nl.knaw.dans.dvingest.core.yaml.tasklog.InitLog;
+import nl.knaw.dans.dvingest.core.yaml.tasklog.TaskLogRoot;
 import nl.knaw.dans.lib.dataverse.MetadataFieldDeserializer;
 import nl.knaw.dans.lib.dataverse.model.dataset.Dataset;
 import nl.knaw.dans.lib.dataverse.model.dataset.MetadataField;
@@ -81,7 +82,7 @@ public class YamlServiceImpl implements YamlService {
             yamlConfigurationFactories.put(EditPermissionsRoot.class, new YamlConfigurationFactory<>(EditPermissionsRoot.class, factory.getValidator(), mapper, "dw"));
             yamlConfigurationFactories.put(UpdateStateRoot.class, new YamlConfigurationFactory<>(UpdateStateRoot.class, factory.getValidator(), mapper, "dw"));
             yamlConfigurationFactories.put(InitLog.class, new YamlConfigurationFactory<>(InitLog.class, factory.getValidator(), mapper, "dw"));
-            yamlConfigurationFactories.put(EditFilesLog.class, new YamlConfigurationFactory<>(EditFilesLog.class, factory.getValidator(), mapper, "dw"));
+            yamlConfigurationFactories.put(TaskLogRoot.class, new YamlConfigurationFactory<>(TaskLogRoot.class, factory.getValidator(), mapper, "dw"));
         }
         catch (Throwable e) {
             // This ctor is called from a static context, so we log the error to make sure it is not lost

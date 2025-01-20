@@ -70,7 +70,7 @@ public class FilesEditorAddFilesTest extends FilesEditorTestFixture {
         try (var zipFiles = new ZipFile(zipFile.toFile())) {
             for (var entry = zipFiles.entries(); entry.hasMoreElements(); ) {
                 var zipEntry = entry.nextElement();
-                assertThat(zipEntry.getName()).isIn(files);
+                assertThat(zipEntry.getName()).isIn(List.of(files));
             }
         }
     }
@@ -416,7 +416,7 @@ public class FilesEditorAddFilesTest extends FilesEditorTestFixture {
         Files.createFile(dataDir.resolve("file3"));
 
         when(dataverseServiceMock.getFiles("pid")).thenReturn(
-            List.of());
+            List.of(file("file1", 1), file("file2", 2), file("file3", 3)));
         /*
          * (Ab?)using the "thenAnswer" to save then upload the ZIP file, because it is deleted after upload.
          */
