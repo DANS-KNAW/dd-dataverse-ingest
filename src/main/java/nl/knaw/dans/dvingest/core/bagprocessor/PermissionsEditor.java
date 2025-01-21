@@ -61,12 +61,12 @@ public class PermissionsEditor {
             int numberCompleted = editPermissionsLog.getAddRoleAssignments().getNumberCompleted();
             if (numberCompleted > 0) {
                 log.debug("Resuming adding role assignments from index {}", numberCompleted);
-                for (int i = numberCompleted; i < editPermissions.getAddRoleAssignments().size(); i++) {
-                    var roleAssignment = editPermissions.getAddRoleAssignments().get(i);
-                    log.debug("Adding role assignment: {}", roleAssignment);
-                    dataverseService.addRoleAssignment(pid, roleAssignment);
-                    editPermissionsLog.getAddRoleAssignments().setNumberCompleted(i + 1);
-                }
+            }
+            for (int i = numberCompleted; i < editPermissions.getAddRoleAssignments().size(); i++) {
+                var roleAssignment = editPermissions.getAddRoleAssignments().get(i);
+                log.debug("Adding role assignment: {}", roleAssignment);
+                dataverseService.addRoleAssignment(pid, roleAssignment);
+                editPermissionsLog.getAddRoleAssignments().setNumberCompleted(i + 1);
             }
             log.debug("End adding role assignments for deposit {}", depositId);
         }
@@ -83,7 +83,12 @@ public class PermissionsEditor {
         }
         else {
             log.debug("Start deleting {} role assignments for deposit {}", depositId, editPermissions.getDeleteRoleAssignments().size());
-            for (var roleAssignment : editPermissions.getDeleteRoleAssignments()) {
+            int numberCompleted = editPermissionsLog.getDeleteRoleAssignments().getNumberCompleted();
+            if (numberCompleted > 0) {
+                log.debug("Resuming deleting role assignments from index {}", numberCompleted);
+            }
+            for (int i = numberCompleted; i < editPermissions.getDeleteRoleAssignments().size(); i++) {
+                var roleAssignment = editPermissions.getDeleteRoleAssignments().get(i);
                 log.debug("Deleting role assignment: {}", roleAssignment);
                 dataverseService.deleteRoleAssignment(pid, roleAssignment);
             }

@@ -63,6 +63,7 @@ public class EditFilesComposerForUpdate extends EditFilesComposer {
             log.error("Could not download files from dataset with pid {}", updatesDatasetPid, e);
         }
         var editFiles = new EditFiles();
+        editFiles.setAutoRenameFiles(getAutoRenamedFiles(renamedFiles));
 
         // move old paths to new paths
         // Convert from Path to String
@@ -139,19 +140,22 @@ public class EditFilesComposerForUpdate extends EditFilesComposer {
 
         log.debug("occupiedPaths = {}", occupiedPaths);
         var pathsToAdd = diff(pathFileInfoMap.keySet(), occupiedPaths);
-        editFiles.setAddRestrictedFiles(pathsToAdd.stream()
-            .filter(p -> !forIndividualUpload(p))
-            .filter(p -> pathFileInfoMap.get(p).getMetadata().getRestricted()).toList().stream().map(Path::toString).toList());
         editFiles.setAddRestrictedIndividually(pathsToAdd.stream()
             .filter(this::forIndividualUpload)
             .filter(p -> pathFileInfoMap.get(p).getMetadata().getRestricted()).toList().stream().map(Path::toString).toList());
-
-        editFiles.setAddUnrestrictedFiles(pathsToAdd.stream()
+        editFiles.setAddRestrictedFiles(pathsToAdd.stream()
             .filter(p -> !forIndividualUpload(p))
-            .filter(p -> !pathFileInfoMap.get(p).getMetadata().getRestricted()).toList().stream().map(Path::toString).toList());
+            .filter(p -> pathFileInfoMap.get(p).getMetadata().getRestricted()).toList().stream().map(Path::toString).toList());
+
         editFiles.setAddUnrestrictedIndividually(pathsToAdd.stream()
             .filter(this::forIndividualUpload)
             .filter(p -> !pathFileInfoMap.get(p).getMetadata().getRestricted()).toList().stream().map(Path::toString).toList());
+        editFiles.setAddUnrestrictedFiles(pathsToAdd.stream()
+            .filter(p -> !forIndividualUpload(p))
+            .filter(p -> !pathFileInfoMap.get(p).getMetadata().getRestricted()).toList().stream().map(Path::toString).toList());
+
+
+        editFiles.setUpdateFileMetas(getUpdatedFileMetas(pathFileInfoMap));
 
         addEmbargo(editFiles, SetUtils.union(pathsToAdd, filesToReplace));
         return editFiles;

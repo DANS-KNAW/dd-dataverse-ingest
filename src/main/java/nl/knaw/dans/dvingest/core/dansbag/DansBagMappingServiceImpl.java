@@ -135,7 +135,7 @@ public class DansBagMappingServiceImpl implements DansBagMappingService {
                 throw new IllegalArgumentException("Update deposit should have either a sword token or be a migration deposit");
             }
 
-            if (results.size() == 1) {
+            if (results.stream().distinct().count() == 1) { // There can be a released version and a draft version visible
                 return results.get(0);
             }
             else {

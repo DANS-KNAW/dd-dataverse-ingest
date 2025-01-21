@@ -123,7 +123,7 @@ public class EditFilesComposer {
      * @param files the file infos found in files.xml
      * @return a list of FileMetas that should be updated
      */
-    private List<FileMeta> getUpdatedFileMetas(Map<Path, FileInfo> files) {
+    protected List<FileMeta> getUpdatedFileMetas(Map<Path, FileInfo> files) {
         return files.values().stream()
             .map(FileInfo::getMetadata)
             .filter(this::hasAttributes)
@@ -155,7 +155,7 @@ public class EditFilesComposer {
             .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
     }
 
-    private List<FromTo> getAutoRenamedFiles(Map<String, String> renamedFiles) {
+    protected List<FromTo> getAutoRenamedFiles(Map<String, String> renamedFiles) {
         return renamedFiles.entrySet().stream()
             .map(entry -> new FromTo(entry.getKey(), entry.getValue()))
             .toList();
