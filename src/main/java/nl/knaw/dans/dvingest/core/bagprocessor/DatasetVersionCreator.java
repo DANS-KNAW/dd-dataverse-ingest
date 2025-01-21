@@ -137,7 +137,7 @@ public class DatasetVersionCreator {
     private String createDatasetIfNeeded(String targetPid) throws IOException, DataverseException {
         if (initLog.getCreate().isCompleted()) {
             log.debug("Create task already completed for deposit {}", depositId);
-            return targetPid;
+            return initLog.getTargetPid();
         }
 
         String pid;
@@ -151,16 +151,16 @@ public class DatasetVersionCreator {
         else {
             log.debug("Target PID provided, dataset does not need to be created for deposit {}", depositId);
             pid = targetPid;
-            initLog.getCreate().setCompleted(true);
+
         }
+        initLog.getCreate().setCompleted(true);
+        initLog.setTargetPid(pid);
         return pid;
     }
 
     private String createOrImportDataset() throws IOException, DataverseException {
         String importPid = getImportPid();
-        String pid = (importPid != null) ? importDataset(importPid) : createDataset();
-        initLog.getCreate().setCompleted(true);
-        return pid;
+        return (importPid != null) ? importDataset(importPid) : createDataset();
     }
 
     private String getImportPid() {

@@ -19,6 +19,7 @@ import lombok.Data;
 
 @Data
 public class InitLog {
+    private String targetPid;
     private ExpectLog expect = new ExpectLog();
     private CompletableItem create = new CompletableItem();
 

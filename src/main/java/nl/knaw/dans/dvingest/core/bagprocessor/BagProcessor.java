@@ -21,6 +21,7 @@ import lombok.extern.slf4j.Slf4j;
 import nl.knaw.dans.dvingest.core.DataverseIngestBag;
 import nl.knaw.dans.dvingest.core.service.DataverseService;
 import nl.knaw.dans.dvingest.core.service.UtilityServices;
+import nl.knaw.dans.dvingest.core.yaml.tasklog.TaskLog;
 import nl.knaw.dans.lib.dataverse.DataverseException;
 
 import java.io.IOException;
@@ -37,11 +38,12 @@ public class BagProcessor {
     private final PermissionsEditor permissionsEditor;
     private final StateUpdater stateUpdater;
     private final DataverseIngestBag bag;
+    private final TaskLog taskLog;
 
     @Builder
     private BagProcessor(UUID depositId, DataverseIngestBag bag, DataverseService dataverseService, UtilityServices utilityServices) throws IOException, ConfigurationException {
         this.bag = bag;
-        var taskLog = bag.getTaskLog();
+        this.taskLog = bag.getTaskLog();
         this.datasetVersionCreator = new DatasetVersionCreator(depositId, dataverseService, bag.getInit(), bag.getDatasetMetadata(), taskLog.getInit(), taskLog.getDataset());
         this.filesEditor = new FilesEditor(depositId, bag.getDataDir(), bag.getEditFiles(), dataverseService, utilityServices, taskLog.getEditFiles());
         this.metadataEditor = new MetadataEditor(depositId, bag.getEditMetadata(), taskLog.getEditMetadata(), dataverseService);
@@ -57,9 +59,28 @@ public class BagProcessor {
             permissionsEditor.editPermissions(targetPid);
             stateUpdater.updateState(targetPid, filesEditor.getFilesInDatasetCache().getNumberOfFilesInDataset());
             return targetPid;
+
         }
         finally {
             bag.saveTaskLog();
         }
     }
+
+//    private String getTargetPid(String targetPid) {
+//        if (targetPid == null) { // New dataset
+//            if (taskLog.getTargetPid() == null && taskLog.getInit().getCreate().isCompleted()) {
+//                throw new IllegalArgumentException("If task log does not contain a target PID, the init log must contain a create action or the deposit must have an updates-dataset property");
+//            }
+//            if (taskLog.getTargetPid() != null && !taskLog.getInit().getCreate().isCompleted()) {
+//                throw new IllegalArgumentException("If task log contains a target PID, the create action in the task log must be completed");
+//            }
+//            return taskLog.getTargetPid();
+//        } // Existing dataset
+//        else {
+//            if (taskLog.getTargetPid() != null && !targetPid.equals(taskLog.getTargetPid())) {
+//                throw new IllegalArgumentException("Target PID in task log %s does not match target PID in deposit %s".formatted(taskLog.getTargetPid(), targetPid));
+//            }
+//            return targetPid;
+//        }
+//    }
 }

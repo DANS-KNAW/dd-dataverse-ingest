@@ -333,3 +333,73 @@ deposit.
 The actions described in the Yaml files will be executed in same order as they are listed above. Note that changing the order of the actions in the Yaml files
 has no effect on the order in which they are executed. All files and all action fields (e.g., `addRestrictedFiles`) are optional, except for `dataset.yml`, when
 creating a new dataset.
+
+### The task log
+
+The service keeps the progress of the processing in file called `_tasks.yml`. Its layout corresponds closely to the combined layout of the instruction Yaml
+files. (The underscore in the name is there to make it stand out in the directory listing.):
+    
+```yaml
+taskLog:
+   init:
+      targetPid: null
+      expect:
+         state:
+            completed: false
+         dataverseRoleAssignment:
+            completed: false
+         datasetRoleAssignment:
+            completed: false
+      create:
+         completed: false
+   dataset:
+      completed: false
+   editFiles:
+      deleteFiles:
+         completed: false
+         numberCompleted: 0
+      replaceFiles:
+         completed: false
+         numberCompleted: 0
+      addUnrestrictedFiles:
+         completed: false
+         numberCompleted: 0
+      addRestrictedFiles:
+         completed: false
+         numberCompleted: 0
+      moveFiles:
+         completed: false
+         numberCompleted: 0
+      updateFileMetas:
+         completed: false
+         numberCompleted: 0
+      addEmbargoes:
+         completed: false
+         numberCompleted: 0
+      addUnrestrictedIndividually:
+         completed: false
+         numberCompleted: 0
+      addRestrictedIndividually:
+         completed: false
+         numberCompleted: 0
+      editMetadata:
+         addFieldValues:
+            completed: false
+         replaceFieldValues:
+            completed: false
+         deleteFieldValues:
+            completed: false
+      editPermissions:
+         deleteRoleAssignments:
+            completed: false
+            numberCompleted: 0
+         addRoleAssignments:
+            completed: false
+            numberCompleted: 0
+      updateState:
+         completed: false
+```
+
+The file is updated in memory and will be written to the root of the bag when the processing of the bag is finished or fails. If at the start of processing the
+bag the file is found in the root of the bag, the service will continue from where it left off. Note, that some items have a `numberCompleted` field, so if the
+overall task is not yet completed, the service will continue from where it left off.

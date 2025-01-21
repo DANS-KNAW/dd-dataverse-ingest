@@ -50,6 +50,7 @@ public class DatasetVersionCreatorTest {
                 completed: false
         """;
     private final String allCompletedYaml = """
+            targetPid: pid
             expect:
                 state:
                   completed: true
@@ -283,7 +284,7 @@ public class DatasetVersionCreatorTest {
         var initRoot = yamlService.readYamlFromString("""
             init:
               create:
-                importPid: pid-import
+                importPid: pid
             """, InitRoot.class);
         var dataset = new Dataset();
         var initLog = new InitLog();
@@ -295,8 +296,8 @@ public class DatasetVersionCreatorTest {
 
         // Then
         Mockito.verify(dataverseServiceMock, Mockito.never()).createDataset(dataset);
-        Mockito.verify(dataverseServiceMock).importDataset("pid-import", dataset);
-        Mockito.verify(dataverseServiceMock).updateMetadata("pid-import", dataset.getDatasetVersion());
+        Mockito.verify(dataverseServiceMock).importDataset("pid", dataset);
+        Mockito.verify(dataverseServiceMock).updateMetadata("pid", dataset.getDatasetVersion());
         YamlBeanAssert.assertThat(initLog).isEqualTo(allCompletedYaml);
     }
 
@@ -455,6 +456,7 @@ public class DatasetVersionCreatorTest {
         var initLog = new InitLog();
         var datasetLog = new CompletableItem();
         Mockito.when(dataverseServiceMock.getDatasetState("pid")).thenReturn("draft");
+        Mockito.when(dataverseServiceMock.createDataset(dataset)).thenReturn("pid");
         var datasetVersionCreator = new DatasetVersionCreator(depositId, dataverseServiceMock, initRoot.getInit(), dataset, initLog, datasetLog);
 
         // When
@@ -633,6 +635,7 @@ public class DatasetVersionCreatorTest {
             """, InitRoot.class);
         var dataset = new Dataset();
         var initLog = yamlService.readYamlFromString("""
+            targetPid: pid
             expect:
                 state:
                   completed: true
@@ -661,6 +664,7 @@ public class DatasetVersionCreatorTest {
         var depositId = UUID.randomUUID();
         var dataset = new Dataset();
         var initLog = yamlService.readYamlFromString("""
+            targetPid: pid
             expect:
                 state:
                   completed: true

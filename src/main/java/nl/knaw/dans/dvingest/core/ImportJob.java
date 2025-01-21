@@ -34,7 +34,7 @@ public class ImportJob implements Runnable {
     private final ImportCommandDto importCommand;
     @NonNull
     private final Path outputDir;
-    private boolean onlyConvertDansDeposit;
+    private final boolean onlyConvertDansDeposit;
     private final DataverseIngestDepositFactory depositFactory;
     private final DepositTaskFactory depositTaskFactory;
 
@@ -62,6 +62,18 @@ public class ImportJob implements Runnable {
         try {
             log.debug("Starting import job: {}", importCommand);
             status.setStatus(StatusEnum.RUNNING);
+            var deposits = createDataverseIngestDeposits();
+            initOutputDir();
+            processDeposits(deposits);
+        }
+        catch (Exception e) {
+            log.error("Failed to process import job", e);
+            status.setStatus(StatusEnum.FAILED);
+            status.setMessage(e.getMessage());
+        }
+    }
+
+    private TreeSet<DataverseIngestDeposit> createDataverseIngestDeposits() throws IOException {
             var deposits = new TreeSet<DataverseIngestDeposit>();
 
             if (importCommand.getSingleObject()) {
@@ -75,31 +87,7 @@ public class ImportJob implements Runnable {
                         .forEach(deposits::add);
                 }
             }
-
-            initOutputDir();
-
-            for (DataverseIngestDeposit dataverseIngestDeposit : deposits) {
-                if (cancelled) {
-                    log.info("Import job cancelled");
-                    status.setStatus(StatusEnum.DONE);
-                    status.setMessage("Import job cancelled");
-                    return;
-                }
-
-                log.info("START Processing deposit: {}", dataverseIngestDeposit.getId());
-                var task = depositTaskFactory.createDepositTask(dataverseIngestDeposit, outputDir, onlyConvertDansDeposit);
-                task.run();
-                log.info("END Processing deposit: {}", dataverseIngestDeposit.getId());
-                // TODO: record number of processed/rejected/failed deposits in ImportJob status
-            }
-
-            status.setStatus(StatusEnum.DONE);
-        }
-        catch (Exception e) {
-            log.error("Failed to process import job", e);
-            status.setStatus(StatusEnum.FAILED);
-            status.setMessage(e.getMessage());
-        }
+        return deposits;
     }
 
     private void initOutputDir() {
@@ -132,5 +120,25 @@ public class ImportJob implements Runnable {
         catch (IOException e) {
             throw new IllegalStateException("Failed to check directory: " + path, e);
         }
+    }
+
+    private void processDeposits(TreeSet<DataverseIngestDeposit> deposits) {
+        for (DataverseIngestDeposit dataverseIngestDeposit : deposits) {
+            if (cancelled) {
+                log.info("Import job cancelled");
+                status.setMessage("Import job cancelled");
+                status.setStatus(StatusEnum.DONE);
+                return;
+            }
+            else {
+                log.info("START Processing deposit: {}", dataverseIngestDeposit.getId());
+                var task = depositTaskFactory.createDepositTask(dataverseIngestDeposit, outputDir, onlyConvertDansDeposit);
+                task.run();
+                log.info("END Processing deposit: {}", dataverseIngestDeposit.getId());
+                // TODO: record number of processed/rejected/failed deposits in ImportJob status
+            }
+        }
+        status.setMessage("Import job completed");
+        status.setStatus(StatusEnum.DONE);
     }
 }
