@@ -136,27 +136,28 @@ editFiles:
   # directory under the same path as the original file has in the dataset. Note that files in `replaceFiles` will automatically be skipped in the add files step, 
   replaceFiles:
     - 'file2.txt'
+  # Adds files to the dataset and makes them unrestricted. The files are processed in batches, meaning they are uploaded as ZIP files to Dataverse, for Dataverse 
+  # to unzip them. This is more efficient than adding the files one by one.
+  addUnrestrictedFiles:
+     - 'file6.txt'
   # Adds files to the dataset and makes them restricted. The files are processed in batches, meaning they are uploaded as ZIP files to Dataverse, for Dataverse
   # to unzip them. This is more efficient than adding the files one by one. 
   addRestrictedFiles:
     - 'file4.txt'
     - 'subdirectory/file5.txt'
-  # The same as above, but the files are added unrestricted.
-  addUnrestrictedFiles:
-    - 'file6.txt'
-  # Adds files to the dataset and makes them restricted. The files are processed one by one, meaning they are uploaded as individual files to Dataverse. This is
+  # Adds files to the dataset and makes them unrestricted. The files are processed one by one, meaning they are uploaded as individual files to Dataverse. This is
   # useful if you need to circumvent special processing by Dataverse, such as re-zipping Shapefile projects. 
   # See: https://guides.dataverse.org/en/6.3/developers/geospatial.html#geospatial-data 
   # 
   # Conversely, you could use this to make sure a ZIP file in your bag is expanded by Dataverse, since Dataverse will not expand ZIP files that are uploaded 
   # inside another ZIP file, as is the case with the batch upload method.
-  addRestrictedFilesIndividually:
-    - 'bicycles.shp'
-    - 'bicycles.shx'
-    - 'bicycles.dbf'
-    - 'bicycles.prj'
-  # The same as above, but the files are added unrestricted.  
   addUnrestrictedFilesIndividually:
+     - 'bicycles.shp'
+     - 'bicycles.shx'
+     - 'bicycles.dbf'
+     - 'bicycles.prj'
+  # The same as above, but the files are added restricted.
+  addRestrictedFilesIndividually:
     - 'bicycles.shp'
     - 'bicycles.shx'
     - 'bicycles.dbf'
@@ -173,15 +174,15 @@ editFiles:
       directoryLabel: "subdirectory"
       restricted: false
       categories: [ 'Testlabel' ]
-  # This is not a separate step, but the auto-renaming takes place whenever a local filepath is translated to a dataset filepath.    
-  autoRenameFiles:
-    - from: "Unsanitize'd/file?" # Local file name
-      to: "Sanitize_d/file_" # The file name assigned in the dataset
   # Sets one or more embargoes on the files in the dataset.     
   addEmbargoes:
     - filePaths: [ 'file1.txt' ] # All other files will NOT be embargoed
       dateAvailable: '2030-01-01'
       reason: 'Pending publication'
+   # This is not a separate step, but the auto-renaming takes place whenever a local filepath is translated to a dataset filepath.    
+  autoRenameFiles:
+     - from: "Unsanitize'd/file?" # Local file name
+       to: "Sanitize_d/file_" # The file name assigned in the dataset
 ```
 
 ##### edit-metadata.yml
@@ -367,6 +368,12 @@ taskLog:
       addRestrictedFiles:
          completed: false
          numberCompleted: 0
+      addUnrestrictedIndividually:
+         completed: false
+         numberCompleted: 0
+      addRestrictedIndividually:
+         completed: false
+         numberCompleted: 0
       moveFiles:
          completed: false
          numberCompleted: 0
@@ -374,12 +381,6 @@ taskLog:
          completed: false
          numberCompleted: 0
       addEmbargoes:
-         completed: false
-         numberCompleted: 0
-      addUnrestrictedIndividually:
-         completed: false
-         numberCompleted: 0
-      addRestrictedIndividually:
          completed: false
          numberCompleted: 0
       editMetadata:
@@ -403,3 +404,6 @@ taskLog:
 The file is updated in memory and will be written to the root of the bag when the processing of the bag is finished or fails. If at the start of processing the
 bag the file is found in the root of the bag, the service will continue from where it left off. Note, that some items have a `numberCompleted` field, so if the
 overall task is not yet completed, the service will continue from where it left off.
+
+If you want to re-ingest a deposit completely, delete the `_tasks.yml` file from the root of the deposit. You should probably also delete the dataset version 
+that was created in the previous run.

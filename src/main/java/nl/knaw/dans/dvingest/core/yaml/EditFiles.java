@@ -26,10 +26,10 @@ public class EditFiles {
     private List<String> replaceFiles = List.of();
     private List<String> addUnrestrictedFiles = List.of();
     private List<String> addRestrictedFiles = List.of();
-    private List<FromTo> moveFiles = List.of();
-    private List<FromTo> autoRenameFiles = List.of();
-    private List<FileMeta> updateFileMetas = List.of();
-    private List<AddEmbargo> addEmbargoes = List.of();
     private List<String> addUnrestrictedIndividually = List.of();
     private List<String> addRestrictedIndividually = List.of();
+    private List<FromTo> moveFiles = List.of();
+    private List<FileMeta> updateFileMetas = List.of();
+    private List<AddEmbargo> addEmbargoes = List.of();
+    private List<FromTo> autoRenameFiles = List.of();
 }

@@ -96,10 +96,10 @@ public class FilesEditor {
         if (editFiles != null) {
             deleteFiles();
             replaceFiles();
-            addRestrictedFiles();
             addUnrestrictedFiles();
-            addRestrictedFilesIndividually();
+            addRestrictedFiles();
             addUnrestrictedFilesIndividually();
+            addRestrictedFilesIndividually();
             moveFiles();
             updateFileMetas();
             addEmbargoes();

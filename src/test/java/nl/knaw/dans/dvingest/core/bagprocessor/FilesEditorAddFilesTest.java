@@ -532,12 +532,12 @@ public class FilesEditorAddFilesTest extends FilesEditorTestFixture {
                 });
         var editFilesRoot = yamlService.readYamlFromString("""
             editFiles:
-                # Note that the order of execution is always as follows: restricted files first, then unrestricted files, no matter the order in the YAML
-                addRestrictedFiles:
+                # Note that the order of execution is always as follows: unrestricted files first, then restricted files, no matter the order in the YAML
+                addUnrestrictedFiles:
                   - file1
                   - file2
                   - file3
-                addUnrestrictedFiles:
+                addRestrictedFiles:
                   - file4
                   - file5
                   - file6
@@ -552,10 +552,10 @@ public class FilesEditorAddFilesTest extends FilesEditorTestFixture {
         ArgumentCaptor<Path> pathCaptor = ArgumentCaptor.forClass(Path.class);
         ArgumentCaptor<FileMeta> fileMetaCaptor = ArgumentCaptor.forClass(FileMeta.class);
         verify(dataverseServiceMock, times(4)).addFile(eq("pid"), pathCaptor.capture(), fileMetaCaptor.capture());
-        assertThat(fileMetaCaptor.getAllValues().get(0).getRestricted()).isTrue();
-        assertThat(fileMetaCaptor.getAllValues().get(1).getRestricted()).isTrue();
-        assertThat(fileMetaCaptor.getAllValues().get(2).getRestricted()).isFalse();
-        assertThat(fileMetaCaptor.getAllValues().get(3).getRestricted()).isFalse();
+        assertThat(fileMetaCaptor.getAllValues().get(0).getRestricted()).isFalse();
+        assertThat(fileMetaCaptor.getAllValues().get(1).getRestricted()).isFalse();
+        assertThat(fileMetaCaptor.getAllValues().get(2).getRestricted()).isTrue();
+        assertThat(fileMetaCaptor.getAllValues().get(3).getRestricted()).isTrue();
         assertThat(pathCaptor.getValue().toString())
             .withFailMessage("Uploaded file should be a ZIP file in the temp directory")
             .contains(testDir.resolve("temp").toString())
