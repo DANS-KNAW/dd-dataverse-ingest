@@ -342,63 +342,63 @@ files. (The underscore in the name is there to make it stand out in the director
     
 ```yaml
 taskLog:
-   init:
-      targetPid: null
-      expect:
-         state:
-            completed: false
-         dataverseRoleAssignment:
-            completed: false
-         datasetRoleAssignment:
-            completed: false
-      create:
-         completed: false
-   dataset:
+  init:
+    targetPid: null
+    expect:
+      state:
+        completed: false
+      dataverseRoleAssignment:
+        completed: false
+      datasetRoleAssignment:
+        completed: false
+    create:
       completed: false
-   editFiles:
-      deleteFiles:
-         completed: false
-         numberCompleted: 0
-      replaceFiles:
-         completed: false
-         numberCompleted: 0
-      addUnrestrictedFiles:
-         completed: false
-         numberCompleted: 0
-      addRestrictedFiles:
-         completed: false
-         numberCompleted: 0
-      addUnrestrictedIndividually:
-         completed: false
-         numberCompleted: 0
-      addRestrictedIndividually:
-         completed: false
-         numberCompleted: 0
-      moveFiles:
-         completed: false
-         numberCompleted: 0
-      updateFileMetas:
-         completed: false
-         numberCompleted: 0
-      addEmbargoes:
-         completed: false
-         numberCompleted: 0
-      editMetadata:
-         addFieldValues:
-            completed: false
-         replaceFieldValues:
-            completed: false
-         deleteFieldValues:
-            completed: false
-      editPermissions:
-         deleteRoleAssignments:
-            completed: false
-            numberCompleted: 0
-         addRoleAssignments:
-            completed: false
-            numberCompleted: 0
-      updateState:
-         completed: false
+  dataset:
+    completed: false
+  editFiles:
+    deleteFiles:
+      completed: false
+      numberCompleted: 0
+    replaceFiles:
+      completed: false
+      numberCompleted: 0
+    addUnrestrictedFiles:
+      completed: false
+      numberCompleted: 0
+    addRestrictedFiles:
+      completed: false
+      numberCompleted: 0
+    addUnrestrictedIndividually:
+      completed: false
+      numberCompleted: 0
+    addRestrictedIndividually:
+      completed: false
+      numberCompleted: 0
+    moveFiles:
+      completed: false
+      numberCompleted: 0
+    updateFileMetas:
+      completed: false
+      numberCompleted: 0
+    addEmbargoes:
+      completed: false
+      numberCompleted: 0
+  editMetadata:
+    addFieldValues:
+      completed: false
+    replaceFieldValues:
+      completed: false
+    deleteFieldValues:
+      completed: false
+  editPermissions:
+    deleteRoleAssignments:
+      completed: false
+      numberCompleted: 0
+    addRoleAssignments:
+      completed: false
+      numberCompleted: 0
+  updateState:
+    completed: false
 ```
 
 The file is updated in memory and will be written to the root of the bag when the processing of the bag is finished or fails. If at the start of processing the
