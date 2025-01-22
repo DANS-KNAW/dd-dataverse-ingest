@@ -151,14 +151,18 @@ public class DansDepositSupport implements Deposit {
             newProps.put("state.label", "PUBLISHED");
             newProps.put("state.description", "The dataset is published");
             if (!isMigration) {
-                newProps.put("identifier.doi", pid);
-                newProps.put("identifier.urn", nbn);
+                newProps.put(IDENTIFIER_DOI_KEY, removeDoiLabel(pid));
+                newProps.put(IDENTIFIER_NBN_KEY, nbn);
             }
             ingestDataverseIngestDeposit.updateProperties(newProps);
         }
         catch (IOException | DataverseException e) {
             throw new RuntimeException("Error getting URN:NBN", e);
         }
+    }
+
+    private String removeDoiLabel(String doi) {
+        return doi.startsWith("doi:") ? doi.substring(4) : doi;
     }
 
     @Override

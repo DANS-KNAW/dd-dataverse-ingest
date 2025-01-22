@@ -26,6 +26,7 @@ public interface Deposit {
     String UPDATES_DATASET_KEY = "updates-dataset";
     String CREATION_TIMESTAMP_KEY = "creation.timestamp";
     String IDENTIFIER_DOI_KEY = "identifier.doi";
+    String IDENTIFIER_NBN_KEY = "identifier.urn";
     String STATE_LABEL_KEY = "state.label";
     String STATE_DESCRIPTION_KEY = "state.description";
 

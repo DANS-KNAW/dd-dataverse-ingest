@@ -102,7 +102,7 @@ public class DataverseIngestDeposit implements Comparable<DataverseIngestDeposit
     @Override
     public void onSuccess(@NonNull String pid, String message) {
         var map = new HashMap<String, String>();
-        map.put(IDENTIFIER_DOI_KEY, pid);
+        map.put(IDENTIFIER_DOI_KEY, removeDoiLabel(pid));
         updateProperties(map);
     }
 
@@ -112,7 +112,7 @@ public class DataverseIngestDeposit implements Comparable<DataverseIngestDeposit
         map.put(STATE_LABEL_KEY, "FAILED");
         map.put(STATE_DESCRIPTION_KEY, message);
         if (pid != null) {
-            map.put(IDENTIFIER_DOI_KEY, pid);
+            map.put(IDENTIFIER_DOI_KEY, removeDoiLabel(pid));
         }
         updateProperties(map);
     }
@@ -123,9 +123,13 @@ public class DataverseIngestDeposit implements Comparable<DataverseIngestDeposit
         map.put(STATE_LABEL_KEY, "REJECTED");
         map.put(STATE_DESCRIPTION_KEY, message);
         if (pid != null) {
-            map.put(IDENTIFIER_DOI_KEY, pid);
+            map.put(IDENTIFIER_DOI_KEY, removeDoiLabel(pid));
         }
         updateProperties(map);
+    }
+
+    private String removeDoiLabel(String doi) {
+        return doi.startsWith("doi:") ? doi.substring(4) : doi;
     }
 
     @Override
