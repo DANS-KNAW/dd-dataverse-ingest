@@ -122,7 +122,7 @@ public class FilesEditor {
             log.debug("No files to delete for deposit {}", depositId);
         }
         else {
-            log.debug("Start deleting {} files for deposit {}", depositId, editFiles.getDeleteFiles().size());
+            log.debug("Start deleting {} files for deposit {}", editFiles.getDeleteFiles().size(), depositId);
             int numberDeleted = editFilesLog.getDeleteFiles().getNumberCompleted();
             if (numberDeleted > 0) {
                 log.debug("Resuming deleting files from number {}", numberDeleted);
@@ -152,7 +152,7 @@ public class FilesEditor {
             log.debug("No files to replace for deposit {}", depositId);
         }
         else {
-            log.debug("Start replacing {} files for deposit {}", depositId, editFiles.getReplaceFiles().size());
+            log.debug("Start replacing {} files for deposit {}", editFiles.getReplaceFiles().size(), depositId);
             int numberReplaced = editFilesLog.getReplaceFiles().getNumberCompleted();
             if (numberReplaced > 0) {
                 log.debug("Resuming replacing files from number {}", numberReplaced);
