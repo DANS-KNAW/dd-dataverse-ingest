@@ -22,11 +22,9 @@ import nl.knaw.dans.dvingest.core.dansbag.DansBagMappingServiceImpl;
 import nl.knaw.dans.dvingest.core.dansbag.SupportedLicenses;
 import nl.knaw.dans.dvingest.core.dansbag.mapper.DepositToDvDatasetMetadataMapper;
 import nl.knaw.dans.dvingest.core.service.DataverseService;
-import nl.knaw.dans.lib.dataverse.model.RoleAssignmentReadOnly;
 import nl.knaw.dans.lib.util.MappingLoader;
 import org.apache.commons.io.FileUtils;
 
-import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Paths;
 import java.util.HashMap;
@@ -34,6 +32,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
+
+import static nl.knaw.dans.dvingest.DdDataverseIngestApplication.*;
 
 /**
  * Helper for creating a {@link DansBagMappingService} instance to test, with sensible defaults for most fields. Currently, not all fields can be set. For example, the language mapping files are
@@ -68,14 +68,14 @@ public class DansBagMappingServiceBuilder {
             isMigration,
             deduplicate,
             Set.of("citation", "dansRights", "dansRelationMetadata", "dansArchaeologyMetadata", "dansTemporalSpatial", "dansDataVaultMetadata"),
-            MappingLoader.builder().csvFile(defaultConfigDir.resolve("iso639-1-to-dv.csv")).keyColumn("ISO639-1").valueColumn("Dataverse-language").build().load(),
-            MappingLoader.builder().csvFile(defaultConfigDir.resolve("iso639-2-to-dv.csv")).keyColumn("ISO639-2").valueColumn("Dataverse-language").build().load(),
-            MappingLoader.builder().csvFile(defaultConfigDir.resolve("abr-report-code-to-term.csv")).keyColumn("code").valueColumn("subject").build().load(),
-            MappingLoader.builder().csvFile(defaultConfigDir.resolve("verwervingswijzen-code-to-term.csv")).keyColumn("code").valueColumn("subject").build().load(),
-            MappingLoader.builder().csvFile(defaultConfigDir.resolve("abr-complextype-code-to-term.csv")).keyColumn("code").valueColumn("subject").build().load(),
-            MappingLoader.builder().csvFile(defaultConfigDir.resolve("abr-artifact-code-to-term.csv")).keyColumn("code").valueColumn("subject").build().load(),
-            MappingLoader.builder().csvFile(defaultConfigDir.resolve("abr-period-code-to-term.csv")).keyColumn("code").valueColumn("subject").build().load(),
-            FileUtils.readLines(defaultConfigDir.resolve("spatial-coverage-country-terms.txt").toFile(), StandardCharsets.UTF_8),
+            MappingLoader.builder().csvFile(defaultConfigDir.resolve(ISO_639_1_TO_DV_FILENAME)).keyColumn(ISO_639_1_TO_DV_KEY_COLUMN).valueColumn(DATAVERSE_LANGUAGE_COLUMN).build().load(),
+            MappingLoader.builder().csvFile(defaultConfigDir.resolve(ISO_639_2_TO_DV_FILENAME)).keyColumn(ISO_639_2_TO_DV_KEY_COLUMN).valueColumn(DATAVERSE_LANGUAGE_COLUMN).build().load(),
+            MappingLoader.builder().csvFile(defaultConfigDir.resolve(ABR_REPORT_CODE_TO_TERM_FILENAME)).keyColumn(CODE_COLUMN).valueColumn(SUBJECT_COLUMN).build().load(),
+            MappingLoader.builder().csvFile(defaultConfigDir.resolve(ABR_VERWERVINGSWIJZEN_CODE_TO_TERM_FILENAME)).keyColumn(CODE_COLUMN).valueColumn(SUBJECT_COLUMN).build().load(),
+            MappingLoader.builder().csvFile(defaultConfigDir.resolve(ABR_COMPLEXTYPE_CODE_TO_TERM_FILENAME)).keyColumn(CODE_COLUMN).valueColumn(SUBJECT_COLUMN).build().load(),
+            MappingLoader.builder().csvFile(defaultConfigDir.resolve(ABR_ARTIFACT_CODE_TO_TERM_FILENAME)).keyColumn(CODE_COLUMN).valueColumn(SUBJECT_COLUMN).build().load(),
+            MappingLoader.builder().csvFile(defaultConfigDir.resolve(ABR_PERIOD_CODE_TO_TERM_FILENAME)).keyColumn(CODE_COLUMN).valueColumn(SUBJECT_COLUMN).build().load(),
+            FileUtils.readLines(defaultConfigDir.resolve(SPATIAL_COVERAGE_COUNTRY_TERMS_FILENAME).toFile(), StandardCharsets.UTF_8),
             dataSuppliers,
             skipFields);
         var supportedLicenses = new SupportedLicenses(dataverseService);

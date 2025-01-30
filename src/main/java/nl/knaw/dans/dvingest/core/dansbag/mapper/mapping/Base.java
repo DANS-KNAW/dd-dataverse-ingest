@@ -90,7 +90,7 @@ public class Base {
                     .map(Node::getTextContent)
                     .orElse(null);
                 if (valueCode == null) {
-                    throw new IllegalArgumentException(String.format("No valueURI or valueCode found for for %s element", node.getLocalName()));
+                    throw new IllegalArgumentException(String.format("No valueURI or valueCode found for %s element", node.getLocalName()));
                 }
                 var term = codeToTerm.get(valueCode.trim());
                 if (term == null) {
