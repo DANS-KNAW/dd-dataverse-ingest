@@ -51,6 +51,29 @@ import java.util.regex.Pattern;
 
 @Slf4j
 public class DdDataverseIngestApplication extends Application<DdDataverseIngestConfiguration> {
+/*
+        - 'rapporten'
+        - 'verwervingswijzen'
+        - 'complextypen'
+        - 'artefacten'
+        - 'periodes'
+ */
+
+
+    public static final String SPATIAL_COVERAGE_COUNTRY_TERMS_FILENAME = "spatial-coverage-country-terms.txt";
+    public static final String ISO_639_1_TO_DV_FILENAME = "iso639-1-to-dv.csv";
+    public static final String ISO_639_2_TO_DV_FILENAME = "iso639-2-to-dv.csv";
+    public static final String ABR_REPORT_CODE_TO_TERM_FILENAME = "rapporten-code-to-term.csv";
+    public static final String ABR_VERWERVINGSWIJZEN_CODE_TO_TERM_FILENAME = "verwervingswijzen-code-to-term.csv";
+    public static final String ABR_COMPLEXTYPE_CODE_TO_TERM_FILENAME = "complextypen-code-to-term.csv";
+    public static final String ABR_ARTIFACT_CODE_TO_TERM_FILENAME = "artefacten-code-to-term.csv";
+    public static final String ABR_PERIOD_CODE_TO_TERM_FILENAME = "periodes-code-to-term.csv";
+
+    public static final String ISO_639_1_TO_DV_KEY_COLUMN = "ISO639-1";
+    public static final String ISO_639_2_TO_DV_KEY_COLUMN = "ISO639-2";
+    public static final String DATAVERSE_LANGUAGE_COLUMN = "Dataverse-language";
+    public static final String CODE_COLUMN = "code";
+    public static final String SUBJECT_COLUMN = "subject";
 
     public static void main(final String[] args) throws Exception {
         new DdDataverseIngestApplication().run(args);
@@ -179,14 +202,14 @@ public class DdDataverseIngestApplication extends Application<DdDataverseIngestC
                 isMigration,
                 dansDepositConversionConfig.isDeduplicate(),
                 dataverseService.getActiveMetadataBlockNames(),
-                MappingLoader.builder().csvFile(mappingDefsDir.resolve("iso639-1-to-dv.csv")).keyColumn("ISO639-1").valueColumn("Dataverse-language").build().load(),
-                MappingLoader.builder().csvFile(mappingDefsDir.resolve("iso639-2-to-dv.csv")).keyColumn("ISO639-2").valueColumn("Dataverse-language").build().load(),
-                MappingLoader.builder().csvFile(mappingDefsDir.resolve("abr-report-code-to-term.csv")).keyColumn("code").valueColumn("subject").build().load(),
-                MappingLoader.builder().csvFile(mappingDefsDir.resolve("verwervingswijzen-code-to-term.csv")).keyColumn("code").valueColumn("subject").build().load(),
-                MappingLoader.builder().csvFile(mappingDefsDir.resolve("abr-complextype-code-to-term.csv")).keyColumn("code").valueColumn("subject").build().load(),
-                MappingLoader.builder().csvFile(mappingDefsDir.resolve("abr-artifact-code-to-term.csv")).keyColumn("code").valueColumn("subject").build().load(),
-                MappingLoader.builder().csvFile(mappingDefsDir.resolve("abr-period-code-to-term.csv")).keyColumn("code").valueColumn("subject").build().load(),
-                FileUtils.readLines(mappingDefsDir.resolve("spatial-coverage-country-terms.txt").toFile(), StandardCharsets.UTF_8),
+                MappingLoader.builder().csvFile(mappingDefsDir.resolve(ISO_639_1_TO_DV_FILENAME)).keyColumn(ISO_639_1_TO_DV_KEY_COLUMN).valueColumn(DATAVERSE_LANGUAGE_COLUMN).build().load(),
+                MappingLoader.builder().csvFile(mappingDefsDir.resolve(ISO_639_2_TO_DV_FILENAME)).keyColumn(ISO_639_2_TO_DV_KEY_COLUMN).valueColumn(DATAVERSE_LANGUAGE_COLUMN).build().load(),
+                MappingLoader.builder().csvFile(mappingDefsDir.resolve(ABR_REPORT_CODE_TO_TERM_FILENAME)).keyColumn(CODE_COLUMN).valueColumn(SUBJECT_COLUMN).build().load(),
+                MappingLoader.builder().csvFile(mappingDefsDir.resolve(ABR_VERWERVINGSWIJZEN_CODE_TO_TERM_FILENAME)).keyColumn(CODE_COLUMN).valueColumn(SUBJECT_COLUMN).build().load(),
+                MappingLoader.builder().csvFile(mappingDefsDir.resolve(ABR_COMPLEXTYPE_CODE_TO_TERM_FILENAME)).keyColumn(CODE_COLUMN).valueColumn(SUBJECT_COLUMN).build().load(),
+                MappingLoader.builder().csvFile(mappingDefsDir.resolve(ABR_ARTIFACT_CODE_TO_TERM_FILENAME)).keyColumn(CODE_COLUMN).valueColumn(SUBJECT_COLUMN).build().load(),
+                MappingLoader.builder().csvFile(mappingDefsDir.resolve(ABR_PERIOD_CODE_TO_TERM_FILENAME)).keyColumn(CODE_COLUMN).valueColumn(SUBJECT_COLUMN).build().load(),
+                FileUtils.readLines(mappingDefsDir.resolve(SPATIAL_COVERAGE_COUNTRY_TERMS_FILENAME).toFile(), StandardCharsets.UTF_8),
                 dansDepositConversionConfig.getDataSuppliers(),
                 dansDepositConversionConfig.getSkipFields());
         }
