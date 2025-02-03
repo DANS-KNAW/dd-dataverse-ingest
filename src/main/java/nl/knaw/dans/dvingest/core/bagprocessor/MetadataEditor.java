@@ -38,68 +38,67 @@ public class MetadataEditor {
     public void editMetadata(String pid) throws IOException, DataverseException {
         this.pid = pid;
         if (editMetadata == null) {
-            log.debug("No metadata found. Skipping metadata update.");
+            log.debug("[{}] No metadata to edit. Skipping metadata editing.", depositId);
             editMetadataLog.completeAll();
             return;
         }
-        log.debug("Start updating metadata for deposit {}", depositId);
+        log.debug("[{}] Start editing metadata.", depositId);
         addFieldValues();
         replaceFieldValues();
         deleteFieldValues();
-        log.debug("End updating metadata for deposit {}", depositId);
+        log.debug("[{}] End editing metadata.", depositId);
     }
 
     private void deleteFieldValues() throws IOException, DataverseException {
         if (editMetadataLog.getDeleteFieldValues().isCompleted()) {
-            log.debug("Deletion of field values already completed. Skipping deletion.");
+            log.debug("[{}] Deletion of field values already completed.", depositId);
             return;
         }
         if (editMetadata.getDeleteFieldValues().isEmpty()) {
-            log.debug("No field values to delete. Skipping deletion.");
+            log.debug("[{}] No field values to delete.", depositId);
         }
         else {
-            log.debug("Start deleting {} field values for deposit {}", depositId, editMetadata.getDeleteFieldValues().size());
+            log.debug("[{}] Start deleting {} field values.", depositId, editMetadata.getDeleteFieldValues().size());
             for (var fieldValue : editMetadata.getDeleteFieldValues()) {
-                log.debug("Deleting field value: {}", fieldValue);
+                log.debug("[{}] Deleting field value: {}", depositId, fieldValue.getTypeName());
                 dataverseService.deleteDatasetMetadata(pid, editMetadata.getDeleteFieldValues());
             }
-            log.debug("End deleting field values for deposit {}", depositId);
+            log.debug("[{}] End deleting field values.", depositId);
         }
         editMetadataLog.getDeleteFieldValues().setCompleted(true);
     }
 
     private void addFieldValues() throws IOException, DataverseException {
         if (editMetadataLog.getAddFieldValues().isCompleted()) {
-            log.debug("Addition of field values already completed. Skipping addition.");
+            log.debug("[{}] Addition of field values already completed.", depositId);
             return;
         }
         if (editMetadata.getAddFieldValues().isEmpty()) {
-            log.debug("No field values to add. Skipping addition.");
+            log.debug("[{}] No field values to add.", depositId);
         }
         else {
-            log.debug("Start adding {} field values for deposit {}", depositId, editMetadata.getAddFieldValues().size());
+            log.debug("[{}] Start adding {} field values.", depositId, editMetadata.getAddFieldValues().size());
             for (var fieldValue : editMetadata.getAddFieldValues()) {
-                log.debug("Adding field value: {}", fieldValue);
+                log.debug("[{}] Adding field value: {}", depositId, fieldValue.getTypeName());
                 dataverseService.editMetadata(pid, editMetadata.getAddFieldValues(), false);
             }
-            log.debug("End adding field values for deposit {}", depositId);
+            log.debug("[{}] End adding field values.", depositId);
         }
         editMetadataLog.getAddFieldValues().setCompleted(true);
     }
 
     private void replaceFieldValues() throws IOException, DataverseException {
         if (editMetadataLog.getReplaceFieldValues().isCompleted()) {
-            log.debug("Replacement of field values already completed. Skipping replacement.");
+            log.debug("[{}] Replacement of field values already completed.", depositId);
             return;
         }
         if (editMetadata.getReplaceFieldValues().isEmpty()) {
-            log.debug("No field values to replace. Skipping replacement.");
+            log.debug("[{}] No field values to replace.", depositId);
         }
         else {
-
-            log.debug("Start replacing {} field values for deposit {}", depositId, editMetadata.getReplaceFieldValues().size());
+            log.debug("Start replacing field values for deposit {}", depositId);
             for (var fieldValue : editMetadata.getReplaceFieldValues()) {
-                log.debug("Replacing field value: {}", fieldValue);
+                log.debug("Replacing field value: {}", fieldValue.getTypeName());
                 dataverseService.editMetadata(pid, editMetadata.getReplaceFieldValues(), true);
             }
             log.debug("End replacing field values for deposit {}", depositId);

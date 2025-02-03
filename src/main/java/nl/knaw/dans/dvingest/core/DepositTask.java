@@ -55,39 +55,39 @@ public class DepositTask implements Runnable {
         try {
             deposit.validate();
             if (deposit.convertDansDepositIfNeeded() && onlyConvertDansDeposit) {
-                log.info("Only converting DANS deposit, LEAVING CONVERTED DEPOSIT IN PLACE");
+                log.info("[{}] Only converting DANS deposit, LEAVING CONVERTED DEPOSIT IN PLACE", deposit.getId());
                 return;
             }
             pid = deposit.getUpdatesDataset();
 
             for (DataverseIngestBag bag : deposit.getBags()) {
-                log.info("START processing deposit / bag: {} / {}", deposit.getId(), bag);
+                log.info("[{}] START processing bag: {}", deposit.getId(), bag);
                 pid = bagProcessorFactory.createBagProcessor(deposit.getId(), bag).run(pid);
-                log.info("END processing deposit / bag: {} / {}", deposit.getId(), bag);
+                log.info("[{}] END processing bag: {}", deposit.getId(), bag);
             }
             deposit.onSuccess(pid, "Deposit processed successfully");
             deposit.moveTo(outputDir.resolve("processed"));
         }
         catch (RejectedDepositException e) {
             try {
-                log.error("Deposit rejected", e);
+                log.error("[{}] Deposit rejected: {}", deposit.getId(), e.getMessage());
                 deposit.onRejected(pid, e.getMessage());
                 deposit.moveTo(outputDir.resolve("rejected"));
                 status = Status.REJECTED;
             }
             catch (Exception e2) {
-                log.error("Failed to move deposit to rejected directory", e2);
+                log.error("[{}] Failed to move deposit to rejected directory", deposit.getId(), e2);
             }
         }
         catch (Exception e) {
             try {
-                log.error("Failed to ingest deposit", e);
+                log.error("[{}] Failed to ingest deposit", deposit.getId(), e);
                 deposit.onFailed(pid, e.getMessage());
                 deposit.moveTo(outputDir.resolve("failed"));
                 status = Status.FAILED;
             }
             catch (IOException ioException) {
-                log.error("Failed to move deposit to failed directory", ioException);
+                log.error("[{}] Failed to move deposit to failed directory", deposit.getId(), ioException);
             }
         }
     }

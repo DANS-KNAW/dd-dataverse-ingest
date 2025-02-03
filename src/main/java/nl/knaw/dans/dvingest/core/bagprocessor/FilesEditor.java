@@ -84,13 +84,13 @@ public class FilesEditor {
          */
         if (editFiles == null) {
             if (isEmptyDir(dataDir)) {
-                log.debug("No files to edit for deposit {}", depositId);
+                log.debug("[{}] No files to edit for dataset {}.", depositId, pid);
                 editFilesLog.completeAll();
                 return;
             }
         }
 
-        log.debug("Start editing files for deposit {}", depositId);
+        log.debug("[{}] Start editing files for dataset {}.", depositId, pid);
         this.pid = pid;
         filesInDatasetCache.downloadFromDataset(pid);
         if (editFiles != null) {
@@ -104,7 +104,7 @@ public class FilesEditor {
             updateFileMetas();
             addEmbargoes();
         }
-        log.debug("End editing files for deposit {}", depositId);
+        log.debug("[{}] End editing files for dataset {}.", depositId, pid);
     }
 
     private boolean isEmptyDir(Path dir) throws IOException {
@@ -115,21 +115,21 @@ public class FilesEditor {
 
     private void deleteFiles() throws IOException, DataverseException {
         if (editFilesLog.getDeleteFiles().isCompleted()) {
-            log.debug("Task deleteFiles already completed for deposit {}", depositId);
+            log.debug("[{}] Task deleteFiles already completed", depositId);
             return;
         }
         if (editFiles.getDeleteFiles().isEmpty()) {
-            log.debug("No files to delete for deposit {}", depositId);
+            log.debug("[{}] No files to delete.", depositId);
         }
         else {
-            log.debug("Start deleting {} files for deposit {}", editFiles.getDeleteFiles().size(), depositId);
+            log.debug("[{}} Start deleting {} files.", depositId, editFiles.getDeleteFiles().size());
             int numberDeleted = editFilesLog.getDeleteFiles().getNumberCompleted();
             if (numberDeleted > 0) {
-                log.debug("Resuming deleting files from number {}", numberDeleted);
+                log.debug("[{}] Resuming deleting files from number {}", depositId, numberDeleted);
             }
             for (int i = numberDeleted; i < editFiles.getDeleteFiles().size(); i++) {
                 var filepath = editFiles.getDeleteFiles().get(i);
-                log.debug("Deleting file: {}", filepath);
+                log.debug("[{}] Deleting file: {}", depositId, filepath);
                 var fileToDelete = filesInDatasetCache.get(filepath);
                 if (fileToDelete == null) {
                     throw new IllegalArgumentException("File to delete not found in dataset: " + filepath);
@@ -138,28 +138,28 @@ public class FilesEditor {
                 filesInDatasetCache.remove(filepath);
                 editFilesLog.getDeleteFiles().setNumberCompleted(++numberDeleted);
             }
-            log.debug("End deleting files for deposit {}", depositId);
+            log.debug("[{}] End deleting {} files.", depositId, editFiles.getDeleteFiles().size());
         }
         editFilesLog.getDeleteFiles().setCompleted(true);
     }
 
     private void replaceFiles() throws IOException {
         if (editFilesLog.getReplaceFiles().isCompleted()) {
-            log.debug("Task replaceFiles already completed for deposit {}", depositId);
+            log.debug("[{}] Task replaceFiles already completed.", depositId);
             return;
         }
         if (editFiles.getReplaceFiles().isEmpty()) {
-            log.debug("No files to replace for deposit {}", depositId);
+            log.debug("[{}] No files to replace.", depositId);
         }
         else {
-            log.debug("Start replacing {} files for deposit {}", editFiles.getReplaceFiles().size(), depositId);
+            log.debug("[{}] Start replacing {} files.", depositId, editFiles.getReplaceFiles().size());
             int numberReplaced = editFilesLog.getReplaceFiles().getNumberCompleted();
             if (numberReplaced > 0) {
-                log.debug("Resuming replacing files from number {}", numberReplaced);
+                log.debug("[{}] Resuming replacing files from number {}", depositId, numberReplaced);
             }
             for (int i = numberReplaced; i < editFiles.getReplaceFiles().size(); i++) {
                 var filepath = editFiles.getReplaceFiles().get(i);
-                log.debug("Replacing file: {}", filepath);
+                log.debug("[{}] Replacing file: {}", depositId, filepath);
                 var fileToReplace = filesInDatasetCache.get(filepath);
                 if (fileToReplace == null) {
                     throw new IllegalArgumentException("File to replace not found in dataset: " + filepath);
@@ -176,7 +176,7 @@ public class FilesEditor {
                 );
                 editFilesLog.getReplaceFiles().setNumberCompleted(++numberReplaced);
             }
-            log.debug("End replacing files for deposit {}", depositId);
+            log.debug("[{}] End replacing {} files.", depositId, editFiles.getReplaceFiles().size());
         }
         editFilesLog.getReplaceFiles().setCompleted(true);
     }
@@ -192,11 +192,11 @@ public class FilesEditor {
 
     public void addRestrictedFilesIndividually() throws IOException, DataverseException {
         if (editFilesLog.getAddRestrictedIndividually().isCompleted()) {
-            log.debug("Task addRestrictedIndividually already completed for deposit {}", depositId);
+            log.debug("[{}] Task addRestrictedIndividually already completed.", depositId);
             return;
         }
         if (editFiles.getAddRestrictedIndividually().isEmpty()) {
-            log.debug("No restricted files to add individually for deposit {}", depositId);
+            log.debug("[{}] No restricted files to add individually.", depositId);
         }
         else {
             addFilesIndividually(editFiles.getAddRestrictedIndividually(), true);
@@ -206,11 +206,11 @@ public class FilesEditor {
 
     public void addUnrestrictedFilesIndividually() throws IOException, DataverseException {
         if (editFilesLog.getAddUnrestrictedIndividually().isCompleted()) {
-            log.debug("Task addUnrestrictedIndividually already completed for deposit {}", depositId);
+            log.debug("[{}] Task addUnrestrictedIndividually already completed.", depositId);
             return;
         }
         if (editFiles.getAddUnrestrictedIndividually().isEmpty()) {
-            log.debug("No unrestricted files to add individually for deposit {}", depositId);
+            log.debug("[{}] No unrestricted files to add individually.", depositId);
         }
         else {
             addFilesIndividually(editFiles.getAddUnrestrictedIndividually(), false);
@@ -219,14 +219,14 @@ public class FilesEditor {
     }
 
     public void addFilesIndividually(List<String> files, boolean restricted) throws IOException, DataverseException {
-        log.debug("Start adding {} files individually for deposit {}, restrict = {}", editFiles.getAddRestrictedIndividually().size(), depositId, restricted);
+        log.debug("[{}] Start adding {} {} files individually.", depositId, files.size(), restricted ? "restricted" : "unrestricted");
         int numberAdded = editFilesLog.getAddRestrictedIndividually().getNumberCompleted();
         if (numberAdded > 0) {
-            log.debug("Resuming adding files from number {}", numberAdded);
+            log.debug("[{}] Resuming adding files from number {}", depositId, numberAdded);
         }
         for (int i = numberAdded; i < files.size(); i++) {
             var filepath = files.get(i);
-            log.debug("Adding file: {}", filepath);
+            log.debug("[{}] Adding file: {}", depositId, filepath);
             var fileMeta = new FileMeta();
             fileMeta.setRestricted(restricted);
             var realFilepath = filepath;
@@ -251,20 +251,20 @@ public class FilesEditor {
             else {
                 editFilesLog.getAddUnrestrictedIndividually().setNumberCompleted(++numberAdded);
             }
-
         }
+        log.debug("[{}] End adding {} {} files individually.", depositId, files.size(), restricted ? "restricted" : "unrestricted");
     }
 
     private void addRestrictedFiles() throws IOException, DataverseException {
         if (editFilesLog.getAddRestrictedFiles().isCompleted()) {
-            log.debug("Task addRestrictedFiles already completed for deposit {}", depositId);
+            log.debug("[{}] Task addRestrictedFiles already completed.", depositId);
             return;
         }
         if (editFiles.getAddRestrictedFiles().isEmpty()) {
-            log.debug("No restricted files to add for deposit {}", depositId);
+            log.debug("[{}] No restricted files to add.", depositId);
         }
         else {
-            log.debug("Start adding {} restricted files for deposit {}", editFiles.getAddRestrictedFiles().size(), depositId);
+            log.debug("[{}] Start adding {} restricted files.", depositId, editFiles.getAddRestrictedFiles().size());
             var iterator = new PathIterator(
                 IteratorUtils.skippingIterator(
                     editFiles.getAddRestrictedFiles().stream().map(dataDir::resolve).map(Path::toFile).iterator(),
@@ -272,21 +272,21 @@ public class FilesEditor {
             while (iterator.hasNext()) {
                 uploadFileBatch(iterator, true, editFilesLog.getAddRestrictedFiles());
             }
-            log.debug("End adding {} restricted files for deposit {}", iterator.getIteratedCount(), depositId);
+            log.debug("[{}] End adding {} restricted files.", depositId, editFiles.getAddRestrictedFiles().size());
         }
         editFilesLog.getAddRestrictedFiles().setCompleted(true);
     }
 
     private void addUnrestrictedFiles() throws IOException, DataverseException {
         if (editFilesLog.getAddUnrestrictedFiles().isCompleted()) {
-            log.debug("Task addUnrestrictedFiles already completed for deposit {}", depositId);
+            log.debug("[{}] Task addUnrestrictedFiles already completed.", depositId);
             return;
         }
         if (editFiles.getAddUnrestrictedFiles().isEmpty()) {
-            log.debug("No unrestricted files to add for deposit {}", depositId);
+            log.debug("[{}] No unrestricted files to add.", depositId);
         }
         else {
-            log.debug("Start adding {} unrestricted files for deposit {}", editFiles.getAddUnrestrictedFiles().size(), depositId);
+            log.debug("[{}] Start adding {} unrestricted files.", depositId, editFiles.getAddUnrestrictedFiles().size());
             var iterator = new PathIterator(
                 IteratorUtils.skippingIterator(
                     editFiles.getAddUnrestrictedFiles().stream().map(dataDir::resolve).map(Path::toFile).iterator(),
@@ -294,7 +294,7 @@ public class FilesEditor {
             while (iterator.hasNext()) {
                 uploadFileBatch(iterator, false, editFilesLog.getAddUnrestrictedFiles());
             }
-            log.debug("End uploading {} unrestricted files for deposit {}", iterator.getIteratedCount(), depositId);
+            log.debug("[{}] End adding {} unrestricted files.", depositId, editFiles.getAddUnrestrictedFiles().size());
         }
         editFilesLog.getAddUnrestrictedFiles().setCompleted(true);
     }
@@ -310,10 +310,11 @@ public class FilesEditor {
                 .zip();
             var fileMeta = new FileMeta();
             fileMeta.setRestricted(restrict);
-            log.debug("Start uploading zip file at {} for deposit {}", zipFile, depositId);
+            log.debug("[{}] Start uploading batch in ZIP file: {}", depositId, zipFile);
             var addedFileMetaList = dataverseService.addFile(pid, zipFile, fileMeta);
-            log.debug("Uploaded {} files, ({} cumulative)", addedFileMetaList.getFiles().size(), iterator.getIteratedCount());
+            log.debug("[{}] End uploading batch in ZIP file: {}", depositId, zipFile);
             trackLog.setNumberCompleted(trackLog.getNumberCompleted() + addedFileMetaList.getFiles().size());
+            log.debug("[{}] Added {} files in this batch; total: {}", depositId, addedFileMetaList.getFiles().size(), trackLog.getNumberCompleted());
             for (var fm : addedFileMetaList.getFiles()) {
                 filesInDatasetCache.put(fm); // auto-rename is done by PathIteratorZipper
             }
@@ -325,19 +326,21 @@ public class FilesEditor {
 
     private void moveFiles() throws IOException, DataverseException {
         if (editFilesLog.getMoveFiles().isCompleted()) {
-            log.debug("Task moveFiles already completed for deposit {}", depositId);
+            log.debug("[{}] Task moveFiles already completed.", depositId);
             return;
         }
         if (editFiles.getMoveFiles().isEmpty()) {
-            log.debug("No files to move for deposit {}", depositId);
-        } else {
-            log.debug("Start moving {} files for deposit {}", editFiles.getMoveFiles().size(), depositId);
+            log.debug("[{}] No files to move.", depositId);
+        }
+        else {
+            log.debug("[{}] Start moving {} files.", depositId, editFiles.getMoveFiles().size());
             int numberMoved = editFilesLog.getMoveFiles().getNumberCompleted();
             if (numberMoved > 0) {
-                log.debug("Resuming moving files from number {}", numberMoved);
+                log.debug("[{}] Resuming moving files from number {}", depositId, numberMoved);
             }
             for (int i = numberMoved; i < editFiles.getMoveFiles().size(); i++) {
                 var move = editFiles.getMoveFiles().get(i);
+                log.debug("[{}] Moving file: {} to {}", depositId, move.getFrom(), move.getTo());
                 var fileMeta = filesInDatasetCache.get(move.getFrom());
                 fileMeta = filesInDatasetCache.createFileMetaForMovedFile(move.getTo(), fileMeta);
                 dataverseService.updateFileMetadata(fileMeta.getDataFile().getId(), fileMeta);
@@ -345,32 +348,33 @@ public class FilesEditor {
                 filesInDatasetCache.put(fileMeta); // auto-rename is done by getMovedFile
                 editFilesLog.getMoveFiles().setNumberCompleted(++numberMoved);
             }
-            log.debug("End moving files for deposit {}", depositId);
+            log.debug("[{}] End moving {} files.", depositId, editFiles.getMoveFiles().size());
         }
         editFilesLog.getMoveFiles().setCompleted(true);
     }
 
     private void updateFileMetas() throws IOException, DataverseException {
         if (editFilesLog.getUpdateFileMetas().isCompleted()) {
-            log.debug("Task updateFileMetas already completed for deposit {}", depositId);
+            log.debug("[{}] Task updateFileMetas already completed.", depositId);
             return;
         }
         if (editFiles.getUpdateFileMetas().isEmpty()) {
-            log.debug("No file metadata to update for deposit {}", depositId);
-            editFilesLog.getUpdateFileMetas().setCompleted(true);
-        } else {
-            log.debug("Start updating {} file metas for deposit {}", editFiles.getUpdateFileMetas().size(), depositId);
+            log.debug("[{}] No file metas to update.", depositId);
+        }
+        else {
+            log.debug("[{}] Start updating file metas.", depositId);
             int numberUpdated = editFilesLog.getUpdateFileMetas().getNumberCompleted();
             if (numberUpdated > 0) {
-                log.debug("Resuming updating file metadata from number {}", numberUpdated);
+                log.debug("[{}] Resuming updating file metadata from number {}", depositId, numberUpdated);
             }
             for (int i = numberUpdated; i < editFiles.getUpdateFileMetas().size(); i++) {
                 var fileMeta = editFiles.getUpdateFileMetas().get(i);
+                log.debug("[{}] Updating file metadata for file {}", depositId, getPath(fileMeta));
                 var id = filesInDatasetCache.get(getPath(fileMeta)).getDataFile().getId();
                 dataverseService.updateFileMetadata(id, fileMeta);
                 editFilesLog.getUpdateFileMetas().setNumberCompleted(++numberUpdated);
             }
-            log.debug("End updating file metadata for deposit {}", depositId);
+            log.debug("[{}] End updating file metas.", depositId);
         }
         editFilesLog.getUpdateFileMetas().setCompleted(true);
     }
@@ -382,19 +386,21 @@ public class FilesEditor {
 
     private void addEmbargoes() throws IOException, DataverseException {
         if (editFilesLog.getAddEmbargoes().isCompleted()) {
-            log.debug("Task addEmbargoes already completed for deposit {}", depositId);
+            log.debug("[{}] Task addEmbargoes already completed.", depositId);
             return;
         }
         if (editFiles.getAddEmbargoes().isEmpty()) {
-            log.debug("No embargoes to add for deposit {}", depositId);
-        } else {
-            log.debug("Start adding {} embargoes for deposit {}", editFiles.getAddEmbargoes().size(), depositId);
+            log.debug("[{}] No embargoes to add.", depositId);
+        }
+        else {
+            log.debug("[{}] Start adding {} embargoes.", depositId, editFiles.getAddEmbargoes().size());
             int numberOfEmbargoesAdded = editFilesLog.getAddEmbargoes().getNumberCompleted();
             if (numberOfEmbargoesAdded > 0) {
-                log.debug("Resuming adding embargoes from number {}", numberOfEmbargoesAdded);
+                log.debug("[{}] Resuming adding embargoes from number {}", depositId, numberOfEmbargoesAdded);
             }
             for (int i = numberOfEmbargoesAdded; i < editFiles.getAddEmbargoes().size(); i++) {
                 var addEmbargo = editFiles.getAddEmbargoes().get(i);
+                log.debug("[{}] Adding embargo number {}", depositId, i);
                 var embargo = new Embargo();
                 embargo.setDateAvailable(addEmbargo.getDateAvailable());
                 embargo.setReason(addEmbargo.getReason());
@@ -406,7 +412,7 @@ public class FilesEditor {
                 dataverseService.addEmbargo(pid, embargo);
                 editFilesLog.getAddEmbargoes().setNumberCompleted(++numberOfEmbargoesAdded);
             }
-            log.debug("End adding embargoes for deposit {}", depositId);
+            log.debug("[{}] End adding {} embargoes.", depositId, editFiles.getAddEmbargoes().size());
         }
         editFilesLog.getAddEmbargoes().setCompleted(true);
     }

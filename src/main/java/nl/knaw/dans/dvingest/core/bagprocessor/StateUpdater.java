@@ -42,7 +42,7 @@ public class StateUpdater {
 
     public void updateState(String pid, int numberOfFilesInDataset) throws DataverseException, IOException {
         if (updateStateLog.isCompleted()) {
-            log.debug("Update action already completed. Skipping update.");
+            log.debug("[{}] State already updated.", depositId);
             return;
         }
 
@@ -59,16 +59,20 @@ public class StateUpdater {
     }
 
     private void publishVersion(UpdateType updateType) throws DataverseException, IOException {
-        log.debug("Start publishing version for deposit {}", depositId);
+        log.debug("[{}] Start publishing version; dataset = {}; updateType = {}", depositId, pid, updateType);
         dataverseService.publishDataset(pid, updateType);
+        log.debug("[{}] Waiting for dataset to reach released state; dataset = {}", depositId, pid);
         dataverseService.waitForReleasedState(pid, numberOfFilesInDataset);
-        log.debug("End publishing version for deposit {}", depositId);
+        log.debug("[{}] Dataset reached released state; dataset = {}", depositId, pid);
+        log.debug("[{}] End publishing version; dataset = {}; updateType = {}", depositId, pid, updateType);
     }
 
     public void releaseMigrated(String date) throws DataverseException, IOException {
-        log.debug("Start releasing migrated version for deposit {}", depositId);
+        log.debug("[{}] Start releasing migrated dataset with pid and date: {} {}", depositId, pid, date);
         dataverseService.releaseMigratedDataset(pid, date);
+        log.debug("[{}] Waiting for dataset to reach released state; dataset = {}", depositId, pid);
         dataverseService.waitForReleasedState(pid, numberOfFilesInDataset);
-        log.debug("End releasing migrated version for deposit {}", depositId);
+        log.debug("[{}] Dataset reached released state; dataset = {}", depositId, pid);
+        log.debug("[{}] End releasing migrated dataset with pid and date: {} {}", depositId, pid, date);
     }
 }
