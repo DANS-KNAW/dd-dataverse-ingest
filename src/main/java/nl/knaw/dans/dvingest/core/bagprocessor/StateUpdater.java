@@ -68,11 +68,11 @@ public class StateUpdater {
     }
 
     public void releaseMigrated(String date) throws DataverseException, IOException {
-        log.debug("[{}] Start releasing migrated dataset with pid and date: {} {}", depositId, pid, date);
+        log.debug("[{}] Start releasing migrated dataset with pid {} and date {}", depositId, pid, date);
         dataverseService.releaseMigratedDataset(pid, date);
         log.debug("[{}] Waiting for dataset to reach released state; dataset = {}", depositId, pid);
         dataverseService.waitForReleasedState(pid, numberOfFilesInDataset);
         log.debug("[{}] Dataset reached released state; dataset = {}", depositId, pid);
-        log.debug("[{}] End releasing migrated dataset with pid {} and date: {}", depositId, pid, date);
+        log.debug("[{}] End releasing migrated dataset with pid {} and date {}", depositId, pid, date);
     }
 }
