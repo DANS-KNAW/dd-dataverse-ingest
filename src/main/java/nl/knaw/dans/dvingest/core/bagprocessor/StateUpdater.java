@@ -73,6 +73,6 @@ public class StateUpdater {
         log.debug("[{}] Waiting for dataset to reach released state; dataset = {}", depositId, pid);
         dataverseService.waitForReleasedState(pid, numberOfFilesInDataset);
         log.debug("[{}] Dataset reached released state; dataset = {}", depositId, pid);
-        log.debug("[{}] End releasing migrated dataset with pid and date: {} {}", depositId, pid, date);
+        log.debug("[{}] End releasing migrated dataset with pid {} and date: {}", depositId, pid, date);
     }
 }

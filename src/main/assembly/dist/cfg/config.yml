@@ -81,9 +81,9 @@ ingest:
   #
   waitForReleasedState:
     # Start polling for the dataset state after this time x number of files in the dataset. It is expected that releasing a dataset takes at least this amount of time.
-    leadTimePerFile: 200ms
+    leadTimePerFile: 20ms
     # Give up waiting for the dataset to be in the expected state after this time. The lead time is *not* included in this timeout.
-    timeout: 3h
+    timeout: 1h
     # The interval between polling the dataset state.
     pollingInterval: 5s
 
