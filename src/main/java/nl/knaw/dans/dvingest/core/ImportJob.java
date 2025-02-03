@@ -131,10 +131,10 @@ public class ImportJob implements Runnable {
                 return;
             }
             else {
-                log.info("START Processing deposit: {}", dataverseIngestDeposit.getId());
+                log.info("[{}] START Processing deposit.", dataverseIngestDeposit.getId());
                 var task = depositTaskFactory.createDepositTask(dataverseIngestDeposit, outputDir, onlyConvertDansDeposit);
                 task.run();
-                log.info("END Processing deposit: {}", dataverseIngestDeposit.getId());
+                log.info("[{}] END Processing deposit.", dataverseIngestDeposit.getId());
                 // TODO: record number of processed/rejected/failed deposits in ImportJob status
             }
         }

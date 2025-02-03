@@ -79,7 +79,7 @@ public class DansDepositSupport implements Deposit {
     @Override
     public boolean convertDansDepositIfNeeded() {
         if (mustConvertDansDeposit && dansDeposit == null) {
-            log.info("Converting deposit to Dataverse ingest metadata");
+            log.info("[{}] Start converting deposit to Dataverse ingest metadata", ingestDataverseIngestDeposit.getId());
             try {
                 var updatesDataset = dansBagMappingService.getUpdatesDataset(ingestDataverseIngestDeposit.getLocation());
                 DatasetVersion currentMetadata = null;
@@ -93,7 +93,7 @@ public class DansDepositSupport implements Deposit {
                     dansDeposit.setDataverseDoi(updatesDataset);
                 }
                 new DansDepositConverter(dansDeposit, updatesDataset, currentMetadata, dansBagMappingService, yamlService).run();
-                log.info("Conversion successful");
+                log.info("[{}] End converting deposit to Dataverse ingest metadata", ingestDataverseIngestDeposit.getId());
                 return true;
             }
             catch (IOException | InvalidDepositException | DataverseException e) {
