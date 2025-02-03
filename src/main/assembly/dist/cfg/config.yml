@@ -196,6 +196,7 @@ logging:
     - type: file
       archive: false
       timeZone: system
+      logFormat: "%-5p [%d{ISO8601}] %c{20}: %m%n%dwREx"
       currentLogFilename: /var/opt/dans.knaw.nl/log/dd-dataverse-ingest/dd-dataverse-ingest.log
   loggers:
     'org.hibernate.engine.internal.StatisticalLoggingSessionEventListener': 'OFF'

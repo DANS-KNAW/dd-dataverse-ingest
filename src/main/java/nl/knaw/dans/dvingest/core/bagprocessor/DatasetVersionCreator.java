@@ -142,7 +142,6 @@ public class DatasetVersionCreator {
 
         String pid;
         if (targetPid == null) {
-            log.debug("Start creating dataset for deposit {}", depositId);
             if (dataset == null) {
                 throw new IllegalArgumentException("Must have dataset metadata to create a new dataset.");
             }
