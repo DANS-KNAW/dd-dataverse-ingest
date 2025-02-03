@@ -62,7 +62,7 @@ public class DatasetVersionCreator {
     }
 
     private void checkExpectations(@NonNull Expect expect, String targetPid) throws DataverseException, IOException {
-        log.debug("Start checking expectations for deposit {}", depositId);
+        log.debug("[{}] Start checking expectations", depositId);
         if (expect.getState() != null && targetPid != null && !initLog.getExpect().getState().isCompleted()) {
             checkDatasetState(expect, targetPid);
         }
@@ -83,13 +83,13 @@ public class DatasetVersionCreator {
         else {
             initLog.getExpect().getDatasetRoleAssignment().setCompleted(true);
         }
-        log.debug("End checking expectations for deposit {}", depositId);
+        log.debug("[{}] End checking expectations", depositId);
     }
 
     private void checkDatasetState(@NonNull Expect expect, String targetPid) throws DataverseException, IOException {
         var actualState = dataverseService.getDatasetState(targetPid);
         if (expect.getState().name().equalsIgnoreCase(actualState)) {
-            log.debug("Expected state {} found for dataset {}", expect.getState(), targetPid);
+            log.debug("[{}] Expected state {} found for dataset {}", depositId, expect.getState(), targetPid);
             initLog.getExpect().getState().setCompleted(true);
         }
         else {
@@ -100,7 +100,7 @@ public class DatasetVersionCreator {
     private void checkDataverseRoleAssignment(@NonNull Expect expect) throws DataverseException, IOException {
         var actualRoleAssignments = dataverseService.getRoleAssignmentsOnDataverse("root");
         if (contains(actualRoleAssignments, expect.getDataverseRoleAssignment(), true)) {
-            log.debug("Expected role assignment found for dataverse root");
+            log.debug("[{}] Expected role assignment found for dataverse root", depositId);
             initLog.getExpect().getDataverseRoleAssignment().setCompleted(true);
         }
         else {
@@ -112,7 +112,7 @@ public class DatasetVersionCreator {
     private void checkDatasetRoleAssignment(@NonNull Expect expect, String targetPid) throws DataverseException, IOException {
         var actualRoleAssignments = dataverseService.getRoleAssignmentsOnDataset(targetPid);
         if (contains(actualRoleAssignments, expect.getDatasetRoleAssignment(), false)) {
-            log.debug("Expected role assignment found for dataset {}", targetPid);
+            log.debug("[{}] Expected role assignment found for dataset {}", depositId, targetPid);
             initLog.getExpect().getDatasetRoleAssignment().setCompleted(true);
         }
         else {
@@ -136,7 +136,7 @@ public class DatasetVersionCreator {
 
     private String createDatasetIfNeeded(String targetPid) throws IOException, DataverseException {
         if (initLog.getCreate().isCompleted()) {
-            log.debug("Create task already completed for deposit {}", depositId);
+            log.debug("[{}] Dataset {} already created.", depositId, initLog.getTargetPid());
             return initLog.getTargetPid();
         }
 
@@ -148,7 +148,7 @@ public class DatasetVersionCreator {
             pid = createOrImportDataset();
         }
         else {
-            log.debug("Target PID provided, dataset does not need to be created for deposit {}", depositId);
+            log.debug("[{}] Target PID provided; dataset {} does not need to be created.", depositId, targetPid);
             pid = targetPid;
 
         }
@@ -167,22 +167,22 @@ public class DatasetVersionCreator {
     }
 
     private @NonNull String importDataset(String pid) throws IOException, DataverseException {
-        log.debug("Start importing dataset for deposit {}", depositId);
+        log.debug("[{}] Start importing dataset with pid {}", depositId, pid);
         dataverseService.importDataset(pid, dataset);
-        log.debug("End importing dataset for deposit {}", depositId);
+        log.debug("[{}] End importing dataset with pid {}", depositId, pid);
         return pid;
     }
 
     private @NonNull String createDataset() throws IOException, DataverseException {
-        log.debug("Start creating dataset for deposit {}", depositId);
+        log.debug("[{}] Start creating dataset", depositId);
         var pid = dataverseService.createDataset(dataset);
-        log.debug("End creating dataset for deposit {}", depositId);
+        log.debug("[{}] End creating dataset; assigned pid is {}", depositId, pid);
         return pid;
     }
 
     private void updateDataset(String pid) throws IOException, DataverseException {
-        log.debug("Start updating dataset for deposit {}", depositId);
+        log.debug("[{}] Start updating dataset metadata.", depositId);
         dataverseService.updateMetadata(pid, dataset.getDatasetVersion());
-        log.debug("End updating dataset for deposit {}", depositId);
+        log.debug("[{}] End updating dataset metadata.", depositId);
     }
 }
