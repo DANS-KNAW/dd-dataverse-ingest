@@ -362,7 +362,7 @@ public class FilesEditor {
             log.debug("[{}] No file metas to update.", depositId);
         }
         else {
-            log.debug("[{}] Start updating file metas.", depositId);
+            log.debug("[{}] Start updating {} file metas.", depositId, editFiles.getUpdateFileMetas().size());
             int numberUpdated = editFilesLog.getUpdateFileMetas().getNumberCompleted();
             if (numberUpdated > 0) {
                 log.debug("[{}] Resuming updating file metadata from number {}", depositId, numberUpdated);
