@@ -122,7 +122,7 @@ public class FilesEditor {
             log.debug("[{}] No files to delete.", depositId);
         }
         else {
-            log.debug("[{}} Start deleting {} files.", depositId, editFiles.getDeleteFiles().size());
+            log.debug("[{}] Start deleting {} files.", depositId, editFiles.getDeleteFiles().size());
             int numberDeleted = editFilesLog.getDeleteFiles().getNumberCompleted();
             if (numberDeleted > 0) {
                 log.debug("[{}] Resuming deleting files from number {}", depositId, numberDeleted);
