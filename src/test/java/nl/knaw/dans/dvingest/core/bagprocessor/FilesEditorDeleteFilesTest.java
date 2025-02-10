@@ -29,6 +29,8 @@ import java.util.UUID;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.anyList;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
 public class FilesEditorDeleteFilesTest extends FilesEditorTestFixture {
@@ -53,8 +55,7 @@ public class FilesEditorDeleteFilesTest extends FilesEditorTestFixture {
         filesEditor.editFiles("pid");
 
         // Then
-        Mockito.verify(dataverseServiceMock).deleteFile(1);
-        Mockito.verify(dataverseServiceMock).deleteFile(3);
+        Mockito.verify(dataverseServiceMock).deleteFiles("pid", List.of(1, 3));
         assertThat(filesEditor.getFilesInDatasetCache().get("file1")).isNull();
         YamlBeanAssert.assertThat(editFilesLog.getDeleteFiles()).isEqualTo("""
             numberCompleted: 2
@@ -83,7 +84,7 @@ public class FilesEditorDeleteFilesTest extends FilesEditorTestFixture {
             .isInstanceOf(IllegalArgumentException.class)
             .hasMessage("File to delete not found in dataset: file4");
         YamlBeanAssert.assertThat(editFilesLog.getDeleteFiles()).isEqualTo("""
-            numberCompleted: 1
+            numberCompleted: 0 # Files are all deleted or none are deleted
             completed: false
             """);
     }
@@ -106,7 +107,7 @@ public class FilesEditorDeleteFilesTest extends FilesEditorTestFixture {
         filesEditor.editFiles("pid");
 
         // Then
-        Mockito.verify(dataverseServiceMock, Mockito.never()).deleteFile(anyInt());
+        Mockito.verify(dataverseServiceMock, Mockito.never()).deleteFiles(anyString(), anyList());
         YamlBeanAssert.assertThat(editFilesLog.getDeleteFiles()).isEqualTo("""
             numberCompleted: 2
             completed: true
@@ -127,7 +128,7 @@ public class FilesEditorDeleteFilesTest extends FilesEditorTestFixture {
         filesEditor.editFiles("pid");
 
         // Then
-        Mockito.verify(dataverseServiceMock, Mockito.never()).deleteFile(anyInt());
+        Mockito.verify(dataverseServiceMock, Mockito.never()).deleteFiles(anyString(), anyList());
         YamlBeanAssert.assertThat(editFilesLog.getDeleteFiles()).isEqualTo("""
             numberCompleted: 0
             completed: true
@@ -156,7 +157,7 @@ public class FilesEditorDeleteFilesTest extends FilesEditorTestFixture {
         filesEditor.editFiles("pid");
 
         // Then
-        Mockito.verify(dataverseServiceMock).deleteFile(3);
+        Mockito.verify(dataverseServiceMock).deleteFiles("pid", List.of(3));
         assertThat(filesEditor.getFilesInDatasetCache().get("file1")).isNull(); // already deleted
         assertThat(filesEditor.getFilesInDatasetCache().get("file2")).isNotNull(); // not on delete list
         assertThat(filesEditor.getFilesInDatasetCache().get("file3")).isNull(); // just deleted

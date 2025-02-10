@@ -110,8 +110,8 @@ public class DataverseServiceImpl implements DataverseService {
     }
 
     @Override
-    public void deleteFile(int id) throws DataverseException, IOException {
-        var result = dataverseClient.sword().deleteFile(id);
+    public void deleteFiles(String pid, List<Integer> ids) throws DataverseException, IOException {
+        var result = dataverseClient.dataset(pid).deleteFiles(ids);
         log.debug(result.getEnvelopeAsString());
     }
 
