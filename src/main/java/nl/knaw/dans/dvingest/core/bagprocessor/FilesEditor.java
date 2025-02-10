@@ -134,9 +134,17 @@ public class FilesEditor {
                 if (fileToDelete == null) {
                     throw new IllegalArgumentException("File to delete not found in dataset: " + filepath);
                 }
-                dataverseService.deleteFile(fileToDelete.getDataFile().getId());
-                filesInDatasetCache.remove(filepath);
-                editFilesLog.getDeleteFiles().setNumberCompleted(++numberDeleted);
+            }
+            dataverseService.deleteFiles(pid,
+                editFiles.getDeleteFiles().stream()
+                    .skip(numberDeleted)
+                    .map(filesInDatasetCache::get)
+                    .mapToInt(file -> file.getDataFile().getId())
+                    .boxed()
+                    .collect(Collectors.toList()));
+            for (int i = numberDeleted; i < editFiles.getDeleteFiles().size(); i++) {
+                filesInDatasetCache.remove(editFiles.getDeleteFiles().get(i));
+                editFilesLog.getDeleteFiles().setNumberCompleted(editFiles.getDeleteFiles().size());
             }
             log.debug("[{}] End deleting {} files.", depositId, editFiles.getDeleteFiles().size());
         }
