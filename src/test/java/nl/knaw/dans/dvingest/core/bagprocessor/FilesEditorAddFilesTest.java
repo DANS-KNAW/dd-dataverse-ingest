@@ -87,7 +87,7 @@ public class FilesEditorAddFilesTest extends FilesEditorTestFixture {
         Files.createFile(dataDir.resolve("file2"));
         Files.createFile(dataDir.resolve("file3"));
 
-        when(dataverseServiceMock.getFiles("pid")).thenReturn(
+        when(dataverseServiceMock.getFiles("pid", true)).thenReturn(
             List.of());
         when(dataverseServiceMock.addFile(anyString(), any(Path.class), any(FileMeta.class))).thenAnswer(
             invocation -> {
@@ -139,7 +139,7 @@ public class FilesEditorAddFilesTest extends FilesEditorTestFixture {
         Files.createFile(dataDir.resolve("file2"));
         Files.createFile(dataDir.resolve("file3"));
 
-        when(dataverseServiceMock.getFiles("pid")).thenReturn(
+        when(dataverseServiceMock.getFiles("pid", true)).thenReturn(
             List.of());
         /*
          * (Ab?)using the "thenAnswer" to save then upload the ZIP file, because it is deleted after upload.
@@ -200,7 +200,7 @@ public class FilesEditorAddFilesTest extends FilesEditorTestFixture {
         Files.createFile(dataDir.resolve("file2"));
         Files.createFile(dataDir.resolve("file3"));
 
-        when(dataverseServiceMock.getFiles("pid")).thenReturn(
+        when(dataverseServiceMock.getFiles("pid", true)).thenReturn(
             List.of());
         when(dataverseServiceMock.addFile(anyString(), any(Path.class), any(FileMeta.class))).thenAnswer(
             invocation -> {
@@ -252,7 +252,7 @@ public class FilesEditorAddFilesTest extends FilesEditorTestFixture {
         Files.createFile(dataDir.resolve("file2"));
         Files.createFile(dataDir.resolve("file3"));
 
-        when(dataverseServiceMock.getFiles("pid")).thenReturn(
+        when(dataverseServiceMock.getFiles("pid", true)).thenReturn(
             List.of());
         /*
          * (Ab?)using the "thenAnswer" to save then upload the ZIP file, because it is deleted after upload.
@@ -313,7 +313,7 @@ public class FilesEditorAddFilesTest extends FilesEditorTestFixture {
         Files.createFile(dataDir.resolve("file2"));
         Files.createFile(dataDir.resolve("file3"));
 
-        when(dataverseServiceMock.getFiles("pid")).thenReturn(
+        when(dataverseServiceMock.getFiles("pid", true)).thenReturn(
             List.of());
         /*
          * (Ab?)using the "thenAnswer" to save then upload the ZIP file, because it is deleted after upload.
@@ -369,7 +369,7 @@ public class FilesEditorAddFilesTest extends FilesEditorTestFixture {
         Files.createFile(dataDir.resolve("file2"));
         Files.createFile(dataDir.resolve("file3"));
 
-        when(dataverseServiceMock.getFiles("pid")).thenReturn(
+        when(dataverseServiceMock.getFiles("pid", true)).thenReturn(
             List.of());
         /*
          * (Ab?)using the "thenAnswer" to save then upload the ZIP file, because it is deleted after upload.
@@ -415,7 +415,7 @@ public class FilesEditorAddFilesTest extends FilesEditorTestFixture {
         Files.createFile(dataDir.resolve("file2"));
         Files.createFile(dataDir.resolve("file3"));
 
-        when(dataverseServiceMock.getFiles("pid")).thenReturn(
+        when(dataverseServiceMock.getFiles("pid", true)).thenReturn(
             List.of(file("file1", 1), file("file2", 2), file("file3", 3)));
         /*
          * (Ab?)using the "thenAnswer" to save then upload the ZIP file, because it is deleted after upload.
@@ -461,7 +461,7 @@ public class FilesEditorAddFilesTest extends FilesEditorTestFixture {
         Files.createFile(dataDir.resolve("file2"));
         Files.createFile(dataDir.resolve("file3"));
 
-        when(dataverseServiceMock.getFiles("pid")).thenReturn(
+        when(dataverseServiceMock.getFiles("pid", true)).thenReturn(
             List.of());
         /*
          * (Ab?)using the "thenAnswer" to save then upload the ZIP file, because it is deleted after upload.
@@ -504,7 +504,7 @@ public class FilesEditorAddFilesTest extends FilesEditorTestFixture {
         Files.createFile(dataDir.resolve("file4"));
         Files.createFile(dataDir.resolve("file5"));
         Files.createFile(dataDir.resolve("file6"));
-        when(dataverseServiceMock.getFiles("pid")).thenReturn(
+        when(dataverseServiceMock.getFiles("pid", true)).thenReturn(
             List.of());
         /*
          * (Ab?)using the "thenAnswer" to save then upload the ZIP file, because it is deleted after upload.

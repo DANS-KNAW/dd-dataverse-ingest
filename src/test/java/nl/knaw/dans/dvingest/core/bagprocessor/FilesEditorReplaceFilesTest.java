@@ -33,7 +33,7 @@ public class FilesEditorReplaceFilesTest extends FilesEditorTestFixture {
     @Test
     public void replaceFiles_replaces_files_in_dataset() throws Exception {
         // Given
-        when(dataverseServiceMock.getFiles("pid")).thenReturn(
+        when(dataverseServiceMock.getFiles("pid", true)).thenReturn(
             List.of(file("file1", 1),
                 file("file2", 2),
                 file("file3", 3)));
@@ -63,7 +63,7 @@ public class FilesEditorReplaceFilesTest extends FilesEditorTestFixture {
     @Test
     public void replaceFiles_throws_exception_when_file_not_found() throws Exception {
         // Given
-        when(dataverseServiceMock.getFiles("pid")).thenReturn(
+        when(dataverseServiceMock.getFiles("pid", true)).thenReturn(
             List.of(file("file1", 1),
                 file("file2", 2),
                 file("file3", 3)));
@@ -135,7 +135,7 @@ public class FilesEditorReplaceFilesTest extends FilesEditorTestFixture {
     @Test
     public void replaceFiles_will_continue_after_number_already_completed() throws Exception {
         // Given
-        when(dataverseServiceMock.getFiles("pid")).thenReturn(
+        when(dataverseServiceMock.getFiles("pid", true)).thenReturn(
             List.of(file("file2", 2),
                 file("file3", 3)));
         var editFilesRoot = yamlService.readYamlFromString("""

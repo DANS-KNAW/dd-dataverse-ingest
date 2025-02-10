@@ -97,8 +97,8 @@ public class DataverseServiceImpl implements DataverseService {
     }
 
     @Override
-    public List<FileMeta> getFiles(String pid) throws IOException, DataverseException {
-        var result = dataverseClient.dataset(pid).getFiles(Version.LATEST.toString());
+    public List<FileMeta> getFiles(String pid, boolean includeDraftVersion) throws IOException, DataverseException {
+        var result = dataverseClient.dataset(pid).getFiles(includeDraftVersion ? Version.LATEST.toString() : Version.LATEST_PUBLISHED.toString());
         return result.getData();
     }
 

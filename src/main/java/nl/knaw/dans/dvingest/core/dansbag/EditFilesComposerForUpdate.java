@@ -57,7 +57,8 @@ public class EditFilesComposerForUpdate extends EditFilesComposer {
         // TODO: this should be a read-only variant of the cache
         FilesInDatasetCache filesInDatasetCache = new FilesInDatasetCache(dataverseService, renamedFiles);
         try {
-            filesInDatasetCache.downloadFromDataset(updatesDatasetPid);
+            // Do not get the files from the draft version, if it exists, because this will mess up any retry
+            filesInDatasetCache.downloadFromDataset(updatesDatasetPid, false);
         }
         catch (IOException | DataverseException e) {
             log.error("Could not download files from dataset with pid {}", updatesDatasetPid, e);

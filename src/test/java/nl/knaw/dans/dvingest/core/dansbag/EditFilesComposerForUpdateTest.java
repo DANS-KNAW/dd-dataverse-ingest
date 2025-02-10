@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -35,7 +36,7 @@ public class EditFilesComposerForUpdateTest extends EditFilesComposerFixture {
     @Test
     public void file_with_same_path_and_different_checksum_is_replaced() throws Exception {
         // Given
-        when(dataverseServiceMock.getFiles(anyString())).thenReturn(List.of(fileMeta("file1.txt", "oldchecksum")));
+        when(dataverseServiceMock.getFiles(anyString(), anyBoolean())).thenReturn(List.of(fileMeta("file1.txt", "oldchecksum")));
         Map<Path, FileInfo> map = new HashMap<>();
         add(map, file("file1.txt", "newchecksum"));
 
@@ -54,7 +55,7 @@ public class EditFilesComposerForUpdateTest extends EditFilesComposerFixture {
     @Test
     public void file_with_same_path_and_same_checksum_is_NOT_replaced() throws Exception {
         // Given
-        when(dataverseServiceMock.getFiles(anyString())).thenReturn(List.of(fileMeta("file1.txt", "oldchecksum")));
+        when(dataverseServiceMock.getFiles(anyString(), anyBoolean())).thenReturn(List.of(fileMeta("file1.txt", "oldchecksum")));
         Map<Path, FileInfo> map = new HashMap<>();
         add(map, file("file1.txt", "oldchecksum"));
 
@@ -72,7 +73,7 @@ public class EditFilesComposerForUpdateTest extends EditFilesComposerFixture {
     @Test
     public void file_with_different_path_and_same_checksum_is_moved() throws Exception {
         // Given
-        when(dataverseServiceMock.getFiles(anyString())).thenReturn(List.of(fileMeta("path/to/file1.txt", "oldchecksum")));
+        when(dataverseServiceMock.getFiles(anyString(), anyBoolean())).thenReturn(List.of(fileMeta("path/to/file1.txt", "oldchecksum")));
         Map<Path, FileInfo> map = new HashMap<>();
         add(map, file("path/three/file2.txt", "oldchecksum"));
 
@@ -92,7 +93,7 @@ public class EditFilesComposerForUpdateTest extends EditFilesComposerFixture {
     @Test
     public void unrestricted_file_with_different_path_and_different_checksum_is_added() throws Exception {
         // Given
-        when(dataverseServiceMock.getFiles(anyString())).thenReturn(List.of(fileMeta("path/to/file1.txt", "oldchecksum")));
+        when(dataverseServiceMock.getFiles(anyString(), anyBoolean())).thenReturn(List.of(fileMeta("path/to/file1.txt", "oldchecksum")));
         Map<Path, FileInfo> map = new HashMap<>();
         add(map, file("path/to/file1.txt", "oldchecksum")); // Confirming that the file is to remain in the dataset
         add(map, file("path/three/file2.txt", "newchecksum"));
@@ -111,7 +112,7 @@ public class EditFilesComposerForUpdateTest extends EditFilesComposerFixture {
     @Test
     public void restricted_file_with_different_path_and_different_checksum_is_added() throws Exception {
         // Given
-        when(dataverseServiceMock.getFiles(anyString())).thenReturn(List.of(fileMeta("path/to/file1.txt", "oldchecksum")));
+        when(dataverseServiceMock.getFiles(anyString(), anyBoolean())).thenReturn(List.of(fileMeta("path/to/file1.txt", "oldchecksum")));
         Map<Path, FileInfo> map = new HashMap<>();
         add(map, file("path/to/file1.txt", "oldchecksum")); // Confirming that the file is to remain in the dataset
         add(map, file("path/three/file2.txt", "newchecksum", true));
@@ -130,7 +131,7 @@ public class EditFilesComposerForUpdateTest extends EditFilesComposerFixture {
     @Test
     public void ambiguous_move_is_implemented_add_delete_and_add() throws Exception {
         // Given
-        when(dataverseServiceMock.getFiles(anyString())).thenReturn(List.of(fileMeta("path/to/file1.txt", "oldchecksum")));
+        when(dataverseServiceMock.getFiles(anyString(), anyBoolean())).thenReturn(List.of(fileMeta("path/to/file1.txt", "oldchecksum")));
         Map<Path, FileInfo> map = new HashMap<>();
         add(map, file("path/three/file1.txt", "oldchecksum"));
         add(map, file("path/three/file2.txt", "oldchecksum"));
@@ -152,7 +153,7 @@ public class EditFilesComposerForUpdateTest extends EditFilesComposerFixture {
     @Test
     public void file_not_replaced_nor_in_current_deposit_is_deleted() throws Exception {
         // Given
-        when(dataverseServiceMock.getFiles(anyString())).thenReturn(List.of(fileMeta("path/to/file1.txt", "oldchecksum")));
+        when(dataverseServiceMock.getFiles(anyString(), anyBoolean())).thenReturn(List.of(fileMeta("path/to/file1.txt", "oldchecksum")));
         Map<Path, FileInfo> map = new HashMap<>();
 
         editFilesComposer = new EditFilesComposerForUpdate(map, inThePast, "doi:some", null, null, List.of(), dataverseServiceMock);
@@ -170,7 +171,7 @@ public class EditFilesComposerForUpdateTest extends EditFilesComposerFixture {
     @Test
     public void file_with_same_path_and_checksum_is_not_touched() throws Exception {
         // Given
-        when(dataverseServiceMock.getFiles(anyString())).thenReturn(List.of(fileMeta("path/to/file1.txt", "oldchecksum")));
+        when(dataverseServiceMock.getFiles(anyString(), anyBoolean())).thenReturn(List.of(fileMeta("path/to/file1.txt", "oldchecksum")));
         Map<Path, FileInfo> map = new HashMap<>();
         add(map, file("path/to/file1.txt", "oldchecksum"));
 

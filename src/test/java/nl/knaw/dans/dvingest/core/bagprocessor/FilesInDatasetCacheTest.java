@@ -98,11 +98,11 @@ public class FilesInDatasetCacheTest {
         var fileMeta = new FileMeta();
         fileMeta.setLabel("label");
         fileMeta.setDirectoryLabel("directoryLabel");
-        Mockito.when(dataverseServiceMock.getFiles("pid")).thenReturn(java.util.List.of(fileMeta));
+        Mockito.when(dataverseServiceMock.getFiles("pid", false)).thenReturn(java.util.List.of(fileMeta));
         var filesInDatasetCache = new FilesInDatasetCache(dataverseServiceMock, Map.of());
 
         // When
-        filesInDatasetCache.downloadFromDataset("pid");
+        filesInDatasetCache.downloadFromDataset("pid", false);
 
         // Then
         assertThat(filesInDatasetCache.get("directoryLabel/label")).isEqualTo(fileMeta);
@@ -112,10 +112,10 @@ public class FilesInDatasetCacheTest {
     public void downloadFromDataset_throws_exception_if_already_initialized() throws Exception {
         // Given
         var filesInDatasetCache = new FilesInDatasetCache(dataverseServiceMock, Map.of());
-        filesInDatasetCache.downloadFromDataset("pid");
+        filesInDatasetCache.downloadFromDataset("pid", false);
 
         // When / Then
-        assertThatThrownBy(() -> filesInDatasetCache.downloadFromDataset("pid"))
+        assertThatThrownBy(() -> filesInDatasetCache.downloadFromDataset("pid", false))
             .isInstanceOf(IllegalStateException.class)
             .hasMessage("Cache already initialized");
     }

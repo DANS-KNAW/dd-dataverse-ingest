@@ -100,17 +100,18 @@ public class FilesInDatasetCache {
     /**
      * Download the file metadata from the dataset with the given persistent identifier, initializing the cache. This method can only be called once. Subsequent calls will throw an exception.
      *
-     * @param pid the persistent identifier of the dataset
+     * @param pid                 the persistent identifier of the dataset
+     * @param includeDraftVersion whether to download from a draft version of the dataset, if that is the latest version
      * @throws IOException           if an I/O error occurs
      * @throws DataverseException    if the Dataverse API returns an error
      * @throws IllegalStateException if the cache is already initialized
      */
-    public void downloadFromDataset(@NonNull String pid) throws IOException, DataverseException {
+    public void downloadFromDataset(@NonNull String pid, boolean includeDraftVersion) throws IOException, DataverseException {
         if (initialized) {
             throw new IllegalStateException("Cache already initialized");
         }
 
-        var files = dataverseService.getFiles(pid);
+        var files = dataverseService.getFiles(pid, includeDraftVersion);
         for (var file : files) {
             filesInDataset.put(getPath(file), file);
         }

@@ -78,7 +78,7 @@ public class FilesInDatasetCacheNonNullTest {
     @Test
     public void downloadFromDataset_throws_exception_when_pid_is_null() {
         var filesInDatasetCache = new FilesInDatasetCache(dataverseServiceMock, Map.of());
-        assertThatThrownBy(() -> filesInDatasetCache.downloadFromDataset(null))
+        assertThatThrownBy(() -> filesInDatasetCache.downloadFromDataset(null, false))
             .isInstanceOf(NullPointerException.class);
     }
 }

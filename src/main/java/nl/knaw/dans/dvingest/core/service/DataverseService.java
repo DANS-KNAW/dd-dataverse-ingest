@@ -42,6 +42,8 @@ public interface DataverseService {
 
     void publishDataset(String persistentId, UpdateType updateType) throws DataverseException, IOException;
 
+    List<FileMeta> getFiles(String pid, boolean includeDraftVersion) throws IOException, DataverseException;
+
     void replaceFile(String targetDatasetPid, FileMeta fileToReplace, Path replacement) throws DataverseException, IOException;
 
     void deleteFile(int id) throws DataverseException, IOException;
@@ -51,8 +53,6 @@ public interface DataverseService {
     void updateMetadata(String targetDatasetPid, DatasetVersion datasetMetadata) throws DataverseException, IOException;
 
     void updateFileMetadata(int id, FileMeta newMeta) throws DataverseException, IOException;
-
-    List<FileMeta> getFiles(String pid) throws IOException, DataverseException;
 
     void deleteDatasetMetadata(String pid, List<MetadataField> fields) throws DataverseException, IOException;
 

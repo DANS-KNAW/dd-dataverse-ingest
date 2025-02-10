@@ -92,7 +92,7 @@ public class FilesEditor {
 
         log.debug("[{}] Start editing files for dataset {}.", depositId, pid);
         this.pid = pid;
-        filesInDatasetCache.downloadFromDataset(pid);
+        filesInDatasetCache.downloadFromDataset(pid, true);
         if (editFiles != null) {
             deleteFiles();
             replaceFiles();
