@@ -17,6 +17,7 @@ package nl.knaw.dans.dvingest;
 
 import com.codahale.metrics.health.HealthCheck;
 import io.dropwizard.core.setup.Environment;
+import io.dropwizard.lifecycle.Managed;
 import lombok.extern.slf4j.Slf4j;
 import nl.knaw.dans.dvingest.config.DependenciesReadyCheckConfig;
 import nl.knaw.dans.dvingest.core.DependenciesReadyCheck;
@@ -30,11 +31,21 @@ import static java.lang.Thread.sleep;
  * Implementation of {@link DependenciesReadyCheck} that waits until all health checks are healthy.
  */
 @Slf4j
-public class HealthChecksDependenciesReadyCheck implements DependenciesReadyCheck {
+public class HealthChecksDependenciesReadyCheck implements DependenciesReadyCheck, Managed {
     private final List<HealthCheck> healthChecks = new ArrayList<>();
-    private final long pollInterval;
+    private final Environment environment;
+    private final DependenciesReadyCheckConfig config;
+
+    private long pollInterval;
+    private boolean running = false;
 
     public HealthChecksDependenciesReadyCheck(Environment environment, DependenciesReadyCheckConfig config) {
+        this.environment = environment;
+        this.config = config;
+    }
+
+    @Override
+    public void start() throws Exception {
         for (var name : config.getHealthChecks()) {
             var healthCheck = environment.healthChecks().getHealthCheck(name);
             if (healthCheck == null) {
@@ -43,11 +54,17 @@ public class HealthChecksDependenciesReadyCheck implements DependenciesReadyChec
             healthChecks.add(healthCheck);
         }
         pollInterval = config.getPollInterval().toMilliseconds();
+        running = true;
+    }
+
+    @Override
+    public void stop() {
+        running = false;
     }
 
     @Override
     public void waitUntilReady() {
-        while (!allHealthy()) {
+        while (running && !allHealthy()) {
             log.warn("Not all health checks are healthy yet, waiting for {} ms", pollInterval);
             try {
                 sleep(pollInterval);
@@ -60,7 +77,7 @@ public class HealthChecksDependenciesReadyCheck implements DependenciesReadyChec
 
     private boolean allHealthy() {
         for (var healthCheck : healthChecks) {
-            if (healthCheck.execute().isHealthy()) {
+            if (!healthCheck.execute().isHealthy()) {
                 return false;
             }
         }

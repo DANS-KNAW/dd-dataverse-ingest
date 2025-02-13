@@ -111,6 +111,7 @@ public class DdDataverseIngestApplication extends Application<DdDataverseIngestC
         var dataverseIngestDepositFactory = new DataverseIngestDepositFactoryImpl(yamlService);
         var bagProcessorFactory = new BagProcessorFactoryImpl(dataverseService, utilityServices);
         var dependenciesReadyCheck = new HealthChecksDependenciesReadyCheck(environment, configuration.getDependenciesReadyCheck());
+        environment.lifecycle().manage(dependenciesReadyCheck);
 
         /*
          *  Import area
