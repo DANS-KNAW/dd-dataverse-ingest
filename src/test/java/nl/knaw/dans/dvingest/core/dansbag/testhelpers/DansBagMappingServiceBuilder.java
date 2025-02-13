@@ -17,6 +17,7 @@ package nl.knaw.dans.dvingest.core.dansbag.testhelpers;
 
 import lombok.Data;
 import lombok.experimental.Accessors;
+import nl.knaw.dans.dvingest.core.dansbag.ActiveMetadataBlocks;
 import nl.knaw.dans.dvingest.core.dansbag.DansBagMappingService;
 import nl.knaw.dans.dvingest.core.dansbag.DansBagMappingServiceImpl;
 import nl.knaw.dans.dvingest.core.dansbag.SupportedLicenses;
@@ -67,7 +68,7 @@ public class DansBagMappingServiceBuilder {
         var mapper = new DepositToDvDatasetMetadataMapper(
             isMigration,
             deduplicate,
-            Set.of("citation", "dansRights", "dansRelationMetadata", "dansArchaeologyMetadata", "dansTemporalSpatial", "dansDataVaultMetadata"),
+            new ActiveMetadataBlocks(Set.of("citation", "dansRights", "dansRelationMetadata", "dansArchaeologyMetadata", "dansTemporalSpatial", "dansDataVaultMetadata")),
             MappingLoader.builder().csvFile(defaultConfigDir.resolve(ISO_639_1_TO_DV_FILENAME)).keyColumn(ISO_639_1_TO_DV_KEY_COLUMN).valueColumn(DATAVERSE_LANGUAGE_COLUMN).build().load(),
             MappingLoader.builder().csvFile(defaultConfigDir.resolve(ISO_639_2_TO_DV_FILENAME)).keyColumn(ISO_639_2_TO_DV_KEY_COLUMN).valueColumn(DATAVERSE_LANGUAGE_COLUMN).build().load(),
             MappingLoader.builder().csvFile(defaultConfigDir.resolve(ABR_REPORT_CODE_TO_TERM_FILENAME)).keyColumn(CODE_COLUMN).valueColumn(SUBJECT_COLUMN).build().load(),
