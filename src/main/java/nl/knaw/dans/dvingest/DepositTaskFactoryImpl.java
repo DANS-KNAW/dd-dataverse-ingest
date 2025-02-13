@@ -17,6 +17,7 @@ package nl.knaw.dans.dvingest;
 
 import lombok.AllArgsConstructor;
 import nl.knaw.dans.dvingest.core.DataverseIngestDeposit;
+import nl.knaw.dans.dvingest.core.DependenciesReadyCheck;
 import nl.knaw.dans.dvingest.core.DepositTask;
 import nl.knaw.dans.dvingest.core.DepositTaskFactory;
 import nl.knaw.dans.dvingest.core.bagprocessor.BagProcessorFactory;
@@ -28,9 +29,10 @@ import java.nio.file.Path;
 public class DepositTaskFactoryImpl implements DepositTaskFactory {
     private final BagProcessorFactory bagProcessorFactory;
     private final DansDepositSupportFactory dansDepositSupportFactory;
+    private final DependenciesReadyCheck dependenciesReadyCheck;
 
     @Override
     public Runnable createDepositTask(DataverseIngestDeposit deposit, Path outputDir, boolean onlyConvertDansDeposit) {
-        return new DepositTask(deposit, outputDir, onlyConvertDansDeposit, bagProcessorFactory, dansDepositSupportFactory);
+        return new DepositTask(deposit, outputDir, onlyConvertDansDeposit, bagProcessorFactory, dansDepositSupportFactory, dependenciesReadyCheck);
     }
 }

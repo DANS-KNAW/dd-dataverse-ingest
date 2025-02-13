@@ -20,6 +20,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import nl.knaw.dans.dvingest.core.dansbag.ActiveMetadataBlocks;
 import nl.knaw.dans.dvingest.core.dansbag.deposit.VaultMetadata;
 import nl.knaw.dans.dvingest.core.dansbag.exception.MissingRequiredFieldException;
 import nl.knaw.dans.dvingest.core.dansbag.mapper.builder.ArchaeologyFieldBuilder;
@@ -91,7 +92,7 @@ public class DepositToDvDatasetMetadataMapper {
 
     private final boolean deduplicate;
     @NonNull
-    private final Set<String> activeMetadataBlocks;
+    private final ActiveMetadataBlocks activeMetadataBlocks;
     @NonNull
     private final Map<String, String> iso1ToDataverseLanguage;
     @NonNull

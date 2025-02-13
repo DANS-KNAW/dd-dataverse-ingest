@@ -158,6 +158,11 @@ health:
       schedule:
         checkInterval: 5s
 
+dependenciesReadyCheck:
+  healthChecks:
+    - dataverse
+    - dd-validate-dans-bag
+  pollInterval: 5s
 
 
 #

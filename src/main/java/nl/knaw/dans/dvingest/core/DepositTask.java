@@ -37,22 +37,25 @@ public class DepositTask implements Runnable {
     private final Path outputDir;
     private final boolean onlyConvertDansDeposit;
     private final BagProcessorFactory bagProcessorFactory;
+    private final DependenciesReadyCheck dependenciesReadyCheck;
 
     @Getter
     private Status status = Status.TODO;
 
     public DepositTask(DataverseIngestDeposit dataverseIngestDeposit, Path outputDir, boolean onlyConvertDansDeposit, BagProcessorFactory bagProcessorFactory,
-        DansDepositSupportFactory dansDepositSupportFactory) {
+        DansDepositSupportFactory dansDepositSupportFactory, DependenciesReadyCheck dependenciesReadyCheck) {
         this.deposit = dansDepositSupportFactory.addDansDepositSupportIfEnabled(dataverseIngestDeposit);
         this.outputDir = outputDir;
         this.onlyConvertDansDeposit = onlyConvertDansDeposit;
         this.bagProcessorFactory = bagProcessorFactory;
+        this.dependenciesReadyCheck = dependenciesReadyCheck;
     }
 
     @Override
     public void run() {
         String pid = null;
         try {
+            dependenciesReadyCheck.waitUntilReady();
             deposit.validate();
             if (deposit.convertDansDepositIfNeeded() && onlyConvertDansDeposit) {
                 log.info("[{}] Only converting DANS deposit, LEAVING CONVERTED DEPOSIT IN PLACE", deposit.getId());

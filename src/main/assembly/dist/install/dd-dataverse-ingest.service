@@ -1,5 +1,5 @@
 [Unit]
-Description=Dd Dataverse Ingest Service
+Description=DD Dataverse Ingest Service
 
 [Service]
 ExecStart=/opt/dans.knaw.nl/dd-dataverse-ingest/bin/dd-dataverse-ingest server /etc/opt/dans.knaw.nl/dd-dataverse-ingest/config.yml
