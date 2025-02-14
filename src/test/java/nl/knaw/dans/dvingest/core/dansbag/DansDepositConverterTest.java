@@ -201,7 +201,8 @@ public class DansDepositConverterTest extends DansConversionFixture {
                 KEYWORD_VOCABULARY, "Art and Architecture Thesaurus",
                 KEYWORD_VOCABULARY_URI, "http://vocab.getty.edu/aat/"),
             Map.of(KEYWORD_VALUE, "Old School Latin"),
-            Map.of(KEYWORD_VALUE, "Ithkuil"));
+            Map.of(KEYWORD_VALUE, "Ithkuil"),
+            Map.of(KEYWORD_VALUE, "Ancient Greek"));
         assertControlledMultiValueFieldContainsValues(citationBlockFields, LANGUAGE,
             "Basque",
             "Kalaallisut, Greenlandic",
