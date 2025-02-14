@@ -185,6 +185,14 @@ health:
       schedule:
         checkInterval: 60s
 
+#
+# Deposits will only proceed if these dependencies are ready. The check is done at the start of each deposit task.
+#
+dependenciesReadyCheck:
+  healthChecks:
+    - dataverse
+    - dd-validate-dans-bag
+  pollInterval: 5s
 
 
 #

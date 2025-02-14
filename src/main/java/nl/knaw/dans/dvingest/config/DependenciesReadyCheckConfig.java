@@ -13,33 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package nl.knaw.dans.dvingest.config;
 
-import io.dropwizard.core.Configuration;
+import io.dropwizard.util.Duration;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
-import nl.knaw.dans.lib.util.DataverseClientFactory;
 
-import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
+import java.util.List;
 
 @Data
-@EqualsAndHashCode(callSuper = true)
-public class DdDataverseIngestConfiguration extends Configuration {
-    @Valid
-    @NotNull
-    private DataverseClientFactory dataverse;
-
-    @Valid
-    @NotNull
-    private IngestConfig ingest;
-
-    @Valid
-    // NOT @NotNull, because conversion can be disabled that way
-    private DansDepositConversionConfig dansDepositConversion;
-
-    @Valid
-    @NotNull
-    private DependenciesReadyCheckConfig dependenciesReadyCheck;
+public class DependenciesReadyCheckConfig {
+    private List<String> healthChecks;
+    private Duration pollInterval;
 }
