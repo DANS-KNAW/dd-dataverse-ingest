@@ -18,6 +18,7 @@ package nl.knaw.dans.dvingest.core.dansbag.mapper.builder;
 import nl.knaw.dans.lib.dataverse.model.user.AuthenticatedUser;
 import org.w3c.dom.Node;
 
+import java.util.Objects;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -92,7 +93,7 @@ public class CitationFieldBuilder extends FieldBuilder {
     }
 
     public void addLanguages(Stream<Node> stream, Function<Node, String> mapper) {
-        addMultipleControlledFields(LANGUAGE, stream.map(mapper).sorted());
+        addMultipleControlledFields(LANGUAGE, stream.map(mapper).filter(Objects::nonNull).sorted());
     }
 
     public void addProductionDate(Stream<String> stream) {

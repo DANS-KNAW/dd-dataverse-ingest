@@ -74,7 +74,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -117,8 +116,6 @@ public class DepositToDvDatasetMetadataMapper {
 
     @NonNull
     private final List<String> skipFields;
-
-
 
     public Dataset toDataverseDataset(
         @NonNull Document ddm,
@@ -178,6 +175,8 @@ public class DepositToDvDatasetMetadataMapper {
             citationFields.addKeywords(getDdmSubjects(ddm).filter(Subject::isPanTerm), Subject.toPanKeywordValue); // CIT015
             citationFields.addKeywords(getDdmSubjects(ddm).filter(Subject::isAatTerm), Subject.toAatKeywordValue); // CIT015
             citationFields.addKeywords(getLanguages(ddm), Language.toKeywordValue); // CIT016
+            citationFields.addKeywords(getDdmLanguages(ddm).filter(node -> Language.toCitationBlockLanguage(node, iso1ToDataverseLanguage, iso2ToDataverseLanguage) == null),
+                Language.toKeywordValue); // CIT016 : non-mapped languages are added as keywords
             citationFields.addPublications(getIdentifiers(ddm).filter(Identifier::isRelatedPublication), Identifier.toRelatedPublicationValue); // CIT017
             citationFields.addLanguages(getDdmLanguages(ddm), node -> Language.toCitationBlockLanguage(node, iso1ToDataverseLanguage, iso2ToDataverseLanguage)); // CIT018
             citationFields.addProductionDate(getCreated(ddm).map(Base::toYearMonthDayFormat)); // CIT019
@@ -226,7 +225,8 @@ public class DepositToDvDatasetMetadataMapper {
             archaeologyFields.addArchisNumber(getIdentifiers(ddm).filter(Identifier::isArchisNumber), Identifier.toArchisNumberValue); // AR002
             archaeologyFields.addRapportType(getReportNumbers(ddm).filter(AbrReport::isAbrReportType).map(node -> AbrReport.toAbrRapportType(node, abrReportCodeToTerm))); // AR003
             archaeologyFields.addRapportNummer(getReportNumbers(ddm).filter(AbrReport::isAbrReportType).map(AbrReport::toAbrRapportNumber)); // AR004
-            archaeologyFields.addVerwervingswijze(getAcquisitionMethods(ddm).filter(AbrAcquisitionMethod::isVerwervingswijze).map(node -> AbrAcquisitionMethod.toVerwervingswijze(node, abrAcquisitionMethodCodeToTerm))); // AR005
+            archaeologyFields.addVerwervingswijze(
+                getAcquisitionMethods(ddm).filter(AbrAcquisitionMethod::isVerwervingswijze).map(node -> AbrAcquisitionMethod.toVerwervingswijze(node, abrAcquisitionMethodCodeToTerm))); // AR005
             archaeologyFields.addComplex(getDdmSubjects(ddm).filter(SubjectAbr::isAbrComplex).map(node -> SubjectAbr.toAbrComplex(node, abrComplexCodeToTerm))); // AR006
             // Keep support for old URIs for PAN. No rule for this in the mapping file.
             archaeologyFields.addArtifact(getDdmSubjects(ddm).filter(SubjectAbr::isOldAbr).map(node -> SubjectAbr.toAbrArtifact(node, abrArtifactCodeToTerm))); // AR007
