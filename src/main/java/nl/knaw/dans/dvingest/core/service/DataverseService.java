@@ -26,6 +26,7 @@ import nl.knaw.dans.lib.dataverse.model.dataset.License;
 import nl.knaw.dans.lib.dataverse.model.dataset.MetadataField;
 import nl.knaw.dans.lib.dataverse.model.dataset.UpdateType;
 import nl.knaw.dans.lib.dataverse.model.file.FileMeta;
+import nl.knaw.dans.lib.dataverse.model.file.FileMetaUpdate;
 import nl.knaw.dans.lib.dataverse.model.user.AuthenticatedUser;
 
 import java.io.IOException;
@@ -46,13 +47,15 @@ public interface DataverseService {
 
     void replaceFile(String targetDatasetPid, FileMeta fileToReplace, Path replacement) throws DataverseException, IOException;
 
-    void deleteFile(int id) throws DataverseException, IOException;
+    void deleteFiles(String pid, List<Integer> ids) throws DataverseException, IOException;
 
     String getDatasetUrnNbn(String datasetId) throws IOException, DataverseException;
 
     void updateMetadata(String targetDatasetPid, DatasetVersion datasetMetadata) throws DataverseException, IOException;
 
     void updateFileMetadata(int id, FileMeta newMeta) throws DataverseException, IOException;
+
+    void updateFileMetadatas(String pid, List<FileMetaUpdate> fileMetaUpdates) throws DataverseException, IOException;
 
     void deleteDatasetMetadata(String pid, List<MetadataField> fields) throws DataverseException, IOException;
 

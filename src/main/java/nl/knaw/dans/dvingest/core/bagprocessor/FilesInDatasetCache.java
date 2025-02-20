@@ -80,7 +80,7 @@ public class FilesInDatasetCache {
      * @param fileMeta the FileMeta object for the file in the dataset after the move
      * @return the FileMeta object for the moved file in the dataset
      */
-    public FileMeta createFileMetaForMovedFile(@NonNull String toPath, @NonNull FileMeta fileMeta) {
+    public FileMeta modifyFileMetaForFileMove(@NonNull String toPath, @NonNull FileMeta fileMeta) {
         var newPath = autoRenamePath(toPath);
         var dataversePath = new DataversePath(newPath);
         fileMeta.setDirectoryLabel(dataversePath.getDirectoryLabel());

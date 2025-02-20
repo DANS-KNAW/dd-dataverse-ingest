@@ -54,17 +54,17 @@ public class FilesInDatasetCacheNonNullTest {
     }
 
     @Test
-    public void createFileMetaForMovedFile_throws_exception_when_toPath_is_null() {
+    public void modifyFileMetaForFile_Move_throws_exception_when_toPath_is_null() {
         var filesInDatasetCache = new FilesInDatasetCache(dataverseServiceMock, Map.of());
         var fileMeta = new FileMeta();
-        assertThatThrownBy(() -> filesInDatasetCache.createFileMetaForMovedFile(null, fileMeta))
+        assertThatThrownBy(() -> filesInDatasetCache.modifyFileMetaForFileMove(null, fileMeta))
             .isInstanceOf(NullPointerException.class);
     }
 
     @Test
-    public void createFileMetaForMovedFile_throws_exception_when_fileMeta_is_null() {
+    public void modifyFileMetaForMovedFile_throws_exception_when_fileMeta_is_nullMove() {
         var filesInDatasetCache = new FilesInDatasetCache(dataverseServiceMock, Map.of());
-        assertThatThrownBy(() -> filesInDatasetCache.createFileMetaForMovedFile("path", null))
+        assertThatThrownBy(() -> filesInDatasetCache.modifyFileMetaForFileMove("path", null))
             .isInstanceOf(NullPointerException.class);
     }
 
