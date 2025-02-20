@@ -34,9 +34,11 @@ import nl.knaw.dans.lib.dataverse.model.dataset.MetadataField;
 import nl.knaw.dans.lib.dataverse.model.dataset.PrimitiveSingleValueField;
 import nl.knaw.dans.lib.dataverse.model.dataset.UpdateType;
 import nl.knaw.dans.lib.dataverse.model.file.FileMeta;
+import nl.knaw.dans.lib.dataverse.model.file.FileMetaUpdate;
 import nl.knaw.dans.lib.dataverse.model.search.DatasetResultItem;
 import nl.knaw.dans.lib.dataverse.model.user.AuthenticatedUser;
 
+import javax.validation.Valid;
 import java.io.IOException;
 import java.net.URI;
 import java.nio.file.Path;
@@ -87,6 +89,12 @@ public class DataverseServiceImpl implements DataverseService {
     @Override
     public void updateMetadata(String targetDatasetPid, DatasetVersion datasetMetadata) throws DataverseException, IOException {
         var result = dataverseClient.dataset(targetDatasetPid).updateMetadata(datasetMetadata, metadataKeys);
+        log.debug(result.getEnvelopeAsString());
+    }
+
+    @Override
+    public void updateFileMetadatas(String pid, List<FileMetaUpdate> fileMetaUpdates) throws DataverseException, IOException {
+        var result = dataverseClient.dataset(pid).updateFileMetadatas(fileMetaUpdates);
         log.debug(result.getEnvelopeAsString());
     }
 

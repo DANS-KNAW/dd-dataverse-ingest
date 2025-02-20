@@ -121,7 +121,7 @@ public class FilesInDatasetCacheTest {
     }
 
     @Test
-    public void createFileMetaForMovedFile_updates_fileMeta_with_new_path() {
+    public void modifyFileMetaForMovedFile_updates_fileMeta_with_new_pathMove() {
         // Given
         var filesInDatasetCache = new FilesInDatasetCache(dataverseServiceMock, Map.of("oldPath/file.txt", "newPath/file.txt"));
         var fileMeta = new FileMeta();
@@ -129,7 +129,7 @@ public class FilesInDatasetCacheTest {
         fileMeta.setDirectoryLabel("oldPath");
 
         // When
-        var updatedFileMeta = filesInDatasetCache.createFileMetaForMovedFile("newPath/file.txt", fileMeta);
+        var updatedFileMeta = filesInDatasetCache.modifyFileMetaForFileMove("newPath/file.txt", fileMeta);
 
         // Then
         assertThat(updatedFileMeta.getLabel()).isEqualTo("file.txt");
