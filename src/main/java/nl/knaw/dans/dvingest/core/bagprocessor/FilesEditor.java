@@ -28,7 +28,6 @@ import nl.knaw.dans.dvingest.core.yaml.tasklog.EditFilesLog;
 import nl.knaw.dans.lib.dataverse.DataverseException;
 import nl.knaw.dans.lib.dataverse.model.dataset.Embargo;
 import nl.knaw.dans.lib.dataverse.model.file.FileMeta;
-import nl.knaw.dans.lib.dataverse.model.file.FileMetaUpdate;
 import nl.knaw.dans.lib.util.PathIterator;
 import org.apache.commons.collections4.IteratorUtils;
 import org.apache.commons.io.FileUtils;
@@ -115,7 +114,6 @@ public class FilesEditor {
         }
     }
 
-    // TODO: remove numberCompleted, as this will be all or nothing
     private void deleteFiles() throws IOException, DataverseException {
         if (editFilesLog.getDeleteFiles().isCompleted()) {
             log.debug("[{}] Task deleteFiles already completed", depositId);
@@ -125,33 +123,30 @@ public class FilesEditor {
             log.debug("[{}] No files to delete.", depositId);
         }
         else {
-            log.debug("[{}] Start deleting {} files.", depositId, editFiles.getDeleteFiles().size());
-            int numberDeleted = editFilesLog.getDeleteFiles().getNumberCompleted();
-            if (numberDeleted > 0) {
-                log.debug("[{}] Resuming deleting files from number {}", depositId, numberDeleted);
-            }
-            for (int i = numberDeleted; i < editFiles.getDeleteFiles().size(); i++) {
-                var filepath = editFiles.getDeleteFiles().get(i);
-                log.debug("[{}] Deleting file: {}", depositId, filepath);
-                var fileToDelete = filesInDatasetCache.get(filepath);
-                if (fileToDelete == null) {
-                    throw new IllegalArgumentException("File to delete not found in dataset: " + filepath);
-                }
-            }
+            checkForUnknownPaths(editFiles.getDeleteFiles());
             dataverseService.deleteFiles(pid,
                 editFiles.getDeleteFiles().stream()
-                    .skip(numberDeleted)
                     .map(filesInDatasetCache::get)
                     .mapToInt(file -> file.getDataFile().getId())
                     .boxed()
                     .collect(Collectors.toList()));
-            for (int i = numberDeleted; i < editFiles.getDeleteFiles().size(); i++) {
-                filesInDatasetCache.remove(editFiles.getDeleteFiles().get(i));
-                editFilesLog.getDeleteFiles().setNumberCompleted(editFiles.getDeleteFiles().size());
-            }
+            filesInDatasetCache.removeAll(editFiles.getDeleteFiles());
             log.debug("[{}] End deleting {} files.", depositId, editFiles.getDeleteFiles().size());
         }
         editFilesLog.getDeleteFiles().setCompleted(true);
+    }
+
+    private void checkForUnknownPaths(List<String> paths) {
+        var unknownPaths = new ArrayList<String>();
+        for (String filepath : paths) {
+            var foundFile = filesInDatasetCache.get(filepath);
+            if (foundFile == null) {
+                unknownPaths.add(filepath);
+            }
+        }
+        if (!unknownPaths.isEmpty()) {
+            throw new IllegalArgumentException("Files to delete not found in dataset: " + unknownPaths);
+        }
     }
 
     private void replaceFiles() throws IOException {
@@ -335,7 +330,6 @@ public class FilesEditor {
         }
     }
 
-    // TODO: remove numberCompleted, as this will be all or nothing
     private void moveFiles() throws IOException, DataverseException {
         if (editFilesLog.getMoveFiles().isCompleted()) {
             log.debug("[{}] Task moveFiles already completed.", depositId);
@@ -346,34 +340,27 @@ public class FilesEditor {
         }
         else {
             log.debug("[{}] Start moving {} files.", depositId, editFiles.getMoveFiles().size());
-            int numberMoved = editFilesLog.getMoveFiles().getNumberCompleted();
-            if (numberMoved > 0) {
-                log.debug("[{}] Resuming moving files from number {}", depositId, numberMoved);
+            var updatedFileMetas = new ArrayList<FileMeta>();
+            checkForUnknownPaths(editFiles.getMoveFiles().stream().map(FromTo::getFrom).toList());
+            for (var move : editFiles.getMoveFiles()) {
+                log.debug("[{}] Adding file movement: {} --> {}", depositId, move.getFrom(), move.getTo());
+                var fileMeta = filesInDatasetCache.modifyFileMetaForFileMove(
+                    move.getTo(),
+                    filesInDatasetCache.get(move.getFrom()));
+                updatedFileMetas.add(fileMeta);
             }
-            var movedFileMetas = new ArrayList<FileMeta>();
-            for (int i = numberMoved; i < editFiles.getMoveFiles().size(); i++) {
-                var move = editFiles.getMoveFiles().get(i);
-                log.debug("[{}] Moving file: {} to {}", depositId, move.getFrom(), move.getTo());
-                var fileMeta = filesInDatasetCache.get(move.getFrom());
-                fileMeta = filesInDatasetCache.modifyFileMetaForFileMove(move.getTo(), fileMeta);
-                movedFileMetas.add(fileMeta);
-            }
-            dataverseService.updateFileMetadatas(pid, movedFileMetas.stream().map(FileMeta::toFileMetaUpdate).toList());
-            for (int i = numberMoved; i < editFiles.getMoveFiles().size(); i++) {
-                var move = editFiles.getMoveFiles().get(i);
-                filesInDatasetCache.remove(move.getFrom());
-            }
-            for (var fileMeta : movedFileMetas) {
-                filesInDatasetCache.put(fileMeta);
-                editFilesLog.getMoveFiles().setNumberCompleted(++numberMoved);
-            }
-
+            bulkUpdateFileMetas(pid, editFiles.getMoveFiles().stream().map(FromTo::getFrom).map(filesInDatasetCache::get).toList(), updatedFileMetas);
             log.debug("[{}] End moving {} files.", depositId, editFiles.getMoveFiles().size());
         }
         editFilesLog.getMoveFiles().setCompleted(true);
     }
 
-    // TODO: remove numberCompleted, as this will be all or nothing
+    private void bulkUpdateFileMetas(String pid, List<FileMeta> oldFileMetas, List<FileMeta> newFileMetas) throws IOException, DataverseException {
+        dataverseService.updateFileMetadatas(pid, newFileMetas.stream().map(FileMeta::toFileMetaUpdate).toList());
+        filesInDatasetCache.removeAll(oldFileMetas.stream().map(this::getPath).toList());
+        filesInDatasetCache.putAll(newFileMetas);
+    }
+
     private void updateFileMetas() throws IOException, DataverseException {
         if (editFilesLog.getUpdateFileMetas().isCompleted()) {
             log.debug("[{}] Task updateFileMetas already completed.", depositId);
@@ -383,22 +370,17 @@ public class FilesEditor {
             log.debug("[{}] No file metas to update.", depositId);
         }
         else {
-            log.debug("[{}] Start updating {} file metas.", depositId, editFiles.getUpdateFileMetas().size());
-            int numberUpdated = editFilesLog.getUpdateFileMetas().getNumberCompleted();
-            if (numberUpdated > 0) {
-                log.debug("[{}] Resuming updating file metadata from number {}", depositId, numberUpdated);
-            }
-            var fileMetadataUpdates = new ArrayList<FileMetaUpdate>();
-            for (int i = numberUpdated; i < editFiles.getUpdateFileMetas().size(); i++) {
+            var oldFileMetas = new ArrayList<FileMeta>();
+            var updatedFileMetas = new ArrayList<FileMeta>();
+            for (int i = 0; i < editFiles.getUpdateFileMetas().size(); i++) {
                 var fileMeta = editFiles.getUpdateFileMetas().get(i);
                 log.debug("[{}] Updating file metadata for file {}", depositId, getPath(fileMeta));
                 var currentFileMeta = filesInDatasetCache.get(getPath(fileMeta));
+                oldFileMetas.add(currentFileMeta);
                 fileMeta.setDataFile(currentFileMeta.getDataFile());
-                var update = fileMeta.toFileMetaUpdate();
-                fileMetadataUpdates.add(update);
-                editFilesLog.getUpdateFileMetas().setNumberCompleted(++numberUpdated);
+                updatedFileMetas.add(fileMeta);
             }
-            dataverseService.updateFileMetadatas(pid, fileMetadataUpdates);
+            bulkUpdateFileMetas(pid, oldFileMetas, updatedFileMetas);
             log.debug("[{}] End updating file metas.", depositId);
         }
         editFilesLog.getUpdateFileMetas().setCompleted(true);

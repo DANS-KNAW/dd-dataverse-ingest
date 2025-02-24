@@ -24,6 +24,7 @@ import nl.knaw.dans.lib.dataverse.model.file.FileMeta;
 
 import java.io.IOException;
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -125,6 +126,18 @@ public class FilesInDatasetCache {
      */
     public int getNumberOfFilesInDataset() {
         return filesInDataset.size();
+    }
+
+    public void putAll(List<FileMeta> fileMetas) {
+        for (var fileMeta : fileMetas) {
+            put(fileMeta);
+        }
+    }
+
+    public void removeAll(List<String> paths) {
+        for (var path : paths) {
+            remove(path);
+        }
     }
 
     private String getPath(@NonNull FileMeta file) {
