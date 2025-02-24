@@ -15,6 +15,7 @@
  */
 package nl.knaw.dans.dvingest.core.dansbag;
 
+import lombok.extern.slf4j.Slf4j;
 import nl.knaw.dans.dvingest.core.dansbag.deposit.DansBagDeposit;
 import nl.knaw.dans.dvingest.core.dansbag.exception.RejectedDepositException;
 import nl.knaw.dans.dvingest.core.dansbag.mapper.mapping.LicenseElem;
@@ -31,17 +32,21 @@ import java.util.Map;
 import static nl.knaw.dans.dvingest.core.dansbag.xml.XPathConstants.DDM_DCMI_METADATA;
 
 // TODO: move to mapping package
+@Slf4j
 public class SupportedLicenses {
-    private final Map<URI, License> supportedLicenses;
+    private final DataverseService dataverseService;
+    private Map<URI, License> supportedLicenses;
 
-    public SupportedLicenses(DataverseService dataverseService) throws IOException, DataverseException {
-        supportedLicenses = new HashMap<>();
-        for (var license : dataverseService.getSupportedLicenses()) {
-            supportedLicenses.put(license.getUri(), license);
-        }
+    public SupportedLicenses(DataverseService dataverseService) {
+        supportedLicenses = null;
+        this.dataverseService = dataverseService;
     }
 
     public License getLicenseFromDansDeposit(DansBagDeposit dansDeposit) {
+        if (supportedLicenses == null) {
+            log.debug("Fetching supported licenses from Dataverse");
+            fetchLicenses();
+        }
         var optLicenseUri = XPathEvaluator.nodes(dansDeposit.getDdm(), DDM_DCMI_METADATA + "/dcterms:license")
             .filter(LicenseElem::isLicenseUri)
             .findFirst()
@@ -55,6 +60,19 @@ public class SupportedLicenses {
                 throw new RejectedDepositException(dansDeposit, "Unsupported license: " + licenseUri);
             }
             return supportedLicenses.get(licenseUri);
+        }
+    }
+
+    private void fetchLicenses() {
+        try {
+            supportedLicenses = new HashMap<>();
+            for (var license : dataverseService.getSupportedLicenses()) {
+                supportedLicenses.put(license.getUri(), license);
+            }
+        }
+        catch (IOException | DataverseException e) {
+            supportedLicenses = null;
+            throw new IllegalStateException("Could not fetch supported licenses from Dataverse", e);
         }
     }
 }

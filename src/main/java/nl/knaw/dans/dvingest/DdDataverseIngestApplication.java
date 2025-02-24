@@ -26,7 +26,9 @@ import nl.knaw.dans.dvingest.config.DdDataverseIngestConfiguration;
 import nl.knaw.dans.dvingest.config.DepositorAuthorizationConfig;
 import nl.knaw.dans.dvingest.config.IngestAreaConfig;
 import nl.knaw.dans.dvingest.core.AutoIngestArea;
+import nl.knaw.dans.dvingest.core.DependenciesReadyCheck;
 import nl.knaw.dans.dvingest.core.IngestArea;
+import nl.knaw.dans.dvingest.core.dansbag.ActiveMetadataBlocks;
 import nl.knaw.dans.dvingest.core.dansbag.DansBagMappingService;
 import nl.knaw.dans.dvingest.core.dansbag.DansBagMappingServiceImpl;
 import nl.knaw.dans.dvingest.core.dansbag.DansDepositSupportFactory;
@@ -39,7 +41,6 @@ import nl.knaw.dans.dvingest.core.service.YamlServiceImpl;
 import nl.knaw.dans.dvingest.resources.DefaultApiResource;
 import nl.knaw.dans.dvingest.resources.IllegalArgumentExceptionMapper;
 import nl.knaw.dans.dvingest.resources.IngestApiResource;
-import nl.knaw.dans.lib.dataverse.DataverseException;
 import nl.knaw.dans.lib.util.DataverseHealthCheck;
 import nl.knaw.dans.lib.util.MappingLoader;
 import nl.knaw.dans.lib.util.inbox.Inbox;
@@ -59,7 +60,6 @@ public class DdDataverseIngestApplication extends Application<DdDataverseIngestC
         - 'periodes'
  */
 
-
     public static final String SPATIAL_COVERAGE_COUNTRY_TERMS_FILENAME = "spatial-coverage-country-terms.txt";
     public static final String ISO_639_1_TO_DV_FILENAME = "iso639-1-to-dv.csv";
     public static final String ISO_639_2_TO_DV_FILENAME = "iso639-2-to-dv.csv";
@@ -73,7 +73,7 @@ public class DdDataverseIngestApplication extends Application<DdDataverseIngestC
     public static final String ISO_639_2_TO_DV_KEY_COLUMN = "ISO639-2";
     public static final String DATAVERSE_LANGUAGE_COLUMN = "Dataverse-language";
     public static final String CODE_COLUMN = "code";
-    public static final String SUBJECT_COLUMN = "subject";
+    public static final String TERM_COLUMN = "term";
 
     public static void main(final String[] args) throws Exception {
         new DdDataverseIngestApplication().run(args);
@@ -109,23 +109,25 @@ public class DdDataverseIngestApplication extends Application<DdDataverseIngestC
         var yamlService = new YamlServiceImpl();
         var dataverseIngestDepositFactory = new DataverseIngestDepositFactoryImpl(yamlService);
         var bagProcessorFactory = new BagProcessorFactoryImpl(dataverseService, utilityServices);
+        var dependenciesReadyCheck = new HealthChecksDependenciesReadyCheck(environment, configuration.getDependenciesReadyCheck());
+        environment.lifecycle().manage(dependenciesReadyCheck);
 
         /*
          *  Import area
          */
         DansDepositConversionConfig dansDepositConversionConfig = configuration.getDansDepositConversion();
         var importArea = getIngestArea(configuration.getIngest().getImportConfig(), "import", environment, dansDepositConversionConfig, dataverseService, yamlService, bagProcessorFactory,
-            dataverseIngestDepositFactory);
+            dataverseIngestDepositFactory, dependenciesReadyCheck);
         /*
          * Migration area
          */
         var migrationArea = getIngestArea(configuration.getIngest().getMigration(), "migration", environment, dansDepositConversionConfig, dataverseService, yamlService, bagProcessorFactory,
-            dataverseIngestDepositFactory);
+            dataverseIngestDepositFactory, dependenciesReadyCheck);
         /*
          * Auto ingest area
          */
         var autoIngestArea = getAutoIngestArea(configuration.getIngest().getAutoIngest(), environment, dansDepositConversionConfig, dataverseService, yamlService, bagProcessorFactory,
-            dataverseIngestDepositFactory);
+            dataverseIngestDepositFactory, dependenciesReadyCheck);
 
         /*
          * Register components with Dropwizard
@@ -139,21 +141,23 @@ public class DdDataverseIngestApplication extends Application<DdDataverseIngestC
     }
 
     private AutoIngestArea getAutoIngestArea(IngestAreaConfig ingestAreaConfig, Environment environment, DansDepositConversionConfig dansDepositConversionConfig,
-        DataverseServiceImpl dataverseService, YamlServiceImpl yamlService, BagProcessorFactoryImpl bagProcessorFactory, DataverseIngestDepositFactoryImpl dataverseIngestDepositFactory) {
+        DataverseServiceImpl dataverseService, YamlServiceImpl yamlService, BagProcessorFactoryImpl bagProcessorFactory, DataverseIngestDepositFactoryImpl dataverseIngestDepositFactory,
+        DependenciesReadyCheck dependenciesReadyCheck) {
         DansDepositSupportFactory dansDepositSupportFactory = new DansDepositSupportDisabledFactory();
         if (dansDepositConversionConfig != null) {
             var dansBagMappingService = createDansBagMappingService(false, dansDepositConversionConfig, dansDepositConversionConfig.getDepositorAuthorization().getAutoIngest(), dataverseService);
             var validateDansBagService = new ValidateDansBagServiceImpl(dansDepositConversionConfig.getValidateDansBag(), false, environment);
             dansDepositSupportFactory = new DansDepositSupportFactoryImpl(validateDansBagService, dansBagMappingService, dataverseService, yamlService, ingestAreaConfig.getRequireDansBag());
         }
-        var depositTaskFactory = new DepositTaskFactoryImpl(bagProcessorFactory, dansDepositSupportFactory);
+        var depositTaskFactory = new DepositTaskFactoryImpl(bagProcessorFactory, dansDepositSupportFactory, dependenciesReadyCheck);
         var inboxTaskFactory = new InboxTaskFactoryImpl(dataverseIngestDepositFactory, depositTaskFactory, ingestAreaConfig.getOutbox());
         var inbox = Inbox.builder().inbox(ingestAreaConfig.getInbox()).taskFactory(inboxTaskFactory).build();
         return new AutoIngestArea(inbox, ingestAreaConfig.getOutbox());
     }
 
     private IngestArea getIngestArea(IngestAreaConfig ingestAreaConfig, String name, Environment environment, DansDepositConversionConfig dansDepositConversionConfig,
-        DataverseServiceImpl dataverseService, YamlServiceImpl yamlService, BagProcessorFactoryImpl bagProcessorFactory, DataverseIngestDepositFactoryImpl dataverseIngestDepositFactory) {
+        DataverseServiceImpl dataverseService, YamlServiceImpl yamlService, BagProcessorFactoryImpl bagProcessorFactory, DataverseIngestDepositFactoryImpl dataverseIngestDepositFactory,
+        DependenciesReadyCheck dependenciesReadyCheck) {
         boolean isMigration = name.equals("migration");
         DansDepositSupportFactory dansDepositSupportFactory = new DansDepositSupportDisabledFactory();
         if (dansDepositConversionConfig != null) {
@@ -162,7 +166,7 @@ public class DdDataverseIngestApplication extends Application<DdDataverseIngestC
             dansDepositSupportFactory = new DansDepositSupportFactoryImpl(validateDansBag, dansBagMappingService, dataverseService, yamlService,
                 ingestAreaConfig.getRequireDansBag());
         }
-        var depositTaskFactory = new DepositTaskFactoryImpl(bagProcessorFactory, dansDepositSupportFactory);
+        var depositTaskFactory = new DepositTaskFactoryImpl(bagProcessorFactory, dansDepositSupportFactory, dependenciesReadyCheck);
         var jobFactory = new ImportJobFactoryImpl(dataverseIngestDepositFactory, depositTaskFactory);
         return new IngestArea(jobFactory, ingestAreaConfig.getInbox(), ingestAreaConfig.getOutbox(),
             environment.lifecycle().executorService(name).minThreads(1).maxThreads(1).build());
@@ -171,28 +175,20 @@ public class DdDataverseIngestApplication extends Application<DdDataverseIngestC
     private DansBagMappingService createDansBagMappingService(boolean isMigration, DansDepositConversionConfig dansDepositConversionConfig, DepositorAuthorizationConfig depositorAuthorizationConfig,
         DataverseService dataverseService) {
         log.info("Configuring DANS Deposit conversion");
-        try {
-            var mapper = createMapper(isMigration, dansDepositConversionConfig, dataverseService);
-            return new DansBagMappingServiceImpl(
-                mapper,
-                dataverseService,
-                new SupportedLicenses(dataverseService),
-                dansDepositConversionConfig.getFileExclusionPattern() == null ? null :
-                    Pattern.compile(dansDepositConversionConfig.getFileExclusionPattern()),
-                dansDepositConversionConfig.getFilesForIndividualUploadPattern() == null ? null :
-                    Pattern.compile(dansDepositConversionConfig.getFilesForIndividualUploadPattern()),
-                dansDepositConversionConfig.getEmbargoExclusions(),
-                dansDepositConversionConfig.getAssignDepositorRole().getAutoIngest(),
-                dansDepositConversionConfig.getAssignDepositorRole().getMigration(),
-                depositorAuthorizationConfig.getPublishDataset(),
-                depositorAuthorizationConfig.getEditDataset());
-        }
-        catch (IOException e) {
-            throw new IllegalStateException("Failed to read configuration files", e);
-        }
-        catch (DataverseException e) {
-            throw new IllegalStateException("Failed to read supported licenses", e);
-        }
+        var mapper = createMapper(isMigration, dansDepositConversionConfig, dataverseService);
+        return new DansBagMappingServiceImpl(
+            mapper,
+            dataverseService,
+            new SupportedLicenses(dataverseService),
+            dansDepositConversionConfig.getFileExclusionPattern() == null ? null :
+                Pattern.compile(dansDepositConversionConfig.getFileExclusionPattern()),
+            dansDepositConversionConfig.getFilesForIndividualUploadPattern() == null ? null :
+                Pattern.compile(dansDepositConversionConfig.getFilesForIndividualUploadPattern()),
+            dansDepositConversionConfig.getEmbargoExclusions(),
+            dansDepositConversionConfig.getAssignDepositorRole().getAutoIngest(),
+            dansDepositConversionConfig.getAssignDepositorRole().getMigration(),
+            depositorAuthorizationConfig.getPublishDataset(),
+            depositorAuthorizationConfig.getEditDataset());
     }
 
     private DepositToDvDatasetMetadataMapper createMapper(boolean isMigration, DansDepositConversionConfig dansDepositConversionConfig, DataverseService dataverseService) {
@@ -201,23 +197,20 @@ public class DdDataverseIngestApplication extends Application<DdDataverseIngestC
             return new DepositToDvDatasetMetadataMapper(
                 isMigration,
                 dansDepositConversionConfig.isDeduplicate(),
-                dataverseService.getActiveMetadataBlockNames(),
+                new ActiveMetadataBlocks(dataverseService),
                 MappingLoader.builder().csvFile(mappingDefsDir.resolve(ISO_639_1_TO_DV_FILENAME)).keyColumn(ISO_639_1_TO_DV_KEY_COLUMN).valueColumn(DATAVERSE_LANGUAGE_COLUMN).build().load(),
                 MappingLoader.builder().csvFile(mappingDefsDir.resolve(ISO_639_2_TO_DV_FILENAME)).keyColumn(ISO_639_2_TO_DV_KEY_COLUMN).valueColumn(DATAVERSE_LANGUAGE_COLUMN).build().load(),
-                MappingLoader.builder().csvFile(mappingDefsDir.resolve(ABR_REPORT_CODE_TO_TERM_FILENAME)).keyColumn(CODE_COLUMN).valueColumn(SUBJECT_COLUMN).build().load(),
-                MappingLoader.builder().csvFile(mappingDefsDir.resolve(ABR_VERWERVINGSWIJZEN_CODE_TO_TERM_FILENAME)).keyColumn(CODE_COLUMN).valueColumn(SUBJECT_COLUMN).build().load(),
-                MappingLoader.builder().csvFile(mappingDefsDir.resolve(ABR_COMPLEXTYPE_CODE_TO_TERM_FILENAME)).keyColumn(CODE_COLUMN).valueColumn(SUBJECT_COLUMN).build().load(),
-                MappingLoader.builder().csvFile(mappingDefsDir.resolve(ABR_ARTIFACT_CODE_TO_TERM_FILENAME)).keyColumn(CODE_COLUMN).valueColumn(SUBJECT_COLUMN).build().load(),
-                MappingLoader.builder().csvFile(mappingDefsDir.resolve(ABR_PERIOD_CODE_TO_TERM_FILENAME)).keyColumn(CODE_COLUMN).valueColumn(SUBJECT_COLUMN).build().load(),
+                MappingLoader.builder().csvFile(mappingDefsDir.resolve(ABR_REPORT_CODE_TO_TERM_FILENAME)).keyColumn(CODE_COLUMN).valueColumn(TERM_COLUMN).build().load(),
+                MappingLoader.builder().csvFile(mappingDefsDir.resolve(ABR_VERWERVINGSWIJZEN_CODE_TO_TERM_FILENAME)).keyColumn(CODE_COLUMN).valueColumn(TERM_COLUMN).build().load(),
+                MappingLoader.builder().csvFile(mappingDefsDir.resolve(ABR_COMPLEXTYPE_CODE_TO_TERM_FILENAME)).keyColumn(CODE_COLUMN).valueColumn(TERM_COLUMN).build().load(),
+                MappingLoader.builder().csvFile(mappingDefsDir.resolve(ABR_ARTIFACT_CODE_TO_TERM_FILENAME)).keyColumn(CODE_COLUMN).valueColumn(TERM_COLUMN).build().load(),
+                MappingLoader.builder().csvFile(mappingDefsDir.resolve(ABR_PERIOD_CODE_TO_TERM_FILENAME)).keyColumn(CODE_COLUMN).valueColumn(TERM_COLUMN).build().load(),
                 FileUtils.readLines(mappingDefsDir.resolve(SPATIAL_COVERAGE_COUNTRY_TERMS_FILENAME).toFile(), StandardCharsets.UTF_8),
                 dansDepositConversionConfig.getDataSuppliers(),
                 dansDepositConversionConfig.getSkipFields());
         }
         catch (IOException e) {
             throw new IllegalStateException("Failed to read configuration files", e);
-        }
-        catch (DataverseException e) {
-            throw new IllegalStateException("Failed to read supported licenses", e);
         }
     }
 }
