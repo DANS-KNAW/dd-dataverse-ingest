@@ -145,7 +145,7 @@ public class FilesEditor {
             }
         }
         if (!unknownPaths.isEmpty()) {
-            throw new IllegalArgumentException("Files to delete not found in dataset: " + unknownPaths);
+            throw new IllegalArgumentException("Files not found in dataset: " + unknownPaths);
         }
     }
 
@@ -344,21 +344,16 @@ public class FilesEditor {
             checkForUnknownPaths(editFiles.getMoveFiles().stream().map(FromTo::getFrom).toList());
             for (var move : editFiles.getMoveFiles()) {
                 log.debug("[{}] Adding file movement: {} --> {}", depositId, move.getFrom(), move.getTo());
-                var fileMeta = filesInDatasetCache.modifyFileMetaForFileMove(
-                    move.getTo(),
-                    filesInDatasetCache.get(move.getFrom()));
+                var fileMeta = filesInDatasetCache.modifyCachedFileMetaForFileMove(
+                    move.getFrom(),
+                    move.getTo()
+                    );
                 updatedFileMetas.add(fileMeta);
             }
-            bulkUpdateFileMetas(pid, editFiles.getMoveFiles().stream().map(FromTo::getFrom).map(filesInDatasetCache::get).toList(), updatedFileMetas);
+            dataverseService.updateFileMetadatas(pid, updatedFileMetas.stream().map(FileMeta::toFileMetaUpdate).toList());
             log.debug("[{}] End moving {} files.", depositId, editFiles.getMoveFiles().size());
         }
         editFilesLog.getMoveFiles().setCompleted(true);
-    }
-
-    private void bulkUpdateFileMetas(String pid, List<FileMeta> oldFileMetas, List<FileMeta> newFileMetas) throws IOException, DataverseException {
-        dataverseService.updateFileMetadatas(pid, newFileMetas.stream().map(FileMeta::toFileMetaUpdate).toList());
-        filesInDatasetCache.removeAll(oldFileMetas.stream().map(this::getPath).toList());
-        filesInDatasetCache.putAll(newFileMetas);
     }
 
     private void updateFileMetas() throws IOException, DataverseException {
@@ -370,17 +365,14 @@ public class FilesEditor {
             log.debug("[{}] No file metas to update.", depositId);
         }
         else {
-            var oldFileMetas = new ArrayList<FileMeta>();
+            checkForUnknownPaths(editFiles.getUpdateFileMetas().stream().map(this::getPath).toList());
             var updatedFileMetas = new ArrayList<FileMeta>();
-            for (int i = 0; i < editFiles.getUpdateFileMetas().size(); i++) {
-                var fileMeta = editFiles.getUpdateFileMetas().get(i);
+            for (var fileMeta : editFiles.getUpdateFileMetas()) {
                 log.debug("[{}] Updating file metadata for file {}", depositId, getPath(fileMeta));
-                var currentFileMeta = filesInDatasetCache.get(getPath(fileMeta));
-                oldFileMetas.add(currentFileMeta);
-                fileMeta.setDataFile(currentFileMeta.getDataFile());
-                updatedFileMetas.add(fileMeta);
+                var updatedFileMeta = filesInDatasetCache.modifyFileMetaForUpdate(getPath(fileMeta), fileMeta);
+                updatedFileMetas.add(updatedFileMeta);
             }
-            bulkUpdateFileMetas(pid, oldFileMetas, updatedFileMetas);
+            dataverseService.updateFileMetadatas(pid, updatedFileMetas.stream().map(FileMeta::toFileMetaUpdate).toList());
             log.debug("[{}] End updating file metas.", depositId);
         }
         editFilesLog.getUpdateFileMetas().setCompleted(true);

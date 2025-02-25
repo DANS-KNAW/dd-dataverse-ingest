@@ -83,7 +83,7 @@ public class FilesEditorDeleteFilesTest extends FilesEditorTestFixture {
         // When
         assertThatThrownBy(() -> filesEditor.editFiles("pid"))
             .isInstanceOf(IllegalArgumentException.class)
-            .hasMessage("Files to delete not found in dataset: [file4]");
+            .hasMessage("Files not found in dataset: [file4]");
         YamlBeanAssert.assertThat(editFilesLog.getDeleteFiles()).isEqualTo("""
             completed: false
             """);
