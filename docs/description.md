@@ -358,7 +358,6 @@ taskLog:
   editFiles:
     deleteFiles:
       completed: false
-      numberCompleted: 0
     replaceFiles:
       completed: false
       numberCompleted: 0
@@ -376,10 +375,8 @@ taskLog:
       numberCompleted: 0
     moveFiles:
       completed: false
-      numberCompleted: 0
     updateFileMetas:
       completed: false
-      numberCompleted: 0
     addEmbargoes:
       completed: false
       numberCompleted: 0

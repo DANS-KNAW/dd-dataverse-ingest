@@ -54,5 +54,4 @@ public class FilesEditorTestFixture extends TestDirFixture {
         fileMeta.setDirectoryLabel(dvPath.getDirectoryLabel());
         return fileMeta;
     }
-
 }

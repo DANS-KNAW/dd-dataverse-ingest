@@ -24,6 +24,7 @@ import nl.knaw.dans.lib.dataverse.model.file.FileMeta;
 
 import java.io.IOException;
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -73,19 +74,37 @@ public class FilesInDatasetCache {
     }
 
     /**
-     * A move operation is in fact a file metadata update operation in which the directory label and label are updated. This method allows to calculate the file metadata for the moved file in the
-     * dataset. The filepath will be auto-renamed if it is in the renamedFiles map, so the local path from the bag is used.
+     * A move operation is in fact a file metadata update operation in which the directory label and label are updated. This method allows to update cached FileMeta object before the move with the new
+     * filepath. The filepath will be auto-renamed if it is in the renamedFiles map, so the local path from the bag is used.
      *
-     * @param toPath   new filepath before auto-rename
-     * @param fileMeta the FileMeta object for the file in the dataset after the move
-     * @return the FileMeta object for the moved file in the dataset
+     * @param fromPath the current path, before auto-rename, so paths as found in the bag can be used
+     * @param toPath   the new path, before auto-rename, so paths as found in the bag can be used
+     * @return the updated cached FileMeta object
      */
-    public FileMeta createFileMetaForMovedFile(@NonNull String toPath, @NonNull FileMeta fileMeta) {
-        var newPath = autoRenamePath(toPath);
-        var dataversePath = new DataversePath(newPath);
-        fileMeta.setDirectoryLabel(dataversePath.getDirectoryLabel());
-        fileMeta.setLabel(dataversePath.getLabel());
-        return fileMeta;
+    public FileMeta modifyCachedFileMetaForFileMove(@NonNull String fromPath, @NonNull String toPath) {
+        var fromDataversePath = new DataversePath(autoRenamePath(fromPath));
+        var toDataversePath = new DataversePath(autoRenamePath(toPath));
+        var cachedFileMeta = filesInDataset.get(fromDataversePath.toString());
+        if (cachedFileMeta == null) {
+            throw new IllegalArgumentException("File to move not found in dataset: " + fromDataversePath);
+        }
+        cachedFileMeta.setDirectoryLabel(toDataversePath.getDirectoryLabel());
+        cachedFileMeta.setLabel(toDataversePath.getLabel());
+        // Ensure that the file meta is findable under the new path.
+        filesInDataset.remove(fromDataversePath.toString());
+        filesInDataset.put(toDataversePath.toString(), cachedFileMeta);
+        return cachedFileMeta;
+    }
+
+    public FileMeta modifyFileMetaForUpdate(@NonNull String toPath, @NonNull FileMeta fileMeta) {
+        var dataversePath = new DataversePath(fileMeta.getDirectoryLabel(), fileMeta.getLabel());
+        var cachedFileMeta = filesInDataset.get(dataversePath.toString());
+        if (cachedFileMeta == null) {
+            throw new IllegalArgumentException("File to update not found in dataset: " + dataversePath);
+        }
+        cachedFileMeta.setDescription(fileMeta.getDescription());
+        cachedFileMeta.setCategories(fileMeta.getCategories());
+        return cachedFileMeta;
     }
 
     /**
@@ -125,6 +144,18 @@ public class FilesInDatasetCache {
      */
     public int getNumberOfFilesInDataset() {
         return filesInDataset.size();
+    }
+
+    public void putAll(List<FileMeta> fileMetas) {
+        for (var fileMeta : fileMetas) {
+            put(fileMeta);
+        }
+    }
+
+    public void removeAll(List<String> paths) {
+        for (var path : paths) {
+            remove(path);
+        }
     }
 
     private String getPath(@NonNull FileMeta file) {

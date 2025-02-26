@@ -19,14 +19,14 @@ import lombok.Data;
 
 @Data
 public class EditFilesLog {
-    private CompletableItemWithCount deleteFiles = new CompletableItemWithCount();
+    private CompletableItem deleteFiles = new CompletableItem();
     private CompletableItemWithCount replaceFiles = new CompletableItemWithCount();
     private CompletableItemWithCount addUnrestrictedFiles = new CompletableItemWithCount();
     private CompletableItemWithCount addRestrictedFiles = new CompletableItemWithCount();
     private CompletableItemWithCount addUnrestrictedIndividually = new CompletableItemWithCount();
     private CompletableItemWithCount addRestrictedIndividually = new CompletableItemWithCount();
-    private CompletableItemWithCount moveFiles = new CompletableItemWithCount();
-    private CompletableItemWithCount updateFileMetas = new CompletableItemWithCount();
+    private CompletableItem moveFiles = new CompletableItem();
+    private CompletableItem updateFileMetas = new CompletableItem();
     private CompletableItemWithCount addEmbargoes = new CompletableItemWithCount();
 
 

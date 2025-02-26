@@ -16,7 +16,6 @@
 package nl.knaw.dans.dvingest.core.bagprocessor;
 
 import nl.knaw.dans.dvingest.core.service.DataverseService;
-import nl.knaw.dans.lib.dataverse.model.file.FileMeta;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
@@ -54,17 +53,16 @@ public class FilesInDatasetCacheNonNullTest {
     }
 
     @Test
-    public void createFileMetaForMovedFile_throws_exception_when_toPath_is_null() {
+    public void modifyCachedFileMetaForFileMove_throws_exception_when_toPath_is_null() {
         var filesInDatasetCache = new FilesInDatasetCache(dataverseServiceMock, Map.of());
-        var fileMeta = new FileMeta();
-        assertThatThrownBy(() -> filesInDatasetCache.createFileMetaForMovedFile(null, fileMeta))
+        assertThatThrownBy(() -> filesInDatasetCache.modifyCachedFileMetaForFileMove(null, "path/to"))
             .isInstanceOf(NullPointerException.class);
     }
 
     @Test
-    public void createFileMetaForMovedFile_throws_exception_when_fileMeta_is_null() {
+    public void modifyFileMetaForMovedFile_throws_exception_when_fileMeta_is_nullMove() {
         var filesInDatasetCache = new FilesInDatasetCache(dataverseServiceMock, Map.of());
-        assertThatThrownBy(() -> filesInDatasetCache.createFileMetaForMovedFile("path", null))
+        assertThatThrownBy(() -> filesInDatasetCache.modifyCachedFileMetaForFileMove("path", null))
             .isInstanceOf(NullPointerException.class);
     }
 

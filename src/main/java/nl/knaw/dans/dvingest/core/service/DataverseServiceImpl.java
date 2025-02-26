@@ -34,9 +34,11 @@ import nl.knaw.dans.lib.dataverse.model.dataset.MetadataField;
 import nl.knaw.dans.lib.dataverse.model.dataset.PrimitiveSingleValueField;
 import nl.knaw.dans.lib.dataverse.model.dataset.UpdateType;
 import nl.knaw.dans.lib.dataverse.model.file.FileMeta;
+import nl.knaw.dans.lib.dataverse.model.file.FileMetaUpdate;
 import nl.knaw.dans.lib.dataverse.model.search.DatasetResultItem;
 import nl.knaw.dans.lib.dataverse.model.user.AuthenticatedUser;
 
+import javax.validation.Valid;
 import java.io.IOException;
 import java.net.URI;
 import java.nio.file.Path;
@@ -91,6 +93,12 @@ public class DataverseServiceImpl implements DataverseService {
     }
 
     @Override
+    public void updateFileMetadatas(String pid, List<FileMetaUpdate> fileMetaUpdates) throws DataverseException, IOException {
+        var result = dataverseClient.dataset(pid).updateFileMetadatas(fileMetaUpdates);
+        log.debug(result.getEnvelopeAsString());
+    }
+
+    @Override
     public void updateFileMetadata(int id, FileMeta newMeta) throws DataverseException, IOException {
         var result = dataverseClient.file(id).updateMetadata(newMeta);
         log.debug(result.getEnvelopeAsString());
@@ -110,8 +118,8 @@ public class DataverseServiceImpl implements DataverseService {
     }
 
     @Override
-    public void deleteFile(int id) throws DataverseException, IOException {
-        var result = dataverseClient.sword().deleteFile(id);
+    public void deleteFiles(String pid, List<Integer> ids) throws DataverseException, IOException {
+        var result = dataverseClient.dataset(pid).deleteFiles(ids);
         log.debug(result.getEnvelopeAsString());
     }
 

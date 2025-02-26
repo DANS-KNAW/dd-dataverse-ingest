@@ -19,6 +19,7 @@ import nl.knaw.dans.dvingest.YamlBeanAssert;
 import nl.knaw.dans.dvingest.core.yaml.EditFilesRoot;
 import nl.knaw.dans.dvingest.core.yaml.tasklog.EditFilesLog;
 import nl.knaw.dans.lib.dataverse.model.file.FileMetaUpdate;
+import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
@@ -31,22 +32,28 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
-public class FilesEditorMoveFilesTest extends FilesEditorTestFixture {
+public class FilesEditorUpdateFileMetasTest extends FilesEditorTestFixture {
+
+    private static String getPath(FileMetaUpdate u) {
+        return new DataversePath(u.getDirectoryLabel(), u.getLabel()).toString();
+    }
 
     @Test
-    public void moveFiles_moves_files_to_different_path_in_dataset() throws Exception {
+    public void updateFileMetas_updates_file_metas_in_dataset() throws Exception {
         // Given
         when(dataverseServiceMock.getFiles("pid", true)).thenReturn(
-            List.of(file("some/file1", 1),
-                file("some_other/file2", 2),
+            List.of(file("file1", 1),
+                file("file2", 2),
                 file("file3", 3)));
         var editFilesRoot = yamlService.readYamlFromString("""
             editFiles:
-                moveFiles:
-                  - from: some/file1
-                    to: some_other/fileA
-                  - from: file3
-                    to: some_other/fileC
+                updateFileMetas:
+                  - label: file1
+                    description: "new description"
+                    categories: ["cat1", "cat2"]
+                  - label: file3
+                    description: "another description"
+                    categories: ["cat3"]
             """, EditFilesRoot.class);
         var editFilesLog = new EditFilesLog();
         var filesEditor = new FilesEditor(UUID.randomUUID(), dataDir, editFilesRoot.getEditFiles(), dataverseServiceMock, utilityServicesMock, editFilesLog);
@@ -58,44 +65,46 @@ public class FilesEditorMoveFilesTest extends FilesEditorTestFixture {
         ArgumentCaptor<List<FileMetaUpdate>> fileMetaUpdatesCaptor = ArgumentCaptor.captor();
         Mockito.verify(dataverseServiceMock).updateFileMetadatas(eq("pid"), fileMetaUpdatesCaptor.capture());
         var fileMetaUpdates = fileMetaUpdatesCaptor.getValue();
-        assertThat(fileMetaUpdates).hasSize(2);
-        var newPaths = fileMetaUpdates.stream().map(fmu -> new DataversePath(fmu.getDirectoryLabel(), fmu.getLabel()).toString()).toList();
-        assertThat(newPaths).containsExactlyInAnyOrder("some_other/fileA", "some_other/fileC");
+        assertThat(fileMetaUpdates.stream().map(u -> new ImmutablePair<>(getPath(u), u.getCategories()))).containsExactlyInAnyOrder(
+            new ImmutablePair<>("file1", List.of("cat1", "cat2")),
+            new ImmutablePair<>("file3", List.of("cat3"))
+        );
 
         var cache = filesEditor.getFilesInDatasetCache();
 
-        // Moved
-        assertThat(cache.get("some/file1")).isNull(); // from
-        assertThat(cache.get("some_other/fileA")).isNotNull(); // to
+        assertThat(cache.getFilesInDataset()).hasSize(3);
 
-        // Moved
-        assertThat(cache.get("file3")).isNull(); // from
-        assertThat(cache.get("some_other/fileC")).isNotNull(); // to
+        // Updated
+        assertThat(cache.get("file1").getDescription()).isEqualTo("new description");
+        assertThat(cache.get("file1").getCategories()).containsExactly("cat1", "cat2");
+        assertThat(cache.get("file3").getDescription()).isEqualTo("another description");
+        assertThat(cache.get("file3").getCategories()).containsExactly("cat3");
 
-        // Not moved
-        assertThat(cache.get("some_other/file2")).isNotNull();
+        // Not modified
+        assertThat(cache.get("file2").getDescription()).isNull();
+        assertThat(cache.get("file2").getCategories()).isEmpty();
 
-        YamlBeanAssert.assertThat(editFilesLog.getMoveFiles()).isEqualTo("""
+        YamlBeanAssert.assertThat(editFilesLog.getUpdateFileMetas()).isEqualTo("""
             completed: true
             """);
     }
 
     @Test
-    public void moveFiles_throws_exception_when_file_not_found() throws Exception {
+    public void updateFileMetas_throws_exception_when_file_not_found() throws Exception {
         // Given
         when(dataverseServiceMock.getFiles("pid", true)).thenReturn(
-            List.of(file("some/file1", 1),
-                file("some_other/file2", 2),
+            List.of(file("file1", 1),
+                file("file2", 2),
                 file("file3", 3)));
         var editFilesRoot = yamlService.readYamlFromString("""
             editFiles:
-                moveFiles:
-                  - from: some/file1
-                    to: some_other/fileA
-                  - from: file3
-                    to: some_other/fileC
-                  - from: file4
-                    to: some_other/fileD
+                updateFileMetas:
+                  - label: file1
+                    description: "new description"
+                    categories: ["cat1", "cat2"]
+                  - label: file4
+                    description: "another description"
+                    categories: ["cat3"]
             """, EditFilesRoot.class);
         var editFilesLog = new EditFilesLog();
         var filesEditor = new FilesEditor(UUID.randomUUID(), dataDir, editFilesRoot.getEditFiles(), dataverseServiceMock, utilityServicesMock, editFilesLog);
@@ -104,56 +113,31 @@ public class FilesEditorMoveFilesTest extends FilesEditorTestFixture {
         assertThatThrownBy(() -> filesEditor.editFiles("pid"))
             .isInstanceOf(IllegalArgumentException.class)
             .hasMessage("Files not found in dataset: [file4]");
-
-        // Then
-        YamlBeanAssert.assertThat(editFilesLog.getMoveFiles()).isEqualTo("""
-            completed: false
-            """);
     }
 
     @Test
-    public void moveFiles_is_skipped_when_already_completed() throws Exception {
+    public void updateFileMetas_is_skipped_when_already_completed() throws Exception {
         // Given
         var editFilesRoot = yamlService.readYamlFromString("""
             editFiles:
-                moveFiles:
-                  - from: some/file1
-                    to: some_other/fileA
-                  - from: file3
-                    to: some_other/fileC
-            """, EditFilesRoot.class);
+                updateFileMetas:
+                  - label: file1
+                    description: "new description"
+                    categories: ["cat1", "cat2"]
+                  - label: file3
+                    description: "another description"
+                    categories: ["cat3"]
+        """, EditFilesRoot.class);
         var editFilesLog = new EditFilesLog();
-        editFilesLog.getMoveFiles().setCompleted(true);
+        editFilesLog.getUpdateFileMetas().setCompleted(true);
         var filesEditor = new FilesEditor(UUID.randomUUID(), dataDir, editFilesRoot.getEditFiles(), dataverseServiceMock, utilityServicesMock, editFilesLog);
 
         // When
         filesEditor.editFiles("pid");
 
         // Then
-        Mockito.verify(dataverseServiceMock, Mockito.never()).updateFileMetadatas(Mockito.anyString(), Mockito.anyList());
-        YamlBeanAssert.assertThat(editFilesLog.getMoveFiles()).isEqualTo("""
+        YamlBeanAssert.assertThat(editFilesLog.getUpdateFileMetas()).isEqualTo("""
             completed: true
             """);
     }
-
-    @Test
-    public void moveFiles_is_skipped_when_list_is_empty() throws Exception {
-        // Given
-        var editFilesRoot = yamlService.readYamlFromString("""
-            editFiles:
-                moveFiles: []
-            """, EditFilesRoot.class);
-        var editFilesLog = new EditFilesLog();
-        var filesEditor = new FilesEditor(UUID.randomUUID(), dataDir, editFilesRoot.getEditFiles(), dataverseServiceMock, utilityServicesMock, editFilesLog);
-
-        // When
-        filesEditor.editFiles("pid");
-
-        // Then
-        Mockito.verify(dataverseServiceMock, Mockito.never()).updateFileMetadatas(Mockito.anyString(), Mockito.anyList());
-        YamlBeanAssert.assertThat(editFilesLog.getMoveFiles()).isEqualTo("""
-            completed: true
-            """);
-    }
-
 }
