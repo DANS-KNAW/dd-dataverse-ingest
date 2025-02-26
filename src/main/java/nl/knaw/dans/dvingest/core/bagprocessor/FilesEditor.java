@@ -342,12 +342,13 @@ public class FilesEditor {
             log.debug("[{}] Start moving {} files.", depositId, editFiles.getMoveFiles().size());
             var updatedFileMetas = new ArrayList<FileMeta>();
             checkForUnknownPaths(editFiles.getMoveFiles().stream().map(FromTo::getFrom).toList());
+            // TODO: check path clashes in 'to' paths (i.e. to moves in edit-files.yml that class, or to clashes with file already dataset)
             for (var move : editFiles.getMoveFiles()) {
                 log.debug("[{}] Adding file movement: {} --> {}", depositId, move.getFrom(), move.getTo());
                 var fileMeta = filesInDatasetCache.modifyCachedFileMetaForFileMove(
                     move.getFrom(),
                     move.getTo()
-                    );
+                );
                 updatedFileMetas.add(fileMeta);
             }
             dataverseService.updateFileMetadatas(pid, updatedFileMetas.stream().map(FileMeta::toFileMetaUpdate).toList());
