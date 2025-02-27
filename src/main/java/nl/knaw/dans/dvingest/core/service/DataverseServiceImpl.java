@@ -38,7 +38,6 @@ import nl.knaw.dans.lib.dataverse.model.file.FileMetaUpdate;
 import nl.knaw.dans.lib.dataverse.model.search.DatasetResultItem;
 import nl.knaw.dans.lib.dataverse.model.user.AuthenticatedUser;
 
-import javax.validation.Valid;
 import java.io.IOException;
 import java.net.URI;
 import java.nio.file.Path;
@@ -111,10 +110,15 @@ public class DataverseServiceImpl implements DataverseService {
     }
 
     @Override
-    public void replaceFile(String targetDatasetPid, FileMeta fileToReplace, Path replacement) throws DataverseException, IOException {
+    public FileMeta replaceFile(String targetDatasetPid, FileMeta fileToReplace, Path replacement) throws DataverseException, IOException {
         log.debug("Replacing file: {}", fileToReplace);
         var result = dataverseClient.file(fileToReplace.getDataFile().getId()).replaceFile(replacement, fileToReplace);
         log.debug(result.getEnvelopeAsString());
+        var fileList = result.getData();
+        if (fileList.getFiles().size() != 1) {
+            throw new IllegalStateException("Expected 1 file in the result, but got " + fileList.getFiles().size());
+        }
+        return fileList.getFiles().get(0);
     }
 
     @Override

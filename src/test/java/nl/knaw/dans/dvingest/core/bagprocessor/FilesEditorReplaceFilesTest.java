@@ -27,6 +27,8 @@ import java.util.Optional;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
 public class FilesEditorReplaceFilesTest extends FilesEditorTestFixture {
@@ -37,6 +39,8 @@ public class FilesEditorReplaceFilesTest extends FilesEditorTestFixture {
             List.of(file("file1", 1),
                 file("file2", 2),
                 file("file3", 3)));
+        when(dataverseServiceMock.replaceFile(eq("pid"), eq(file("file1", 1)), any())).thenReturn(file("file1", 4));
+        when(dataverseServiceMock.replaceFile(eq("pid"), eq(file("file3", 3)), any())).thenReturn(file("file3", 5));
         when(utilityServicesMock.wrapIfZipFile(dataDir.resolve("file1"))).thenReturn(Optional.of(Path.of("/tmp/wrapped-file1.zip")));
         when(utilityServicesMock.wrapIfZipFile(dataDir.resolve("file3"))).thenReturn(Optional.empty());
         var editFilesRoot = yamlService.readYamlFromString("""
@@ -67,6 +71,8 @@ public class FilesEditorReplaceFilesTest extends FilesEditorTestFixture {
             List.of(file("file1", 1),
                 file("file2", 2),
                 file("file3", 3)));
+        when(dataverseServiceMock.replaceFile(eq("pid"), eq(file("file1", 1)), any())).thenReturn(file("file1", 4));
+        when(dataverseServiceMock.replaceFile(eq("pid"), eq(file("file3", 3)), any())).thenReturn(file("file3", 5));
         var editFilesRoot = yamlService.readYamlFromString("""
             editFiles:
                 replaceFiles:
@@ -104,7 +110,7 @@ public class FilesEditorReplaceFilesTest extends FilesEditorTestFixture {
         filesEditor.editFiles("pid");
 
         // Then
-        Mockito.verify(dataverseServiceMock, Mockito.never()).replaceFile(Mockito.any(), Mockito.any(), Mockito.any());
+        Mockito.verify(dataverseServiceMock, Mockito.never()).replaceFile(any(), any(), any());
         YamlBeanAssert.assertThat(editFilesLog.getReplaceFiles()).isEqualTo("""
             numberCompleted: 2
             completed: true
@@ -125,7 +131,7 @@ public class FilesEditorReplaceFilesTest extends FilesEditorTestFixture {
         filesEditor.editFiles("pid");
 
         // Then
-        Mockito.verify(dataverseServiceMock, Mockito.never()).replaceFile(Mockito.any(), Mockito.any(), Mockito.any());
+        Mockito.verify(dataverseServiceMock, Mockito.never()).replaceFile(any(), any(), any());
         YamlBeanAssert.assertThat(editFilesLog.getReplaceFiles()).isEqualTo("""
             numberCompleted: 0
             completed: true
@@ -138,6 +144,8 @@ public class FilesEditorReplaceFilesTest extends FilesEditorTestFixture {
         when(dataverseServiceMock.getFiles("pid", true)).thenReturn(
             List.of(file("file2", 2),
                 file("file3", 3)));
+        when(dataverseServiceMock.replaceFile(eq("pid"), eq(file("file3", 3)), any())).thenReturn(file("file3", 5));
+        when(dataverseServiceMock.replaceFile(eq("pid"), eq(file("file1", 1)), any())).thenReturn(file("file1", 4));
         var editFilesRoot = yamlService.readYamlFromString("""
             editFiles:
                 replaceFiles:

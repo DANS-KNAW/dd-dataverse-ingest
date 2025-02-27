@@ -184,4 +184,46 @@ public class EditFilesComposerForUpdateTest extends EditFilesComposerFixture {
         assertEmptyFieldsExcept(editFiles);
     }
 
+    @Test
+    public void file_that_is_unrestricted_is_updated() throws Exception {
+        // Given
+        when(dataverseServiceMock.getFiles(anyString(), anyBoolean())).thenReturn(List.of(fileMeta("path/to/file1.txt", "oldchecksum", true)));
+        Map<Path, FileInfo> map = new HashMap<>();
+        add(map, file("path/to/file1.txt", "oldchecksum", false));
+
+        editFilesComposer = new EditFilesComposerForUpdate(map, inThePast, "doi:some", null, null, List.of(), dataverseServiceMock);
+
+        // When
+        var editFiles = editFilesComposer.composeEditFiles();
+
+        // Then
+        assertThat(editFiles.getUpdateFileMetas()).hasSize(1);
+        assertThat(editFiles.getUpdateFileMetas().get(0).getLabel()).isEqualTo("file1.txt");
+        assertThat(editFiles.getUpdateFileMetas().get(0).getDirectoryLabel()).isEqualTo("path/to");
+        assertThat(editFiles.getUpdateFileMetas().get(0).getRestricted()).isFalse();
+
+        assertEmptyFieldsExcept(editFiles, "updateFileMetas");
+    }
+
+    @Test
+    public void file_that_is_restricted_is_updated() throws Exception {
+        // Given
+        when(dataverseServiceMock.getFiles(anyString(), anyBoolean())).thenReturn(List.of(fileMeta("path/to/file1.txt", "oldchecksum", false)));
+        Map<Path, FileInfo> map = new HashMap<>();
+        add(map, file("path/to/file1.txt", "oldchecksum", true));
+
+        editFilesComposer = new EditFilesComposerForUpdate(map, inThePast, "doi:some", null, null, List.of(), dataverseServiceMock);
+
+        // When
+        var editFiles = editFilesComposer.composeEditFiles();
+
+        // Then
+        assertThat(editFiles.getUpdateFileMetas()).hasSize(1);
+        assertThat(editFiles.getUpdateFileMetas().get(0).getLabel()).isEqualTo("file1.txt");
+        assertThat(editFiles.getUpdateFileMetas().get(0).getDirectoryLabel()).isEqualTo("path/to");
+        assertThat(editFiles.getUpdateFileMetas().get(0).getRestricted()).isTrue();
+
+        assertEmptyFieldsExcept(editFiles, "updateFileMetas");
+    }
+
 }

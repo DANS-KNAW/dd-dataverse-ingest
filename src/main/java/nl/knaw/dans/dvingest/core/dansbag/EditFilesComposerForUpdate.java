@@ -23,10 +23,12 @@ import nl.knaw.dans.dvingest.core.yaml.EditFiles;
 import nl.knaw.dans.dvingest.core.yaml.FromTo;
 import nl.knaw.dans.lib.dataverse.DataverseException;
 import nl.knaw.dans.lib.dataverse.model.file.FileMeta;
+import org.apache.commons.lang3.StringUtils;
 
 import java.io.IOException;
 import java.nio.file.Path;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -155,8 +157,7 @@ public class EditFilesComposerForUpdate extends EditFilesComposer {
             .filter(p -> !forIndividualUpload(p))
             .filter(p -> !pathFileInfoMap.get(p).getMetadata().getRestricted()).toList().stream().map(Path::toString).toList());
 
-
-        editFiles.setUpdateFileMetas(getUpdatedFileMetas(pathFileInfoMap));
+        editFiles.setUpdateFileMetas(getAttributesChanges(pathFileInfoMap, filesInDatasetCache));
 
         addEmbargo(editFiles, SetUtils.union(pathsToAdd, filesToReplace));
         return editFiles;
@@ -216,5 +217,33 @@ public class EditFilesComposerForUpdate extends EditFilesComposer {
         return inverse.entrySet().stream()
             .filter(item -> item.getValue().size() == 1)
             .collect(Collectors.toMap(Map.Entry::getKey, e -> e.getValue().get(0)));
+    }
+
+    private List<FileMeta> getAttributesChanges(Map<Path, FileInfo> files, FilesInDatasetCache filesInDatasetCache) {
+        List<FileMeta> result = new ArrayList<>();
+        for (var entry : files.entrySet()) {
+            var path = entry.getKey();
+            var fileInfo = entry.getValue();
+            var fileMeta = fileInfo.getMetadata();
+            var fileInDataset = filesInDatasetCache.get(path.toString());
+            if (fileInDataset == null) {
+                log.debug("File {} is new", path);
+                continue;
+            }
+            if (fileMeta.getRestricted() != fileInDataset.getRestricted()) {
+                log.debug("File {} has a restriction change", path);
+                result.add(fileMeta);
+            }
+            // Categories are never null, but can be empty
+            else if (!new HashSet<>(fileMeta.getCategories()).equals(new HashSet<>(fileInDataset.getCategories()))) {
+                log.debug("File {} has a category change", path);
+                result.add(fileMeta);
+            }
+            else if (!StringUtils.equals(fileMeta.getDescription(), fileInDataset.getDescription())) {
+                log.debug("File {} has a description change", path);
+                result.add(fileMeta);
+            }
+        }
+        return result;
     }
 }

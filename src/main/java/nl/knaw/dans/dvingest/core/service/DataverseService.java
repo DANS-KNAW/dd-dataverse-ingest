@@ -45,7 +45,7 @@ public interface DataverseService {
 
     List<FileMeta> getFiles(String pid, boolean includeDraftVersion) throws IOException, DataverseException;
 
-    void replaceFile(String targetDatasetPid, FileMeta fileToReplace, Path replacement) throws DataverseException, IOException;
+    FileMeta replaceFile(String targetDatasetPid, FileMeta fileToReplace, Path replacement) throws DataverseException, IOException;
 
     void deleteFiles(String pid, List<Integer> ids) throws DataverseException, IOException;
 

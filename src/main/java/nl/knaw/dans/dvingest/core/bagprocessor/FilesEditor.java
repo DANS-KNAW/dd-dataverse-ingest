@@ -28,6 +28,7 @@ import nl.knaw.dans.dvingest.core.yaml.tasklog.EditFilesLog;
 import nl.knaw.dans.lib.dataverse.DataverseException;
 import nl.knaw.dans.lib.dataverse.model.dataset.Embargo;
 import nl.knaw.dans.lib.dataverse.model.file.FileMeta;
+import nl.knaw.dans.lib.dataverse.model.file.FileMetaUpdate;
 import nl.knaw.dans.lib.util.PathIterator;
 import org.apache.commons.collections4.IteratorUtils;
 import org.apache.commons.io.FileUtils;
@@ -172,12 +173,14 @@ public class FilesEditor {
                 }
                 utilityServices.wrapIfZipFile(dataDir.resolve(filepath)).ifPresentOrElse(
                     zipFile -> {
-                        replaceFileOrThrow(pid, fileToReplace, zipFile);
+                        var newFileMeta = replaceFileOrThrow(pid, fileToReplace, zipFile);
+                        filesInDatasetCache.put(newFileMeta);
                         FileUtils.deleteQuietly(zipFile.toFile());
                     },
                     () -> {
                         var fileToUpload = dataDir.resolve(filepath);
-                        replaceFileOrThrow(pid, fileToReplace, fileToUpload);
+                        var newFileMeta = replaceFileOrThrow(pid, fileToReplace, fileToUpload);
+                        filesInDatasetCache.put(newFileMeta);
                     }
                 );
                 editFilesLog.getReplaceFiles().setNumberCompleted(++numberReplaced);
@@ -187,9 +190,9 @@ public class FilesEditor {
         editFilesLog.getReplaceFiles().setCompleted(true);
     }
 
-    private void replaceFileOrThrow(String pid, FileMeta fileMeta, Path fileToUpload) {
+    private FileMeta replaceFileOrThrow(String pid, FileMeta fileMeta, Path fileToUpload) {
         try {
-            dataverseService.replaceFile(pid, fileMeta, fileToUpload);
+            return dataverseService.replaceFile(pid, fileMeta, fileToUpload);
         }
         catch (IOException | DataverseException e) {
             throw new RuntimeException(e);
@@ -340,7 +343,7 @@ public class FilesEditor {
         }
         else {
             log.debug("[{}] Start moving {} files.", depositId, editFiles.getMoveFiles().size());
-            var updatedFileMetas = new ArrayList<FileMeta>();
+            var fileMetaUpdates = new ArrayList<FileMetaUpdate>();
             checkForUnknownPaths(editFiles.getMoveFiles().stream().map(FromTo::getFrom).toList());
             // TODO: check path clashes in 'to' paths (i.e. to moves in edit-files.yml that class, or to clashes with file already dataset)
             for (var move : editFiles.getMoveFiles()) {
@@ -349,9 +352,11 @@ public class FilesEditor {
                     move.getFrom(),
                     move.getTo()
                 );
-                updatedFileMetas.add(fileMeta);
+                // The restrict field must not be sent if it does not change the current value in the dataset, otherwise the API will return an error. In the case of a move, we never change
+                // the restrict field at the same time.
+                fileMetaUpdates.add(fileMeta.toFileMetaUpdate(false));
             }
-            dataverseService.updateFileMetadatas(pid, updatedFileMetas.stream().map(FileMeta::toFileMetaUpdate).toList());
+            dataverseService.updateFileMetadatas(pid, fileMetaUpdates);
             log.debug("[{}] End moving {} files.", depositId, editFiles.getMoveFiles().size());
         }
         editFilesLog.getMoveFiles().setCompleted(true);
@@ -367,13 +372,15 @@ public class FilesEditor {
         }
         else {
             checkForUnknownPaths(editFiles.getUpdateFileMetas().stream().map(this::getPath).toList());
-            var updatedFileMetas = new ArrayList<FileMeta>();
+            var fileMetaUpdates = new ArrayList<FileMetaUpdate>();
             for (var fileMeta : editFiles.getUpdateFileMetas()) {
                 log.debug("[{}] Updating file metadata for file {}", depositId, getPath(fileMeta));
-                var updatedFileMeta = filesInDatasetCache.modifyFileMetaForUpdate(getPath(fileMeta), fileMeta);
-                updatedFileMetas.add(updatedFileMeta);
+                boolean sendRestrict = filesInDatasetCache.get(getPath(fileMeta)).getRestricted() != fileMeta.getRestricted();
+                var updatedFileMeta = filesInDatasetCache.modifyFileMetaForUpdate(fileMeta);
+                // The restrict field must not be sent if it does not change the current value in the dataset, otherwise the API will return an error.
+                fileMetaUpdates.add(updatedFileMeta.toFileMetaUpdate(sendRestrict));
             }
-            dataverseService.updateFileMetadatas(pid, updatedFileMetas.stream().map(FileMeta::toFileMetaUpdate).toList());
+            dataverseService.updateFileMetadatas(pid, fileMetaUpdates);
             log.debug("[{}] End updating file metas.", depositId);
         }
         editFilesLog.getUpdateFileMetas().setCompleted(true);

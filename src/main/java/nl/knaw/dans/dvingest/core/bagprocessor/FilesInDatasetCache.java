@@ -96,7 +96,14 @@ public class FilesInDatasetCache {
         return cachedFileMeta;
     }
 
-    public FileMeta modifyFileMetaForUpdate(@NonNull String toPath, @NonNull FileMeta fileMeta) {
+    /**
+     * Updates the cached FileMeta object with the new description, categories and restrict value. The filepath will be auto-renamed if it is in the renamedFiles map, so the local path from the bag is
+     * used. If restrict is not to changed, it must be set to null, otherwise the API will return an error.
+     *
+     * @param fileMeta the new FileMeta object with the updated values (without the datafile)
+     * @return the updated cached FileMeta object
+     */
+    public FileMeta modifyFileMetaForUpdate(@NonNull FileMeta fileMeta) {
         var dataversePath = new DataversePath(fileMeta.getDirectoryLabel(), fileMeta.getLabel());
         var cachedFileMeta = filesInDataset.get(dataversePath.toString());
         if (cachedFileMeta == null) {
@@ -104,6 +111,7 @@ public class FilesInDatasetCache {
         }
         cachedFileMeta.setDescription(fileMeta.getDescription());
         cachedFileMeta.setCategories(fileMeta.getCategories());
+        cachedFileMeta.setRestricted(fileMeta.getRestrict());
         return cachedFileMeta;
     }
 

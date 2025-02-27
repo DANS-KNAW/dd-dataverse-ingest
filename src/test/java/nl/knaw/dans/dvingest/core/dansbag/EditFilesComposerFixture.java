@@ -22,6 +22,7 @@ import nl.knaw.dans.lib.dataverse.model.file.Checksum;
 import nl.knaw.dans.lib.dataverse.model.file.DataFile;
 import nl.knaw.dans.lib.dataverse.model.file.FileMeta;
 
+import java.io.File;
 import java.nio.file.Path;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
@@ -114,10 +115,15 @@ public class EditFilesComposerFixture {
     }
 
     protected FileMeta fileMeta(String path, String checksum) {
+        return fileMeta(path, checksum, false);
+    }
+
+    protected FileMeta fileMeta(String path, String checksum, boolean restricted) {
         var fileMeta = new FileMeta();
         var dataversePath = new DataversePath(path);
         fileMeta.setLabel(dataversePath.getLabel());
         fileMeta.setDirectoryLabel(dataversePath.getDirectoryLabel());
+        fileMeta.setRestrict(restricted);
         var dataFile = new DataFile();
         var cs = new Checksum();
         cs.setType("SHA-1");
