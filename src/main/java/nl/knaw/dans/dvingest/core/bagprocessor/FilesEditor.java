@@ -124,6 +124,7 @@ public class FilesEditor {
             log.debug("[{}] No files to delete.", depositId);
         }
         else {
+            log.debug("[{}] Start deleting {} files.", depositId, editFiles.getDeleteFiles().size());
             checkForUnknownPaths(editFiles.getDeleteFiles());
             dataverseService.deleteFiles(pid,
                 editFiles.getDeleteFiles().stream()
@@ -371,6 +372,7 @@ public class FilesEditor {
             log.debug("[{}] No file metas to update.", depositId);
         }
         else {
+            log.debug("[{}] Start updating {} file metas.", depositId, editFiles.getUpdateFileMetas().size());
             checkForUnknownPaths(editFiles.getUpdateFileMetas().stream().map(this::getPath).toList());
             var fileMetaUpdates = new ArrayList<FileMetaUpdate>();
             for (var fileMeta : editFiles.getUpdateFileMetas()) {
