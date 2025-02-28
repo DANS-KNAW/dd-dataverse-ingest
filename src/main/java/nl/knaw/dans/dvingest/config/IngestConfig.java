@@ -43,7 +43,7 @@ public class IngestConfig {
 
     private int maxNumberOfFilesPerUploadBatch = 1000;
 
-    DataSize maxByteSizePerUploadBatch = DataSize.gibibytes(1);
+    private DataSize maxByteSizePerUploadBatch = DataSize.gibibytes(1);
 
     private Map<String, String> metadataKeys = new HashMap<>();
 

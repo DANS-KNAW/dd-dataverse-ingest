@@ -49,7 +49,7 @@ public class DansBagMappingServiceBuilder {
     private List<String> skipFields = List.of();
     private DataverseService dataverseService;
     private Pattern fileExclusionPattern = Pattern.compile("a^");
-    private Pattern filesForIndividualUploadPattern = Pattern.compile("a^");
+    private Pattern filesForSeparateUploadPattern = Pattern.compile("a^");
     private List<String> embargoExclusions = List.of();
     private String depositorRoleAutoIngest = "swordupdater";
     private String depositorRoleMigration = "contributorplus";
@@ -80,7 +80,7 @@ public class DansBagMappingServiceBuilder {
             dataSuppliers,
             skipFields);
         var supportedLicenses = new SupportedLicenses(dataverseService);
-        return new DansBagMappingServiceImpl(mapper, dataverseService, supportedLicenses, fileExclusionPattern, filesForIndividualUploadPattern, embargoExclusions, depositorRoleAutoIngest,
+        return new DansBagMappingServiceImpl(mapper, dataverseService, supportedLicenses, fileExclusionPattern, filesForSeparateUploadPattern, embargoExclusions, depositorRoleAutoIngest,
             depositorRoleMigration, expectedDataverseRole, expectedDatasetRole);
     }
 }

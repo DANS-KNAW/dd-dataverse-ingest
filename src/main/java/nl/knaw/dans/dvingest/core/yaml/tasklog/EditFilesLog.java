@@ -22,7 +22,9 @@ public class EditFilesLog {
     private CompletableItem deleteFiles = new CompletableItem();
     private CompletableItemWithCount replaceFiles = new CompletableItemWithCount();
     private CompletableItemWithCount addUnrestrictedFiles = new CompletableItemWithCount();
+    private CompletableItemWithCount addUnrestrictedFilesSeparately = new CompletableItemWithCount();
     private CompletableItemWithCount addRestrictedFiles = new CompletableItemWithCount();
+    private CompletableItemWithCount addRestrictedFilesSeparately = new CompletableItemWithCount();
     private CompletableItemWithCount addUnrestrictedIndividually = new CompletableItemWithCount();
     private CompletableItemWithCount addRestrictedIndividually = new CompletableItemWithCount();
     private CompletableItem moveFiles = new CompletableItem();

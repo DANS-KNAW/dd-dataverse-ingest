@@ -139,29 +139,32 @@ editFiles:
   # Adds files to the dataset and makes them unrestricted. The files are processed in batches, meaning they are uploaded as ZIP files to Dataverse, for Dataverse 
   # to unzip them. This is more efficient than adding the files one by one.
   addUnrestrictedFiles:
-     - 'file6.txt'
+    - 'file6.txt'
   # Adds files to the dataset and makes them restricted. The files are processed in batches, meaning they are uploaded as ZIP files to Dataverse, for Dataverse
   # to unzip them. This is more efficient than adding the files one by one. 
   addRestrictedFiles:
     - 'file4.txt'
     - 'subdirectory/file5.txt'
-  # Adds files to the dataset and makes them unrestricted. The files are processed one by one, meaning they are uploaded as individual files to Dataverse. This is
-  # useful if you need to circumvent special processing by Dataverse, such as re-zipping Shapefile projects. 
+  # Adds files to the dataset and makes them unrestricted. The files are processed in batches, but separately, so that these files are not uploaded together
+  # with files from addUnrestrictedFiles. This is useful if you need to circumvent special processing by Dataverse, such as re-zipping Shapefile projects.
   # See: https://guides.dataverse.org/en/6.3/developers/geospatial.html#geospatial-data 
-  # 
-  # Conversely, you could use this to make sure a ZIP file in your bag is expanded by Dataverse, since Dataverse will not expand ZIP files that are uploaded 
-  # inside another ZIP file, as is the case with the batch upload method.
-  addUnrestrictedFilesIndividually:
+  addUnrestrictedFilesSeparately:
      - 'bicycles.shp'
-     - 'bicycles.shx'
-     - 'bicycles.dbf'
-     - 'bicycles.prj'
+     - 'cars.shp'
+  # Adds files to the dataset and makes them restricted. The files are processed in batches, but separately, so that these files are not uploaded together
+  # with files from addRestrictedFiles. This is useful if you need to circumvent special processing by Dataverse, such as re-zipping Shapefile projects.
+  # See: https://guides.dataverse.org/en/6.3/developers/geospatial.html#geospatial-data    
+  addRestrictedFilesSeparately:
+     - 'bicycles.shp'
+     - 'cars.shp'
+  # Adds files to the dataset and makes them unrestricted. The files are processed one by one, meaning they are uploaded as individual files to Dataverse. This is
+  # useful if you need to make sure that ZIP files are expanded by Dataverse, for example because you want to make sure the special processing for Shapefiles is
+  # applied.
+  addUnrestrictedFilesIndividually:
+    - 'bicycles.zip'
   # The same as above, but the files are added restricted.
   addRestrictedFilesIndividually:
-    - 'bicycles.shp'
-    - 'bicycles.shx'
-    - 'bicycles.dbf'
-    - 'bicycles.prj'
+    - 'bicycles.zip'
   # Moves files in the dataset. This is essentially a metadata change: the label and/or directoryLabel of the file is changed.
   moveFiles:
     - from: 'file6.txt' # Old location in the dataset
@@ -179,10 +182,10 @@ editFiles:
     - filePaths: [ 'file1.txt' ] # All other files will NOT be embargoed
       dateAvailable: '2030-01-01'
       reason: 'Pending publication'
-   # This is not a separate step, but the auto-renaming takes place whenever a local filepath is translated to a dataset filepath.    
+    # This is not a separate step, but the auto-renaming takes place whenever a local filepath is translated to a dataset filepath.    
   autoRenameFiles:
-     - from: "Unsanitize'd/file?" # Local file name
-       to: "Sanitize_d/file_" # The file name assigned in the dataset
+    - from: "Unsanitize'd/file?" # Local file name
+      to: "Sanitize_d/file_" # The file name assigned in the dataset
 ```
 
 ##### edit-metadata.yml
@@ -339,7 +342,7 @@ creating a new dataset.
 
 The service keeps the progress of the processing in file called `_tasks.yml`. Its layout corresponds closely to the combined layout of the instruction Yaml
 files. (The underscore in the name is there to make it stand out in the directory listing.):
-    
+
 ```yaml
 taskLog:
   init:
@@ -402,5 +405,5 @@ The file is updated in memory and will be written to the root of the bag when th
 bag the file is found in the root of the bag, the service will continue from where it left off. Note, that some items have a `numberCompleted` field, so if the
 overall task is not yet completed, the service will continue from where it left off.
 
-If you want to re-ingest a deposit completely, delete the `_tasks.yml` file from the root of the deposit. You should probably also delete the dataset version 
+If you want to re-ingest a deposit completely, delete the `_tasks.yml` file from the root of the deposit. You should probably also delete the dataset version
 that was created in the previous run.

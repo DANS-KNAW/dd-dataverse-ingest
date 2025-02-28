@@ -90,7 +90,7 @@ dansDepositConversion:
   #
   # Files that must be uploaded individually, and not in batch. By default, no files are uploaded individually.
   #
-  filesForIndividualUploadPattern: 'a^'
+  filesForSeparateUploadPattern: 'a^'
 
   #
   # Map from depositor.userId to organization name. Used to fill in the dansDataSupplier metadata field. If there is no

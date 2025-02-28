@@ -44,10 +44,10 @@ public class EditFilesComposerForUpdate extends EditFilesComposer {
     private final String updatesDatasetPid;
     private final DataverseService dataverseService;
 
-    public EditFilesComposerForUpdate(Map<Path, FileInfo> files, Instant dateAvailable, String updatesDatasetPid, Pattern fileExclusionPattern, Pattern filesForIndividualUploadPattern,
+    public EditFilesComposerForUpdate(Map<Path, FileInfo> files, Instant dateAvailable, String updatesDatasetPid, Pattern fileExclusionPattern, Pattern filesForSeparateUploadPattern,
         List<String> embargoExclusions,
         DataverseService dataverseService) {
-        super(files, dateAvailable, fileExclusionPattern, filesForIndividualUploadPattern, embargoExclusions);
+        super(files, dateAvailable, fileExclusionPattern, filesForSeparateUploadPattern, embargoExclusions);
         this.updatesDatasetPid = updatesDatasetPid;
         this.dataverseService = dataverseService;
     }
@@ -144,17 +144,17 @@ public class EditFilesComposerForUpdate extends EditFilesComposer {
         log.debug("occupiedPaths = {}", occupiedPaths);
         var pathsToAdd = diff(pathFileInfoMap.keySet(), occupiedPaths);
         editFiles.setAddRestrictedIndividually(pathsToAdd.stream()
-            .filter(this::forIndividualUpload)
+            .filter(this::forSeparateUpload)
             .filter(p -> pathFileInfoMap.get(p).getMetadata().getRestricted()).toList().stream().map(Path::toString).toList());
         editFiles.setAddRestrictedFiles(pathsToAdd.stream()
-            .filter(p -> !forIndividualUpload(p))
+            .filter(p -> !forSeparateUpload(p))
             .filter(p -> pathFileInfoMap.get(p).getMetadata().getRestricted()).toList().stream().map(Path::toString).toList());
 
         editFiles.setAddUnrestrictedIndividually(pathsToAdd.stream()
-            .filter(this::forIndividualUpload)
+            .filter(this::forSeparateUpload)
             .filter(p -> !pathFileInfoMap.get(p).getMetadata().getRestricted()).toList().stream().map(Path::toString).toList());
         editFiles.setAddUnrestrictedFiles(pathsToAdd.stream()
-            .filter(p -> !forIndividualUpload(p))
+            .filter(p -> !forSeparateUpload(p))
             .filter(p -> !pathFileInfoMap.get(p).getMetadata().getRestricted()).toList().stream().map(Path::toString).toList());
 
         editFiles.setUpdateFileMetas(getAttributesChanges(pathFileInfoMap, filesInDatasetCache));

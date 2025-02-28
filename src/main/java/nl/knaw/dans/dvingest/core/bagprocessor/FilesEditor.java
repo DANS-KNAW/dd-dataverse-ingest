@@ -100,6 +100,8 @@ public class FilesEditor {
             replaceFiles();
             addUnrestrictedFiles();
             addRestrictedFiles();
+            addUnrestrictedFilesSeparately();
+            addRestictedFilesSeparately();
             addUnrestrictedFilesIndividually();
             addRestrictedFilesIndividually();
             moveFiles();
@@ -266,47 +268,44 @@ public class FilesEditor {
     }
 
     private void addRestrictedFiles() throws IOException, DataverseException {
-        if (editFilesLog.getAddRestrictedFiles().isCompleted()) {
-            log.debug("[{}] Task addRestrictedFiles already completed.", depositId);
-            return;
-        }
-        if (editFiles.getAddRestrictedFiles().isEmpty()) {
-            log.debug("[{}] No restricted files to add.", depositId);
-        }
-        else {
-            log.debug("[{}] Start adding {} restricted files.", depositId, editFiles.getAddRestrictedFiles().size());
-            var iterator = new PathIterator(
-                IteratorUtils.skippingIterator(
-                    editFiles.getAddRestrictedFiles().stream().map(dataDir::resolve).map(Path::toFile).iterator(),
-                    editFilesLog.getAddRestrictedFiles().getNumberCompleted()));
-            while (iterator.hasNext()) {
-                uploadFileBatch(iterator, true, editFilesLog.getAddRestrictedFiles());
-            }
-            log.debug("[{}] End adding {} restricted files.", depositId, editFiles.getAddRestrictedFiles().size());
-        }
-        editFilesLog.getAddRestrictedFiles().setCompleted(true);
+        addFiles("addRestrictedFiles", editFiles.getAddRestrictedFiles(), editFilesLog.getAddRestrictedFiles(), true);
     }
 
     private void addUnrestrictedFiles() throws IOException, DataverseException {
-        if (editFilesLog.getAddUnrestrictedFiles().isCompleted()) {
-            log.debug("[{}] Task addUnrestrictedFiles already completed.", depositId);
+        addFiles("addUnrestrictedFiles", editFiles.getAddUnrestrictedFiles(), editFilesLog.getAddUnrestrictedFiles(), false);
+    }
+
+    private void addRestictedFilesSeparately() throws IOException, DataverseException {
+        addFiles("addRestrictedFilesSeparately", editFiles.getAddRestrictedFilesSeparately(), editFilesLog.getAddRestrictedFilesSeparately(), true);
+    }
+
+    private void addUnrestrictedFilesSeparately() throws IOException, DataverseException {
+        addFiles("addUnrestrictedFilesSeparately", editFiles.getAddUnrestrictedFilesSeparately(), editFilesLog.getAddUnrestrictedFilesSeparately(), false);
+    }
+
+    private void addFiles(String taskName, List<String> filesToAdd, CompletableItemWithCount fileAddLog, boolean restrict) throws IOException, DataverseException {
+        if (fileAddLog.isCompleted()) {
+            log.debug("[{}] Task {} already completed.", depositId, taskName);
             return;
         }
-        if (editFiles.getAddUnrestrictedFiles().isEmpty()) {
-            log.debug("[{}] No unrestricted files to add.", depositId);
+        if (filesToAdd.isEmpty()) {
+            log.debug("[{}] No {} files to add.", depositId, restrict ? "restricted" : "unrestricted");
         }
         else {
-            log.debug("[{}] Start adding {} unrestricted files.", depositId, editFiles.getAddUnrestrictedFiles().size());
+            log.debug("[{}] Start adding {} {} files{}.",
+                depositId, filesToAdd.size(),
+                restrict ? "restricted" : "unrestricted",
+                taskName.endsWith("Separately") ? " separately" : "");
             var iterator = new PathIterator(
                 IteratorUtils.skippingIterator(
-                    editFiles.getAddUnrestrictedFiles().stream().map(dataDir::resolve).map(Path::toFile).iterator(),
-                    editFilesLog.getAddUnrestrictedFiles().getNumberCompleted()));
+                    filesToAdd.stream().map(dataDir::resolve).map(Path::toFile).iterator(),
+                    fileAddLog.getNumberCompleted()));
             while (iterator.hasNext()) {
-                uploadFileBatch(iterator, false, editFilesLog.getAddUnrestrictedFiles());
+                uploadFileBatch(iterator, restrict, fileAddLog);
             }
-            log.debug("[{}] End adding {} unrestricted files.", depositId, editFiles.getAddUnrestrictedFiles().size());
+            log.debug("[{}] End adding {} {} files.", depositId, filesToAdd.size(), restrict ? "restricted" : "unrestricted");
         }
-        editFilesLog.getAddUnrestrictedFiles().setCompleted(true);
+        fileAddLog.setCompleted(true);
     }
 
     private void uploadFileBatch(PathIterator iterator, boolean restrict, CompletableItemWithCount trackLog) throws IOException, DataverseException {

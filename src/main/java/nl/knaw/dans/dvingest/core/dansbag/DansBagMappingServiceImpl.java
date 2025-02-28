@@ -80,7 +80,7 @@ public class DansBagMappingServiceImpl implements DansBagMappingService {
     private final DansBagDepositReader dansBagDepositReader;
     private final SupportedLicenses supportedLicenses;
     private final Pattern fileExclusionPattern;
-    private final Pattern filesForIndividualUploadPattern;
+    private final Pattern filesForSeparateUploadPattern;
     private final List<String> embargoExclusions;
     private final String depositorRoleAutoIngest;
     private final String depositorRoleMigration;
@@ -88,7 +88,7 @@ public class DansBagMappingServiceImpl implements DansBagMappingService {
     private final String expectedDatasetRole;
 
     public DansBagMappingServiceImpl(DepositToDvDatasetMetadataMapper depositToDvDatasetMetadataMapper, DataverseService dataverseService, SupportedLicenses supportedLicenses,
-        Pattern fileExclusionPattern, Pattern filesForIndividualUploadPattern, List<String> embargoExclusions, String depositorRoleAutoIngest, String depositorRoleMigration,
+        Pattern fileExclusionPattern, Pattern filesForSeparateUploadPattern, List<String> embargoExclusions, String depositorRoleAutoIngest, String depositorRoleMigration,
         String expectedDataverseRole, String expectedDatasetRole) {
         this.depositToDvDatasetMetadataMapper = depositToDvDatasetMetadataMapper;
         this.dataverseService = dataverseService;
@@ -102,7 +102,7 @@ public class DansBagMappingServiceImpl implements DansBagMappingService {
         dansBagDepositReader = new DansBagDepositReaderImpl(xmlReader, bagReader);
         this.supportedLicenses = supportedLicenses;
         this.fileExclusionPattern = fileExclusionPattern;
-        this.filesForIndividualUploadPattern = filesForIndividualUploadPattern;
+        this.filesForSeparateUploadPattern = filesForSeparateUploadPattern;
         this.embargoExclusions = embargoExclusions;
     }
 
@@ -228,10 +228,10 @@ public class DansBagMappingServiceImpl implements DansBagMappingService {
         }
         var dateAvailable = getDateAvailable(dansDeposit);
         if (updatesDataset == null) {
-            return new EditFilesComposer(files, dateAvailable, fileExclusionPattern, filesForIndividualUploadPattern, embargoExclusions).composeEditFiles();
+            return new EditFilesComposer(files, dateAvailable, fileExclusionPattern, filesForSeparateUploadPattern, embargoExclusions).composeEditFiles();
         }
         else {
-            return new EditFilesComposerForUpdate(files, dateAvailable, updatesDataset, fileExclusionPattern, filesForIndividualUploadPattern, embargoExclusions, dataverseService).composeEditFiles();
+            return new EditFilesComposerForUpdate(files, dateAvailable, updatesDataset, fileExclusionPattern, filesForSeparateUploadPattern, embargoExclusions, dataverseService).composeEditFiles();
         }
     }
 

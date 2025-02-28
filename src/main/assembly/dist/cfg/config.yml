@@ -98,9 +98,9 @@ dansDepositConversion:
   fileExclusionPattern: 'a^'
 
   #
-  # Files that must be uploaded individually, and not in batch. By default, no files are uploaded individually.
+  # Files that must be uploaded separate from the rest of the files in the deposit. The pattern is a regular expression.
   #
-  filesForIndividualUploadPattern: 'a^'
+  filesForSeparateUploadPattern: '^.*\.shp$'
 
   #
   # File paths to exclude from embargoes.

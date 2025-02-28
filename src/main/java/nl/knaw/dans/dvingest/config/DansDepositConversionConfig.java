@@ -27,7 +27,7 @@ import java.util.Map;
 public class DansDepositConversionConfig {
     private String fileExclusionPattern;
 
-    private String filesForIndividualUploadPattern;
+    private String filesForSeparateUploadPattern;
 
     private List<String> embargoExclusions = List.of();
 

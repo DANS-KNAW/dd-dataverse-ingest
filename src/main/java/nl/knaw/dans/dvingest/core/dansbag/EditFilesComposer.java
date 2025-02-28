@@ -51,7 +51,7 @@ public class EditFilesComposer {
 
     protected final Pattern fileExclusionPattern;
 
-    protected final Pattern filesForIndividualUploadPattern;
+    protected final Pattern filesForSeparateUploadPattern;
 
     @NonNull
     protected final List<String> embargoExclusions;
@@ -67,8 +67,8 @@ public class EditFilesComposer {
         editFiles.setAutoRenameFiles(getAutoRenamedFiles(renamedFiles));
         editFiles.setAddRestrictedFiles(getRestrictedFilesToAdd(pathFileInfoMap, false));
         editFiles.setAddUnrestrictedFiles(getUnrestrictedFilesToAdd(pathFileInfoMap, false));
-        editFiles.setAddRestrictedIndividually(getRestrictedFilesToAdd(pathFileInfoMap, true));
-        editFiles.setAddUnrestrictedIndividually(getUnrestrictedFilesToAdd(pathFileInfoMap, true));
+        editFiles.setAddRestrictedFilesSeparately(getRestrictedFilesToAdd(pathFileInfoMap, true));
+        editFiles.setAddUnrestrictedFilesSeparately(getUnrestrictedFilesToAdd(pathFileInfoMap, true));
         editFiles.setUpdateFileMetas(getUpdatedFileMetas(pathFileInfoMap));
 
         addEmbargo(editFiles, pathFileInfoMap.keySet());
@@ -97,24 +97,24 @@ public class EditFilesComposer {
      * @param files the file infos found in files.xml
      * @return a list of file paths that should be added as restricted files
      */
-    private List<String> getRestrictedFilesToAdd(Map<Path, FileInfo> files, boolean individualUpload) {
+    private List<String> getRestrictedFilesToAdd(Map<Path, FileInfo> files, boolean separateUpload) {
         return files.entrySet().stream()
-            .filter(entry -> individualUpload == forIndividualUpload(entry.getKey()))
+            .filter(entry -> separateUpload == forSeparateUpload(entry.getKey()))
             .filter(entry -> entry.getValue().getMetadata().getRestricted())
             .map(entry -> entry.getKey().toString())
             .toList();
     }
 
-    private List<String> getUnrestrictedFilesToAdd(Map<Path, FileInfo> files, boolean individualUpload) {
+    private List<String> getUnrestrictedFilesToAdd(Map<Path, FileInfo> files, boolean separateUpload) {
         return files.entrySet().stream()
-            .filter(entry -> individualUpload == forIndividualUpload(entry.getKey()))
+            .filter(entry -> separateUpload == forSeparateUpload(entry.getKey()))
             .filter(entry -> !entry.getValue().getMetadata().getRestricted())
             .map(entry -> entry.getKey().toString())
             .toList();
     }
 
-    protected boolean forIndividualUpload(Path path) {
-        return filesForIndividualUploadPattern != null && filesForIndividualUploadPattern.matcher(path.toString()).matches();
+    protected boolean forSeparateUpload(Path path) {
+        return filesForSeparateUploadPattern != null && filesForSeparateUploadPattern.matcher(path.toString()).matches();
     }
 
     /**
