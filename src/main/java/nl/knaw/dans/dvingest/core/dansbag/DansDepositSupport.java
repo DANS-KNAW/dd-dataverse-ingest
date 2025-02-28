@@ -123,21 +123,28 @@ public class DansDepositSupport implements Deposit {
         return ingestDataverseIngestDeposit.getLocation();
     }
 
+    private boolean isMigration() throws IOException, ConfigurationException {
+        var bags = ingestDataverseIngestDeposit.getBags();
+        if (bags.size() != 1) {
+            throw new RuntimeException("Expected exactly one bag, but got " + bags.size());
+        }
+        var bag = bags.get(0);
+        var updateState = bag.getUpdateState();
+        if (updateState instanceof ReleaseMigratedAction) {
+            return true;
+        }
+        else if (updateState instanceof PublishAction) {
+            return false;
+        }
+        else {
+            throw new RuntimeException("Unknown update action: " + updateState);
+        }
+    }
+
     @Override
     public void onSuccess(@NonNull String pid, String message) {
         try {
-            var bag = ingestDataverseIngestDeposit.getBags().get(0);
-            var action = bag.getUpdateState();
-
-            if (action instanceof PublishAction) {
-                handlePublishAction(pid, false);
-            }
-            else if (action instanceof ReleaseMigratedAction) {
-                handlePublishAction(pid, true);
-            }
-            else {
-                throw new RuntimeException("Unknown update action: " + action);
-            }
+            handlePublishAction(pid, isMigration());
         }
         catch (IOException | ConfigurationException e) {
             throw new RuntimeException("Error processing onSuccess", e);
@@ -167,12 +174,24 @@ public class DansDepositSupport implements Deposit {
 
     @Override
     public void onFailed(String pid, String message) {
-        ingestDataverseIngestDeposit.onFailed(pid, message);
+        try {
+            // Do not write the PID to the deposit.properties file in case of a migration
+            ingestDataverseIngestDeposit.onFailed(isMigration() ? null : pid, message);
+        }
+        catch (ConfigurationException | IOException e) {
+            throw new RuntimeException("Error processing onFailed", e);
+        }
     }
 
     @Override
     public void onRejected(String pid, String message) {
-        ingestDataverseIngestDeposit.onRejected(pid, message);
+        try {
+            // Do not write the PID to the deposit.properties file in case of a migration
+            ingestDataverseIngestDeposit.onRejected(isMigration() ? null : pid, message);
+        }
+        catch (ConfigurationException | IOException e) {
+            throw new RuntimeException("Error processing onRejected", e);
+        }
     }
 
     @Override
