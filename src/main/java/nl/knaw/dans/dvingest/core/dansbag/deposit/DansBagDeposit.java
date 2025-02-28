@@ -88,7 +88,7 @@ public class DansBagDeposit {
         }
 
         var otherDoi = String.format("doi:%s", doi);
-        if (StringUtils.equals(otherDoi, getDataversePid())) {
+        if (StringUtils.equalsIgnoreCase(otherDoi, getDataversePid())) {
             // The same, so no "other DOI"
             return null;
         }

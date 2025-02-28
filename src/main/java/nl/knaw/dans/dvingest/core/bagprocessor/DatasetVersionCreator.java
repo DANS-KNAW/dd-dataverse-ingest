@@ -181,6 +181,10 @@ public class DatasetVersionCreator {
     }
 
     private void updateDataset(String pid) throws IOException, DataverseException {
+        if (datasetLog.isCompleted()) {
+            log.debug("[{}] Dataset metadata already updated.", depositId);
+            return;
+        }
         log.debug("[{}] Start updating dataset metadata.", depositId);
         dataverseService.updateMetadata(pid, dataset.getDatasetVersion());
         log.debug("[{}] End updating dataset metadata.", depositId);
