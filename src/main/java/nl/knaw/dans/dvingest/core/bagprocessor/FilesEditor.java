@@ -289,7 +289,10 @@ public class FilesEditor {
             return;
         }
         if (filesToAdd.isEmpty()) {
-            log.debug("[{}] No {} files to add.", depositId, restrict ? "restricted" : "unrestricted");
+            log.debug("[{}] No {} files to add{}.",
+                depositId,
+                restrict ? "restricted" : "unrestricted",
+                taskName.endsWith("Separately") ? " separately" : "");
         }
         else {
             log.debug("[{}] Start adding {} {} files{}.",
@@ -303,7 +306,10 @@ public class FilesEditor {
             while (iterator.hasNext()) {
                 uploadFileBatch(iterator, restrict, fileAddLog);
             }
-            log.debug("[{}] End adding {} {} files.", depositId, filesToAdd.size(), restrict ? "restricted" : "unrestricted");
+            log.debug("[{}] End adding {} {} files.{}",
+                depositId,
+                filesToAdd.size(), restrict ? "restricted" : "unrestricted",
+                taskName.endsWith("Separately") ? " separately" : "");
         }
         fileAddLog.setCompleted(true);
     }
