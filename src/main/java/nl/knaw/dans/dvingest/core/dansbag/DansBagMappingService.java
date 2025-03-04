@@ -95,4 +95,12 @@ public interface DansBagMappingService {
      * @return the update action for the dataset
      */
     UpdateAction getUpdateActionFromDansDeposit(DansBagDeposit dansDeposit);
+
+    /**
+     * Whether this mapper uses the migration mapping or the SWORD/import mapping.
+     *
+     * @return true if this mapper uses the migration mapping, false if it uses the SWORD/import mapping
+     */
+    boolean isMigration();
+
 }
