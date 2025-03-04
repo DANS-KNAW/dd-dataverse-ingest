@@ -127,7 +127,7 @@ public class DansBagMappingServiceImpl implements DansBagMappingService {
                 log.debug("Found sword token in deposit.properties, looking for target dataset by sword token");
                 results = dataverseService.findDoiByMetadataField("dansSwordToken", dansDepositProperties.getSwordToken());
             }
-            else if (depositToDvDatasetMetadataMapper.isMigration()) {
+            else if (isMigration()) {
                 log.debug("This is a migration deposit, looking for target dataset by dansBagId");
                 results = dataverseService.findDoiByMetadataField("dansBagId", isVersionOf);
             }
@@ -158,7 +158,7 @@ public class DansBagMappingServiceImpl implements DansBagMappingService {
             return init;
         }
         else {
-            if (depositToDvDatasetMetadataMapper.isMigration()) {
+            if (isMigration()) {
                 if (StringUtils.isBlank(dansDeposit.getDoi())) {
                     throw new IllegalArgumentException("Migration deposit must have a DOI");
                 }
@@ -218,7 +218,7 @@ public class DansBagMappingServiceImpl implements DansBagMappingService {
     @Override
     public EditFiles getEditFilesFromDansDeposit(DansBagDeposit dansDeposit, String updatesDataset) {
         var files = getFileInfo(dansDeposit);
-        if (!depositToDvDatasetMetadataMapper.isMigration()) {
+        if (!isMigration()) {
             try {
                 files.put(Path.of(ORIGINAL_METADATA_ZIP), createOriginalMetadataFileInfo(dansDeposit));
             }
@@ -263,7 +263,7 @@ public class DansBagMappingServiceImpl implements DansBagMappingService {
         var editPermissions = new EditPermissions();
         var roleAssignment = new RoleAssignment();
         roleAssignment.setAssignee("@" + userId);
-        String role = depositToDvDatasetMetadataMapper.isMigration() ? depositorRoleMigration : depositorRoleAutoIngest;
+        String role = isMigration() ? depositorRoleMigration : depositorRoleAutoIngest;
         log.debug("Setting role for {} to {}", userId, role);
         roleAssignment.setRole(role);
         editPermissions.setAddRoleAssignments(List.of(roleAssignment));
@@ -272,7 +272,7 @@ public class DansBagMappingServiceImpl implements DansBagMappingService {
 
     @Override
     public UpdateAction getUpdateActionFromDansDeposit(DansBagDeposit dansDeposit) {
-        if (depositToDvDatasetMetadataMapper.isMigration()) {
+        if (isMigration()) {
             var amd = dansDeposit.getAmd();
 
             if (amd == null) {
@@ -290,6 +290,11 @@ public class DansBagMappingServiceImpl implements DansBagMappingService {
         else {
             return new PublishAction(UpdateType.major);
         }
+    }
+
+    @Override
+    public boolean isMigration() {
+        return depositToDvDatasetMetadataMapper.isMigration();
     }
 
     // todo: move to mapping package
@@ -336,7 +341,7 @@ public class DansBagMappingServiceImpl implements DansBagMappingService {
     }
 
     Optional<String> getDateOfDeposit(DansBagDeposit dansDeposit) {
-        if (depositToDvDatasetMetadataMapper.isMigration()) {
+        if (isMigration()) {
             return Optional.ofNullable(dansDeposit.getAmd())
                 .map(Amd::toDateOfDeposit)
                 .flatMap(i -> i);

@@ -16,7 +16,6 @@
 package nl.knaw.dans.dvingest.core.dansbag;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.dropwizard.configuration.ConfigurationException;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import nl.knaw.dans.dvingest.client.ValidateDansBagService;
@@ -28,8 +27,6 @@ import nl.knaw.dans.dvingest.core.dansbag.exception.InvalidDepositException;
 import nl.knaw.dans.dvingest.core.dansbag.exception.RejectedDepositException;
 import nl.knaw.dans.dvingest.core.service.DataverseService;
 import nl.knaw.dans.dvingest.core.service.YamlService;
-import nl.knaw.dans.dvingest.core.yaml.PublishAction;
-import nl.knaw.dans.dvingest.core.yaml.ReleaseMigratedAction;
 import nl.knaw.dans.lib.dataverse.DataverseException;
 import nl.knaw.dans.lib.dataverse.model.dataset.DatasetVersion;
 
@@ -123,32 +120,9 @@ public class DansDepositSupport implements Deposit {
         return ingestDataverseIngestDeposit.getLocation();
     }
 
-    private boolean isMigration() throws IOException, ConfigurationException {
-        var bags = ingestDataverseIngestDeposit.getBags();
-        if (bags.size() != 1) {
-            throw new RuntimeException("Expected exactly one bag, but got " + bags.size());
-        }
-        var bag = bags.get(0);
-        var updateState = bag.getUpdateState();
-        if (updateState instanceof ReleaseMigratedAction) {
-            return true;
-        }
-        else if (updateState instanceof PublishAction) {
-            return false;
-        }
-        else {
-            throw new RuntimeException("Unknown update action: " + updateState);
-        }
-    }
-
     @Override
     public void onSuccess(@NonNull String pid, String message) {
-        try {
-            handlePublishAction(pid, isMigration());
-        }
-        catch (IOException | ConfigurationException e) {
-            throw new RuntimeException("Error processing onSuccess", e);
-        }
+        handlePublishAction(pid, dansBagMappingService.isMigration());
     }
 
     private void handlePublishAction(String pid, boolean isMigration) {
@@ -174,24 +148,14 @@ public class DansDepositSupport implements Deposit {
 
     @Override
     public void onFailed(String pid, String message) {
-        try {
-            // Do not write the PID to the deposit.properties file in case of a migration
-            ingestDataverseIngestDeposit.onFailed(isMigration() ? null : pid, message);
-        }
-        catch (ConfigurationException | IOException e) {
-            throw new RuntimeException("Error processing onFailed", e);
-        }
+        // Do not write the PID to the deposit.properties file in case of a migration
+        ingestDataverseIngestDeposit.onFailed(dansBagMappingService.isMigration() ? null : pid, message);
     }
 
     @Override
     public void onRejected(String pid, String message) {
-        try {
-            // Do not write the PID to the deposit.properties file in case of a migration
-            ingestDataverseIngestDeposit.onRejected(isMigration() ? null : pid, message);
-        }
-        catch (ConfigurationException | IOException e) {
-            throw new RuntimeException("Error processing onRejected", e);
-        }
+        // Do not write the PID to the deposit.properties file in case of a migration
+        ingestDataverseIngestDeposit.onRejected(dansBagMappingService.isMigration() ? null : pid, message);
     }
 
     @Override
