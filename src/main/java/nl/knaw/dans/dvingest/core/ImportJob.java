@@ -50,7 +50,7 @@ public class ImportJob implements Runnable {
         this.onlyConvertDansDeposit = onlyConvertDansDeposit;
         this.depositFactory = depositFactory;
         this.depositTaskFactory = depositTaskFactory;
-        this.status = new ImportJobStatusDto().status(StatusEnum.PENDING).path(path).singleObject(importCommand.getSingleObject());
+        this.status = new ImportJobStatusDto().status(StatusEnum.PENDING).path(path).singleObject(importCommand.getSingleObject()).message("Import job pending");
     }
 
     public void cancel() {
@@ -62,6 +62,7 @@ public class ImportJob implements Runnable {
         try {
             log.debug("Starting import job: {}", importCommand);
             status.setStatus(StatusEnum.RUNNING);
+            status.setMessage("Import job running");
             var deposits = createDataverseIngestDeposits();
             initOutputDir();
             processDeposits(deposits);
