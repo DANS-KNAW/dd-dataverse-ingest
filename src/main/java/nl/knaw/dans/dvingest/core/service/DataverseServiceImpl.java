@@ -256,6 +256,7 @@ public class DataverseServiceImpl implements DataverseService {
         catch (InterruptedException e) {
             log.error("Interrupted during lead time. Continuing", e);
         }
+        log.debug("Start waiting for dataset {} to be released", pid);
         dataverseClient.dataset(pid).awaitState("RELEASED", timeout, pollingInterval);
     }
 
