@@ -39,6 +39,7 @@ dataverse:
 ingest:
   # Deposits dropped in the inbox will automatically be picked up and processed by the ingest service.
   autoIngest:
+    # apiKey: 'changeme' # overrides the apiKey from the dataverse section
     inbox: /var/opt/dans.knaw.nl/tmp/auto-ingest/inbox
     outbox: /var/opt/dans.knaw.nl/tmp/auto-ingest/outbox
     # Forces the service to require the bag in the deposit to conform to the DANS BagIt Profile. Without this SWORD depositors would have the full range of options offered by
@@ -47,6 +48,7 @@ ingest:
   # Import of migration deposits. This area is used to migrate datasets from EASY to Dataverse and differs from import only in the way the DANS deposits are converted
   # to Dataverse Ingest deposits.
   migration:
+    # apiKey: 'changeme' # overrides the apiKey from the dataverse section
     inbox: /var/opt/dans.knaw.nl/tmp/migration/deposits
     outbox: /var/opt/dans.knaw.nl/tmp/migration/out
     # Forces the service to require the bag in the deposit to conform to the DANS BagIt Profile. Without this SWORD depositors would have the full range of options offered by
@@ -54,6 +56,7 @@ ingest:
     requireDansBag: yes
   # Import of deposits. This area is used for manual bulk imports of deposits.
   import:
+    # apiKey: 'changeme' # overrides the apiKey from the dataverse section
     inbox: /var/opt/dans.knaw.nl/tmp/import/inbox
     outbox: /var/opt/dans.knaw.nl/tmp/import/outbox
     # Allow Dataverse Ingest Deposits for import. Import should only be accessible to application manager.

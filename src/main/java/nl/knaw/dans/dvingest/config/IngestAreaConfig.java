@@ -28,4 +28,6 @@ public class IngestAreaConfig {
     private Path outbox;
 
     private Boolean requireDansBag = true;
+
+    private String apiKey;
 }
