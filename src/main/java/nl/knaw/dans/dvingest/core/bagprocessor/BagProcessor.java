@@ -53,9 +53,9 @@ public class BagProcessor {
     public String run(String targetPid) throws IOException, DataverseException {
         try {
             targetPid = datasetVersionCreator.createDatasetVersion(targetPid);
+            permissionsEditor.editPermissions(targetPid);
             filesEditor.editFiles(targetPid);
             metadataEditor.editMetadata(targetPid);
-            permissionsEditor.editPermissions(targetPid);
             stateUpdater.updateState(targetPid, filesEditor.getFilesInDatasetCache().getNumberOfFilesInDataset());
             return targetPid;
 
