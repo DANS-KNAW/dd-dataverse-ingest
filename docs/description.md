@@ -41,9 +41,9 @@ closely follow the JSON that is passed to the Dataverse API.
 |------------------------|------------------------------------------------------------------------------------------------------------------------------------------|
 | `init.yml`             | Preconditions and instructions for creating a new dataset.                                                                               |
 | `dataset.yml`          | Dataset level metadata.                                                                                                                  |
+| `edit-permissions.yml` | Role assignments to create or delete on the dataset                                                                                      |
 | `edit-files.yml`       | Instructions for deleting, replacing or moving files, or updating the file metadata;<br> also included: restricting and embargoing files |
 | `edit-metadata.yml`    | Edit dataset level metadata, including metadata value deletions                                                                          |
-| `edit-permissions.yml` | Role assignments to create or delete on the dataset                                                                                      |
 | `update-state.yml`     | Whether to publish the dataset version or submit it for review                                                                           |
 
 ##### init.yml
@@ -112,6 +112,24 @@ datasetVersion:
 ```
 
 [createDataset]: {{ dataverse_api_url }}/native-api.html#create-a-dataset-in-a-dataverse-collection
+
+##### edit-permissions.yml
+
+```yaml
+editPermissions:
+  deleteRoleAssignments:
+    - role: 'admin'
+      assignee: '@user1'
+  addRoleAssignments:
+    - role: 'admin'
+      assignee: '@user2'
+```
+
+Allows you to selectively delete or add role assignments on the dataset. The format is the same as the JSON that is passed to the
+[assignNewRole]{:target=_blank} and [deleteRoleAssignments]{:target=_blank} endpoints of the Dataverse API.
+
+[assignNewRole]: {{ dataverse_api_url }}/native-api.html#assign-a-new-role-on-a-dataset
+[deleteRoleAssignments]: {{ dataverse_api_url }}/native-api.html#delete-role-assignment-on-a-dataset
 
 ##### edit-files.yml
 
@@ -230,24 +248,6 @@ temporarily empty and Dataverse refuses to save the metadata.
 
 [editDatasetMetadata]: {{ dataverse_api_url }}/native-api.html#edit-dataset-metadata
 [deleteDatasetMetadata]: {{ dataverse_api_url }}/native-api.html#delete-dataset-metadata
-
-##### edit-permissions.yml
-
-```yaml
-editPermissions:
-  deleteRoleAssignments:
-    - role: 'admin'
-      assignee: '@user1'
-  addRoleAssignments:
-    - role: 'admin'
-      assignee: '@user2'      
-```
-
-Allows you to selectively delete or add role assignments on the dataset. The format is the same as the JSON that is passed to the
-[assignNewRole]{:target=_blank} and [deleteRoleAssignments]{:target=_blank} endpoints of the Dataverse API.
-
-[assignNewRole]: {{ dataverse_api_url }}/native-api.html#assign-a-new-role-on-a-dataset
-[deleteRoleAssignments]: {{ dataverse_api_url }}/native-api.html#delete-role-assignment-on-a-dataset
 
 ##### update-state.yml
 
