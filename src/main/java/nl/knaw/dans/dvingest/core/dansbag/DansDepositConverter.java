@@ -17,6 +17,7 @@ package nl.knaw.dans.dvingest.core.dansbag;
 
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import nl.knaw.dans.dvingest.core.DataverseIngestBag;
 import nl.knaw.dans.dvingest.core.dansbag.deposit.DansBagDeposit;
 import nl.knaw.dans.dvingest.core.service.YamlService;
 import nl.knaw.dans.dvingest.core.yaml.EditFilesRoot;
@@ -43,19 +44,25 @@ public class DansDepositConverter {
     public void run() throws IOException {
         deleteOldYamlFilesIfPresent();
         var init = mappingService.getInitFromDansDeposit(dansDeposit, updatesDataset != null);
-        yamlService.writeYaml(new InitRoot(init), dansDeposit.getBagDir().resolve("init.yml"));
+        yamlService.writeYaml(new InitRoot(init), dansDeposit.getBagDir().resolve(DataverseIngestBag.INIT_YML));
 
         var dataset = mappingService.getDatasetMetadataFromDansDeposit(dansDeposit, currentMetadata);
-        yamlService.writeYaml(dataset, dansDeposit.getBagDir().resolve("dataset.yml"));
+        yamlService.writeYaml(dataset, dansDeposit.getBagDir().resolve(DataverseIngestBag.DATASET_YML));
 
         var editFiles = mappingService.getEditFilesFromDansDeposit(dansDeposit, updatesDataset);
-        yamlService.writeYaml(new EditFilesRoot(editFiles), dansDeposit.getBagDir().resolve("edit-files.yml"));
+        yamlService.writeYaml(new EditFilesRoot(editFiles), dansDeposit.getBagDir().resolve(DataverseIngestBag.EDIT_FILES_YML));
 
         var editPermissions = mappingService.getEditPermissionsFromDansDeposit(dansDeposit, updatesDataset != null);
-        yamlService.writeYaml(new EditPermissionsRoot(editPermissions), dansDeposit.getBagDir().resolve("edit-permissions.yml"));
+        yamlService.writeYaml(new EditPermissionsRoot(editPermissions), dansDeposit.getBagDir().resolve(DataverseIngestBag.EDIT_PERMISSIONS_YML));
 
-        var updateState = mappingService.getUpdateActionFromDansDeposit(dansDeposit);
-        yamlService.writeYaml(new UpdateStateRoot(updateState), dansDeposit.getBagDir().resolve("update-state.yml"));
+        var updateAction = mappingService.getUpdateActionFromDansDeposit(dansDeposit);
+        if (updateAction.isPresent()) {
+            log.debug("Writing update action to YAML");
+            yamlService.writeYaml(new UpdateStateRoot(updateAction.get()), dansDeposit.getBagDir().resolve(DataverseIngestBag.UPDATE_STATE_YML));
+        }
+        else {
+            log.debug("No update action found in DANS deposit");
+        }
     }
 
     private void deleteOldYamlFilesIfPresent() {

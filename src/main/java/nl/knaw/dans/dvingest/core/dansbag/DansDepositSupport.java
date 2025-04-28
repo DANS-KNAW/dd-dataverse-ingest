@@ -122,6 +122,11 @@ public class DansDepositSupport implements Deposit {
 
     @Override
     public void onSuccess(@NonNull String pid, String message) {
+        if (new DansDepositProperties(ingestDataverseIngestDeposit.getDepositProperties()).leaveDraft()) {
+            log.debug("Deposit marked as 'leave-draft', assuming no publish action to be handled");
+            return;
+        }
+
         handlePublishAction(pid, dansBagMappingService.isMigration());
     }
 

@@ -45,7 +45,17 @@ public class DansDepositProperties {
         }
     }
 
+    public DansDepositProperties(PropertiesConfiguration properties) {
+        this.properties = properties;
+        this.depositId = properties.getString("depositId");
+    }
+
     public String getSwordToken() {
         return properties.getString("dataverse.sword-token");
     }
+
+    public boolean leaveDraft() {
+        return properties.getBoolean("dans-deposit.leave-draft", false);
+    }
+
 }
