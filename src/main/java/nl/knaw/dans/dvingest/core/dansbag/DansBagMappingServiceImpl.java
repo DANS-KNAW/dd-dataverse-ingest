@@ -280,15 +280,13 @@ public class DansBagMappingServiceImpl implements DansBagMappingService {
             var amd = dansDeposit.getAmd();
 
             if (amd == null) {
-                log.warn("No AMD found for {}", dansDeposit.getDoi());
-                return Optional.empty();
+                throw new RuntimeException(String.format("no AMD found for %s", dansDeposit.getDoi()));
             }
 
             var date = Amd.toPublicationDate(amd);
 
             if (date.isEmpty()) {
-                log.warn("No publication date found in AMD for {}", dansDeposit.getDoi());
-                return Optional.empty();
+                throw new IllegalArgumentException(String.format("no publication date found in AMD for %s", dansDeposit.getDoi()));
             }
 
             return Optional.of(new ReleaseMigratedAction(date.get()));
