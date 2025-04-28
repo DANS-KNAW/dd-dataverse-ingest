@@ -27,6 +27,7 @@ import nl.knaw.dans.lib.dataverse.model.dataset.DatasetVersion;
 
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.Optional;
 
 /**
  * Service for mapping a DANS deposit to a standard Dataverse ingest deposit. A DANS deposit has only one bag, which must conform to the DANS BagIt Profile.
@@ -89,12 +90,13 @@ public interface DansBagMappingService {
     EditPermissions getEditPermissionsFromDansDeposit(DansBagDeposit dansDeposit, boolean isUpdate);
 
     /**
-     * Maps the DANS deposit to an update action for the dataset. This determines how to publish the dataset (as migrated or as new).
+     * Maps the DANS deposit to an update action for the dataset. This determines how to publish the dataset (as migrated or as new). It is also possible that
+     * the dataset is not published at all, in which case the update action is empty.
      *
      * @param dansDeposit the DANS deposit
      * @return the update action for the dataset
      */
-    UpdateAction getUpdateActionFromDansDeposit(DansBagDeposit dansDeposit);
+    public Optional<UpdateAction> getUpdateActionFromDansDeposit(DansBagDeposit dansDeposit) throws IOException;
 
     /**
      * Whether this mapper uses the migration mapping or the SWORD/import mapping.

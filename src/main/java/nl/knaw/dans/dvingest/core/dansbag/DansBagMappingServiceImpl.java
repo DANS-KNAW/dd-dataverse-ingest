@@ -271,24 +271,30 @@ public class DansBagMappingServiceImpl implements DansBagMappingService {
     }
 
     @Override
-    public UpdateAction getUpdateActionFromDansDeposit(DansBagDeposit dansDeposit) {
+    public Optional<UpdateAction> getUpdateActionFromDansDeposit(DansBagDeposit dansDeposit) throws IOException {
+        var dansDepositProperties = new DansDepositProperties(dansDeposit.getDir().resolve("deposit.properties"));
+        if (dansDepositProperties.leaveDraft()) {
+            return Optional.empty();
+        }
         if (isMigration()) {
             var amd = dansDeposit.getAmd();
 
             if (amd == null) {
-                throw new RuntimeException(String.format("no AMD found for %s", dansDeposit.getDoi()));
+                log.warn("No AMD found for {}", dansDeposit.getDoi());
+                return Optional.empty();
             }
 
             var date = Amd.toPublicationDate(amd);
 
             if (date.isEmpty()) {
-                throw new IllegalArgumentException(String.format("no publication date found in AMD for %s", dansDeposit.getDoi()));
+                log.warn("No publication date found in AMD for {}", dansDeposit.getDoi());
+                return Optional.empty();
             }
 
-            return new ReleaseMigratedAction(date.get());
+            return Optional.of(new ReleaseMigratedAction(date.get()));
         }
         else {
-            return new PublishAction(UpdateType.major);
+            return Optional.of(new PublishAction(UpdateType.major));
         }
     }
 
