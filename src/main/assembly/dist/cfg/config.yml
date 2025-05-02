@@ -14,6 +14,13 @@ server:
   adminConnectors:
     - type: http
       port: 20361
+  requestLog:
+    appenders:
+      - type: file
+        archive: false
+        timeZone: system
+        currentLogFilename: /var/opt/dans.knaw.nl/log/dd-dataverse-ingest/request.log
+        logFormat: "%-5p [%d{ISO8601}] %c{0}: %m%n%dwREx"
 
 #
 # Parameters related to communication with the Dataverse instance
@@ -209,5 +216,8 @@ logging:
       timeZone: system
       logFormat: "%-5p [%d{ISO8601}] %c{0}: %m%n%dwREx"
       currentLogFilename: /var/opt/dans.knaw.nl/log/dd-dataverse-ingest/dd-dataverse-ingest.log
+    - type: console
+      # Used in combination with journald, which already adds the timestamp
+      logFormat: "%-5p %c{0}: %m%n%dwREx"
   loggers:
     'org.hibernate.engine.internal.StatisticalLoggingSessionEventListener': 'OFF'
