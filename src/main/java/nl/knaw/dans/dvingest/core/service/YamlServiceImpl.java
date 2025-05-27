@@ -21,8 +21,8 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
+import io.dropwizard.configuration.BaseConfigurationFactory;
 import io.dropwizard.configuration.ConfigurationException;
-import io.dropwizard.configuration.YamlConfigurationFactory;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import nl.knaw.dans.dvingest.core.yaml.DataverseIngestModule;
@@ -31,15 +31,17 @@ import nl.knaw.dans.dvingest.core.yaml.EditMetadataRoot;
 import nl.knaw.dans.dvingest.core.yaml.EditPermissionsRoot;
 import nl.knaw.dans.dvingest.core.yaml.InitRoot;
 import nl.knaw.dans.dvingest.core.yaml.UpdateStateRoot;
-import nl.knaw.dans.dvingest.core.yaml.tasklog.EditFilesLog;
 import nl.knaw.dans.dvingest.core.yaml.tasklog.InitLog;
 import nl.knaw.dans.dvingest.core.yaml.tasklog.TaskLogRoot;
 import nl.knaw.dans.lib.dataverse.MetadataFieldDeserializer;
 import nl.knaw.dans.lib.dataverse.model.dataset.Dataset;
 import nl.knaw.dans.lib.dataverse.model.dataset.MetadataField;
 import nl.knaw.dans.lib.dataverse.model.file.FileMeta;
+import org.checkerframework.checker.nullness.qual.Nullable;
+import org.yaml.snakeyaml.LoaderOptions;
 
 import javax.validation.Validation;
+import javax.validation.Validator;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.HashMap;
@@ -47,7 +49,23 @@ import java.util.Map;
 
 @Slf4j
 public class YamlServiceImpl implements YamlService {
-    private final ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
+
+    private final ObjectMapper mapper = new ObjectMapper(createYamlFactory());
+
+    static class YamlConfigurationFactory<T> extends BaseConfigurationFactory<T> {
+        public YamlConfigurationFactory(Class<T> klass, @Nullable Validator validator, ObjectMapper objectMapper, String propertyPrefix) {
+            super(createYamlFactory(), "YAML", klass, validator, objectMapper, propertyPrefix);
+        }
+    }
+
+
+    static private YAMLFactory createYamlFactory() {
+        var loaderOptions = new LoaderOptions();
+        loaderOptions.setCodePointLimit(2000);
+        log.info("Using YAMLFactory with codePointLimit set to {}", loaderOptions.getCodePointLimit());
+        return YAMLFactory.builder().loaderOptions(loaderOptions).build();
+    }
+
     private final Map<Class<?>, YamlConfigurationFactory<?>> yamlConfigurationFactories = new HashMap<>();
 
     /**
@@ -94,9 +112,12 @@ public class YamlServiceImpl implements YamlService {
     @SuppressWarnings("unchecked")
     @Override
     public <T> T readYaml(Path yamlFile, Class<T> target) throws IOException, ConfigurationException {
+        log.debug("readYaml: {} for class {}", yamlFile, target.getName());
         YamlConfigurationFactory<T> factory = (YamlConfigurationFactory<T>) yamlConfigurationFactories.get(target);
         if (factory == null) {
-            throw new IllegalArgumentException("No factory found for class: " + target.getName());
+            var s = "No factory found for class: " + target.getName();
+            log.error("readYaml" + s);
+            throw new IllegalArgumentException(s);
         }
         return factory.build(yamlFile.toFile());
     }
@@ -104,9 +125,12 @@ public class YamlServiceImpl implements YamlService {
     @SuppressWarnings("unchecked")
     @Override
     public <T> T readYamlFromString(String yamlString, Class<T> target) throws IOException, ConfigurationException {
+        log.debug("readYamlFromString: for class {}", target.getName());
         YamlConfigurationFactory<T> factory = (YamlConfigurationFactory<T>) yamlConfigurationFactories.get(target);
         if (factory == null) {
-            throw new IllegalArgumentException("No factory found for class: " + target.getName());
+            var s = "No factory found for class: " + target.getName();
+            log.error("readYamlFromString" + s);
+            throw new IllegalArgumentException(s);
         }
         return mapper.readValue(yamlString, target);
     }
