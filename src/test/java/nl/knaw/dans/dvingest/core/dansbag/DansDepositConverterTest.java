@@ -15,6 +15,8 @@
  */
 package nl.knaw.dans.dvingest.core.dansbag;
 
+import io.dropwizard.configuration.ConfigurationParsingException;
+import nl.knaw.dans.dvingest.config.YamlServiceConfig;
 import nl.knaw.dans.dvingest.core.dansbag.testhelpers.DansBagMappingServiceBuilder;
 import nl.knaw.dans.dvingest.core.dansbag.testhelpers.DansDepositCreator;
 import nl.knaw.dans.dvingest.core.service.YamlService;
@@ -108,13 +110,56 @@ import static nl.knaw.dans.dvingest.core.dansbag.mapper.DepositDatasetFieldNames
 import static nl.knaw.dans.dvingest.core.dansbag.mapper.DepositDatasetFieldNames.TEMPORAL_COVERAGE;
 import static nl.knaw.dans.dvingest.core.dansbag.mapper.DepositDatasetFieldNames.TITLE;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 /**
  * Test class for {@link DansDepositConverter}. It uses the valid examples from the dd-dans-sword2-examples project.
  */
 public class DansDepositConverterTest extends DansConversionFixture {
 
-    private final YamlService yamlService = new YamlServiceImpl();
+    private final YamlService yamlService = createYamlService(3145728);
+
+    private YamlServiceImpl createYamlService(int codePointLimit) {
+        var yamlServiceConfig = new YamlServiceConfig();
+        yamlServiceConfig.getLoaderOptions().setCodePointLimit(codePointLimit);
+        return new YamlServiceImpl(yamlServiceConfig);
+    }
+
+    @Test
+    public void tooBigYaml() throws Exception {
+        /*
+         * Given
+         */
+        var swordToken = "sword:64c59184-7667-4ea0-b4fd-09f421ecb3cf";
+        var depositDir = testDir.resolve("00000000-0000-0000-0000-000000000001");
+        DansDepositCreator.creator()
+            .copyBagFrom(Paths.get("target/test/example-bags/valid/all-mappings"))
+            .depositDir(depositDir)
+            .withProperty("dataverse.sword-token", swordToken)
+            .withProperty("deposit.origin", "SWORD")
+            .withProperty("depositor.userId", "jdoe")
+            .create();
+        var authenticatedUser = authenticatedUser("John", "Doe", "jdoe@foo.com", "John Doe");
+        Mockito.when(dataverseServiceMock.getUserById(Mockito.anyString())).thenReturn(Optional.of(authenticatedUser));
+        Mockito.when(dataverseServiceMock.getSupportedLicenses()).thenReturn(licenses("http://opensource.org/licenses/MIT"));
+        var deposit = dansBagDepositReader.readDeposit(depositDir);
+        var mappingService = DansBagMappingServiceBuilder.builder()
+            .dataSuppliers(Map.of("jdoe", "Supplier Joe"))
+            .dataverseService(dataverseServiceMock).build();
+
+        /*
+         * When
+         */
+        new DansDepositConverter(deposit, null, null, mappingService, createYamlService(200)).run();
+        /*
+         * Then
+         */
+        assertThat(deposit.getBagDir().resolve("dataset.yml")).exists();
+        assertThatThrownBy(() ->
+            yamlService.readYaml(deposit.getBagDir().resolve("dataset.yml"), Dataset.class)
+        ).isInstanceOf(ConfigurationParsingException.class);
+
+    }
 
     @Test
     public void run_converts_dans_sword_all_mappings_example_to_dataverse_ingest_deposit() throws Exception {

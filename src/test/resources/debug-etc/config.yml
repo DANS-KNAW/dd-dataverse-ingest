@@ -15,6 +15,10 @@ server:
     - type: http
       port: 20361
 
+yamlServiceConfig:
+  loaderOptions:
+    codePointLimit: 2000
+
 #
 # Parameters related to communication with the Dataverse instance
 #

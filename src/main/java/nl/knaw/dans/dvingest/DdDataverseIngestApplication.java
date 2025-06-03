@@ -103,7 +103,7 @@ public class DdDataverseIngestApplication extends Application<DdDataverseIngestC
             .maxNumberOfFilesPerUpload(configuration.getIngest().getMaxNumberOfFilesPerUploadBatch())
             .maxUploadSize(configuration.getIngest().getMaxByteSizePerUploadBatch().toBytes())
             .build();
-        var yamlService = new YamlServiceImpl();
+        var yamlService = new YamlServiceImpl(configuration.getYamlServiceConfig());
         var dataverseIngestDepositFactory = new DataverseIngestDepositFactoryImpl(yamlService);
         var dependenciesReadyCheck = new HealthChecksDependenciesReadyCheck(environment, configuration.getDependenciesReadyCheck());
         environment.lifecycle().manage(dependenciesReadyCheck);

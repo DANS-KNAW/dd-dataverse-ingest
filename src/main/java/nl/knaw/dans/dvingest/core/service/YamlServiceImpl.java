@@ -25,6 +25,7 @@ import io.dropwizard.configuration.BaseConfigurationFactory;
 import io.dropwizard.configuration.ConfigurationException;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
+import nl.knaw.dans.dvingest.config.YamlServiceConfig;
 import nl.knaw.dans.dvingest.core.yaml.DataverseIngestModule;
 import nl.knaw.dans.dvingest.core.yaml.EditFilesRoot;
 import nl.knaw.dans.dvingest.core.yaml.EditMetadataRoot;
@@ -40,8 +41,10 @@ import nl.knaw.dans.lib.dataverse.model.file.FileMeta;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.yaml.snakeyaml.LoaderOptions;
 
+import javax.validation.Valid;
 import javax.validation.Validation;
 import javax.validation.Validator;
+import javax.validation.constraints.NotNull;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.HashMap;
@@ -50,18 +53,16 @@ import java.util.Map;
 @Slf4j
 public class YamlServiceImpl implements YamlService {
 
-    private final ObjectMapper mapper = new ObjectMapper(createYamlFactory());
+    private final ObjectMapper mapper = new ObjectMapper(createYamlFactory(new LoaderOptions()));
 
-    static class YamlConfigurationFactory<T> extends BaseConfigurationFactory<T> {
-        public YamlConfigurationFactory(Class<T> klass, @Nullable Validator validator, ObjectMapper objectMapper, String propertyPrefix) {
-            super(createYamlFactory(), "YAML", klass, validator, objectMapper, propertyPrefix);
+    public static class YamlConfigurationFactory<T> extends BaseConfigurationFactory<T> {
+        public YamlConfigurationFactory(YAMLFactory yamlFactory, Class<T> klass, @Nullable Validator validator, ObjectMapper objectMapper, String propertyPrefix) {
+            super(yamlFactory, "YAML", klass, validator, objectMapper, propertyPrefix);
         }
     }
 
 
-    static private YAMLFactory createYamlFactory() {
-        var loaderOptions = new LoaderOptions();
-        loaderOptions.setCodePointLimit(2000);
+    static private YAMLFactory createYamlFactory(@Valid @NotNull LoaderOptions loaderOptions) {
         log.info("Using YAMLFactory with codePointLimit set to {}", loaderOptions.getCodePointLimit());
         return YAMLFactory.builder().loaderOptions(loaderOptions).build();
     }
@@ -84,7 +85,7 @@ public class YamlServiceImpl implements YamlService {
         Boolean restricted;
     }
 
-    public YamlServiceImpl() {
+    public YamlServiceImpl(@Valid @NotNull YamlServiceConfig yamlServiceConfig) {
         try (var factory = Validation.buildDefaultValidatorFactory()) {
             SimpleModule module = new SimpleModule();
             module.addDeserializer(MetadataField.class, new MetadataFieldDeserializer());
@@ -93,14 +94,14 @@ public class YamlServiceImpl implements YamlService {
             mapper.addMixIn(FileMeta.class, FileMetaMixin.class);
             mapper.registerModule(module);
             mapper.registerModule(new DataverseIngestModule());
-            yamlConfigurationFactories.put(InitRoot.class, new YamlConfigurationFactory<>(InitRoot.class, factory.getValidator(), mapper, "dw"));
-            yamlConfigurationFactories.put(Dataset.class, new YamlConfigurationFactory<>(Dataset.class, factory.getValidator(), mapper, "dw"));
-            yamlConfigurationFactories.put(EditFilesRoot.class, new YamlConfigurationFactory<>(EditFilesRoot.class, factory.getValidator(), mapper, "dw"));
-            yamlConfigurationFactories.put(EditMetadataRoot.class, new YamlConfigurationFactory<>(EditMetadataRoot.class, factory.getValidator(), mapper, "dw"));
-            yamlConfigurationFactories.put(EditPermissionsRoot.class, new YamlConfigurationFactory<>(EditPermissionsRoot.class, factory.getValidator(), mapper, "dw"));
-            yamlConfigurationFactories.put(UpdateStateRoot.class, new YamlConfigurationFactory<>(UpdateStateRoot.class, factory.getValidator(), mapper, "dw"));
-            yamlConfigurationFactories.put(InitLog.class, new YamlConfigurationFactory<>(InitLog.class, factory.getValidator(), mapper, "dw"));
-            yamlConfigurationFactories.put(TaskLogRoot.class, new YamlConfigurationFactory<>(TaskLogRoot.class, factory.getValidator(), mapper, "dw"));
+            yamlConfigurationFactories.put(InitRoot.class, new YamlConfigurationFactory<>(createYamlFactory(yamlServiceConfig.getLoaderOptions()), InitRoot.class, factory.getValidator(), mapper, "dw"));
+            yamlConfigurationFactories.put(Dataset.class, new YamlConfigurationFactory<>(createYamlFactory(yamlServiceConfig.getLoaderOptions()), Dataset.class, factory.getValidator(), mapper, "dw"));
+            yamlConfigurationFactories.put(EditFilesRoot.class, new YamlConfigurationFactory<>(createYamlFactory(yamlServiceConfig.getLoaderOptions()), EditFilesRoot.class, factory.getValidator(), mapper, "dw"));
+            yamlConfigurationFactories.put(EditMetadataRoot.class, new YamlConfigurationFactory<>(createYamlFactory(yamlServiceConfig.getLoaderOptions()), EditMetadataRoot.class, factory.getValidator(), mapper, "dw"));
+            yamlConfigurationFactories.put(EditPermissionsRoot.class, new YamlConfigurationFactory<>(createYamlFactory(yamlServiceConfig.getLoaderOptions()), EditPermissionsRoot.class, factory.getValidator(), mapper, "dw"));
+            yamlConfigurationFactories.put(UpdateStateRoot.class, new YamlConfigurationFactory<>(createYamlFactory(yamlServiceConfig.getLoaderOptions()), UpdateStateRoot.class, factory.getValidator(), mapper, "dw"));
+            yamlConfigurationFactories.put(InitLog.class, new YamlConfigurationFactory<>(createYamlFactory(yamlServiceConfig.getLoaderOptions()), InitLog.class, factory.getValidator(), mapper, "dw"));
+            yamlConfigurationFactories.put(TaskLogRoot.class, new YamlConfigurationFactory<>(createYamlFactory(yamlServiceConfig.getLoaderOptions()), TaskLogRoot.class, factory.getValidator(), mapper, "dw"));
         }
         catch (Throwable e) {
             // This ctor is called from a static context, so we log the error to make sure it is not lost

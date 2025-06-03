@@ -15,6 +15,7 @@
  */
 package nl.knaw.dans.dvingest.core.bagprocessor;
 
+import nl.knaw.dans.dvingest.config.YamlServiceConfig;
 import nl.knaw.dans.dvingest.core.TestDirFixture;
 import nl.knaw.dans.dvingest.core.service.DataverseService;
 import nl.knaw.dans.dvingest.core.service.UtilityServices;
@@ -29,7 +30,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 
 public class FilesEditorTestFixture extends TestDirFixture {
-    protected static final YamlService yamlService = new YamlServiceImpl();
+    protected static final YamlService yamlService = new YamlServiceImpl(new YamlServiceConfig());
+
     protected final DataverseService dataverseServiceMock = Mockito.mock(DataverseService.class);
     protected final UtilityServices utilityServicesMock = Mockito.mock(UtilityServices.class);
 
