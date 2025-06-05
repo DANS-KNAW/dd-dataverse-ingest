@@ -20,9 +20,13 @@ server:
         archive: false
         timeZone: system
         currentLogFilename: /var/opt/dans.knaw.nl/log/dd-dataverse-ingest/request.log
+
+#
+# Configuration for the YAML service. Currently only supports configuring the loader options.
+#
 yamlServiceConfig:
   loaderOptions:
-    codePointLimit: 3145728
+    codePointLimit: 6291456 # 6 MiB
 
 #
 # Parameters related to communication with the Dataverse instance

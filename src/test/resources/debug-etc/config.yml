@@ -15,9 +15,10 @@ server:
     - type: http
       port: 20361
 
-yamlServiceConfig:
-  loaderOptions:
-    codePointLimit: 2000
+# Uncomment the following lines to customize the Yaml service configuration.
+#yamlServiceConfig:
+#  loaderOptions:
+#    codePointLimit: 2000
 
 #
 # Parameters related to communication with the Dataverse instance
@@ -52,6 +53,7 @@ ingest:
   import:
     inbox: data/import/inbox
     outbox: data/import/outbox
+    requireDansBag: no
   tempDir: data/tmp
   #
   # If some of the metadata blocks are secured with a secret key, the key must be included in the metadataKeys map below, as follows:
@@ -100,7 +102,7 @@ dansDepositConversion:
   # Map from depositor.userId to organization name. Used to fill in the dansDataSupplier metadata field. If there is no
   # entry for a depositor, dansDataSupplier will be left empty.
   #
-  dataSuppliers:
+  dataSuppliers: {}
   # user001: The Organization Name
 
   #
