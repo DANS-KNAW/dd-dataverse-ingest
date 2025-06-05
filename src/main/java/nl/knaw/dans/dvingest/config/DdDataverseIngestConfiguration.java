@@ -44,6 +44,5 @@ public class DdDataverseIngestConfiguration extends Configuration {
     private DependenciesReadyCheckConfig dependenciesReadyCheck;
 
     @Valid
-    @NotNull
     public YamlServiceConfig yamlServiceConfig = new YamlServiceConfig();
 }

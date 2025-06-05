@@ -21,7 +21,6 @@ import lombok.extern.slf4j.Slf4j;
 import nl.knaw.dans.dvingest.core.DataverseIngestBag;
 import nl.knaw.dans.dvingest.core.service.DataverseService;
 import nl.knaw.dans.dvingest.core.service.UtilityServices;
-import nl.knaw.dans.dvingest.core.yaml.tasklog.TaskLog;
 import nl.knaw.dans.lib.dataverse.DataverseException;
 
 import java.io.IOException;
