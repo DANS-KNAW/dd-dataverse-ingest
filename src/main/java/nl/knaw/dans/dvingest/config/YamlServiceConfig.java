@@ -27,8 +27,4 @@ public class YamlServiceConfig {
 
     @Valid
     private LoaderOptions loaderOptions = new LoaderOptions();
-
-    @Valid
-    private DumperOptions dumperOptions = new DumperOptions();
-
 }
