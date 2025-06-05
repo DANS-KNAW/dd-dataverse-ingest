@@ -150,13 +150,14 @@ public class DansDepositConverterTest extends DansConversionFixture {
         /*
          * When
          */
-        new DansDepositConverter(deposit, null, null, mappingService, createYamlService(200)).run();
+        var customYamlService = createYamlService(20);
+        new DansDepositConverter(deposit, null, null, mappingService, customYamlService).run();
         /*
          * Then
          */
         assertThat(deposit.getBagDir().resolve("dataset.yml")).exists();
         assertThatThrownBy(() ->
-            yamlService.readYaml(deposit.getBagDir().resolve("dataset.yml"), Dataset.class)
+            customYamlService.readYaml(deposit.getBagDir().resolve("dataset.yml"), Dataset.class)
         ).isInstanceOf(ConfigurationParsingException.class);
 
     }
