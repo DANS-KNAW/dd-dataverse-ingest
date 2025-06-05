@@ -16,11 +16,9 @@
 package nl.knaw.dans.dvingest.config;
 
 import lombok.Data;
-import org.yaml.snakeyaml.DumperOptions;
 import org.yaml.snakeyaml.LoaderOptions;
 
 import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
 
 @Data
 public class YamlServiceConfig {
