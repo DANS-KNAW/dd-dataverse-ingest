@@ -20,6 +20,9 @@ server:
         archive: false
         timeZone: system
         currentLogFilename: /var/opt/dans.knaw.nl/log/dd-dataverse-ingest/request.log
+yamlServiceConfig:
+  loaderOptions:
+    codePointLimit: 3145728
 
 #
 # Parameters related to communication with the Dataverse instance

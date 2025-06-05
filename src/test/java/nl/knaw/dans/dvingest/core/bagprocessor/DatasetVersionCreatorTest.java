@@ -16,6 +16,7 @@
 package nl.knaw.dans.dvingest.core.bagprocessor;
 
 import nl.knaw.dans.dvingest.YamlBeanAssert;
+import nl.knaw.dans.dvingest.config.YamlServiceConfig;
 import nl.knaw.dans.dvingest.core.dansbag.exception.RejectedDepositException;
 import nl.knaw.dans.dvingest.core.service.DataverseService;
 import nl.knaw.dans.dvingest.core.service.YamlService;
@@ -36,7 +37,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class DatasetVersionCreatorTest {
-    private static final YamlService yamlService = new YamlServiceImpl();
+    private static final YamlService yamlService = new YamlServiceImpl(new YamlServiceConfig());
     private final DataverseService dataverseServiceMock = Mockito.mock(DataverseService.class);
     private final String noneCompletedYaml = """
             expect:

@@ -15,6 +15,7 @@
  */
 package nl.knaw.dans.dvingest.core.dansbag;
 
+import nl.knaw.dans.dvingest.config.YamlServiceConfig;
 import nl.knaw.dans.dvingest.core.dansbag.testhelpers.DansBagMappingServiceBuilder;
 import nl.knaw.dans.dvingest.core.dansbag.testhelpers.DansDepositCreator;
 import nl.knaw.dans.dvingest.core.service.YamlService;
@@ -114,7 +115,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 public class DansDepositConverterTest extends DansConversionFixture {
 
-    private final YamlService yamlService = new YamlServiceImpl();
+    private final YamlService yamlService = new YamlServiceImpl(new YamlServiceConfig());
 
     @Test
     public void run_converts_dans_sword_all_mappings_example_to_dataverse_ingest_deposit() throws Exception {
