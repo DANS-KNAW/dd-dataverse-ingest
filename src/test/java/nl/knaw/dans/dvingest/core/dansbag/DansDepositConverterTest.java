@@ -206,7 +206,7 @@ public class DansDepositConverterTest extends DansConversionFixture {
             Map.of(KEYWORD_VALUE, "Baskisch"));
         assertControlledMultiValueFieldContainsValues(citationBlockFields, LANGUAGE,
             "Ancient Greek (to 1453)",
-            "Greenlandic, Kalaallisut",
+            "Greenlandic",
             "Western Frisian");
         assertPrimitiveSinglevalueFieldContainsValue(citationBlockFields, PRODUCTION_DATE, "2015-09-09");
         assertCompoundMultiValueFieldContainsValues(citationBlockFields, CONTRIBUTOR,
