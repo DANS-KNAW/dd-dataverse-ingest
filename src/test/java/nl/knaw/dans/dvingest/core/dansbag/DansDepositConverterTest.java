@@ -203,9 +203,9 @@ public class DansDepositConverterTest extends DansConversionFixture {
                 KEYWORD_VOCABULARY_URI, "http://vocab.getty.edu/aat/"),
             Map.of(KEYWORD_VALUE, "Old School Latin"),
             Map.of(KEYWORD_VALUE, "Ithkuil"),
-            Map.of(KEYWORD_VALUE, "Ancient Greek"),
             Map.of(KEYWORD_VALUE, "Baskisch"));
         assertControlledMultiValueFieldContainsValues(citationBlockFields, LANGUAGE,
+            "Ancient Greek (to 1453)",
             "Greenlandic, Kalaallisut",
             "Western Frisian");
         assertPrimitiveSinglevalueFieldContainsValue(citationBlockFields, PRODUCTION_DATE, "2015-09-09");
@@ -255,7 +255,7 @@ public class DansDepositConverterTest extends DansConversionFixture {
         assertControlledSingleValueFieldContainsValue(rightsMetadataBlockFields, PERSONAL_DATA_PRESENT, "No");
         assertControlledMultiValueFieldContainsValues(rightsMetadataBlockFields, LANGUAGE_OF_METADATA,
             "English",
-            "Haitian Creole, Haitian",
+            "Haitian, Haitian Creole",
             "Korean");
 
         // Relation Metadata block
