@@ -71,6 +71,7 @@ public class DansBagMappingServiceBuilder {
             new ActiveMetadataBlocks(Set.of("citation", "dansRights", "dansRelationMetadata", "dansArchaeologyMetadata", "dansTemporalSpatial", "dansDataVaultMetadata")),
             MappingLoader.builder().csvFile(defaultConfigDir.resolve(ISO_639_1_TO_DV_FILENAME)).keyColumn(ISO_639_1_TO_DV_KEY_COLUMN).valueColumn(DATAVERSE_LANGUAGE_COLUMN).build().load(),
             MappingLoader.builder().csvFile(defaultConfigDir.resolve(ISO_639_2_TO_DV_FILENAME)).keyColumn(ISO_639_2_TO_DV_KEY_COLUMN).valueColumn(DATAVERSE_LANGUAGE_COLUMN).build().load(),
+            MappingLoader.builder().csvFile(defaultConfigDir.resolve(ISO_639_3_TO_DV_FILENAME)).keyColumn(ISO_639_3_TO_DV_KEY_COLUMN).valueColumn(DATAVERSE_LANGUAGE_COLUMN).build().load(),
             MappingLoader.builder().csvFile(defaultConfigDir.resolve(ABR_REPORT_CODE_TO_TERM_FILENAME)).keyColumn(CODE_COLUMN).valueColumn(TERM_COLUMN).build().load(),
             MappingLoader.builder().csvFile(defaultConfigDir.resolve(ABR_VERWERVINGSWIJZEN_CODE_TO_TERM_FILENAME)).keyColumn(CODE_COLUMN).valueColumn(TERM_COLUMN).build().load(),
             MappingLoader.builder().csvFile(defaultConfigDir.resolve(ABR_COMPLEXTYPE_CODE_TO_TERM_FILENAME)).keyColumn(CODE_COLUMN).valueColumn(TERM_COLUMN).build().load(),

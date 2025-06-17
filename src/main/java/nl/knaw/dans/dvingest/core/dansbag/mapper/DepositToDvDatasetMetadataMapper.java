@@ -96,6 +96,8 @@ public class DepositToDvDatasetMetadataMapper {
     private final Map<String, String> iso1ToDataverseLanguage;
     @NonNull
     private final Map<String, String> iso2ToDataverseLanguage;
+    @NonNull
+    private final Map<String, String> iso3ToDataverseLanguage;
 
     @NonNull
     private final Map<String, String> abrReportCodeToTerm;
@@ -175,10 +177,10 @@ public class DepositToDvDatasetMetadataMapper {
             citationFields.addKeywords(getDdmSubjects(ddm).filter(Subject::isPanTerm), Subject.toPanKeywordValue); // CIT015
             citationFields.addKeywords(getDdmSubjects(ddm).filter(Subject::isAatTerm), Subject.toAatKeywordValue); // CIT015
             citationFields.addKeywords(getLanguages(ddm), Language.toKeywordValue); // CIT016
-            citationFields.addKeywords(getDdmLanguages(ddm).filter(node -> Language.toCitationBlockLanguage(node, iso1ToDataverseLanguage, iso2ToDataverseLanguage) == null),
+            citationFields.addKeywords(getDdmLanguages(ddm).filter(node -> Language.toCitationBlockLanguage(node, iso1ToDataverseLanguage, iso3ToDataverseLanguage) == null),
                 Language.toKeywordValue); // CIT016 : non-mapped languages are added as keywords
             citationFields.addPublications(getIdentifiers(ddm).filter(Identifier::isRelatedPublication), Identifier.toRelatedPublicationValue); // CIT017
-            citationFields.addLanguages(getDdmLanguages(ddm), node -> Language.toCitationBlockLanguage(node, iso1ToDataverseLanguage, iso2ToDataverseLanguage)); // CIT018
+            citationFields.addLanguages(getDdmLanguages(ddm), node -> Language.toCitationBlockLanguage(node, iso1ToDataverseLanguage, iso3ToDataverseLanguage)); // CIT018
             citationFields.addProductionDate(getCreated(ddm).map(Base::toYearMonthDayFormat)); // CIT019
             citationFields.addGrantNumbers(getIdentifiers(ddm).filter(Identifier::isNwoGrantNumber), Identifier.toNwoGrantNumber); // CIT023
             citationFields.addContributors(getContributorDetails(ddm).filter(Contributor::isValidContributor), Contributor.toContributorValueObject); // CIT020, CIT021
