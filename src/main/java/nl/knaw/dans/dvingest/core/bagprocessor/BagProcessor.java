@@ -43,9 +43,9 @@ public class BagProcessor {
         this.bag = bag;
         var taskLog = bag.getTaskLog();
         this.datasetVersionCreator = new DatasetVersionCreator(depositId, dataverseService, bag.getInit(), bag.getDatasetMetadata(), taskLog.getInit(), taskLog.getDataset());
+        this.permissionsEditor = new PermissionsEditor(depositId, bag.getEditPermissions(), taskLog.getEditPermissions(), dataverseService);
         this.filesEditor = new FilesEditor(depositId, bag.getDataDir(), bag.getEditFiles(), dataverseService, utilityServices, taskLog.getEditFiles());
         this.metadataEditor = new MetadataEditor(depositId, bag.getEditMetadata(), taskLog.getEditMetadata(), dataverseService);
-        this.permissionsEditor = new PermissionsEditor(depositId, bag.getEditPermissions(), taskLog.getEditPermissions(), dataverseService);
         this.stateUpdater = new StateUpdater(depositId, bag.getUpdateState(), taskLog.getUpdateState(), dataverseService);
     }
 

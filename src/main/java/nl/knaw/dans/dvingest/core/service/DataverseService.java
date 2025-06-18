@@ -53,8 +53,6 @@ public interface DataverseService {
 
     void updateMetadata(String targetDatasetPid, DatasetVersion datasetMetadata) throws DataverseException, IOException;
 
-    void updateFileMetadata(int id, FileMeta newMeta) throws DataverseException, IOException;
-
     void updateFileMetadatas(String pid, List<FileMetaUpdate> fileMetaUpdates) throws DataverseException, IOException;
 
     void deleteDatasetMetadata(String pid, List<MetadataField> fields) throws DataverseException, IOException;

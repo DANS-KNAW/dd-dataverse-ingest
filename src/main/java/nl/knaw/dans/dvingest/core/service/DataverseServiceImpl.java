@@ -98,12 +98,6 @@ public class DataverseServiceImpl implements DataverseService {
     }
 
     @Override
-    public void updateFileMetadata(int id, FileMeta newMeta) throws DataverseException, IOException {
-        var result = dataverseClient.file(id).updateMetadata(newMeta);
-        log.debug(result.getEnvelopeAsString());
-    }
-
-    @Override
     public List<FileMeta> getFiles(String pid, boolean includeDraftVersion) throws IOException, DataverseException {
         var result = dataverseClient.dataset(pid).getFiles(includeDraftVersion ? Version.LATEST.toString() : Version.LATEST_PUBLISHED.toString());
         return result.getData();

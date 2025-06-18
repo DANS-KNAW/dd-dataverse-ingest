@@ -21,8 +21,8 @@ import lombok.Data;
 public class TaskLog {
     private InitLog init = new InitLog();
     private CompletableItem dataset = new CompletableItem();
+    private EditPermissionsLog editPermissions = new EditPermissionsLog();
     private EditFilesLog editFiles = new EditFilesLog();
     private EditMetadataLog editMetadata = new EditMetadataLog();
-    private EditPermissionsLog editPermissions = new EditPermissionsLog();
     private CompletableItem updateState = new CompletableItem();
 }
