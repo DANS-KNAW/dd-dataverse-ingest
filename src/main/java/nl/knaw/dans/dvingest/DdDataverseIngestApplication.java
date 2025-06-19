@@ -68,6 +68,7 @@ public class DdDataverseIngestApplication extends Application<DdDataverseIngestC
     public static final String SPATIAL_COVERAGE_COUNTRY_TERMS_FILENAME = "spatial-coverage-country-terms.txt";
     public static final String ISO_639_1_TO_DV_FILENAME = "iso639-1-to-dv.csv";
     public static final String ISO_639_2_TO_DV_FILENAME = "iso639-2-to-dv.csv";
+    public static final String ISO_639_3_TO_DV_FILENAME = "iso639-3-to-dv.csv";
     public static final String ABR_REPORT_CODE_TO_TERM_FILENAME = "rapporten-code-to-term.csv";
     public static final String ABR_VERWERVINGSWIJZEN_CODE_TO_TERM_FILENAME = "verwervingswijzen-code-to-term.csv";
     public static final String ABR_COMPLEXTYPE_CODE_TO_TERM_FILENAME = "complextypen-code-to-term.csv";
@@ -76,6 +77,7 @@ public class DdDataverseIngestApplication extends Application<DdDataverseIngestC
 
     public static final String ISO_639_1_TO_DV_KEY_COLUMN = "ISO639-1";
     public static final String ISO_639_2_TO_DV_KEY_COLUMN = "ISO639-2";
+    public static final String ISO_639_3_TO_DV_KEY_COLUMN = "ISO639-3";
     public static final String DATAVERSE_LANGUAGE_COLUMN = "Dataverse-language";
     public static final String CODE_COLUMN = "code";
     public static final String TERM_COLUMN = "term";
@@ -216,6 +218,7 @@ public class DdDataverseIngestApplication extends Application<DdDataverseIngestC
                 new ActiveMetadataBlocks(dataverseService),
                 MappingLoader.builder().csvFile(mappingDefsDir.resolve(ISO_639_1_TO_DV_FILENAME)).keyColumn(ISO_639_1_TO_DV_KEY_COLUMN).valueColumn(DATAVERSE_LANGUAGE_COLUMN).build().load(),
                 MappingLoader.builder().csvFile(mappingDefsDir.resolve(ISO_639_2_TO_DV_FILENAME)).keyColumn(ISO_639_2_TO_DV_KEY_COLUMN).valueColumn(DATAVERSE_LANGUAGE_COLUMN).build().load(),
+                MappingLoader.builder().csvFile(mappingDefsDir.resolve(ISO_639_3_TO_DV_FILENAME)).keyColumn(ISO_639_3_TO_DV_KEY_COLUMN).valueColumn(DATAVERSE_LANGUAGE_COLUMN).build().load(),
                 MappingLoader.builder().csvFile(mappingDefsDir.resolve(ABR_REPORT_CODE_TO_TERM_FILENAME)).keyColumn(CODE_COLUMN).valueColumn(TERM_COLUMN).build().load(),
                 MappingLoader.builder().csvFile(mappingDefsDir.resolve(ABR_VERWERVINGSWIJZEN_CODE_TO_TERM_FILENAME)).keyColumn(CODE_COLUMN).valueColumn(TERM_COLUMN).build().load(),
                 MappingLoader.builder().csvFile(mappingDefsDir.resolve(ABR_COMPLEXTYPE_CODE_TO_TERM_FILENAME)).keyColumn(CODE_COLUMN).valueColumn(TERM_COLUMN).build().load(),

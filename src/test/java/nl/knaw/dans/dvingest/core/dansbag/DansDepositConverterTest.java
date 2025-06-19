@@ -203,10 +203,10 @@ public class DansDepositConverterTest extends DansConversionFixture {
                 KEYWORD_VOCABULARY_URI, "http://vocab.getty.edu/aat/"),
             Map.of(KEYWORD_VALUE, "Old School Latin"),
             Map.of(KEYWORD_VALUE, "Ithkuil"),
-            Map.of(KEYWORD_VALUE, "Ancient Greek"));
+            Map.of(KEYWORD_VALUE, "Baskisch"));
         assertControlledMultiValueFieldContainsValues(citationBlockFields, LANGUAGE,
-            "Basque",
-            "Kalaallisut, Greenlandic",
+            "Ancient Greek (to 1453)",
+            "Greenlandic, Kalaallisut",
             "Western Frisian");
         assertPrimitiveSinglevalueFieldContainsValue(citationBlockFields, PRODUCTION_DATE, "2015-09-09");
         assertCompoundMultiValueFieldContainsValues(citationBlockFields, CONTRIBUTOR,

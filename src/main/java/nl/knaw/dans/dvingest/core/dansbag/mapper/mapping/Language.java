@@ -30,8 +30,8 @@ public class Language extends Base {
     };
 
     public static boolean isIsoLanguage(Node node) {
-        var isoLanguages = Set.of("ISO639-1", "ISO639-2");
-        var hasTypes = hasXsiType(node, "ISO639-1") || hasXsiType(node, "ISO639-2");
+        var isoLanguages = Set.of("ISO639-1", "ISO639-2", "ISO639-3");
+        var hasTypes = hasXsiType(node, "ISO639-1") || hasXsiType(node, "ISO639-2") || hasXsiType(node, "ISO639-3");
 
         var attributes = Optional.ofNullable(node.getAttributes());
         var hasEncoding = attributes.map(a -> Optional.ofNullable(a.getNamedItem("encodingScheme")))
@@ -43,21 +43,21 @@ public class Language extends Base {
         return hasTypes || hasEncoding;
     }
 
-    public static String toCitationBlockLanguage(Node node, Map<String, String> iso1ToDataverseLanguage, Map<String, String> iso2ToDataverseLanguage) {
+    public static String toCitationBlockLanguage(Node node, Map<String, String> twoLetterCodeToDataverseLanguage, Map<String, String> threeLetterCodeToDataverseLanguage) {
         if (isIsoLanguage(node)) {
             return getAttribute(node, "code")
-                .map(n -> isoToDataverse(n.getTextContent().trim(), iso1ToDataverseLanguage, iso2ToDataverseLanguage))
+                .map(n -> isoToDataverse(n.getTextContent().trim(), twoLetterCodeToDataverseLanguage, threeLetterCodeToDataverseLanguage))
                 .orElse(null);
         }
 
         return null;
     }
 
-    public static String isoToDataverse(String code, Map<String, String> iso1ToDataverseLanguage, Map<String, String> iso2ToDataverseLanguage) {
+    public static String isoToDataverse(String code, Map<String, String> twoLetterCodeToDataverseLanguage, Map<String, String> threeLetterCodeToDataverseLanguage) {
         if (code.length() == 2) {
-            return iso1ToDataverseLanguage.get(code);
+            return twoLetterCodeToDataverseLanguage.get(code);
         }
 
-        return iso2ToDataverseLanguage.get(code);
+        return threeLetterCodeToDataverseLanguage.get(code);
     }
 }
