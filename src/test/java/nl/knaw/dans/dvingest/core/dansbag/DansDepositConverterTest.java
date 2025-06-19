@@ -206,7 +206,7 @@ public class DansDepositConverterTest extends DansConversionFixture {
             Map.of(KEYWORD_VALUE, "Baskisch"));
         assertControlledMultiValueFieldContainsValues(citationBlockFields, LANGUAGE,
             "Ancient Greek (to 1453)",
-            "Greenlandic",
+            "Greenlandic, Kalaallisut",
             "Western Frisian");
         assertPrimitiveSinglevalueFieldContainsValue(citationBlockFields, PRODUCTION_DATE, "2015-09-09");
         assertCompoundMultiValueFieldContainsValues(citationBlockFields, CONTRIBUTOR,
@@ -255,8 +255,8 @@ public class DansDepositConverterTest extends DansConversionFixture {
         assertControlledSingleValueFieldContainsValue(rightsMetadataBlockFields, PERSONAL_DATA_PRESENT, "No");
         assertControlledMultiValueFieldContainsValues(rightsMetadataBlockFields, LANGUAGE_OF_METADATA,
             "English",
-            "Haitian, Haitian Creole",
-            "Korean");
+            "Georgian",
+            "Haitian, Haitian Creole");
 
         // Relation Metadata block
         var relationMetadataBlockFields = datasetYml.getDatasetVersion().getMetadataBlocks().get("dansRelationMetadata").getFields();
@@ -334,7 +334,7 @@ public class DansDepositConverterTest extends DansConversionFixture {
             "RCE Rapportage Archeologische Monumentenzorg");
         assertPrimitiveMultiValueFieldContainsValues(archaeologyMetadataBlockFields, ABR_VERWERVINGSWIJZE,
             "https://data.cultureelerfgoed.nl/term/id/abr/967bfdf8-c44d-4c69-8318-34ed1ab1e784",
-            "https://data.cultureelerfgoed.nl/term/id/abr/b2aa3a32-1f79-4ddf-81b5-2cdd28ad4919");
+            "https://data.cultureelerfgoed.nl/term/id/abr/2f851932-e4a1-4a11-be5e-aa988fb39278");
         assertPrimitiveMultiValueFieldContainsValues(archaeologyMetadataBlockFields, ABR_COMPLEX,
             "https://data.cultureelerfgoed.nl/term/id/abr/9a758542-8d0d-4afa-b664-104b938fe13e",
             "https://data.cultureelerfgoed.nl/term/id/abr/60bc20cd-0010-48ea-8d6f-42d333bfb39d",

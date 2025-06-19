@@ -618,7 +618,7 @@ bej,Beja
 bek,Bebeli
 bel,Belarusian
 bem,Bemba (Zambia)
-ben,Bengali, Bangla
+ben,"Bengali, Bangla"
 beo,Beami
 bep,Besoa
 beq,Beembe
@@ -850,6 +850,7 @@ bny,Bintulu
 bnz,Beezen
 boa,Bora
 bob,Aweer
+bod,"Tibetan, Tibetan Standard, Central"
 boe,Mundabli
 bof,Bolon
 bog,Bamako Sign Language
@@ -1160,7 +1161,7 @@ cap,Chipaya
 caq,Car Nicobarese
 car,Galibi Carib
 cas,Tsimané
-cat,Catalan, Valencian
+cat,"Catalan, Valencian"
 cav,Cavineña
 caw,Callawalla
 cax,Chiquitano
@@ -1242,6 +1243,7 @@ chp,Chipewyan
 chq,Quiotepec Chinantec
 chr,Cherokee
 cht,Cholón
+chu,Old Church Slavonic
 chv,Chuvash
 chw,Chuwabu
 chx,Chantyal
@@ -1590,6 +1592,7 @@ diq,Dimli (individual language)
 dir,Dirim
 dis,Dimasa
 diu,Diriku
+div,"Maldivian, Dhivehi, Divehi"
 diw,Northwestern Dinka
 dix,Dixon Reef
 diy,Diuwe
@@ -1803,6 +1806,7 @@ ele,Elepi
 elh,El Hugeirat
 eli,Nding
 elk,Elkei
+ell,Greek (modern)
 elm,Eleme
 elo,El Molo
 elu,Elu
@@ -1905,6 +1909,7 @@ fan,Fang (Equatorial Guinea)
 fao,Faroese
 fap,Paloor
 far,Fataleka
+fas,Persian (Farsi)
 fat,Fanti
 fau,Fayu
 fax,Fala
@@ -1971,7 +1976,7 @@ fuf,Pular
 fuh,Western Niger Fulfulde
 fui,Bagirmi Fulfulde
 fuj,Ko
-ful,Fula, Fulah
+ful,"Fula, Fulah"
 fum,Fum
 fun,Fulniô
 fuq,Central-Eastern Niger Fulfulde
@@ -2135,7 +2140,7 @@ gkn,Gokana
 gko,Kok-Nar
 gkp,Guinea Kpelle
 gku,ǂUngkue
-gla,Gaelic, Scottish Gaelic
+gla,"Gaelic, Scottish Gaelic"
 glb,Belning
 glc,Bon Gula
 gld,Nanai
@@ -2340,7 +2345,7 @@ hap,Hupla
 haq,Ha
 har,Harari
 has,Haisla
-hat,Haitian Creole, Haitian
+hat,"Haitian Creole, Haitian"
 hau,Hausa
 hav,Havu
 haw,Hawaiian
@@ -2466,6 +2471,7 @@ hro,Haroi
 hrp,Nhirrpi
 hrt,Hértevin
 hru,Hruso
+hrv,Croatian
 hrw,Warwar Feni
 hrx,Hunsrik
 hrz,Harzani
@@ -2839,7 +2845,7 @@ kah,Kara (Central African Republic)
 kai,Karekare
 kaj,Jju
 kak,Kalanguya
-kal,Greenlandic, Kalaallisut
+kal,"Greenlandic, Kalaallisut"
 kam,Kamba (Kenya)
 kan,Kannada
 kao,Xaasongaxango
@@ -3034,7 +3040,7 @@ kig,Kimaama
 kih,Kilmeri
 kii,Kitsai
 kij,Kilivila
-kik,Kikuyu, Gikuyu
+kik,"Kikuyu, Gikuyu"
 kil,Kariya
 kim,Karagas
 kin,Kinyarwanda
@@ -3323,7 +3329,7 @@ ktw,Kato
 ktx,Kaxararí
 kty,Kango (Bas-Uélé District)
 ktz,Juǀ'hoan
-kua,Kuanyama, Kwanyama
+kua,"Kuanyama, Kwanyama"
 kub,Kutep
 kuc,Kwinsu
 kud,'Auhelawa
@@ -3605,6 +3611,7 @@ lih,Lihir
 lij,Ligurian
 lik,Lika
 lil,Lillooet
+lim,"Limburgan, Limburger, Limburgish"
 lin,Lingala
 lio,Liki
 lip,Sekpele
@@ -3768,7 +3775,7 @@ ltn,Latundê
 lto,Tsotso
 lts,Tachoni
 ltu,Latu
-ltz,Luxembourgish, Letzeburgesch
+ltz,"Luxembourgish, Letzeburgesch"
 lua,Luba-Lulua
 lub,Luba-Katanga
 luc,Aringa
@@ -4242,6 +4249,7 @@ mre,Martha's Vineyard Sign Language
 mrf,Elseng
 mrg,Mising
 mrh,Mara Chin
+mri,Māori
 mrj,Western Mari
 mrk,Hmwaveke
 mrl,Mortlockese
@@ -4259,6 +4267,7 @@ mrw,Maranao
 mrx,Maremgi
 mry,Mandaya
 mrz,Marind
+msa,Malay
 msb,Masbatenyo
 msc,Sankaran Maninka
 msd,Yucatec Maya Sign Language
@@ -4466,7 +4475,7 @@ nar,Iguta
 nas,Naasioi
 nat,Ca̱hungwa̱rya̱
 nau,Nauru
-nav,Navajo, Navaho
+nav,"Navajo, Navaho"
 naw,Nawuri
 nax,Nakwi
 nay,Ngarrindjeri
@@ -4906,6 +4915,7 @@ nxo,Ndambomo
 nxq,Naxi
 nxr,Ninggerum
 nxx,Nafri
+nya,"Chichewa, Chewa, Nyanja"
 nyb,Nyangbo
 nyc,Nyanga-li
 nyd,Nyore
@@ -4980,7 +4990,7 @@ oin,Inebu One
 ojb,Northwestern Ojibwa
 ojc,Central Ojibwa
 ojg,Eastern Ojibwa
-oji,Ojibwe, Ojibwa
+oji,"Ojibwe, Ojibwa"
 ojp,Old Japanese
 ojs,Severn Ojibwa
 ojv,Ontong Java
@@ -5081,7 +5091,7 @@ osi,Osing
 osn,Old Sundanese
 oso,Ososo
 osp,Old Spanish
-oss,Ossetian, Ossetic
+oss,"Ossetian, Ossetic"
 ost,Osatu
 osu,Southern One
 osx,Old Saxon
@@ -5127,7 +5137,7 @@ pai,Pe
 pak,Parakanã
 pal,Pahlavi
 pam,Pampanga
-pan,Panjabi, Punjabi
+pan,"Panjabi, Punjabi"
 pao,Northern Paiute
 pap,Papiamento
 paq,Parya
@@ -5431,7 +5441,7 @@ puo,Puoc
 pup,Pulabu
 puq,Puquina
 pur,Puruborá
-pus,Pashto, Pushto
+pus,"Pashto, Pushto"
 put,Putoh
 puu,Punu
 puw,Puluwatese
@@ -5853,7 +5863,7 @@ sij,Numbami
 sik,Sikiana
 sil,Tumulung Sisaala
 sim,Mende (Papua New Guinea)
-sin,Sinhala, Sinhalese
+sin,"Sinhala, Sinhalese"
 sip,Sikkimese
 siq,Sonia
 sir,Siri
@@ -5996,7 +6006,7 @@ sow,Sowanda
 sox,Swo
 soy,Miyobe
 soz,Temi
-spa,Spanish, Castilian
+spa,"Spanish, Castilian"
 spb,Sepa (Indonesia)
 spc,Sapé
 spd,Saep
@@ -6740,7 +6750,7 @@ ugo,Ugong
 ugy,Uruguayan Sign Language
 uha,Uhami
 uhn,Damal
-uig,Uighur, Uyghur
+uig,"Uighur, Uyghur"
 uis,Uisai
 uiv,Iyive
 uji,Tanjijili
@@ -7767,7 +7777,7 @@ zgh,Standard Moroccan Tamazight
 zgm,Minz Zhuang
 zgn,Guibian Zhuang
 zgr,Magori
-zha,Zhuang, Chuang
+zha,"Zhuang, Chuang"
 zhb,Zhaba
 zhd,Dai Zhuang
 zhi,Zhire
