@@ -164,6 +164,7 @@ public class DdDataverseIngestApplication extends Application<DdDataverseIngestC
         var depositTaskFactory = new DepositTaskFactoryImpl(bagProcessorFactory, dansDepositSupportFactory, dependenciesReadyCheck);
         var inboxTaskFactory = new InboxTaskFactoryImpl(dataverseIngestDepositFactory, depositTaskFactory, ingestAreaConfig.getOutbox());
         var inbox = Inbox.builder()
+            .interval(ingestAreaConfig.getPollingInterval())
             .inbox(ingestAreaConfig.getInbox())
             .executorService(environment.lifecycle().executorService("auto-ingest").minThreads(1).maxThreads(1).build())
             .taskFactory(inboxTaskFactory).build();
