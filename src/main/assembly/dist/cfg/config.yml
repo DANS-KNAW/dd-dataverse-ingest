@@ -51,9 +51,7 @@ dataverse:
 #
 ingest:
   # Deposits dropped in the inbox will automatically be picked up and processed by the ingest service.
-  p
   autoIngest:
-    pollingInterval: 5000
     # apiKey: 'changeme' # overrides the apiKey from the dataverse section
     inbox: /var/opt/dans.knaw.nl/tmp/auto-ingest/inbox
     outbox: /var/opt/dans.knaw.nl/tmp/auto-ingest/outbox
