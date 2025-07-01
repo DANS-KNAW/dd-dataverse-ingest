@@ -30,4 +30,6 @@ public class IngestAreaConfig {
     private Boolean requireDansBag = true;
 
     private String apiKey;
+
+    private int pollingInterval = 5000; // Default polling interval of inbox in milliseconds
 }
