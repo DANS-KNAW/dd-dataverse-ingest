@@ -18,6 +18,7 @@ package nl.knaw.dans.dvingest.core.service;
 import lombok.Builder;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
+import nl.knaw.dans.lib.dataverse.DatasetApi;
 import nl.knaw.dans.lib.dataverse.DataverseClient;
 import nl.knaw.dans.lib.dataverse.DataverseException;
 import nl.knaw.dans.lib.dataverse.Version;
@@ -74,7 +75,9 @@ public class DataverseServiceImpl implements DataverseService {
 
     @Override
     public FileList addFile(String persistentId, Path file, FileMeta fileMeta) throws DataverseException, IOException {
-        var result = dataverseClient.dataset(persistentId).addFile(file, fileMeta);
+        var dataset = dataverseClient.dataset(persistentId);
+        dataset.awaitUnlock(List.of("Ingest"), 10, 1000);
+        var result = dataset.addFile(file, fileMeta);
         log.debug(result.getEnvelopeAsString());
         return result.getData();
     }
