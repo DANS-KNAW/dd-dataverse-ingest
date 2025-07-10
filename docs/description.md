@@ -358,6 +358,13 @@ taskLog:
       completed: false
   dataset:
     completed: false
+  editPermissions:
+     deleteRoleAssignments:
+        completed: false
+        numberCompleted: 0
+     addRoleAssignments:
+        completed: false
+        numberCompleted: 0
   editFiles:
     deleteFiles:
       completed: false
@@ -390,13 +397,6 @@ taskLog:
       completed: false
     deleteFieldValues:
       completed: false
-  editPermissions:
-    deleteRoleAssignments:
-      completed: false
-      numberCompleted: 0
-    addRoleAssignments:
-      completed: false
-      numberCompleted: 0
   updateState:
     completed: false
 ```
