@@ -166,6 +166,7 @@ public class DdDataverseIngestApplication extends Application<DdDataverseIngestC
         var depositTaskFactory = new DepositTaskFactoryImpl(bagProcessorFactory, dansDepositSupportFactory, dependenciesReadyCheck);
         var inboxTaskFactory = new InboxTaskFactoryImpl(dataverseIngestDepositFactory, depositTaskFactory, ingestAreaConfig.getOutbox());
         var inbox = Inbox.builder()
+            .interval(ingestAreaConfig.getPollingInterval())
             .inbox(ingestAreaConfig.getInbox())
             .interval()
             .inboxItemComparator(new PropertiesBasedDirectoryComparator<>("deposit.properties", "creation.timestamp", Instant::parse))
