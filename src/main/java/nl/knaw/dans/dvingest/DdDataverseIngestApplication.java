@@ -48,11 +48,13 @@ import nl.knaw.dans.dvingest.resources.IngestApiResource;
 import nl.knaw.dans.lib.util.DataverseClientFactory;
 import nl.knaw.dans.lib.util.DataverseHealthCheck;
 import nl.knaw.dans.lib.util.MappingLoader;
+import nl.knaw.dans.lib.util.PropertiesBasedDirectoryComparator;
 import nl.knaw.dans.lib.util.inbox.Inbox;
 import org.apache.commons.io.FileUtils;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.time.Instant;
 import java.util.regex.Pattern;
 
 @Slf4j
@@ -165,6 +167,8 @@ public class DdDataverseIngestApplication extends Application<DdDataverseIngestC
         var inboxTaskFactory = new InboxTaskFactoryImpl(dataverseIngestDepositFactory, depositTaskFactory, ingestAreaConfig.getOutbox());
         var inbox = Inbox.builder()
             .inbox(ingestAreaConfig.getInbox())
+            .interval()
+            .inboxItemComparator(new PropertiesBasedDirectoryComparator<>("deposit.properties", "creation.timestamp", Instant::parse))
             .executorService(environment.lifecycle().executorService("auto-ingest").minThreads(1).maxThreads(1).build())
             .taskFactory(inboxTaskFactory).build();
         return new AutoIngestArea(inbox, ingestAreaConfig.getOutbox());
