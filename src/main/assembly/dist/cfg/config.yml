@@ -58,6 +58,8 @@ ingest:
     # Forces the service to require the bag in the deposit to conform to the DANS BagIt Profile. Without this SWORD depositors would have the full range of options offered by
     # the Dataverse Ingest Deposit instruction files, so it is not recommended to disable this. The default is 'yes'.
     requireDansBag: yes
+    # How often to check for new deposits in the inbox. The service will check for new deposits every 5 seconds by default.
+    # pollingInterval: 5s
   # Import of migration deposits. This area is used to migrate datasets from EASY to Dataverse and differs from import only in the way the DANS deposits are converted
   # to Dataverse Ingest deposits.
   migration:

@@ -15,6 +15,7 @@
  */
 package nl.knaw.dans.dvingest.config;
 
+import io.dropwizard.util.Duration;
 import lombok.Data;
 
 import javax.validation.constraints.NotNull;
@@ -31,5 +32,5 @@ public class IngestAreaConfig {
 
     private String apiKey;
 
-    private int pollingInterval = 5000; // Default polling interval of inbox in milliseconds
+    private Duration pollingInterval = Duration.seconds(5);
 }
