@@ -30,9 +30,10 @@ public class DepositTaskFactoryImpl implements DepositTaskFactory {
     private final BagProcessorFactory bagProcessorFactory;
     private final DansDepositSupportFactory dansDepositSupportFactory;
     private final DependenciesReadyCheck dependenciesReadyCheck;
+    private final long delayBetweenDeposits;
 
     @Override
     public Runnable createDepositTask(DataverseIngestDeposit deposit, Path outputDir, boolean onlyConvertDansDeposit) {
-        return new DepositTask(deposit, outputDir, onlyConvertDansDeposit, bagProcessorFactory, dansDepositSupportFactory, dependenciesReadyCheck);
+        return new DepositTask(deposit, outputDir, onlyConvertDansDeposit, bagProcessorFactory, dansDepositSupportFactory, dependenciesReadyCheck, delayBetweenDeposits);
     }
 }

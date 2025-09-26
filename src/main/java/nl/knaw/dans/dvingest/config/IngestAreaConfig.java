@@ -33,4 +33,6 @@ public class IngestAreaConfig {
     private String apiKey;
 
     private Duration pollingInterval = Duration.seconds(5);
+
+    private Duration delayBetweenDeposits = Duration.seconds(0);
 }

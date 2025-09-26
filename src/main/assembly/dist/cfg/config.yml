@@ -60,6 +60,9 @@ ingest:
     requireDansBag: yes
     # How often to check for new deposits in the inbox. The service will check for new deposits every 5 seconds by default.
     # pollingInterval: 5s
+    # Delay after finishing a deposit, in milliseconds. This can be used to allow time for the deposit to be processed by Dataverse before the service moves on to the next deposit.
+    #delayBetweenDeposits: 0s
+
   # Import of migration deposits. This area is used to migrate datasets from EASY to Dataverse and differs from import only in the way the DANS deposits are converted
   # to Dataverse Ingest deposits.
   migration:

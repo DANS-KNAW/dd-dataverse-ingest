@@ -163,7 +163,7 @@ public class DdDataverseIngestApplication extends Application<DdDataverseIngestC
         }
 
         var bagProcessorFactory = new BagProcessorFactoryImpl(dataverseService, utilityServices);
-        var depositTaskFactory = new DepositTaskFactoryImpl(bagProcessorFactory, dansDepositSupportFactory, dependenciesReadyCheck);
+        var depositTaskFactory = new DepositTaskFactoryImpl(bagProcessorFactory, dansDepositSupportFactory, dependenciesReadyCheck, ingestAreaConfig.getDelayBetweenDeposits().toMilliseconds());
         var inboxTaskFactory = new InboxTaskFactoryImpl(dataverseIngestDepositFactory, depositTaskFactory, ingestAreaConfig.getOutbox());
         var inbox = Inbox.builder()
             .interval(Math.toIntExact(ingestAreaConfig.getPollingInterval().toMilliseconds()))
@@ -188,7 +188,7 @@ public class DdDataverseIngestApplication extends Application<DdDataverseIngestC
                 ingestAreaConfig.getRequireDansBag());
         }
         var bagProcessorFactory = new BagProcessorFactoryImpl(dataverseService, utilityServices);
-        var depositTaskFactory = new DepositTaskFactoryImpl(bagProcessorFactory, dansDepositSupportFactory, dependenciesReadyCheck);
+        var depositTaskFactory = new DepositTaskFactoryImpl(bagProcessorFactory, dansDepositSupportFactory, dependenciesReadyCheck, ingestAreaConfig.getDelayBetweenDeposits().toMilliseconds());
         var jobFactory = new ImportJobFactoryImpl(dataverseIngestDepositFactory, depositTaskFactory);
         return new IngestArea(jobFactory, ingestAreaConfig.getInbox(), ingestAreaConfig.getOutbox(),
             environment.lifecycle().executorService(name).minThreads(1).maxThreads(1).build());
