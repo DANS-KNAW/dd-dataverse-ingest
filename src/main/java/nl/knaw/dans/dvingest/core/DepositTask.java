@@ -38,17 +38,19 @@ public class DepositTask implements Runnable {
     private final boolean onlyConvertDansDeposit;
     private final BagProcessorFactory bagProcessorFactory;
     private final DependenciesReadyCheck dependenciesReadyCheck;
+    private final long delayBetweenDeposits;
 
     @Getter
     private Status status = Status.TODO;
 
     public DepositTask(DataverseIngestDeposit dataverseIngestDeposit, Path outputDir, boolean onlyConvertDansDeposit, BagProcessorFactory bagProcessorFactory,
-        DansDepositSupportFactory dansDepositSupportFactory, DependenciesReadyCheck dependenciesReadyCheck) {
+        DansDepositSupportFactory dansDepositSupportFactory, DependenciesReadyCheck dependenciesReadyCheck, long delayBetweenDeposits) {
         this.deposit = dansDepositSupportFactory.addDansDepositSupportIfEnabled(dataverseIngestDeposit);
         this.outputDir = outputDir;
         this.onlyConvertDansDeposit = onlyConvertDansDeposit;
         this.bagProcessorFactory = bagProcessorFactory;
         this.dependenciesReadyCheck = dependenciesReadyCheck;
+        this.delayBetweenDeposits = delayBetweenDeposits;
     }
 
     @Override
@@ -92,6 +94,14 @@ public class DepositTask implements Runnable {
             catch (IOException ioException) {
                 log.error("[{}] Failed to move deposit to failed directory", deposit.getId(), ioException);
             }
+        }
+
+        try {
+            log.info("[{}] Waiting {}ms after deposit finish", deposit.getId(), delayBetweenDeposits);
+            Thread.sleep(delayBetweenDeposits);
+        }
+        catch (InterruptedException e) {
+            log.warn("[{}] Interrupted while waiting after deposit finish", deposit.getId());
         }
     }
 }
