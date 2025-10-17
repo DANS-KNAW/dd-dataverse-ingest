@@ -1,0 +1,162 @@
+#
+# Copyright (C) 2024 DANS - Data Archiving and Networked Services (info@dans.knaw.nl)
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+
+openapi: 3.0.1
+
+servers:
+  - url: http://localhost:20360/
+
+info:
+  description: Service for ingesting datasets into Dataverse.
+  version: 0.3.0
+  title: dd-dataverse-ingest-api
+  contact:
+    email: info@dans.knaw.nl
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+
+paths:
+  /:
+    get:
+      summary: Returns a description of the service.
+      responses:
+        '200':
+          description: OK
+          content:
+            text/plain:
+              schema:
+                type: string
+                description: a plain text, human readable description of the service
+                example: |
+                  Dataverse Ingest API Running (v0.3.0)
+
+  /ingest:
+    post:
+      summary: Create a new ingest job
+      requestBody:
+        description: An ingest command object
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ImportCommand'
+      responses:
+        '202':
+          description: Accepted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ImportJobStatus'
+    get:
+      parameters:
+        - name: path
+          in: query
+          description: The path to the deposit or deposit batch
+          required: false
+          schema:
+            type: string
+            format: path
+        - name: migration
+          in: query
+          description: Whether this is a migration import from EASY
+          required: false
+          schema:
+            type: boolean
+      summary: Get the status of all ingest jobs or a specific job
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ImportJobStatus'
+
+  /ingest/cancel:
+    post:
+      parameters:
+        - name: path
+          in: query
+          description: The path of the job to cancel
+          required: false
+          schema:
+            type: string
+            format: path
+        - name: migration
+          in: query
+          description: Whether this is a migration import from EASY
+          required: false
+          schema:
+            type: boolean
+      summary: Cancel an ingest job
+      responses:
+        '202':
+          description: Accepted
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ImportJobStatus'
+
+components:
+  schemas:
+    ImportCommand:
+      type: object
+      properties:
+        path:
+          type: string
+          format: path
+          description: The path to the deposit or deposit batch
+        singleObject:
+          type: boolean
+          default: false
+          description: Whether the import is for a single deposit or a batch
+        migration:
+          type: boolean
+          default: false
+          description: Whether this is a migration import from EASY
+        onlyConvertDansBag:
+          type: boolean
+          default: false
+          description: Whether to only convert DANS deposits to Dataverse ingest format and then stop
+        continueBatch:
+          type: boolean
+          default: false
+          description: Whether to continue a batch that was stopped or failed
+    ImportJobStatus:
+      type: object
+      properties:
+        path:
+          type: string
+          format: path
+          description: The path to deposit directory or batch relative to the inbox
+        singleObject:
+          type: boolean
+          description: Whether the import is for a single deposit or a batch
+        status:
+          type: string
+          description: The current status of the job
+          enum:
+            - PENDING
+            - RUNNING
+            - DONE
+            - FAILED
+        message:
+          type: string
+          description: A message describing the current status
