@@ -11,8 +11,6 @@ This service takes directories containing data and metadata and creates datasets
 Interfaces
 ----------
 
-
-
 The datasets are prepared as deposit directories (or "deposits" for short) in the ingest area. A deposit is a directory with the following structure:
 
 ```text
@@ -174,14 +172,14 @@ editFiles:
   # with files from addUnrestrictedFiles. This is useful if you need to circumvent special processing by Dataverse, such as re-zipping Shapefile projects.
   # See: https://guides.dataverse.org/en/6.3/developers/geospatial.html#geospatial-data 
   addUnrestrictedFilesSeparately:
-     - 'bicycles.shp'
-     - 'cars.shp'
+    - 'bicycles.shp'
+    - 'cars.shp'
   # Adds files to the dataset and makes them restricted. The files are processed in batches, but separately, so that these files are not uploaded together
   # with files from addRestrictedFiles. This is useful if you need to circumvent special processing by Dataverse, such as re-zipping Shapefile projects.
   # See: https://guides.dataverse.org/en/6.3/developers/geospatial.html#geospatial-data    
   addRestrictedFilesSeparately:
-     - 'bicycles.shp'
-     - 'cars.shp'
+    - 'bicycles.shp'
+    - 'cars.shp'
   # Adds files to the dataset and makes them unrestricted. The files are processed one by one, meaning they are uploaded as individual files to Dataverse. This is
   # useful if you need to make sure that ZIP files are expanded by Dataverse, for example because you want to make sure the special processing for Shapefiles is
   # applied.
@@ -366,12 +364,12 @@ taskLog:
   dataset:
     completed: false
   editPermissions:
-     deleteRoleAssignments:
-        completed: false
-        numberCompleted: 0
-     addRoleAssignments:
-        completed: false
-        numberCompleted: 0
+    deleteRoleAssignments:
+      completed: false
+      numberCompleted: 0
+    addRoleAssignments:
+      completed: false
+      numberCompleted: 0
   editFiles:
     deleteFiles:
       completed: false

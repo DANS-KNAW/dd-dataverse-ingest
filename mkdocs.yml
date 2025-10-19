@@ -33,7 +33,7 @@ nav:
       - Local debugging: dev-debugging.md
 extra:
   bagit_specs_url: https://www.rfc-editor.org/rfc/rfc8493.html
-  dans_bag_profile_url: https://dans-knaw.github.io/dans-bagit-profile/versions/1.2.0/
+  dans_bag_profile_url: https://doi.org/10.17026/dans-z52-ybfe
   dataverse_api_url: https://guides.dataverse.org/en/latest/api
   validate_dans_bag_url: https://github.com/DANS-KNAW/dd-validate-dans-bag
   dataverse_ingest_cli_url: https://github.com/DANS-KNAW/dd-dataverse-ingest-cli
