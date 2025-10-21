@@ -79,7 +79,7 @@ public class CitationFieldBuilder extends FieldBuilder {
     public void addSubject(Stream<String> stream, Function<String, String> mapper) {
         var values = stream.map(mapper)
             .collect(Collectors.toSet());
-        if (values.size()>1)
+        if (values.size() > 1)
             values.remove("Other");
         addMultipleControlledFields(SUBJECT, values.stream().sorted());
     }

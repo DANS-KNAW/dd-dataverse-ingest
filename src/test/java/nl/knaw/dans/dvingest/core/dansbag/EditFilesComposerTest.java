@@ -36,7 +36,7 @@ public class EditFilesComposerTest extends EditFilesComposerFixture {
         Map<Path, FileInfo> map = new HashMap<>();
         add(map, file("file1.txt", "checksum1"));
         add(map, file("file2.txt", "checksum2"));
-        editFilesComposer = new EditFilesComposer(map, inThePast, null, null,  List.of());
+        editFilesComposer = new EditFilesComposer(map, inThePast, null, null, List.of());
 
         // When
         var editFiles = editFilesComposer.composeEditFiles();

@@ -15,15 +15,19 @@
  */
 package nl.knaw.dans.dvingest.core.dansbag.mapper.mapping;
 
-import nl.knaw.dans.dvingest.core.dansbag.mapper.builder.CompoundFieldGenerator;
+import org.w3c.dom.Node;
 
-import static nl.knaw.dans.dvingest.core.dansbag.mapper.DepositDatasetFieldNames.OTHER_ID_AGENCY;
-import static nl.knaw.dans.dvingest.core.dansbag.mapper.DepositDatasetFieldNames.OTHER_ID_VALUE;
+public class SubjectAat extends Base {
+    public static final String SCHEME_AAT = "Art and Architecture Thesaurus";
+    public static final String SCHEME_URI_AAT = "http://vocab.getty.edu/aat/";
 
-public class DepositPropertiesOtherDoi extends Base {
+    public static boolean isAatTerm(Node node) {
+        return node.getLocalName().equals("subject")
+            && hasAttributeValue(node, "subjectScheme", SCHEME_AAT)
+            && hasAttributeValue(node, "schemeURI", SCHEME_URI_AAT);
+    }
 
-    public static CompoundFieldGenerator<String> toOtherIdValue = (builder, value) -> {
-        builder.addSubfield(OTHER_ID_AGENCY, value.replaceAll(":.*", ""));
-        builder.addSubfield(OTHER_ID_VALUE, value.replaceAll("^[^:]*:", ""));
-    };
+    public static String toAatClassification(Node node) {
+        return getValueUri(node);
+    }
 }

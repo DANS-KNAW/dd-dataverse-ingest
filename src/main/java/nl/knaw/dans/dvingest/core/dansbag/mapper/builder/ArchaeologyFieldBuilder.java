@@ -19,6 +19,7 @@ import org.w3c.dom.Node;
 
 import java.util.stream.Stream;
 
+import static nl.knaw.dans.dvingest.core.dansbag.mapper.DepositDatasetFieldNames.AAT_CLASSIFICATION;
 import static nl.knaw.dans.dvingest.core.dansbag.mapper.DepositDatasetFieldNames.ABR_ARTIFACT;
 import static nl.knaw.dans.dvingest.core.dansbag.mapper.DepositDatasetFieldNames.ABR_COMPLEX;
 import static nl.knaw.dans.dvingest.core.dansbag.mapper.DepositDatasetFieldNames.ABR_PERIOD;
@@ -62,4 +63,7 @@ public class ArchaeologyFieldBuilder extends FieldBuilder {
         addMultiplePrimitiveString(ABR_PERIOD, nodes);
     }
 
+    public void addAatConcept(Stream<String> nodes) {
+        addMultiplePrimitiveString(AAT_CLASSIFICATION, nodes);
+    }
 }

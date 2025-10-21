@@ -60,7 +60,6 @@ public class DataverseIngestDepositTest extends TestDirFixture {
         assertThat(deposit.getId()).isEqualTo(uuid);
     }
 
-
     @Test
     public void deposits_should_be_ordered_by_creation_timestamp() throws Exception {
         // Given

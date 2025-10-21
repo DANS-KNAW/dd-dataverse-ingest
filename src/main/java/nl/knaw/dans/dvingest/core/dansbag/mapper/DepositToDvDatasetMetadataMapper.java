@@ -54,6 +54,7 @@ import nl.knaw.dans.dvingest.core.dansbag.mapper.mapping.SpatialBox;
 import nl.knaw.dans.dvingest.core.dansbag.mapper.mapping.SpatialCoverage;
 import nl.knaw.dans.dvingest.core.dansbag.mapper.mapping.SpatialPoint;
 import nl.knaw.dans.dvingest.core.dansbag.mapper.mapping.Subject;
+import nl.knaw.dans.dvingest.core.dansbag.mapper.mapping.SubjectAat;
 import nl.knaw.dans.dvingest.core.dansbag.mapper.mapping.SubjectAbr;
 import nl.knaw.dans.dvingest.core.dansbag.mapper.mapping.TemporalAbr;
 import nl.knaw.dans.dvingest.core.dansbag.xml.XPathEvaluator;
@@ -175,7 +176,6 @@ public class DepositToDvDatasetMetadataMapper {
             citationFields.addSubject(getAudiences(ddm), Audience::toCitationBlockSubject);  // CIT013
             citationFields.addKeywords(getSubjects(ddm).filter(Subject::hasNoCvAttributes), Subject.toKeywordValue); // CIT014
             citationFields.addKeywords(getDdmSubjects(ddm).filter(Subject::isPanTerm), Subject.toPanKeywordValue); // CIT015
-            citationFields.addKeywords(getDdmSubjects(ddm).filter(Subject::isAatTerm), Subject.toAatKeywordValue); // CIT015
             citationFields.addKeywords(getLanguages(ddm), Language.toKeywordValue); // CIT016
             citationFields.addKeywords(getDdmLanguages(ddm).filter(node -> Language.toCitationBlockLanguage(node, iso1ToDataverseLanguage, iso3ToDataverseLanguage) == null),
                 Language.toKeywordValue); // CIT016 : non-mapped languages are added as keywords
@@ -234,6 +234,8 @@ public class DepositToDvDatasetMetadataMapper {
             archaeologyFields.addArtifact(getDdmSubjects(ddm).filter(SubjectAbr::isOldAbr).map(node -> SubjectAbr.toAbrArtifact(node, abrArtifactCodeToTerm))); // AR007
             archaeologyFields.addArtifact(getDdmSubjects(ddm).filter(SubjectAbr::isAbrArtifact).map(node -> SubjectAbr.toAbrArtifact(node, abrArtifactCodeToTerm))); // AR007
             archaeologyFields.addPeriod(getDdmTemporal(ddm).filter(TemporalAbr::isAbrPeriod).map(node -> TemporalAbr.toAbrPeriod(node, abrPeriodCodeToTerm))); // AR008
+            archaeologyFields.addAatConcept(getDdmSubjects(ddm).filter(SubjectAat::isAatTerm).map(SubjectAat::toAatClassification)); // AR009
+
         }
 
         if (activeMetadataBlocks.contains("dansTemporalSpatial")) {

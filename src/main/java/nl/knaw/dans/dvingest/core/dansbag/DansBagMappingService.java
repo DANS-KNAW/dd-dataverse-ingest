@@ -74,8 +74,8 @@ public interface DansBagMappingService {
     /**
      * Maps file information in the DANS bag to edit actions for the files in the dataset. The edit actions are used to update the files in the dataset.
      *
-     * @param dansDeposit             the DANS deposit
-     * @param updatesDataset          the DOI of the dataset that needs to be updated, or null if the deposit is to create a new dataset
+     * @param dansDeposit    the DANS deposit
+     * @param updatesDataset the DOI of the dataset that needs to be updated, or null if the deposit is to create a new dataset
      * @return the edit actions for the files in the dataset
      */
     EditFiles getEditFilesFromDansDeposit(DansBagDeposit dansDeposit, String updatesDataset);
@@ -90,8 +90,8 @@ public interface DansBagMappingService {
     EditPermissions getEditPermissionsFromDansDeposit(DansBagDeposit dansDeposit, boolean isUpdate);
 
     /**
-     * Maps the DANS deposit to an update action for the dataset. This determines how to publish the dataset (as migrated or as new). It is also possible that
-     * the dataset is not published at all, in which case the update action is empty.
+     * Maps the DANS deposit to an update action for the dataset. This determines how to publish the dataset (as migrated or as new). It is also possible that the dataset is not published at all, in
+     * which case the update action is empty.
      *
      * @param dansDeposit the DANS deposit
      * @return the update action for the dataset

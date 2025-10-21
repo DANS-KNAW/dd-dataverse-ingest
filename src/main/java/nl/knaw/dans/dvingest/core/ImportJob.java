@@ -41,7 +41,6 @@ public class ImportJob implements Runnable {
     @Getter
     private final ImportJobStatusDto status;
 
-
     private boolean cancelled = false;
 
     public ImportJob(ImportCommandDto importCommand, String path, Path outputDir, boolean onlyConvertDansDeposit, DataverseIngestDepositFactory depositFactory, DepositTaskFactory depositTaskFactory) {
@@ -75,24 +74,24 @@ public class ImportJob implements Runnable {
     }
 
     private TreeSet<DataverseIngestDeposit> createDataverseIngestDeposits() throws IOException {
-            var deposits = new TreeSet<DataverseIngestDeposit>();
+        var deposits = new TreeSet<DataverseIngestDeposit>();
 
-            if (importCommand.getSingleObject()) {
-                log.debug("Creating single deposit job from path: {}", importCommand.getPath());
-                deposits.add(depositFactory.createDataverseIngestDeposit(Path.of(importCommand.getPath())));
+        if (importCommand.getSingleObject()) {
+            log.debug("Creating single deposit job from path: {}", importCommand.getPath());
+            deposits.add(depositFactory.createDataverseIngestDeposit(Path.of(importCommand.getPath())));
+        }
+        else {
+            log.debug("Creating batch deposit job from path: {}", importCommand.getPath());
+            try (var depositPaths = Files.list(Path.of(importCommand.getPath()))) {
+                depositPaths.filter(Files::isDirectory)
+                    .map(depositFactory::createDataverseIngestDeposit)
+                    .sorted()
+                    .forEach(deposits::add);
             }
-            else {
-                log.debug("Creating batch deposit job from path: {}", importCommand.getPath());
-                try (var depositPaths = Files.list(Path.of(importCommand.getPath()))) {
-                    depositPaths.filter(Files::isDirectory)
-                        .map(depositFactory::createDataverseIngestDeposit)
-                        .sorted()
-                        .forEach(deposits::add);
-                }
-                if (log.isDebugEnabled()) {
-                    log.debug("Deposits will be processed in this order: {}", deposits.stream().map(DataverseIngestDeposit::getId).toList());
-                }
+            if (log.isDebugEnabled()) {
+                log.debug("Deposits will be processed in this order: {}", deposits.stream().map(DataverseIngestDeposit::getId).toList());
             }
+        }
         return deposits;
     }
 

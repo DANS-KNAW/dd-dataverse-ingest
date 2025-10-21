@@ -55,7 +55,6 @@ public class Description extends Base {
         builder.addSubfield(SERIES_INFORMATION, text);
     };
 
-
     private static String newlineToHtml(String value) {
         var newline = "\r\n|\n|\r";
         var paragraph = "(\r\n){2,}|\n{2,}|\r{2,}";

@@ -89,7 +89,7 @@ public class UtilityServicesImpl implements UtilityServices {
         else {
             return Optional.empty();
         }
-   }
+    }
 
     private ZipParameters zipWithoutCompressing() {
         var params = new ZipParameters();
