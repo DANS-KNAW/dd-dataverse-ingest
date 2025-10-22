@@ -32,9 +32,6 @@ public class IngestConfig {
     private IngestAreaConfig autoIngest;
 
     @Valid
-    private IngestAreaConfig migration;
-
-    @Valid
     @JsonProperty("import")
     private IngestAreaConfig importConfig;
 

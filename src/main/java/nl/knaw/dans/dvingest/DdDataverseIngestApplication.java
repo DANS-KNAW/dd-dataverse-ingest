@@ -59,14 +59,6 @@ import java.util.regex.Pattern;
 
 @Slf4j
 public class DdDataverseIngestApplication extends Application<DdDataverseIngestConfiguration> {
-/*
-        - 'rapporten'
-        - 'verwervingswijzen'
-        - 'complextypen'
-        - 'artefacten'
-        - 'periodes'
- */
-
     public static final String SPATIAL_COVERAGE_COUNTRY_TERMS_FILENAME = "spatial-coverage-country-terms.txt";
     public static final String ISO_639_1_TO_DV_FILENAME = "iso639-1-to-dv.csv";
     public static final String ISO_639_2_TO_DV_FILENAME = "iso639-2-to-dv.csv";
@@ -116,13 +108,9 @@ public class DdDataverseIngestApplication extends Application<DdDataverseIngestC
          *  Import area
          */
         DansDepositConversionConfig dansDepositConversionConfig = configuration.getDansDepositConversion();
-        var importArea = getIngestArea(configuration.getIngest(), configuration.getIngest().getImportConfig(), dansDepositConversionConfig, configuration.getDataverse(), environment, "import",
+        var importArea = getImportArea(configuration.getIngest(), configuration.getIngest().getImportConfig(), dansDepositConversionConfig, configuration.getDataverse(), environment,
             yamlService, utilityServices, dataverseIngestDepositFactory, dependenciesReadyCheck);
-        /*
-         * Migration area
-         */
-        var migrationArea = getIngestArea(configuration.getIngest(), configuration.getIngest().getMigration(), dansDepositConversionConfig, configuration.getDataverse(), environment, "migration",
-            yamlService, utilityServices, dataverseIngestDepositFactory, dependenciesReadyCheck);
+
         /*
          * Auto ingest area
          */
@@ -133,7 +121,7 @@ public class DdDataverseIngestApplication extends Application<DdDataverseIngestC
          * Register components with Dropwizard
          */
         environment.jersey().register(new DefaultApiResource());
-        environment.jersey().register(new IngestApiResource(importArea, migrationArea));
+        environment.jersey().register(new IngestApiResource(importArea));
         environment.lifecycle().manage(autoIngestArea);
         environment.jersey().register(new IllegalArgumentExceptionMapper());
 
@@ -157,8 +145,8 @@ public class DdDataverseIngestApplication extends Application<DdDataverseIngestC
         DansDepositSupportFactory dansDepositSupportFactory = new DansDepositSupportDisabledFactory();
         var dataverseService = getDataverseServiceForIngestArea(ingestConfig, dataverseClientFactory, environment, "dataverse/auto-ingest", ingestAreaConfig.getApiKey());
         if (dansDepositConversionConfig != null) {
-            var dansBagMappingService = createDansBagMappingService(false, dansDepositConversionConfig, dansDepositConversionConfig.getDepositorAuthorization().getAutoIngest(), dataverseService);
-            var validateDansBagService = new ValidateDansBagServiceImpl(dansDepositConversionConfig.getValidateDansBag(), false, environment);
+            var dansBagMappingService = createDansBagMappingService(dansDepositConversionConfig, dansDepositConversionConfig.getDepositorAuthorization().getAutoIngest(), dataverseService);
+            var validateDansBagService = new ValidateDansBagServiceImpl(dansDepositConversionConfig.getValidateDansBag(), environment);
             dansDepositSupportFactory = new DansDepositSupportFactoryImpl(validateDansBagService, dansBagMappingService, dataverseService, yamlService, ingestAreaConfig.getRequireDansBag());
         }
 
@@ -174,16 +162,15 @@ public class DdDataverseIngestApplication extends Application<DdDataverseIngestC
         return new AutoIngestArea(inbox, ingestAreaConfig.getOutbox());
     }
 
-    private IngestArea getIngestArea(IngestConfig ingestConfig, IngestAreaConfig ingestAreaConfig, DansDepositConversionConfig dansDepositConversionConfig,
-        DataverseClientFactory dataverseClientFactory, Environment environment, String name,
+    private IngestArea getImportArea(IngestConfig ingestConfig, IngestAreaConfig ingestAreaConfig, DansDepositConversionConfig dansDepositConversionConfig,
+        DataverseClientFactory dataverseClientFactory, Environment environment,
         YamlService yamlService, UtilityServices utilityServices, DataverseIngestDepositFactory dataverseIngestDepositFactory,
         DependenciesReadyCheck dependenciesReadyCheck) {
-        boolean isMigration = name.equals("migration");
         DansDepositSupportFactory dansDepositSupportFactory = new DansDepositSupportDisabledFactory();
-        var dataverseService = getDataverseServiceForIngestArea(ingestConfig, dataverseClientFactory, environment, "dataverse/" + name, ingestAreaConfig.getApiKey());
+        var dataverseService = getDataverseServiceForIngestArea(ingestConfig, dataverseClientFactory, environment, "dataverse/import", ingestAreaConfig.getApiKey());
         if (dansDepositConversionConfig != null) {
-            var dansBagMappingService = createDansBagMappingService(isMigration, dansDepositConversionConfig, dansDepositConversionConfig.getDepositorAuthorization().getMigration(), dataverseService);
-            var validateDansBag = new ValidateDansBagServiceImpl(dansDepositConversionConfig.getValidateDansBag(), isMigration, environment);
+            var dansBagMappingService = createDansBagMappingService(dansDepositConversionConfig, dansDepositConversionConfig.getDepositorAuthorization().getImportConfig(), dataverseService);
+            var validateDansBag = new ValidateDansBagServiceImpl(dansDepositConversionConfig.getValidateDansBag(), environment);
             dansDepositSupportFactory = new DansDepositSupportFactoryImpl(validateDansBag, dansBagMappingService, dataverseService, yamlService,
                 ingestAreaConfig.getRequireDansBag());
         }
@@ -191,13 +178,13 @@ public class DdDataverseIngestApplication extends Application<DdDataverseIngestC
         var depositTaskFactory = new DepositTaskFactoryImpl(bagProcessorFactory, dansDepositSupportFactory, dependenciesReadyCheck, ingestAreaConfig.getDelayBetweenDeposits().toMilliseconds());
         var jobFactory = new ImportJobFactoryImpl(dataverseIngestDepositFactory, depositTaskFactory);
         return new IngestArea(jobFactory, ingestAreaConfig.getInbox(), ingestAreaConfig.getOutbox(),
-            environment.lifecycle().executorService(name).minThreads(1).maxThreads(1).build());
+            environment.lifecycle().executorService("import").minThreads(1).maxThreads(1).build());
     }
 
-    private DansBagMappingService createDansBagMappingService(boolean isMigration, DansDepositConversionConfig dansDepositConversionConfig, DepositorAuthorizationConfig depositorAuthorizationConfig,
+    private DansBagMappingService createDansBagMappingService(DansDepositConversionConfig dansDepositConversionConfig, DepositorAuthorizationConfig depositorAuthorizationConfig,
         DataverseService dataverseService) {
         log.info("Configuring DANS Deposit conversion");
-        var mapper = createMapper(isMigration, dansDepositConversionConfig, dataverseService);
+        var mapper = createMapper(dansDepositConversionConfig, dataverseService);
         return new DansBagMappingServiceImpl(
             mapper,
             dataverseService,
@@ -208,16 +195,14 @@ public class DdDataverseIngestApplication extends Application<DdDataverseIngestC
                 Pattern.compile(dansDepositConversionConfig.getFilesForSeparateUploadPattern()),
             dansDepositConversionConfig.getEmbargoExclusions(),
             dansDepositConversionConfig.getAssignDepositorRole().getAutoIngest(),
-            dansDepositConversionConfig.getAssignDepositorRole().getMigration(),
             depositorAuthorizationConfig.getPublishDataset(),
             depositorAuthorizationConfig.getEditDataset());
     }
 
-    private DepositToDvDatasetMetadataMapper createMapper(boolean isMigration, DansDepositConversionConfig dansDepositConversionConfig, DataverseService dataverseService) {
+    private DepositToDvDatasetMetadataMapper createMapper(DansDepositConversionConfig dansDepositConversionConfig, DataverseService dataverseService) {
         var mappingDefsDir = dansDepositConversionConfig.getMappingDefsDir();
         try {
             return new DepositToDvDatasetMetadataMapper(
-                isMigration,
                 dansDepositConversionConfig.isDeduplicate(),
                 new ActiveMetadataBlocks(dataverseService),
                 MappingLoader.builder().csvFile(mappingDefsDir.resolve(ISO_639_1_TO_DV_FILENAME)).keyColumn(ISO_639_1_TO_DV_KEY_COLUMN).valueColumn(DATAVERSE_LANGUAGE_COLUMN).build().load(),

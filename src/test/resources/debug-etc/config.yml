@@ -44,11 +44,6 @@ ingest:
   autoIngest:
     inbox: data/auto-ingest/inbox
     outbox: data/auto-ingest/outbox
-  # Import of migration deposits. This area is used to migrate datasets from EASY to Dataverse and differs from import only in the way the DANS deposits are converted
-  # to Dataverse Ingest deposits.
-  migration:
-    inbox: data/migration/deposits
-    outbox: data/migration/out
   # Import of deposits. This area is used for manual bulk imports of deposits.
   import:
     inbox: data/import/inbox
@@ -120,7 +115,7 @@ dansDepositConversion:
   #
   assignDepositorRole:
     autoIngest: swordupdater
-    migration: contributorplus
+    import: contributorplus
 
   #
   # Roles the depositor must have to be able to edit and publish the dataset, per use-case.
@@ -129,7 +124,7 @@ dansDepositConversion:
     autoIngest:
       editDataset: swordupdater
       publishDataset: swordpublisher
-    migration:
+    import:
       editDataset: contributorplus
       publishDataset: dsContributor
 

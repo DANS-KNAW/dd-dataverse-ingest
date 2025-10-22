@@ -24,36 +24,20 @@ import javax.ws.rs.core.Response;
 @AllArgsConstructor
 public class IngestApiResource implements IngestApi {
     private final IngestArea ingestArea;
-    private final IngestArea migrationArea;
 
     @Override
-    public Response ingestCancelPost(String path, Boolean migration) {
-        if (migration) {
-            return Response.accepted(migrationArea.cancel(path)).build();
-        }
-        else {
-            return Response.accepted(ingestArea.cancel(path)).build();
-        }
+    public Response ingestCancelPost(String path) {
+        return Response.accepted(ingestArea.cancel(path)).build();
     }
 
     @Override
-    public Response ingestGet(String path, Boolean migration) {
-        if (migration) {
-            return Response.ok(migrationArea.getStatus(path)).build();
-        }
-        else {
-            return Response.ok(ingestArea.getStatus(path)).build();
-        }
+    public Response ingestGet(String path) {
+        return Response.ok(ingestArea.getStatus(path)).build();
     }
 
     @Override
     public Response ingestPost(ImportCommandDto importCommandDto) {
-        if (importCommandDto.getMigration()) {
-            return Response.ok(migrationArea.submit(importCommandDto)).build();
-        }
-        else {
-            return Response.ok(ingestArea.submit(importCommandDto)).build();
-        }
+        return Response.ok(ingestArea.submit(importCommandDto)).build();
     }
 
 }

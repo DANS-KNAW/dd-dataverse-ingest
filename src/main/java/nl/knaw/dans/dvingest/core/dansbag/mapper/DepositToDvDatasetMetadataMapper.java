@@ -87,9 +87,6 @@ import static nl.knaw.dans.dvingest.core.dansbag.xml.XPathConstants.DDM_PROFILE;
 @Slf4j
 @RequiredArgsConstructor
 public class DepositToDvDatasetMetadataMapper {
-    @Getter
-    private final boolean isMigration;
-
     private final boolean deduplicate;
     @NonNull
     private final ActiveMetadataBlocks activeMetadataBlocks;
@@ -143,11 +140,6 @@ public class DepositToDvDatasetMetadataMapper {
             var otherTitlesAndAlternativeTitles = getOtherTitles(ddm).toList();
             citationFields.addTitle(getTitles(ddm)); // CIT001
             citationFields.addAlternativeTitle(otherTitlesAndAlternativeTitles.stream().map(Node::getTextContent)); // CIT002
-
-            if (isMigration) {
-                citationFields.addOtherIds(getIdentifiers(ddm).filter(Identifier::hasXsiTypeEasy2), Identifier.toOtherIdValue); // CIT002B
-                citationFields.addOtherIdsStrings(Stream.ofNullable(otherDoiId), DepositPropertiesOtherDoi.toOtherIdValue); // PAN second version DOIs (migration)
-            }
             citationFields.addOtherIds(getIdentifiers(ddm).filter(Identifier::hasNoXsiType), Identifier.toOtherIdValue); // CIT004
             citationFields.addOtherIdsStrings(Stream.ofNullable(hasOrganizationalIdentifier).filter(HasOrganizationalIdentifier::isValidOtherIdValue),
                 HasOrganizationalIdentifier.toOtherIdValue); // CIT003
@@ -168,10 +160,6 @@ public class DepositToDvDatasetMetadataMapper {
                 // TRM005
                 termsOfAccess = getDctAccessRights(ddm).map(Node::getTextContent).findFirst().orElse("");
             }
-            else if (isMigration) {
-                // CIT012A
-                citationFields.addDescription(getDctAccessRights(ddm), Description.toDescription);
-            }
 
             citationFields.addSubject(getAudiences(ddm), Audience::toCitationBlockSubject);  // CIT013
             citationFields.addKeywords(getSubjects(ddm).filter(Subject::hasNoCvAttributes), Subject.toKeywordValue); // CIT014
@@ -187,11 +175,6 @@ public class DepositToDvDatasetMetadataMapper {
             citationFields.addGrantNumbers(getFunders(ddm), Funder.toGrantNumberValueObject); // CIT022
             citationFields.addDistributor(getPublishers(ddm).filter(Publisher::isNotDans), Publisher.toDistributorValueObject); // CIT024
             citationFields.addDistributionDate(getAvailable(ddm).map(Base::toYearMonthDayFormat)); // CIT025
-            if (isMigration) {
-                citationFields.addNotesText(getProvenance(ddm)); // CIT017A
-                citationFields.addContributors(getDcmiDdmDescriptions(ddm).filter(Description::hasDescriptionTypeOther), Contributor.toContributorValueObject); // CIT021A
-                citationFields.addContributors(getDcmiContributors(ddm), Contributor.toContributorValueObject); // CIT021B
-            }
             if (dateOfDeposit != null) {
                 citationFields.addDateOfDeposit(dateOfDeposit); // CIT025A and CIT025B (first dataset versions)
             }
@@ -205,10 +188,6 @@ public class DepositToDvDatasetMetadataMapper {
         }
 
         if (activeMetadataBlocks.contains("dansRights")) {
-            if (isMigration) {
-                rightsFields.addRightsHolders(getContributorDetailsAuthors(ddm).filter(DcxDaiAuthor::isRightsHolder).map(DcxDaiAuthor::toRightsHolder)); // RIG000A
-                rightsFields.addRightsHolders(getContributorDetailsOrganizations(ddm).filter(DcxDaiOrganization::isRightsHolder).map(DcxDaiOrganization::toRightsHolder)); // RIG000B
-            }
             rightsFields.addRightsHolders(getRightsHolders(ddm)); // RIG001
             rightsFields.addPersonalDataPresent(getPersonalData(ddm).map(PersonalData::toPersonalDataPresent)); // RIG002
             rightsFields.addLanguageOfMetadata(getLanguageAttributes(ddm)
@@ -254,10 +233,6 @@ public class DepositToDvDatasetMetadataMapper {
         }
 
         dataVaultFieldBuilder.addBagId(vaultMetadata.getBagId()); // VLT003
-
-        if (isMigration) {
-            dataVaultFieldBuilder.addNbn(vaultMetadata.getNbn()); // VLT004A
-        }
         dataVaultFieldBuilder.addDansOtherId(hasOrganizationalIdentifier); // VLT005
         dataVaultFieldBuilder.addDansOtherIdVersion(hasOrganizationalIdentifierVersion); // VLT006
         dataVaultFieldBuilder.addSwordToken(vaultMetadata.getSwordToken()); // VLT007

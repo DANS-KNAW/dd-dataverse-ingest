@@ -80,7 +80,6 @@ public class DansBagMappingServiceBuilder {
     public DansBagMappingService build() throws Exception {
         var defaultConfigDir = Paths.get("src/main/assembly/dist/cfg");
         var mapper = new DepositToDvDatasetMetadataMapper(
-            isMigration,
             deduplicate,
             new ActiveMetadataBlocks(Set.of("citation", "dansRights", "dansRelationMetadata", "dansArchaeologyMetadata", "dansTemporalSpatial", "dansDataVaultMetadata")),
             MappingLoader.builder().csvFile(defaultConfigDir.resolve(ISO_639_1_TO_DV_FILENAME)).keyColumn(ISO_639_1_TO_DV_KEY_COLUMN).valueColumn(DATAVERSE_LANGUAGE_COLUMN).build().load(),
@@ -96,6 +95,6 @@ public class DansBagMappingServiceBuilder {
             skipFields);
         var supportedLicenses = new SupportedLicenses(dataverseService);
         return new DansBagMappingServiceImpl(mapper, dataverseService, supportedLicenses, fileExclusionPattern, filesForSeparateUploadPattern, embargoExclusions, depositorRoleAutoIngest,
-            depositorRoleMigration, expectedDataverseRole, expectedDatasetRole);
+            expectedDataverseRole, expectedDatasetRole);
     }
 }
