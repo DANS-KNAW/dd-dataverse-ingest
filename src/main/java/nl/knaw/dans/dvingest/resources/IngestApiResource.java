@@ -56,5 +56,4 @@ public class IngestApiResource implements IngestApi {
         }
     }
 
-
 }

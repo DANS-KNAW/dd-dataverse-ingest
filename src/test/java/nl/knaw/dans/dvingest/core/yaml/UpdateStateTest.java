@@ -115,5 +115,4 @@ public class UpdateStateTest {
             .hasMessage("Exactly one of publish or releaseMigrated must be set");
     }
 
-
 }

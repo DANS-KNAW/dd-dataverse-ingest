@@ -34,7 +34,21 @@ import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
 
-import static nl.knaw.dans.dvingest.DdDataverseIngestApplication.*;
+import static nl.knaw.dans.dvingest.DdDataverseIngestApplication.ABR_ARTIFACT_CODE_TO_TERM_FILENAME;
+import static nl.knaw.dans.dvingest.DdDataverseIngestApplication.ABR_COMPLEXTYPE_CODE_TO_TERM_FILENAME;
+import static nl.knaw.dans.dvingest.DdDataverseIngestApplication.ABR_PERIOD_CODE_TO_TERM_FILENAME;
+import static nl.knaw.dans.dvingest.DdDataverseIngestApplication.ABR_REPORT_CODE_TO_TERM_FILENAME;
+import static nl.knaw.dans.dvingest.DdDataverseIngestApplication.ABR_VERWERVINGSWIJZEN_CODE_TO_TERM_FILENAME;
+import static nl.knaw.dans.dvingest.DdDataverseIngestApplication.CODE_COLUMN;
+import static nl.knaw.dans.dvingest.DdDataverseIngestApplication.DATAVERSE_LANGUAGE_COLUMN;
+import static nl.knaw.dans.dvingest.DdDataverseIngestApplication.ISO_639_1_TO_DV_FILENAME;
+import static nl.knaw.dans.dvingest.DdDataverseIngestApplication.ISO_639_1_TO_DV_KEY_COLUMN;
+import static nl.knaw.dans.dvingest.DdDataverseIngestApplication.ISO_639_2_TO_DV_FILENAME;
+import static nl.knaw.dans.dvingest.DdDataverseIngestApplication.ISO_639_2_TO_DV_KEY_COLUMN;
+import static nl.knaw.dans.dvingest.DdDataverseIngestApplication.ISO_639_3_TO_DV_FILENAME;
+import static nl.knaw.dans.dvingest.DdDataverseIngestApplication.ISO_639_3_TO_DV_KEY_COLUMN;
+import static nl.knaw.dans.dvingest.DdDataverseIngestApplication.SPATIAL_COVERAGE_COUNTRY_TERMS_FILENAME;
+import static nl.knaw.dans.dvingest.DdDataverseIngestApplication.TERM_COLUMN;
 
 /**
  * Helper for creating a {@link DansBagMappingService} instance to test, with sensible defaults for most fields. Currently, not all fields can be set. For example, the language mapping files are

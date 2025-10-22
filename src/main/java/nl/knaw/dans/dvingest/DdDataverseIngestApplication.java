@@ -121,7 +121,7 @@ public class DdDataverseIngestApplication extends Application<DdDataverseIngestC
         /*
          * Migration area
          */
-        var migrationArea = getIngestArea(configuration.getIngest(), configuration.getIngest().getMigration(), dansDepositConversionConfig, configuration.getDataverse(), environment,"migration",
+        var migrationArea = getIngestArea(configuration.getIngest(), configuration.getIngest().getMigration(), dansDepositConversionConfig, configuration.getDataverse(), environment, "migration",
             yamlService, utilityServices, dataverseIngestDepositFactory, dependenciesReadyCheck);
         /*
          * Auto ingest area

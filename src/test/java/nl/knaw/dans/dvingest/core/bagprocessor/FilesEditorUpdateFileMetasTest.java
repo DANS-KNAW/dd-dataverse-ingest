@@ -119,15 +119,15 @@ public class FilesEditorUpdateFileMetasTest extends FilesEditorTestFixture {
     public void updateFileMetas_is_skipped_when_already_completed() throws Exception {
         // Given
         var editFilesRoot = yamlService.readYamlFromString("""
-            editFiles:
-                updateFileMetas:
-                  - label: file1
-                    description: "new description"
-                    categories: ["cat1", "cat2"]
-                  - label: file3
-                    description: "another description"
-                    categories: ["cat3"]
-        """, EditFilesRoot.class);
+                editFiles:
+                    updateFileMetas:
+                      - label: file1
+                        description: "new description"
+                        categories: ["cat1", "cat2"]
+                      - label: file3
+                        description: "another description"
+                        categories: ["cat3"]
+            """, EditFilesRoot.class);
         var editFilesLog = new EditFilesLog();
         editFilesLog.getUpdateFileMetas().setCompleted(true);
         var filesEditor = new FilesEditor(UUID.randomUUID(), dataDir, editFilesRoot.getEditFiles(), dataverseServiceMock, utilityServicesMock, editFilesLog);

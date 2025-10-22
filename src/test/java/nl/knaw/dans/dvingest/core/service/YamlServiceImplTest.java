@@ -33,7 +33,7 @@ public class YamlServiceImplTest {
         var yamlServiceConfig = new YamlServiceConfig();
         yamlServiceConfig.getLoaderOptions().setCodePointLimit(20);
 
-        var customYamlService =  new YamlServiceImpl(yamlServiceConfig);
+        var customYamlService = new YamlServiceImpl(yamlServiceConfig);
         assertThatThrownBy(() ->
             customYamlService.readYaml(yamlFile, Dataset.class)
         ).isInstanceOf(ConfigurationParsingException.class)

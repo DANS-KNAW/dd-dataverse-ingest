@@ -113,7 +113,6 @@ public class DansBagDepositReaderImpl implements DansBagDepositReader {
         }
     }
 
-
     private Configuration readDepositProperties(Path depositDir) throws ConfigurationException {
         var propertiesFile = depositDir.resolve(DEPOSIT_PROPERTIES_FILENAME);
         var params = new Parameters();

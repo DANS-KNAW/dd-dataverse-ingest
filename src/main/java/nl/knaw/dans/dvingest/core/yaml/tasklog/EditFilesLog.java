@@ -31,7 +31,6 @@ public class EditFilesLog {
     private CompletableItem updateFileMetas = new CompletableItem();
     private CompletableItemWithCount addEmbargoes = new CompletableItemWithCount();
 
-
     public void completeAll() {
         deleteFiles.setCompleted(true);
         replaceFiles.setCompleted(true);
