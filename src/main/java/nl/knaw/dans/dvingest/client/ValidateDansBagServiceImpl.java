@@ -31,10 +31,8 @@ import java.nio.file.Path;
 @Slf4j
 public class ValidateDansBagServiceImpl implements ValidateDansBagService {
     private final DefaultApi api;
-    private final boolean isMigration;
 
-    public ValidateDansBagServiceImpl(ValidateDansBagConfig config, boolean isMigration, Environment environment) {
-        this.isMigration = isMigration;
+    public ValidateDansBagServiceImpl(ValidateDansBagConfig config, Environment environment) {
         api = new ClientProxyBuilder<ApiClient, DefaultApi>()
             .apiClient(new ApiClient())
             .defaultApiCtor(DefaultApi::new)
@@ -55,7 +53,7 @@ public class ValidateDansBagServiceImpl implements ValidateDansBagService {
     public ValidateOkDto validate(Path bag) {
         var validateCommand = new ValidateCommandDto()
             .bagLocation(bag.toString())
-            .packageType(isMigration ? PackageTypeEnum.MIGRATION : PackageTypeEnum.DEPOSIT);
+            .packageType(PackageTypeEnum.DEPOSIT);
 
         try {
             return api.validateLocalDirPost(validateCommand);

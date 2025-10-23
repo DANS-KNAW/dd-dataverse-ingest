@@ -57,7 +57,6 @@ import static nl.knaw.dans.dvingest.DdDataverseIngestApplication.TERM_COLUMN;
 @Data
 @Accessors(fluent = true, chain = true)
 public class DansBagMappingServiceBuilder {
-    private boolean isMigration = false;
     private boolean deduplicate = true;
     private Map<String, String> dataSuppliers = new HashMap<>();
     private List<String> skipFields = List.of();
@@ -66,7 +65,6 @@ public class DansBagMappingServiceBuilder {
     private Pattern filesForSeparateUploadPattern = Pattern.compile("a^");
     private List<String> embargoExclusions = List.of();
     private String depositorRoleAutoIngest = "swordupdater";
-    private String depositorRoleMigration = "contributorplus";
     private String expectedDataverseRole;
     private String expectedDatasetRole;
 
@@ -80,7 +78,6 @@ public class DansBagMappingServiceBuilder {
     public DansBagMappingService build() throws Exception {
         var defaultConfigDir = Paths.get("src/main/assembly/dist/cfg");
         var mapper = new DepositToDvDatasetMetadataMapper(
-            isMigration,
             deduplicate,
             new ActiveMetadataBlocks(Set.of("citation", "dansRights", "dansRelationMetadata", "dansArchaeologyMetadata", "dansTemporalSpatial", "dansDataVaultMetadata")),
             MappingLoader.builder().csvFile(defaultConfigDir.resolve(ISO_639_1_TO_DV_FILENAME)).keyColumn(ISO_639_1_TO_DV_KEY_COLUMN).valueColumn(DATAVERSE_LANGUAGE_COLUMN).build().load(),
@@ -96,6 +93,6 @@ public class DansBagMappingServiceBuilder {
             skipFields);
         var supportedLicenses = new SupportedLicenses(dataverseService);
         return new DansBagMappingServiceImpl(mapper, dataverseService, supportedLicenses, fileExclusionPattern, filesForSeparateUploadPattern, embargoExclusions, depositorRoleAutoIngest,
-            depositorRoleMigration, expectedDataverseRole, expectedDatasetRole);
+            expectedDataverseRole, expectedDatasetRole);
     }
 }

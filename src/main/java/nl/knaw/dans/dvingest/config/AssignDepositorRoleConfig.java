@@ -15,10 +15,12 @@
  */
 package nl.knaw.dans.dvingest.config;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 
 @Data
 public class AssignDepositorRoleConfig {
     private String autoIngest;
-    private String migration;
+    @JsonProperty("import")
+    private String importConfig;
 }
