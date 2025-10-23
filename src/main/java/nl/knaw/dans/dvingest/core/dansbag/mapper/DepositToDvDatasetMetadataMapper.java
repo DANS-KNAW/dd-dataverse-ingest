@@ -119,7 +119,6 @@ public class DepositToDvDatasetMetadataMapper {
 
     public Dataset toDataverseDataset(
         @NonNull Document ddm,
-        @Nullable String otherDoiId,
         @Nullable String dateOfDeposit,
         @Nullable AuthenticatedUser contactData,
         @NonNull VaultMetadata vaultMetadata,
@@ -215,7 +214,6 @@ public class DepositToDvDatasetMetadataMapper {
             archaeologyFields.addArtifact(getDdmSubjects(ddm).filter(SubjectAbr::isAbrArtifact).map(node -> SubjectAbr.toAbrArtifact(node, abrArtifactCodeToTerm))); // AR007
             archaeologyFields.addPeriod(getDdmTemporal(ddm).filter(TemporalAbr::isAbrPeriod).map(node -> TemporalAbr.toAbrPeriod(node, abrPeriodCodeToTerm))); // AR008
             archaeologyFields.addAatConcept(getDdmSubjects(ddm).filter(SubjectAat::isAatTerm).map(SubjectAat::toAatClassification)); // AR009
-
         }
 
         if (activeMetadataBlocks.contains("dansTemporalSpatial")) {

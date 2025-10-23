@@ -96,7 +96,7 @@ public class FileElement extends Base {
 
     private static String getDescription(Map<String, List<String>> kv) {
         if (!kv.isEmpty()) {
-            if (kv.keySet().size() == 1 && kv.containsKey("description")) {
+            if (kv.size() == 1 && kv.containsKey("description")) {
                 // FIL004
                 return kv.get("description").stream().findFirst().orElse(null);
             }
@@ -117,24 +117,6 @@ public class FileElement extends Base {
     }
 
     private static Map<String, List<String>> getKeyValuePairs(Node node, String filename, String originalFilePath) {
-        var fixedKeys = List.of(
-            "hardware",
-            "original_OS",
-            "software",
-            "notes",
-            "case_quantity",
-            "file_category",
-            "description",
-            "othmat_codebook",
-            "data_collector",
-            "collection_date",
-            "time_period",
-            "geog_cover",
-            "geog_unit",
-            "local_georef",
-            "mapprojection",
-            "analytic_units");
-
         var result = new HashMap<String, List<String>>() {
 
             void addValue(String key, String value) {
@@ -149,7 +131,7 @@ public class FileElement extends Base {
             result.addValue("original_filepath", originalFilePath);
         }
 
-        // FIL004 in case of migration part of FIL002B
+        // FIL004(A)
         getChildNodes(node, "dcterms:description")
             .map(Node::getTextContent)
             .filter(n -> !StringUtils.equalsIgnoreCase(filename, n))

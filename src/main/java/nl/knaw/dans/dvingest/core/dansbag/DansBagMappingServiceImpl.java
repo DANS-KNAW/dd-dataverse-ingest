@@ -169,7 +169,6 @@ public class DansBagMappingServiceImpl implements DansBagMappingService {
         // TODO: rename to DatasetComposer en push the terms stuff into it as well.
         var dataset = depositToDvDatasetMetadataMapper.toDataverseDataset(
             dansDeposit.getDdm(),
-            dansDeposit.getOtherDoiId(),
             getDateOfDeposit(dansDeposit).orElse(null),
             getDatasetContact(dansDeposit).orElse(null), // But null is never actually used, because an exception is thrown if contact is not found
             dansDeposit.getVaultMetadata(),
@@ -225,7 +224,7 @@ public class DansBagMappingServiceImpl implements DansBagMappingService {
         dfChecksum.setValue(checksum);
         dataFile.setChecksum(dfChecksum);
         fileMeta.setDataFile(dataFile);
-        fileMeta.setRestrict(false);
+        fileMeta.setRestrict(false); // FIL007
         return new FileInfo(zipFile, checksum, false, fileMeta);
     }
 
