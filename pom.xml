@@ -35,9 +35,9 @@
 
     <properties>
         <main-class>nl.knaw.dans.dvingest.DdDataverseIngestApplication</main-class>
-        <dd-dataverse-ingest-api.version>0.3.1-SNAPSHOT</dd-dataverse-ingest-api.version>
+        <dd-dataverse-ingest-api.version>0.4.0</dd-dataverse-ingest-api.version>
         <dd-validate-dans-bag-api.version>1.0.0</dd-validate-dans-bag-api.version>
-        <dd-dans-sword2-examples.version>1.0.4</dd-dans-sword2-examples.version>
+        <dd-dans-sword2-examples.version>1.1.0</dd-dans-sword2-examples.version>
     </properties>
 
     <scm>
