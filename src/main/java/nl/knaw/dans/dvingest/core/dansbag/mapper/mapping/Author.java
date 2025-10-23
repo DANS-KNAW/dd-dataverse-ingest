@@ -27,13 +27,13 @@ public class Author extends Base {
 
         var localName = node.getLocalName();
 
-        if (localName.equals("creatorDetails") && author.isPresent()) {
+        if (localName.equals("creatorDetails") && author.isPresent()) { // CIT006
             DcxDaiAuthor.toAuthorValueObject.build(builder, author.get());
         }
-        else if (localName.equals("creatorDetails") && organization.isPresent()) {
+        else if (localName.equals("creatorDetails") && organization.isPresent()) { // CIT007
             DcxDaiOrganization.toAuthorValueObject.build(builder, organization.get());
         }
-        else if (localName.equals("creator")) {
+        else if (localName.equals("creator")) { // CIT005
             Creator.toAuthorValueObject.build(builder, node);
         }
     };

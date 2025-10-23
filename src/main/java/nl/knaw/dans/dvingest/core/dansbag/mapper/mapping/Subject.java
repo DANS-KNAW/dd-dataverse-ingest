@@ -47,17 +47,17 @@ public class Subject extends Base {
     }
 
     public static boolean hasNoCvAttributes(Node node) {
-        var ss = getAttribute(node, "subjectScheme")
+        var noSubjectScheme = getAttribute(node, "subjectScheme")
             .map(Node::getTextContent)
             .orElse("")
             .isEmpty();
 
-        var su = getAttribute(node, "schemeURI")
+        var noSchemeUri = getAttribute(node, "schemeURI")
             .map(Node::getTextContent)
             .orElse("")
             .isEmpty();
 
-        return ss && su;
+        return noSubjectScheme && noSchemeUri;
     }
 
     public static boolean isPanTerm(Node node) {

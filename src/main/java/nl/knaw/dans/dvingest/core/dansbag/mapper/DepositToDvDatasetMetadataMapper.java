@@ -140,9 +140,10 @@ public class DepositToDvDatasetMetadataMapper {
             var otherTitlesAndAlternativeTitles = getOtherTitles(ddm).toList();
             citationFields.addTitle(getTitles(ddm)); // CIT001
             citationFields.addAlternativeTitle(otherTitlesAndAlternativeTitles.stream().map(Node::getTextContent)); // CIT002
-            citationFields.addOtherIds(getIdentifiers(ddm).filter(Identifier::hasNoXsiType), Identifier.toOtherIdValue); // CIT004
             citationFields.addOtherIdsStrings(Stream.ofNullable(hasOrganizationalIdentifier).filter(HasOrganizationalIdentifier::isValidOtherIdValue),
                 HasOrganizationalIdentifier.toOtherIdValue); // CIT003
+
+            citationFields.addOtherIds(getIdentifiers(ddm).filter(Identifier::hasNoXsiType), Identifier.toOtherIdValue); // CIT004
             citationFields.addAuthors(getCreators(ddm), Author.toAuthorValueObject); // CIT005, CIT006, CIT007
             citationFields.addDatasetContact(Stream.ofNullable(contactData), Contact.toContactValue); // CIT008
             citationFields.addDescription(getProfileDescriptions(ddm), Description.toDescription); // CIT009
@@ -166,17 +167,17 @@ public class DepositToDvDatasetMetadataMapper {
             citationFields.addKeywords(getDdmSubjects(ddm).filter(Subject::isPanTerm), Subject.toPanKeywordValue); // CIT015
             citationFields.addKeywords(getLanguages(ddm), Language.toKeywordValue); // CIT016
             citationFields.addKeywords(getDdmLanguages(ddm).filter(node -> Language.toCitationBlockLanguage(node, iso1ToDataverseLanguage, iso3ToDataverseLanguage) == null),
-                Language.toKeywordValue); // CIT016 : non-mapped languages are added as keywords
+                Language.toKeywordValue); // CIT016A : non-mapped languages are added as keywords
             citationFields.addPublications(getIdentifiers(ddm).filter(Identifier::isRelatedPublication), Identifier.toRelatedPublicationValue); // CIT017
             citationFields.addLanguages(getDdmLanguages(ddm), node -> Language.toCitationBlockLanguage(node, iso1ToDataverseLanguage, iso3ToDataverseLanguage)); // CIT018
             citationFields.addProductionDate(getCreated(ddm).map(Base::toYearMonthDayFormat)); // CIT019
-            citationFields.addGrantNumbers(getIdentifiers(ddm).filter(Identifier::isNwoGrantNumber), Identifier.toNwoGrantNumber); // CIT023
             citationFields.addContributors(getContributorDetails(ddm).filter(Contributor::isValidContributor), Contributor.toContributorValueObject); // CIT020, CIT021
             citationFields.addGrantNumbers(getFunders(ddm), Funder.toGrantNumberValueObject); // CIT022
+            citationFields.addGrantNumbers(getIdentifiers(ddm).filter(Identifier::isNwoGrantNumber), Identifier.toNwoGrantNumber); // CIT023
             citationFields.addDistributor(getPublishers(ddm).filter(Publisher::isNotDans), Publisher.toDistributorValueObject); // CIT024
             citationFields.addDistributionDate(getAvailable(ddm).map(Base::toYearMonthDayFormat)); // CIT025
             if (dateOfDeposit != null) {
-                citationFields.addDateOfDeposit(dateOfDeposit); // CIT025A and CIT025B (first dataset versions)
+                citationFields.addDateOfDeposit(dateOfDeposit); // CIT025A (first dataset versions)
             }
             citationFields.addDatesOfCollection(getDatesOfCollection(ddm)
                 .filter(DatesOfCollection::isValidDatesOfCollectionPattern), DatesOfCollection.toDateOfCollectionValue); // CIT026

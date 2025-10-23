@@ -80,8 +80,4 @@ public class Description extends Base {
     public static boolean isSeriesInformation(Node node) {
         return hasAttributeValue(node, "descriptionType", "SeriesInformation") && isNotBlank(node);
     }
-
-    public static boolean hasDescriptionTypeOther(Node node) {
-        return hasAttributeValue(node, "descriptionType", "Other") && isNotBlank(node);
-    }
 }
