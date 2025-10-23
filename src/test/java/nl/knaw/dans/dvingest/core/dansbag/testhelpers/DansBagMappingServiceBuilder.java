@@ -57,7 +57,6 @@ import static nl.knaw.dans.dvingest.DdDataverseIngestApplication.TERM_COLUMN;
 @Data
 @Accessors(fluent = true, chain = true)
 public class DansBagMappingServiceBuilder {
-    private boolean isMigration = false;
     private boolean deduplicate = true;
     private Map<String, String> dataSuppliers = new HashMap<>();
     private List<String> skipFields = List.of();
@@ -66,7 +65,6 @@ public class DansBagMappingServiceBuilder {
     private Pattern filesForSeparateUploadPattern = Pattern.compile("a^");
     private List<String> embargoExclusions = List.of();
     private String depositorRoleAutoIngest = "swordupdater";
-    private String depositorRoleMigration = "contributorplus";
     private String expectedDataverseRole;
     private String expectedDatasetRole;
 
