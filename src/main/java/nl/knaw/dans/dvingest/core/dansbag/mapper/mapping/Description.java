@@ -55,7 +55,6 @@ public class Description extends Base {
         builder.addSubfield(SERIES_INFORMATION, text);
     };
 
-
     private static String newlineToHtml(String value) {
         var newline = "\r\n|\n|\r";
         var paragraph = "(\r\n){2,}|\n{2,}|\r{2,}";
@@ -80,9 +79,5 @@ public class Description extends Base {
 
     public static boolean isSeriesInformation(Node node) {
         return hasAttributeValue(node, "descriptionType", "SeriesInformation") && isNotBlank(node);
-    }
-
-    public static boolean hasDescriptionTypeOther(Node node) {
-        return hasAttributeValue(node, "descriptionType", "Other") && isNotBlank(node);
     }
 }

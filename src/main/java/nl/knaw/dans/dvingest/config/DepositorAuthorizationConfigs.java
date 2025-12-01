@@ -15,10 +15,12 @@
  */
 package nl.knaw.dans.dvingest.config;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 
 @Data
 public class DepositorAuthorizationConfigs {
-    private DepositorAuthorizationConfig migration;
+    @JsonProperty("import")
+    private DepositorAuthorizationConfig importConfig;
     private DepositorAuthorizationConfig autoIngest;
 }

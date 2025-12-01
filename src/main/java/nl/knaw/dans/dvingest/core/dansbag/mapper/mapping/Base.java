@@ -82,6 +82,12 @@ public class Base {
 
     }
 
+    static String getValueUri(Node node) {
+        return getAttribute(node, "valueURI")
+            .map(Node::getTextContent)
+            .orElseThrow(() -> new IllegalArgumentException(String.format("No valueURI found for %s element", node.getLocalName())));
+    }
+
     static String getValueUri(Node node, Map<String, String> codeToTerm) {
         return getAttribute(node, "valueURI")
             .map(Node::getTextContent)

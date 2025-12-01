@@ -54,6 +54,7 @@ import nl.knaw.dans.dvingest.core.dansbag.mapper.mapping.SpatialBox;
 import nl.knaw.dans.dvingest.core.dansbag.mapper.mapping.SpatialCoverage;
 import nl.knaw.dans.dvingest.core.dansbag.mapper.mapping.SpatialPoint;
 import nl.knaw.dans.dvingest.core.dansbag.mapper.mapping.Subject;
+import nl.knaw.dans.dvingest.core.dansbag.mapper.mapping.SubjectAat;
 import nl.knaw.dans.dvingest.core.dansbag.mapper.mapping.SubjectAbr;
 import nl.knaw.dans.dvingest.core.dansbag.mapper.mapping.TemporalAbr;
 import nl.knaw.dans.dvingest.core.dansbag.xml.XPathEvaluator;
@@ -86,9 +87,6 @@ import static nl.knaw.dans.dvingest.core.dansbag.xml.XPathConstants.DDM_PROFILE;
 @Slf4j
 @RequiredArgsConstructor
 public class DepositToDvDatasetMetadataMapper {
-    @Getter
-    private final boolean isMigration;
-
     private final boolean deduplicate;
     @NonNull
     private final ActiveMetadataBlocks activeMetadataBlocks;
@@ -121,7 +119,6 @@ public class DepositToDvDatasetMetadataMapper {
 
     public Dataset toDataverseDataset(
         @NonNull Document ddm,
-        @Nullable String otherDoiId,
         @Nullable String dateOfDeposit,
         @Nullable AuthenticatedUser contactData,
         @NonNull VaultMetadata vaultMetadata,
@@ -142,14 +139,10 @@ public class DepositToDvDatasetMetadataMapper {
             var otherTitlesAndAlternativeTitles = getOtherTitles(ddm).toList();
             citationFields.addTitle(getTitles(ddm)); // CIT001
             citationFields.addAlternativeTitle(otherTitlesAndAlternativeTitles.stream().map(Node::getTextContent)); // CIT002
-
-            if (isMigration) {
-                citationFields.addOtherIds(getIdentifiers(ddm).filter(Identifier::hasXsiTypeEasy2), Identifier.toOtherIdValue); // CIT002B
-                citationFields.addOtherIdsStrings(Stream.ofNullable(otherDoiId), DepositPropertiesOtherDoi.toOtherIdValue); // PAN second version DOIs (migration)
-            }
-            citationFields.addOtherIds(getIdentifiers(ddm).filter(Identifier::hasNoXsiType), Identifier.toOtherIdValue); // CIT004
             citationFields.addOtherIdsStrings(Stream.ofNullable(hasOrganizationalIdentifier).filter(HasOrganizationalIdentifier::isValidOtherIdValue),
                 HasOrganizationalIdentifier.toOtherIdValue); // CIT003
+
+            citationFields.addOtherIds(getIdentifiers(ddm).filter(Identifier::hasNoXsiType), Identifier.toOtherIdValue); // CIT004
             citationFields.addAuthors(getCreators(ddm), Author.toAuthorValueObject); // CIT005, CIT006, CIT007
             citationFields.addDatasetContact(Stream.ofNullable(contactData), Contact.toContactValue); // CIT008
             citationFields.addDescription(getProfileDescriptions(ddm), Description.toDescription); // CIT009
@@ -167,33 +160,23 @@ public class DepositToDvDatasetMetadataMapper {
                 // TRM005
                 termsOfAccess = getDctAccessRights(ddm).map(Node::getTextContent).findFirst().orElse("");
             }
-            else if (isMigration) {
-                // CIT012A
-                citationFields.addDescription(getDctAccessRights(ddm), Description.toDescription);
-            }
 
             citationFields.addSubject(getAudiences(ddm), Audience::toCitationBlockSubject);  // CIT013
             citationFields.addKeywords(getSubjects(ddm).filter(Subject::hasNoCvAttributes), Subject.toKeywordValue); // CIT014
             citationFields.addKeywords(getDdmSubjects(ddm).filter(Subject::isPanTerm), Subject.toPanKeywordValue); // CIT015
-            citationFields.addKeywords(getDdmSubjects(ddm).filter(Subject::isAatTerm), Subject.toAatKeywordValue); // CIT015
             citationFields.addKeywords(getLanguages(ddm), Language.toKeywordValue); // CIT016
             citationFields.addKeywords(getDdmLanguages(ddm).filter(node -> Language.toCitationBlockLanguage(node, iso1ToDataverseLanguage, iso3ToDataverseLanguage) == null),
-                Language.toKeywordValue); // CIT016 : non-mapped languages are added as keywords
+                Language.toKeywordValue); // CIT016A : non-mapped languages are added as keywords
             citationFields.addPublications(getIdentifiers(ddm).filter(Identifier::isRelatedPublication), Identifier.toRelatedPublicationValue); // CIT017
             citationFields.addLanguages(getDdmLanguages(ddm), node -> Language.toCitationBlockLanguage(node, iso1ToDataverseLanguage, iso3ToDataverseLanguage)); // CIT018
             citationFields.addProductionDate(getCreated(ddm).map(Base::toYearMonthDayFormat)); // CIT019
-            citationFields.addGrantNumbers(getIdentifiers(ddm).filter(Identifier::isNwoGrantNumber), Identifier.toNwoGrantNumber); // CIT023
             citationFields.addContributors(getContributorDetails(ddm).filter(Contributor::isValidContributor), Contributor.toContributorValueObject); // CIT020, CIT021
             citationFields.addGrantNumbers(getFunders(ddm), Funder.toGrantNumberValueObject); // CIT022
+            citationFields.addGrantNumbers(getIdentifiers(ddm).filter(Identifier::isNwoGrantNumber), Identifier.toNwoGrantNumber); // CIT023
             citationFields.addDistributor(getPublishers(ddm).filter(Publisher::isNotDans), Publisher.toDistributorValueObject); // CIT024
             citationFields.addDistributionDate(getAvailable(ddm).map(Base::toYearMonthDayFormat)); // CIT025
-            if (isMigration) {
-                citationFields.addNotesText(getProvenance(ddm)); // CIT017A
-                citationFields.addContributors(getDcmiDdmDescriptions(ddm).filter(Description::hasDescriptionTypeOther), Contributor.toContributorValueObject); // CIT021A
-                citationFields.addContributors(getDcmiContributors(ddm), Contributor.toContributorValueObject); // CIT021B
-            }
             if (dateOfDeposit != null) {
-                citationFields.addDateOfDeposit(dateOfDeposit); // CIT025A and CIT025B (first dataset versions)
+                citationFields.addDateOfDeposit(dateOfDeposit); // CIT025A (first dataset versions)
             }
             citationFields.addDatesOfCollection(getDatesOfCollection(ddm)
                 .filter(DatesOfCollection::isValidDatesOfCollectionPattern), DatesOfCollection.toDateOfCollectionValue); // CIT026
@@ -205,10 +188,6 @@ public class DepositToDvDatasetMetadataMapper {
         }
 
         if (activeMetadataBlocks.contains("dansRights")) {
-            if (isMigration) {
-                rightsFields.addRightsHolders(getContributorDetailsAuthors(ddm).filter(DcxDaiAuthor::isRightsHolder).map(DcxDaiAuthor::toRightsHolder)); // RIG000A
-                rightsFields.addRightsHolders(getContributorDetailsOrganizations(ddm).filter(DcxDaiOrganization::isRightsHolder).map(DcxDaiOrganization::toRightsHolder)); // RIG000B
-            }
             rightsFields.addRightsHolders(getRightsHolders(ddm)); // RIG001
             rightsFields.addPersonalDataPresent(getPersonalData(ddm).map(PersonalData::toPersonalDataPresent)); // RIG002
             rightsFields.addLanguageOfMetadata(getLanguageAttributes(ddm)
@@ -234,6 +213,7 @@ public class DepositToDvDatasetMetadataMapper {
             archaeologyFields.addArtifact(getDdmSubjects(ddm).filter(SubjectAbr::isOldAbr).map(node -> SubjectAbr.toAbrArtifact(node, abrArtifactCodeToTerm))); // AR007
             archaeologyFields.addArtifact(getDdmSubjects(ddm).filter(SubjectAbr::isAbrArtifact).map(node -> SubjectAbr.toAbrArtifact(node, abrArtifactCodeToTerm))); // AR007
             archaeologyFields.addPeriod(getDdmTemporal(ddm).filter(TemporalAbr::isAbrPeriod).map(node -> TemporalAbr.toAbrPeriod(node, abrPeriodCodeToTerm))); // AR008
+            archaeologyFields.addAatConcept(getDdmSubjects(ddm).filter(SubjectAat::isAatTerm).map(SubjectAat::toAatClassification)); // AR009
         }
 
         if (activeMetadataBlocks.contains("dansTemporalSpatial")) {
@@ -252,10 +232,6 @@ public class DepositToDvDatasetMetadataMapper {
         }
 
         dataVaultFieldBuilder.addBagId(vaultMetadata.getBagId()); // VLT003
-
-        if (isMigration) {
-            dataVaultFieldBuilder.addNbn(vaultMetadata.getNbn()); // VLT004A
-        }
         dataVaultFieldBuilder.addDansOtherId(hasOrganizationalIdentifier); // VLT005
         dataVaultFieldBuilder.addDansOtherIdVersion(hasOrganizationalIdentifierVersion); // VLT006
         dataVaultFieldBuilder.addSwordToken(vaultMetadata.getSwordToken()); // VLT007

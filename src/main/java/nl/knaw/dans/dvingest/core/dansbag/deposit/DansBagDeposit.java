@@ -81,22 +81,6 @@ public class DansBagDeposit {
         return String.format("%s:%s/%s", dataverseIdProtocol, dataverseIdAuthority, dataverseId);
     }
 
-    public String getOtherDoiId() {
-        // prevent "doi:null" values
-        if (StringUtils.isBlank(doi)) {
-            return null;
-        }
-
-        var otherDoi = String.format("doi:%s", doi);
-        if (StringUtils.equalsIgnoreCase(otherDoi, getDataversePid())) {
-            // The same, so no "other DOI"
-            return null;
-        }
-        else {
-            return otherDoi;
-        }
-    }
-
     /**
      * Are access requests allowed according to this deposit. Note that if this is an update-deposit, the result from this method should be combined with the current setting. If the dataset has access
      * requests disabled this overrules a <code>true</code> value returned from this method.

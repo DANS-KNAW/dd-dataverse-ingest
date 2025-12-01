@@ -40,6 +40,7 @@ public interface DepositDatasetFieldNames {
     String KEYWORD_VALUE = "keywordValue";
     String KEYWORD_VOCABULARY = "keywordVocabulary";
     String KEYWORD_VOCABULARY_URI = "keywordVocabularyURI";
+    String KEYWORD_TERM_URI = "keywordTermURI";
     String TOPIC_CLASSIFICATION = "topicClassification";
     String TOPIC_CLASSVALUE = "topicClassValue";
     String TOPIC_CLASSVOCAB = "topicClassVocab";
@@ -117,6 +118,7 @@ public interface DepositDatasetFieldNames {
     String ABR_COMPLEX = "dansAbrComplex";
     String ABR_ARTIFACT = "dansAbrArtifact";
     String ABR_PERIOD = "dansAbrPeriod";
+    String AAT_CLASSIFICATION = "dansAATClassification";
 
     String ABR_BASE_URL = "https://data.cultureelerfgoed.nl/term/id/abr";
     String SCHEME_ABR_OLD = "Archeologisch Basis Register";

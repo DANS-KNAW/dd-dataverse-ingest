@@ -21,6 +21,7 @@ import org.w3c.dom.Node;
 
 import java.util.regex.Pattern;
 
+import static nl.knaw.dans.dvingest.core.dansbag.mapper.DepositDatasetFieldNames.KEYWORD_TERM_URI;
 import static nl.knaw.dans.dvingest.core.dansbag.mapper.DepositDatasetFieldNames.KEYWORD_VALUE;
 import static nl.knaw.dans.dvingest.core.dansbag.mapper.DepositDatasetFieldNames.KEYWORD_VOCABULARY;
 import static nl.knaw.dans.dvingest.core.dansbag.mapper.DepositDatasetFieldNames.KEYWORD_VOCABULARY_URI;
@@ -30,9 +31,6 @@ public class Subject extends Base {
     final public static String SCHEME_PAN = "PAN thesaurus ideaaltypes";
     final public static String SCHEME_URI_PAN = "https://data.cultureelerfgoed.nl/term/id/pan/PAN";
 
-    final public static String SCHEME_AAT = "Art and Architecture Thesaurus";
-    final public static String SCHEME_URI_AAT = "http://vocab.getty.edu/aat/";
-
     private final static Pattern matchPrefix = Pattern.compile("^\\s*[a-zA-Z]+\\s+Match:\\s*");
     public static CompoundFieldGenerator<Node> toKeywordValue = (builder, value) -> {
         builder.addSubfield(KEYWORD_VALUE, value.getTextContent().trim());
@@ -41,11 +39,7 @@ public class Subject extends Base {
         builder.addSubfield(KEYWORD_VALUE, removeMatchPrefix(value.getTextContent().trim()));
         builder.addSubfield(KEYWORD_VOCABULARY, SCHEME_PAN);
         builder.addSubfield(KEYWORD_VOCABULARY_URI, SCHEME_URI_PAN);
-    };
-    public static CompoundFieldGenerator<Node> toAatKeywordValue = (builder, value) -> {
-        builder.addSubfield(KEYWORD_VALUE, removeMatchPrefix(value.getTextContent().trim()));
-        builder.addSubfield(KEYWORD_VOCABULARY, SCHEME_AAT);
-        builder.addSubfield(KEYWORD_VOCABULARY_URI, SCHEME_URI_AAT);
+        builder.addSubfield(KEYWORD_TERM_URI, getAttribute(value, "valueURI").map(Node::getTextContent).orElse(""));
     };
 
     static String removeMatchPrefix(String input) {
@@ -53,28 +47,22 @@ public class Subject extends Base {
     }
 
     public static boolean hasNoCvAttributes(Node node) {
-        var ss = getAttribute(node, "subjectScheme")
+        var noSubjectScheme = getAttribute(node, "subjectScheme")
             .map(Node::getTextContent)
             .orElse("")
             .isEmpty();
 
-        var su = getAttribute(node, "schemeURI")
+        var noSchemeUri = getAttribute(node, "schemeURI")
             .map(Node::getTextContent)
             .orElse("")
             .isEmpty();
 
-        return ss && su;
+        return noSubjectScheme && noSchemeUri;
     }
 
     public static boolean isPanTerm(Node node) {
         return node.getLocalName().equals("subject")
             && hasAttributeValue(node, "subjectScheme", SCHEME_PAN)
             && hasAttributeValue(node, "schemeURI", SCHEME_URI_PAN);
-    }
-
-    public static boolean isAatTerm(Node node) {
-        return node.getLocalName().equals("subject")
-            && hasAttributeValue(node, "subjectScheme", SCHEME_AAT)
-            && hasAttributeValue(node, "schemeURI", SCHEME_URI_AAT);
     }
 }

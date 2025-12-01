@@ -131,9 +131,9 @@ public class EditFilesComposer {
     }
 
     protected void addEmbargo(EditFiles editFiles, Set<Path> candidates) {
-        if (dateAvailable.isAfter(Instant.now())) {
+        if (dateAvailable.isAfter(Instant.now())) { // FIL008
             var filesToEmbargo = candidates.stream()
-                .filter(f -> !embargoExclusions.contains(f.toString())).toList();
+                .filter(f -> !embargoExclusions.contains(f.toString())).toList(); // FIL009
 
             if (!filesToEmbargo.isEmpty()) {
                 var addEmbargo = new AddEmbargo();

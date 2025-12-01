@@ -32,6 +32,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import static nl.knaw.dans.dvingest.core.dansbag.mapper.DepositDatasetFieldNames.AAT_CLASSIFICATION;
 import static nl.knaw.dans.dvingest.core.dansbag.mapper.DepositDatasetFieldNames.ABR_ARTIFACT;
 import static nl.knaw.dans.dvingest.core.dansbag.mapper.DepositDatasetFieldNames.ABR_COMPLEX;
 import static nl.knaw.dans.dvingest.core.dansbag.mapper.DepositDatasetFieldNames.ABR_PERIOD;
@@ -74,6 +75,7 @@ import static nl.knaw.dans.dvingest.core.dansbag.mapper.DepositDatasetFieldNames
 import static nl.knaw.dans.dvingest.core.dansbag.mapper.DepositDatasetFieldNames.GRANT_NUMBER_AGENCY;
 import static nl.knaw.dans.dvingest.core.dansbag.mapper.DepositDatasetFieldNames.GRANT_NUMBER_VALUE;
 import static nl.knaw.dans.dvingest.core.dansbag.mapper.DepositDatasetFieldNames.KEYWORD;
+import static nl.knaw.dans.dvingest.core.dansbag.mapper.DepositDatasetFieldNames.KEYWORD_TERM_URI;
 import static nl.knaw.dans.dvingest.core.dansbag.mapper.DepositDatasetFieldNames.KEYWORD_VALUE;
 import static nl.knaw.dans.dvingest.core.dansbag.mapper.DepositDatasetFieldNames.KEYWORD_VOCABULARY;
 import static nl.knaw.dans.dvingest.core.dansbag.mapper.DepositDatasetFieldNames.KEYWORD_VOCABULARY_URI;
@@ -197,10 +199,8 @@ public class DansDepositConverterTest extends DansConversionFixture {
             Map.of(KEYWORD_VALUE, "keyword2"),
             Map.of(KEYWORD_VALUE, "non-military uniform button",
                 KEYWORD_VOCABULARY, "PAN thesaurus ideaaltypes",
-                KEYWORD_VOCABULARY_URI, "https://data.cultureelerfgoed.nl/term/id/pan/PAN"),
-            Map.of(KEYWORD_VALUE, "buttons (fasteners)",
-                KEYWORD_VOCABULARY, "Art and Architecture Thesaurus",
-                KEYWORD_VOCABULARY_URI, "http://vocab.getty.edu/aat/"),
+                KEYWORD_VOCABULARY_URI, "https://data.cultureelerfgoed.nl/term/id/pan/PAN",
+                KEYWORD_TERM_URI, "https://data.cultureelerfgoed.nl/term/id/pan/08-01-08"),
             Map.of(KEYWORD_VALUE, "Old School Latin"),
             Map.of(KEYWORD_VALUE, "Ithkuil"),
             Map.of(KEYWORD_VALUE, "Baskisch"));
@@ -334,7 +334,7 @@ public class DansDepositConverterTest extends DansConversionFixture {
             "RCE Rapportage Archeologische Monumentenzorg");
         assertPrimitiveMultiValueFieldContainsValues(archaeologyMetadataBlockFields, ABR_VERWERVINGSWIJZE,
             "https://data.cultureelerfgoed.nl/term/id/abr/967bfdf8-c44d-4c69-8318-34ed1ab1e784",
-            "https://data.cultureelerfgoed.nl/term/id/abr/2f851932-e4a1-4a11-be5e-aa988fb39278");
+            "https://data.cultureelerfgoed.nl/term/id/abr/b2aa3a32-1f79-4ddf-81b5-2cdd28ad4919");
         assertPrimitiveMultiValueFieldContainsValues(archaeologyMetadataBlockFields, ABR_COMPLEX,
             "https://data.cultureelerfgoed.nl/term/id/abr/9a758542-8d0d-4afa-b664-104b938fe13e",
             "https://data.cultureelerfgoed.nl/term/id/abr/60bc20cd-0010-48ea-8d6f-42d333bfb39d",
@@ -347,6 +347,8 @@ public class DansDepositConverterTest extends DansConversionFixture {
         assertPrimitiveMultiValueFieldContainsValues(archaeologyMetadataBlockFields, ABR_PERIOD,
             "https://data.cultureelerfgoed.nl/term/id/abr/5b253754-ddd0-4ae0-a5bb-555176bca858",
             "https://data.cultureelerfgoed.nl/term/id/abr/6264b6bd-899e-4c34-a88e-03a36e1d4008");
+        assertPrimitiveMultiValueFieldContainsValues(archaeologyMetadataBlockFields, AAT_CLASSIFICATION,
+            "http://vocab.getty.edu/aat/300239261");
 
         // Temporal and Spatial Metadata block
         var temporalSpatialMetadataBlockFields = datasetYml.getDatasetVersion().getMetadataBlocks().get("dansTemporalSpatial").getFields();

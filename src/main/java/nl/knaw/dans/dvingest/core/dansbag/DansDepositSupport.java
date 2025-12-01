@@ -127,19 +127,17 @@ public class DansDepositSupport implements Deposit {
             return;
         }
 
-        handlePublishAction(pid, dansBagMappingService.isMigration());
+        handlePublishAction(pid);
     }
 
-    private void handlePublishAction(String pid, boolean isMigration) {
+    private void handlePublishAction(String pid) {
         try {
             var nbn = dataverseService.getDatasetUrnNbn(pid);
             var newProps = new HashMap<String, String>();
             newProps.put("state.label", "PUBLISHED");
             newProps.put("state.description", "The dataset is published");
-            if (!isMigration) {
-                newProps.put(IDENTIFIER_DOI_KEY, removeDoiLabel(pid));
-                newProps.put(IDENTIFIER_NBN_KEY, nbn);
-            }
+            newProps.put(IDENTIFIER_DOI_KEY, removeDoiLabel(pid));
+            newProps.put(IDENTIFIER_NBN_KEY, nbn);
             ingestDataverseIngestDeposit.updateProperties(newProps);
         }
         catch (IOException | DataverseException e) {
@@ -153,14 +151,12 @@ public class DansDepositSupport implements Deposit {
 
     @Override
     public void onFailed(String pid, String message) {
-        // Do not write the PID to the deposit.properties file in case of a migration
-        ingestDataverseIngestDeposit.onFailed(dansBagMappingService.isMigration() ? null : pid, message);
+        ingestDataverseIngestDeposit.onFailed(pid, message);
     }
 
     @Override
     public void onRejected(String pid, String message) {
-        // Do not write the PID to the deposit.properties file in case of a migration
-        ingestDataverseIngestDeposit.onRejected(dansBagMappingService.isMigration() ? null : pid, message);
+        ingestDataverseIngestDeposit.onRejected(pid, message);
     }
 
     @Override

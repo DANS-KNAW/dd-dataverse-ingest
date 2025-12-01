@@ -40,7 +40,7 @@ import java.util.stream.Collectors;
 import static gov.loc.repository.bagit.hash.StandardSupportedAlgorithms.SHA1;
 
 @Slf4j
-public class ManifestUtil  {
+public class ManifestUtil {
 
     public static void ensureSha1ManifestPresent(Bag bag) throws NoSuchAlgorithmException, IOException {
         log.debug("Ensure SHA-1 manifest is present in bag {}", bag.getRootDir());

@@ -26,7 +26,7 @@
     </parent>
 
     <artifactId>dd-dataverse-ingest</artifactId>
-    <version>2.2.1-SNAPSHOT</version>
+    <version>3.0.1-SNAPSHOT</version>
 
     <name>DD Dataverse Ingest</name>
     <url>https://github.com/DANS-KNAW/dd-dataverse-ingest</url>
@@ -35,6 +35,9 @@
 
     <properties>
         <main-class>nl.knaw.dans.dvingest.DdDataverseIngestApplication</main-class>
+        <dd-dataverse-ingest-api.version>0.4.0</dd-dataverse-ingest-api.version>
+        <dd-validate-dans-bag-api.version>1.0.0</dd-validate-dans-bag-api.version>
+        <dd-dans-sword2-examples.version>1.1.0</dd-dans-sword2-examples.version>
     </properties>
 
     <scm>

@@ -22,7 +22,6 @@ import nl.knaw.dans.lib.dataverse.model.file.Checksum;
 import nl.knaw.dans.lib.dataverse.model.file.DataFile;
 import nl.knaw.dans.lib.dataverse.model.file.FileMeta;
 
-import java.io.File;
 import java.nio.file.Path;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;

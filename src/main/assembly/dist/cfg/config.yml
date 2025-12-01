@@ -63,15 +63,6 @@ ingest:
     # Delay after finishing a deposit, in milliseconds. This can be used to allow time for the deposit to be processed by Dataverse before the service moves on to the next deposit.
     #delayBetweenDeposits: 0s
 
-  # Import of migration deposits. This area is used to migrate datasets from EASY to Dataverse and differs from import only in the way the DANS deposits are converted
-  # to Dataverse Ingest deposits.
-  migration:
-    # apiKey: 'changeme' # overrides the apiKey from the dataverse section
-    inbox: /var/opt/dans.knaw.nl/tmp/migration/deposits
-    outbox: /var/opt/dans.knaw.nl/tmp/migration/out
-    # Forces the service to require the bag in the deposit to conform to the DANS BagIt Profile. Without this SWORD depositors would have the full range of options offered by
-    # the Dataverse Ingest Deposit instruction files, so it is not recommended to disable this. The default is 'yes'.
-    requireDansBag: yes
   # Import of deposits. This area is used for manual bulk imports of deposits.
   import:
     # apiKey: 'changeme' # overrides the apiKey from the dataverse section
@@ -152,7 +143,7 @@ dansDepositConversion:
   #
   assignDepositorRole:
     autoIngest: swordupdater
-    migration: contributorplus # Also used for import. In practice, the import use-case is not used for conversion
+    import: contributorplus # Also used for import. In practice, the import use-case is not used for conversion
 
 
   #
@@ -162,7 +153,7 @@ dansDepositConversion:
     autoIngest:
       editDataset: swordupdater
       publishDataset: swordpublisher
-    migration: # Also used for import. In practice, the import use-case is not used for conversion
+    import:
       editDataset: contributorplus
       publishDataset: dsContributor
 

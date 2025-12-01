@@ -23,20 +23,17 @@ import nl.knaw.dans.dvingest.core.dansbag.deposit.DansBagDepositReaderImpl;
 import nl.knaw.dans.dvingest.core.dansbag.deposit.FileInfo;
 import nl.knaw.dans.dvingest.core.dansbag.exception.InvalidDepositException;
 import nl.knaw.dans.dvingest.core.dansbag.mapper.DepositToDvDatasetMetadataMapper;
-import nl.knaw.dans.dvingest.core.dansbag.mapper.mapping.Amd;
 import nl.knaw.dans.dvingest.core.dansbag.mapper.mapping.FileElement;
 import nl.knaw.dans.dvingest.core.dansbag.xml.XPathEvaluator;
 import nl.knaw.dans.dvingest.core.dansbag.xml.XmlReader;
 import nl.knaw.dans.dvingest.core.dansbag.xml.XmlReaderImpl;
 import nl.knaw.dans.dvingest.core.service.DataverseService;
-import nl.knaw.dans.dvingest.core.yaml.Create;
 import nl.knaw.dans.dvingest.core.yaml.EditFiles;
 import nl.knaw.dans.dvingest.core.yaml.EditPermissions;
 import nl.knaw.dans.dvingest.core.yaml.Expect;
 import nl.knaw.dans.dvingest.core.yaml.Expect.State;
 import nl.knaw.dans.dvingest.core.yaml.Init;
 import nl.knaw.dans.dvingest.core.yaml.PublishAction;
-import nl.knaw.dans.dvingest.core.yaml.ReleaseMigratedAction;
 import nl.knaw.dans.dvingest.core.yaml.UpdateAction;
 import nl.knaw.dans.lib.dataverse.DataverseException;
 import nl.knaw.dans.lib.dataverse.model.RoleAssignment;
@@ -83,17 +80,15 @@ public class DansBagMappingServiceImpl implements DansBagMappingService {
     private final Pattern filesForSeparateUploadPattern;
     private final List<String> embargoExclusions;
     private final String depositorRoleAutoIngest;
-    private final String depositorRoleMigration;
     private final String expectedDataverseRole;
     private final String expectedDatasetRole;
 
     public DansBagMappingServiceImpl(DepositToDvDatasetMetadataMapper depositToDvDatasetMetadataMapper, DataverseService dataverseService, SupportedLicenses supportedLicenses,
-        Pattern fileExclusionPattern, Pattern filesForSeparateUploadPattern, List<String> embargoExclusions, String depositorRoleAutoIngest, String depositorRoleMigration,
+        Pattern fileExclusionPattern, Pattern filesForSeparateUploadPattern, List<String> embargoExclusions, String depositorRoleAutoIngest,
         String expectedDataverseRole, String expectedDatasetRole) {
         this.depositToDvDatasetMetadataMapper = depositToDvDatasetMetadataMapper;
         this.dataverseService = dataverseService;
         this.depositorRoleAutoIngest = depositorRoleAutoIngest;
-        this.depositorRoleMigration = depositorRoleMigration;
         this.expectedDataverseRole = expectedDataverseRole;
         this.expectedDatasetRole = expectedDatasetRole;
         BagReader bagReader = new BagReader();
@@ -124,15 +119,11 @@ public class DansBagMappingServiceImpl implements DansBagMappingService {
             List<String> results;
 
             if (dansDepositProperties.getSwordToken() != null) {
-                log.debug("Found sword token in deposit.properties, looking for target dataset by sword token");
+                log.debug("Found SWORD token in deposit.properties, looking for target dataset by sword token");
                 results = dataverseService.findDoiByMetadataField("dansSwordToken", dansDepositProperties.getSwordToken());
             }
-            else if (isMigration()) {
-                log.debug("This is a migration deposit, looking for target dataset by dansBagId");
-                results = dataverseService.findDoiByMetadataField("dansBagId", isVersionOf);
-            }
             else {
-                throw new IllegalArgumentException("Update deposit should have either a sword token or be a migration deposit");
+                throw new IllegalArgumentException("Update deposit should have a SWORD token");
             }
 
             if (results.stream().distinct().count() == 1) { // There can be a released version and a draft version visible
@@ -158,19 +149,6 @@ public class DansBagMappingServiceImpl implements DansBagMappingService {
             return init;
         }
         else {
-            if (isMigration()) {
-                if (StringUtils.isBlank(dansDeposit.getDoi())) {
-                    throw new IllegalArgumentException("Migration deposit must have a DOI");
-                }
-                var create = new Create();
-                var doi = dansDeposit.getDoi();
-                if (!doi.startsWith("doi:")) {
-                    doi = "doi:" + doi;
-                }
-                create.setImportPid(doi);
-                init.setCreate(create);
-                return init;
-            }
             var expect = new Expect();
             var expectedDataverseRoleAssignment = createRoleAssignment(expectedDataverseRole, "@" + dansDeposit.getDepositorUserId());
             expect.setDataverseRoleAssignment(expectedDataverseRoleAssignment);
@@ -191,7 +169,6 @@ public class DansBagMappingServiceImpl implements DansBagMappingService {
         // TODO: rename to DatasetComposer en push the terms stuff into it as well.
         var dataset = depositToDvDatasetMetadataMapper.toDataverseDataset(
             dansDeposit.getDdm(),
-            dansDeposit.getOtherDoiId(),
             getDateOfDeposit(dansDeposit).orElse(null),
             getDatasetContact(dansDeposit).orElse(null), // But null is never actually used, because an exception is thrown if contact is not found
             dansDeposit.getVaultMetadata(),
@@ -218,13 +195,11 @@ public class DansBagMappingServiceImpl implements DansBagMappingService {
     @Override
     public EditFiles getEditFilesFromDansDeposit(DansBagDeposit dansDeposit, String updatesDataset) {
         var files = getFileInfo(dansDeposit);
-        if (!isMigration()) {
-            try {
-                files.put(Path.of(ORIGINAL_METADATA_ZIP), createOriginalMetadataFileInfo(dansDeposit));
-            }
-            catch (IOException e) {
-                throw new RuntimeException("Error creating original metadata zip", e);
-            }
+        try {
+            files.put(Path.of(ORIGINAL_METADATA_ZIP), createOriginalMetadataFileInfo(dansDeposit));
+        }
+        catch (IOException e) {
+            throw new RuntimeException("Error creating original metadata zip", e);
         }
         var dateAvailable = getDateAvailable(dansDeposit);
         if (updatesDataset == null) {
@@ -249,7 +224,7 @@ public class DansBagMappingServiceImpl implements DansBagMappingService {
         dfChecksum.setValue(checksum);
         dataFile.setChecksum(dfChecksum);
         fileMeta.setDataFile(dataFile);
-        fileMeta.setRestrict(false);
+        fileMeta.setRestrict(false); // FIL007
         return new FileInfo(zipFile, checksum, false, fileMeta);
     }
 
@@ -263,9 +238,8 @@ public class DansBagMappingServiceImpl implements DansBagMappingService {
         var editPermissions = new EditPermissions();
         var roleAssignment = new RoleAssignment();
         roleAssignment.setAssignee("@" + userId);
-        String role = isMigration() ? depositorRoleMigration : depositorRoleAutoIngest;
-        log.debug("Setting role for {} to {}", userId, role);
-        roleAssignment.setRole(role);
+        log.debug("Setting role for {} to {}", userId, depositorRoleAutoIngest);
+        roleAssignment.setRole(depositorRoleAutoIngest);
         editPermissions.setAddRoleAssignments(List.of(roleAssignment));
         return editPermissions;
     }
@@ -276,34 +250,12 @@ public class DansBagMappingServiceImpl implements DansBagMappingService {
         if (dansDepositProperties.leaveDraft()) {
             return Optional.empty();
         }
-        if (isMigration()) {
-            var amd = dansDeposit.getAmd();
-
-            if (amd == null) {
-                throw new RuntimeException(String.format("no AMD found for %s", dansDeposit.getDoi()));
-            }
-
-            var date = Amd.toPublicationDate(amd);
-
-            if (date.isEmpty()) {
-                throw new IllegalArgumentException(String.format("no publication date found in AMD for %s", dansDeposit.getDoi()));
-            }
-
-            return Optional.of(new ReleaseMigratedAction(date.get()));
-        }
-        else {
-            return Optional.of(new PublishAction(UpdateType.major));
-        }
-    }
-
-    @Override
-    public boolean isMigration() {
-        return depositToDvDatasetMetadataMapper.isMigration();
+        return Optional.of(new PublishAction(UpdateType.major));
     }
 
     // todo: move to mapping package
     private Map<Path, FileInfo> getFileInfo(DansBagDeposit dansDeposit) {
-        var files = FileElement.pathToFileInfo(dansDeposit, false); // TODO: handle migration case
+        var files = FileElement.pathToFileInfo(dansDeposit);
 
         return files.entrySet().stream()
             .map(entry -> {
@@ -345,19 +297,11 @@ public class DansBagMappingServiceImpl implements DansBagMappingService {
     }
 
     Optional<String> getDateOfDeposit(DansBagDeposit dansDeposit) {
-        if (isMigration()) {
-            return Optional.ofNullable(dansDeposit.getAmd())
-                .map(Amd::toDateOfDeposit)
-                .flatMap(i -> i);
-
+        if (dansDeposit.isUpdate()) {
+            return Optional.empty(); // See for implementation CIT025B in DatasetUpdater
         }
         else {
-            if (dansDeposit.isUpdate()) {
-                return Optional.empty(); // See for implementation CIT025B in DatasetUpdater
-            }
-            else {
-                return Optional.of(yyyymmddPattern.print(DateTime.now())); // CIT025B
-            }
+            return Optional.of(yyyymmddPattern.print(DateTime.now())); // CIT025B
         }
     }
 

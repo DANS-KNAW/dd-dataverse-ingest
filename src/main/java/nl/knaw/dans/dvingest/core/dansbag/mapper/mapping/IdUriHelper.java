@@ -27,7 +27,7 @@ public class IdUriHelper {
         if (!StringUtils.isAllEmpty(value)) {
             var m = pattern.matcher(value);
             if (m.find())
-                return m.group(1).replaceAll("-","");
+                return m.group(1).replaceAll("-", "");
         }
         return value;
     }
@@ -39,8 +39,8 @@ public class IdUriHelper {
                 String s = m.group(1).replaceAll("-", "");
                 return StringUtils
                     .leftPad(s, 16, '0')
-                    .replaceAll("(\\d\\d\\d\\d)","$1-")
-                    .replaceAll("-$","");
+                    .replaceAll("(\\d\\d\\d\\d)", "$1-")
+                    .replaceAll("-$", "");
             }
         }
         return value;
