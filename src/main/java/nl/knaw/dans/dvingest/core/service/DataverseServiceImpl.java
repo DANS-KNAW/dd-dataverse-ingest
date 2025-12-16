@@ -169,7 +169,12 @@ public class DataverseServiceImpl implements DataverseService {
     public List<License> getSupportedLicenses() throws IOException, DataverseException {
         return dataverseClient.license().getLicenses().getData().stream()
             // We need to map from one license class to another, because they have different fields
-            .map(license -> new License(license.getName(), URI.create(license.getUri()), URI.create(license.getIconUrl()))).toList();
+            .map(license -> new License(
+                license.getName(),
+                URI.create(license.getUri()),
+                URI.create(license.getIconUrl()),
+                null,null,null,null
+            )).toList();
     }
 
     @Override
