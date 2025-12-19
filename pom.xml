@@ -38,6 +38,7 @@
         <dd-dataverse-ingest-api.version>0.4.0</dd-dataverse-ingest-api.version>
         <dd-validate-dans-bag-api.version>1.0.0</dd-validate-dans-bag-api.version>
         <dd-dans-sword2-examples.version>1.1.0</dd-dans-sword2-examples.version>
+        <tika.version>3.2.2</tika.version>
     </properties>
 
     <scm>
@@ -89,7 +90,6 @@
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-collections4</artifactId>
-            <!-- todo: add to parent pom -->
         </dependency>
         <dependency>
             <groupId>org.glassfish.jersey.media</groupId>
@@ -136,8 +136,6 @@
             <artifactId>dd-validate-dans-bag-api</artifactId>
         </dependency>
 
-
-        <!-- dd-ingest-flow -->
         <dependency>
             <groupId>net.lingala.zip4j</groupId>
             <artifactId>zip4j</artifactId>
@@ -175,16 +173,9 @@
             <artifactId>commons-beanutils</artifactId>
         </dependency>
         <dependency>
-            <groupId>ch.qos.logback</groupId>
-            <artifactId>logback-classic</artifactId>
-        </dependency>
-        <dependency>
             <groupId>nl.knaw.dans</groupId>
             <artifactId>bagit</artifactId>
         </dependency>
-        <!-- end: dd-ingest-flow -->
-
-
 
     </dependencies>
 
