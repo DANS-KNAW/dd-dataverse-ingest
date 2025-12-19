@@ -22,7 +22,7 @@
     <parent>
         <groupId>nl.knaw.dans</groupId>
         <artifactId>dd-parent</artifactId>
-        <version>1.10.0</version>
+        <version>1.11.0</version>
     </parent>
 
     <artifactId>dd-dataverse-ingest</artifactId>
@@ -35,10 +35,6 @@
 
     <properties>
         <main-class>nl.knaw.dans.dvingest.DdDataverseIngestApplication</main-class>
-        <dd-dataverse-ingest-api.version>0.4.0</dd-dataverse-ingest-api.version>
-        <dd-validate-dans-bag-api.version>1.0.0</dd-validate-dans-bag-api.version>
-        <dd-dans-sword2-examples.version>1.1.0</dd-dans-sword2-examples.version>
-        <tika.version>3.2.2</tika.version>
     </properties>
 
     <scm>
