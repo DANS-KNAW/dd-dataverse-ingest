@@ -19,6 +19,7 @@ package nl.knaw.dans.dvingest.config;
 import io.dropwizard.core.Configuration;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import nl.knaw.dans.lib.util.healthcheck.DependenciesReadyCheckConfig;
 import nl.knaw.dans.lib.util.DataverseClientFactory;
 
 import javax.validation.Valid;

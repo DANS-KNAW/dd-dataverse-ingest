@@ -17,6 +17,7 @@ package nl.knaw.dans.dvingest.core;
 
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
+import nl.knaw.dans.lib.util.healthcheck.DependenciesReadyCheck;
 import nl.knaw.dans.dvingest.core.bagprocessor.BagProcessorFactory;
 import nl.knaw.dans.dvingest.core.dansbag.DansDepositSupportFactory;
 import nl.knaw.dans.dvingest.core.dansbag.exception.RejectedDepositException;
