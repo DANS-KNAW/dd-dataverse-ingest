@@ -17,7 +17,7 @@ package nl.knaw.dans.dvingest;
 
 import lombok.AllArgsConstructor;
 import nl.knaw.dans.dvingest.core.DataverseIngestDeposit;
-import nl.knaw.dans.dvingest.core.DependenciesReadyCheck;
+import nl.knaw.dans.lib.util.healthcheck.DependenciesReadyCheck;
 import nl.knaw.dans.dvingest.core.DepositTask;
 import nl.knaw.dans.dvingest.core.DepositTaskFactory;
 import nl.knaw.dans.dvingest.core.bagprocessor.BagProcessorFactory;
