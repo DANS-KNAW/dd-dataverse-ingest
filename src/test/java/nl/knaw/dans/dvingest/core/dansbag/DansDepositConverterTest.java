@@ -589,7 +589,7 @@ public class DansDepositConverterTest extends DansConversionFixture {
         assertControlledMultiValueFieldContainsValues(citationBlockFields, SUBJECT,
             "Medicine, Health and Life Sciences");
         assertPrimitiveSinglevalueFieldContainsValue(citationBlockFields, PRODUCTION_DATE, "2015-09-09");
-        assertPrimitiveSinglevalueFieldContainsValue(citationBlockFields, DISTRIBUTION_DATE, "2026-01-01");
+        assertPrimitiveSinglevalueFieldContainsValue(citationBlockFields, DISTRIBUTION_DATE, "2027-01-01");
 
         // Rights Metadata block
         var rightsMetadataBlockFields = datasetYml.getDatasetVersion().getMetadataBlocks().get("dansRights").getFields();
@@ -633,7 +633,7 @@ public class DansDepositConverterTest extends DansConversionFixture {
             "random images/image01.png",
             "random images/image02.jpeg",
             "random images/image03.jpeg");
-        assertThat(editFilesYml.getEditFiles().getAddEmbargoes().get(0)).extracting("dateAvailable").isEqualTo("2026-01-01");
+        assertThat(editFilesYml.getEditFiles().getAddEmbargoes().get(0)).extracting("dateAvailable").isEqualTo("2027-01-01");
 
         assertThat(editFilesYml.getEditFiles().getAddRestrictedFiles()).isEmpty();
         assertThat(editFilesYml.getEditFiles().getUpdateFileMetas()).isEmpty();

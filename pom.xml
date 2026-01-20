@@ -35,6 +35,7 @@
 
     <properties>
         <main-class>nl.knaw.dans.dvingest.DdDataverseIngestApplication</main-class>
+        <dd-dans-sword2-examples.version>1.2.0</dd-dans-sword2-examples.version>
     </properties>
 
     <scm>
