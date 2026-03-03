@@ -75,6 +75,8 @@ public interface DataverseService {
 
     DatasetVersion getDatasetMetadata(String pid) throws IOException, DataverseException;
 
+    DatasetVersion getDatasetMetadataFirstVersion(String pid) throws IOException, DataverseException;
+
     String getDatasetState(String targetPid) throws IOException, DataverseException;
 
     void importDataset(String pid, Dataset dataset) throws IOException, DataverseException;

@@ -69,7 +69,7 @@ public interface DansBagMappingService {
      * @param currentMetadata the current metadata of the dataset
      * @return the new dataset level metadata
      */
-    Dataset getDatasetMetadataFromDansDeposit(DansBagDeposit dansDeposit, DatasetVersion currentMetadata);
+    Dataset getDatasetMetadataFromDansDeposit(DansBagDeposit dansDeposit, DatasetVersion currentMetadata, DatasetVersion firstVersionMetadata);
 
     /**
      * Maps file information in the DANS bag to edit actions for the files in the dataset. The edit actions are used to update the files in the dataset.

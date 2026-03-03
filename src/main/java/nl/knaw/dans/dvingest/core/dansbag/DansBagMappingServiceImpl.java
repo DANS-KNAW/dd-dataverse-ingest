@@ -166,11 +166,11 @@ public class DansBagMappingServiceImpl implements DansBagMappingService {
     }
 
     @Override
-    public Dataset getDatasetMetadataFromDansDeposit(DansBagDeposit dansDeposit, DatasetVersion currentMetadata) {
+    public Dataset getDatasetMetadataFromDansDeposit(DansBagDeposit dansDeposit, DatasetVersion currentMetadata, DatasetVersion firstVersionMetadata) {
         // TODO: rename to DatasetComposer en push the terms stuff into it as well.
         var dataset = depositToDvDatasetMetadataMapper.toDataverseDataset(
             dansDeposit.getDdm(),
-            getDateOfDeposit(dansDeposit).orElse(getDateOfDepositFromVersion(currentMetadata)),
+            getDateOfDeposit(dansDeposit).orElse(getDateOfDepositFromVersion(firstVersionMetadata)),
             getDatasetContact(dansDeposit).orElse(null), // But null is never actually used, because an exception is thrown if contact is not found
             dansDeposit.getVaultMetadata(),
             dansDeposit.getDepositorUserId(),

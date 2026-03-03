@@ -80,16 +80,18 @@ public class DansDepositSupport implements Deposit {
             try {
                 var updatesDataset = dansBagMappingService.getUpdatesDataset(ingestDataverseIngestDeposit.getLocation());
                 DatasetVersion currentMetadata = null;
+                DatasetVersion firstVersionMetadata = null;
                 if (updatesDataset != null) {
                     ingestDataverseIngestDeposit.updateProperties(Map.of(UPDATES_DATASET_KEY, updatesDataset));
                     currentMetadata = dataverseService.getDatasetMetadata(updatesDataset);
+                    firstVersionMetadata = dataverseService.getDatasetMetadataFirstVersion(updatesDataset);
                 }
                 dansDeposit = dansBagMappingService.readDansDeposit(ingestDataverseIngestDeposit.getLocation());
                 if (updatesDataset != null) {
                     // A bit ugly, copied from dd-ingest-flow (necessary for the checkAuthorized method)
                     dansDeposit.setDataverseDoi(updatesDataset);
                 }
-                new DansDepositConverter(dansDeposit, updatesDataset, currentMetadata, dansBagMappingService, yamlService).run();
+                new DansDepositConverter(dansDeposit, updatesDataset, currentMetadata, firstVersionMetadata, dansBagMappingService, yamlService).run();
                 log.info("[{}] End converting deposit to Dataverse ingest metadata", ingestDataverseIngestDeposit.getId());
                 return true;
             }

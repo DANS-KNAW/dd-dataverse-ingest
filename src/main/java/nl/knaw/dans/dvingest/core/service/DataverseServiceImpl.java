@@ -274,4 +274,9 @@ public class DataverseServiceImpl implements DataverseService {
         var result = dataverseClient.dataset(persistentId).listRoleAssignments();
         return result.getData();
     }
+
+    @Override
+    public DatasetVersion getDatasetMetadataFirstVersion(String pid) throws IOException, DataverseException {
+        return dataverseClient.dataset(pid).getVersion("1.0", true).getData();
+    }
 }
