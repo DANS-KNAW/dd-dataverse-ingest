@@ -204,7 +204,14 @@ public class DansBagMappingServiceImpl implements DansBagMappingService {
         var depositDate = citationBlock.getFields()
             .stream()
             .filter(f -> f.getTypeName().equals("dateOfDeposit"))
-            .findFirst().map(f -> ((SingleValueField) f).getValue());
+            .findFirst().map(f -> {
+                if (f instanceof SingleValueField) {
+                    return ((SingleValueField) f).getValue();
+                }
+                else {
+                    throw new IllegalStateException("Field 'dateOfDeposit' must be a SingleValueField");
+                }
+            });
         return depositDate.orElse(null);
     }
 

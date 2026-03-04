@@ -25,7 +25,11 @@ import org.junit.jupiter.api.Test;
 import java.io.IOException;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.*;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.when;
 
 public class DataverseServiceImpl_getDatasetMetadataFirstVersionTest {
     @Test
@@ -59,11 +63,8 @@ public class DataverseServiceImpl_getDatasetMetadataFirstVersionTest {
         when(dataverseClientMock.dataset(persistentId)).thenReturn(datasetApiMock);
         when(datasetApiMock.getVersion("1.0", true)).thenThrow(new IOException("not found"));
 
-        try {
-            dataverseService.getDatasetMetadataFirstVersion(persistentId);
-        } catch (IOException e) {
-            assertThat(e).hasMessageContaining("not found");
-        }
+        var exception = assertThrows(IOException.class, () -> dataverseService.getDatasetMetadataFirstVersion(persistentId));
+        assertThat(exception).hasMessageContaining("not found");
         verify(dataverseClientMock).dataset(persistentId);
         verify(datasetApiMock).getVersion("1.0", true);
         verifyNoMoreInteractions(dataverseClientMock, datasetApiMock);
