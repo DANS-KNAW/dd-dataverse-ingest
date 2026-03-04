@@ -38,6 +38,7 @@ public class DansDepositConverter {
     private final DansBagDeposit dansDeposit;
     private final String updatesDataset;
     private final DatasetVersion currentMetadata;
+    private final DatasetVersion firstVersionMetadata;
     private final DansBagMappingService mappingService;
     private final YamlService yamlService;
 
@@ -46,7 +47,7 @@ public class DansDepositConverter {
         var init = mappingService.getInitFromDansDeposit(dansDeposit, updatesDataset != null);
         yamlService.writeYaml(new InitRoot(init), dansDeposit.getBagDir().resolve(DataverseIngestBag.INIT_YML));
 
-        var dataset = mappingService.getDatasetMetadataFromDansDeposit(dansDeposit, currentMetadata);
+        var dataset = mappingService.getDatasetMetadataFromDansDeposit(dansDeposit, currentMetadata, firstVersionMetadata);
         yamlService.writeYaml(dataset, dansDeposit.getBagDir().resolve(DataverseIngestBag.DATASET_YML));
 
         var editFiles = mappingService.getEditFilesFromDansDeposit(dansDeposit, updatesDataset);

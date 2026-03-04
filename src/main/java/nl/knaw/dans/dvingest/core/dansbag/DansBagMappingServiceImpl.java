@@ -39,6 +39,7 @@ import nl.knaw.dans.lib.dataverse.DataverseException;
 import nl.knaw.dans.lib.dataverse.model.RoleAssignment;
 import nl.knaw.dans.lib.dataverse.model.dataset.Dataset;
 import nl.knaw.dans.lib.dataverse.model.dataset.DatasetVersion;
+import nl.knaw.dans.lib.dataverse.model.dataset.SingleValueField;
 import nl.knaw.dans.lib.dataverse.model.dataset.UpdateType;
 import nl.knaw.dans.lib.dataverse.model.file.Checksum;
 import nl.knaw.dans.lib.dataverse.model.file.DataFile;
@@ -165,11 +166,11 @@ public class DansBagMappingServiceImpl implements DansBagMappingService {
     }
 
     @Override
-    public Dataset getDatasetMetadataFromDansDeposit(DansBagDeposit dansDeposit, DatasetVersion currentMetadata) {
+    public Dataset getDatasetMetadataFromDansDeposit(DansBagDeposit dansDeposit, DatasetVersion currentMetadata, DatasetVersion firstVersionMetadata) {
         // TODO: rename to DatasetComposer en push the terms stuff into it as well.
         var dataset = depositToDvDatasetMetadataMapper.toDataverseDataset(
             dansDeposit.getDdm(),
-            getDateOfDeposit(dansDeposit).orElse(null),
+            getDateOfDeposit(dansDeposit).orElse(getDateOfDepositFromVersion(firstVersionMetadata)),
             getDatasetContact(dansDeposit).orElse(null), // But null is never actually used, because an exception is thrown if contact is not found
             dansDeposit.getVaultMetadata(),
             dansDeposit.getDepositorUserId(),
@@ -190,6 +191,28 @@ public class DansBagMappingServiceImpl implements DansBagMappingService {
         }
         version.setLicense(supportedLicenses.getLicenseFromDansDeposit(dansDeposit));
         return dataset;
+    }
+
+    private String getDateOfDepositFromVersion(DatasetVersion version) {
+        if (version == null) {
+            return null;
+        }
+        var citationBlock = version.getMetadataBlocks().get("citation");
+        if (citationBlock == null || citationBlock.getFields() == null) {
+            return null;
+        }
+        var depositDate = citationBlock.getFields()
+            .stream()
+            .filter(f -> f.getTypeName().equals("dateOfDeposit"))
+            .findFirst().map(f -> {
+                if (f instanceof SingleValueField) {
+                    return ((SingleValueField) f).getValue();
+                }
+                else {
+                    throw new IllegalStateException("Field 'dateOfDeposit' must be a SingleValueField");
+                }
+            });
+        return depositDate.orElse(null);
     }
 
     @Override

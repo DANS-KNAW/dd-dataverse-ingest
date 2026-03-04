@@ -144,7 +144,7 @@ public class DansDepositConverterTest extends DansConversionFixture {
         /*
          * When
          */
-        new DansDepositConverter(deposit, null, null, mappingService, yamlService).run();
+        new DansDepositConverter(deposit, null, null, null, mappingService, yamlService).run();
 
         /*
          * Then
@@ -450,7 +450,7 @@ public class DansDepositConverterTest extends DansConversionFixture {
         /*
          * When
          */
-        new DansDepositConverter(deposit, null, null, mappingService, yamlService).run();
+        new DansDepositConverter(deposit, null, null, null, mappingService, yamlService).run();
 
         /*
          * Then
@@ -564,7 +564,7 @@ public class DansDepositConverterTest extends DansConversionFixture {
         /*
          * When
          */
-        new DansDepositConverter(deposit, null, null, mappingService, yamlService).run();
+        new DansDepositConverter(deposit, null, null, null, mappingService, yamlService).run();
 
         /*
          * Then
@@ -656,3 +656,4 @@ public class DansDepositConverterTest extends DansConversionFixture {
         assertThat(editPermissionsYml.getEditPermissions().getDeleteRoleAssignments()).isEmpty();
     }
 }
+
