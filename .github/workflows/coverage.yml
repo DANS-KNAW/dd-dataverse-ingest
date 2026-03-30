@@ -17,6 +17,6 @@ jobs:
       - name: Run tests and collect coverage
         run: mvn -B test
       - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v5
+        uses: codecov/codecov-action@v6
         continue-on-error: true
 
