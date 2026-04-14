@@ -36,6 +36,7 @@ public class SpatialCoverage extends Base {
         return false;
     }
 
+    // No longer used because it is replaced with the new geonames field.
     public static String toControlledSpatialValue(Node node, List<String> spatialCoverageCountryTerms) {
         var text = node.getTextContent().trim();
         return spatialCoverageCountryTerms.contains(text) ? text : null;

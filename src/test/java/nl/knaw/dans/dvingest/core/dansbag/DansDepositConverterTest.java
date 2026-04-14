@@ -100,7 +100,6 @@ import static nl.knaw.dans.dvingest.core.dansbag.mapper.DepositDatasetFieldNames
 import static nl.knaw.dans.dvingest.core.dansbag.mapper.DepositDatasetFieldNames.SPATIAL_BOX_SCHEME;
 import static nl.knaw.dans.dvingest.core.dansbag.mapper.DepositDatasetFieldNames.SPATIAL_BOX_SOUTH;
 import static nl.knaw.dans.dvingest.core.dansbag.mapper.DepositDatasetFieldNames.SPATIAL_BOX_WEST;
-import static nl.knaw.dans.dvingest.core.dansbag.mapper.DepositDatasetFieldNames.SPATIAL_COVERAGE_CONTROLLED;
 import static nl.knaw.dans.dvingest.core.dansbag.mapper.DepositDatasetFieldNames.SPATIAL_COVERAGE_UNCONTROLLED;
 import static nl.knaw.dans.dvingest.core.dansbag.mapper.DepositDatasetFieldNames.SPATIAL_POINT;
 import static nl.knaw.dans.dvingest.core.dansbag.mapper.DepositDatasetFieldNames.SPATIAL_POINT_SCHEME;
@@ -373,8 +372,9 @@ public class DansDepositConverterTest extends DansConversionFixture {
                 SPATIAL_BOX_SOUTH, "51.46343658020442",
                 SPATIAL_BOX_WEST, "3.5621054065986075",
                 SPATIAL_BOX_SCHEME, "longitude/latitude (degrees)"));
-        assertControlledMultiValueFieldContainsValues(temporalSpatialMetadataBlockFields, SPATIAL_COVERAGE_CONTROLLED,
-            "Japan", "South Africa");
+        // Support removed because of the migration to the new geonames field
+        //        assertControlledMultiValueFieldContainsValues(temporalSpatialMetadataBlockFields, SPATIAL_COVERAGE_CONTROLLED,
+        //            "Japan", "South Africa");
         assertPrimitiveMultiValueFieldContainsValues(temporalSpatialMetadataBlockFields, SPATIAL_COVERAGE_UNCONTROLLED,
             "Roman Empire");
 

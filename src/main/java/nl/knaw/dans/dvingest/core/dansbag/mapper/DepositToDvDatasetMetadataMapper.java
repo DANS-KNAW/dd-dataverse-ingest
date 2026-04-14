@@ -221,8 +221,9 @@ public class DepositToDvDatasetMetadataMapper {
             temporalSpatialFields.addSpatialPoint(getDcxGmlSpatial(ddm).filter(SpatialPoint::isPoint),
                 SpatialPoint.toEasyTsmSpatialPointValueObject); // TS002, TS003
             temporalSpatialFields.addSpatialBox(getBoundedBy(ddm).filter(SpatialBox::isBox), SpatialBox.toEasyTsmSpatialBoxValueObject); // TS004, TS005
-            temporalSpatialFields.addSpatialCoverageControlled(getSpatial(ddm)
-                .map(node -> SpatialCoverage.toControlledSpatialValue(node, spatialCoverageCountryTerms))); // TS006
+// Removed because of migration to the new geonames field. No mapping to the geonames field has been defined.
+//            temporalSpatialFields.addSpatialCoverageControlled(getSpatial(ddm)
+//                .map(node -> SpatialCoverage.toControlledSpatialValue(node, spatialCoverageCountryTerms))); // TS006
             temporalSpatialFields.addSpatialCoverageUncontrolled(getSpatial(ddm)
                 .map((Node node) -> SpatialCoverage.toUncontrolledSpatialValue(node, spatialCoverageCountryTerms))); // TS007
         }
