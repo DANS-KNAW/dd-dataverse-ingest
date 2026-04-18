@@ -16,10 +16,9 @@
 package nl.knaw.dans.dvingest.config;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import io.dropwizard.configuration.ConfigurationFactory;
+import io.dropwizard.configuration.YamlConfigurationFactory;
 import io.dropwizard.jackson.Jackson;
-import nl.knaw.dans.dvingest.core.service.YamlServiceImpl;
 import org.junit.jupiter.api.Test;
 
 import javax.validation.Validation;
@@ -32,7 +31,7 @@ public class DdDataverseIngestConfigurationTest {
     private DdDataverseIngestConfiguration parseConfigurationFile(String configFile) throws Exception {
         try (var validatorFactory = Validation.buildDefaultValidatorFactory()) {
             ConfigurationFactory<DdDataverseIngestConfiguration> factory =
-                new YamlServiceImpl.YamlConfigurationFactory<>(new YAMLFactory(), DdDataverseIngestConfiguration.class,
+                new YamlConfigurationFactory<>(DdDataverseIngestConfiguration.class,
                     validatorFactory.getValidator(),
                     Jackson.newObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, true),
                     "dw");

@@ -55,18 +55,30 @@ public class YamlServiceImpl implements YamlService {
 
     private final ObjectMapper mapper = new ObjectMapper(createYamlFactory(new LoaderOptions()));
 
-    public static class YamlConfigurationFactory<T> extends BaseConfigurationFactory<T> {
-        public YamlConfigurationFactory(YAMLFactory yamlFactory, Class<T> klass, @Nullable Validator validator, ObjectMapper objectMapper, String propertyPrefix) {
+    /**
+     * A specialized implementation of the {@link BaseConfigurationFactory} for handling YAML configurations with a custom {@link YAMLFactory}.
+     *
+     * @param <T> the type of the configuration object to be created
+     */
+    private static class YamlConfigurationFactoryWithCustomYamlFactory<T> extends BaseConfigurationFactory<T> {
+        public YamlConfigurationFactoryWithCustomYamlFactory(YAMLFactory yamlFactory, Class<T> klass, @Nullable Validator validator, ObjectMapper objectMapper, String propertyPrefix) {
             super(yamlFactory, "YAML", klass, validator, objectMapper, propertyPrefix);
         }
     }
 
+    /**
+     * Creates and returns a new instance of {@link YAMLFactory} configured with the specified {@link LoaderOptions}. This method allows for customizing the YAML parsing behavior, such as setting
+     * limits on the size of the YAML document. The standard allowed size is not sufficient for our purposes.
+     *
+     * @param loaderOptions the {@link LoaderOptions} used to configure the {@link YAMLFactory}; must not be null and must pass validation constraints.
+     * @return a configured instance of {@link YAMLFactory}.
+     */
     static private YAMLFactory createYamlFactory(@Valid @NotNull LoaderOptions loaderOptions) {
         log.info("Using YAMLFactory with codePointLimit set to {}", loaderOptions.getCodePointLimit());
         return YAMLFactory.builder().loaderOptions(loaderOptions).build();
     }
 
-    private final Map<Class<?>, YamlConfigurationFactory<?>> yamlConfigurationFactories = new HashMap<>();
+    private final Map<Class<?>, YamlConfigurationFactoryWithCustomYamlFactory<?>> yamlConfigurationFactories = new HashMap<>();
 
     /**
      * Mixin to ignore fields in FileMeta that are not needed in the YAML files. Note, that  we are not ignoring the "restrict" field. In theory, we could accidentally expose restricted files if we
@@ -94,19 +106,21 @@ public class YamlServiceImpl implements YamlService {
             mapper.registerModule(module);
             mapper.registerModule(new DataverseIngestModule());
             yamlConfigurationFactories.put(InitRoot.class,
-                new YamlConfigurationFactory<>(createYamlFactory(yamlServiceConfig.getLoaderOptions()), InitRoot.class, factory.getValidator(), mapper, "dw"));
-            yamlConfigurationFactories.put(Dataset.class, new YamlConfigurationFactory<>(createYamlFactory(yamlServiceConfig.getLoaderOptions()), Dataset.class, factory.getValidator(), mapper, "dw"));
+                new YamlConfigurationFactoryWithCustomYamlFactory<>(createYamlFactory(yamlServiceConfig.getLoaderOptions()), InitRoot.class, factory.getValidator(), mapper, "dw"));
+            yamlConfigurationFactories.put(Dataset.class,
+                new YamlConfigurationFactoryWithCustomYamlFactory<>(createYamlFactory(yamlServiceConfig.getLoaderOptions()), Dataset.class, factory.getValidator(), mapper, "dw"));
             yamlConfigurationFactories.put(EditFilesRoot.class,
-                new YamlConfigurationFactory<>(createYamlFactory(yamlServiceConfig.getLoaderOptions()), EditFilesRoot.class, factory.getValidator(), mapper, "dw"));
+                new YamlConfigurationFactoryWithCustomYamlFactory<>(createYamlFactory(yamlServiceConfig.getLoaderOptions()), EditFilesRoot.class, factory.getValidator(), mapper, "dw"));
             yamlConfigurationFactories.put(EditMetadataRoot.class,
-                new YamlConfigurationFactory<>(createYamlFactory(yamlServiceConfig.getLoaderOptions()), EditMetadataRoot.class, factory.getValidator(), mapper, "dw"));
+                new YamlConfigurationFactoryWithCustomYamlFactory<>(createYamlFactory(yamlServiceConfig.getLoaderOptions()), EditMetadataRoot.class, factory.getValidator(), mapper, "dw"));
             yamlConfigurationFactories.put(EditPermissionsRoot.class,
-                new YamlConfigurationFactory<>(createYamlFactory(yamlServiceConfig.getLoaderOptions()), EditPermissionsRoot.class, factory.getValidator(), mapper, "dw"));
+                new YamlConfigurationFactoryWithCustomYamlFactory<>(createYamlFactory(yamlServiceConfig.getLoaderOptions()), EditPermissionsRoot.class, factory.getValidator(), mapper, "dw"));
             yamlConfigurationFactories.put(UpdateStateRoot.class,
-                new YamlConfigurationFactory<>(createYamlFactory(yamlServiceConfig.getLoaderOptions()), UpdateStateRoot.class, factory.getValidator(), mapper, "dw"));
-            yamlConfigurationFactories.put(InitLog.class, new YamlConfigurationFactory<>(createYamlFactory(yamlServiceConfig.getLoaderOptions()), InitLog.class, factory.getValidator(), mapper, "dw"));
+                new YamlConfigurationFactoryWithCustomYamlFactory<>(createYamlFactory(yamlServiceConfig.getLoaderOptions()), UpdateStateRoot.class, factory.getValidator(), mapper, "dw"));
+            yamlConfigurationFactories.put(InitLog.class,
+                new YamlConfigurationFactoryWithCustomYamlFactory<>(createYamlFactory(yamlServiceConfig.getLoaderOptions()), InitLog.class, factory.getValidator(), mapper, "dw"));
             yamlConfigurationFactories.put(TaskLogRoot.class,
-                new YamlConfigurationFactory<>(createYamlFactory(yamlServiceConfig.getLoaderOptions()), TaskLogRoot.class, factory.getValidator(), mapper, "dw"));
+                new YamlConfigurationFactoryWithCustomYamlFactory<>(createYamlFactory(yamlServiceConfig.getLoaderOptions()), TaskLogRoot.class, factory.getValidator(), mapper, "dw"));
         }
         catch (Throwable e) {
             // This ctor is called from a static context, so we log the error to make sure it is not lost
@@ -119,7 +133,7 @@ public class YamlServiceImpl implements YamlService {
     @Override
     public <T> T readYaml(Path yamlFile, Class<T> target) throws IOException, ConfigurationException {
         log.debug("readYaml: {} for class {}", yamlFile, target.getName());
-        YamlConfigurationFactory<T> factory = (YamlConfigurationFactory<T>) yamlConfigurationFactories.get(target);
+        YamlConfigurationFactoryWithCustomYamlFactory<T> factory = (YamlConfigurationFactoryWithCustomYamlFactory<T>) yamlConfigurationFactories.get(target);
         if (factory == null) {
             var s = "No factory found for class: " + target.getName();
             log.error("readYaml" + s);
@@ -132,7 +146,7 @@ public class YamlServiceImpl implements YamlService {
     @Override
     public <T> T readYamlFromString(String yamlString, Class<T> target) throws IOException, ConfigurationException {
         log.debug("readYamlFromString: for class {}", target.getName());
-        YamlConfigurationFactory<T> factory = (YamlConfigurationFactory<T>) yamlConfigurationFactories.get(target);
+        YamlConfigurationFactoryWithCustomYamlFactory<T> factory = (YamlConfigurationFactoryWithCustomYamlFactory<T>) yamlConfigurationFactories.get(target);
         if (factory == null) {
             var s = "No factory found for class: " + target.getName();
             log.error("readYamlFromString" + s);
