@@ -34,8 +34,8 @@ public class ValidateDansBagServiceImpl implements ValidateDansBagService {
 
     public ValidateDansBagServiceImpl(ValidateDansBagConfig config, Environment environment) {
         api = new ClientProxyBuilder<ApiClient, DefaultApi>()
-            .apiClient(new ApiClient())
-            .defaultApiCtor(DefaultApi::new)
+            .apiClientCtor(ApiClient::new)
+            .proxyCtor(DefaultApi::new)
             .httpClient(config.getHttpClient())
             .basePath(config.getUrl()).build();
 

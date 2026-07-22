@@ -32,6 +32,7 @@ import nl.knaw.dans.lib.dataverse.model.file.FileMetaUpdate;
 import nl.knaw.dans.lib.util.PathIterator;
 import org.apache.commons.collections4.IteratorUtils;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -131,8 +132,7 @@ public class FilesEditor {
             dataverseService.deleteFiles(pid,
                 editFiles.getDeleteFiles().stream()
                     .map(filesInDatasetCache::get)
-                    .mapToInt(file -> file.getDataFile().getId())
-                    .boxed()
+                    .map(file -> file.getDataFile().getId())
                     .collect(Collectors.toList()));
             filesInDatasetCache.removeAll(editFiles.getDeleteFiles());
             log.debug("[{}] End deleting {} files.", depositId, editFiles.getDeleteFiles().size());
@@ -417,11 +417,13 @@ public class FilesEditor {
                 log.debug("[{}] Adding embargo number {}", depositId, i);
                 var embargo = new Embargo();
                 embargo.setDateAvailable(addEmbargo.getDateAvailable());
-                embargo.setReason(addEmbargo.getReason());
+                if (StringUtils.isNotBlank(addEmbargo.getReason())) {
+                    embargo.setReason(addEmbargo.getReason());
+                }
                 var fileIds = addEmbargo.getFilePaths()
                     .stream()
                     .map(filesInDatasetCache::get)
-                    .mapToInt(file -> file.getDataFile().getId()).toArray();
+                    .mapToInt(file -> (int) file.getDataFile().getId()).toArray();
                 embargo.setFileIds(fileIds);
                 dataverseService.addEmbargo(pid, embargo);
                 editFilesLog.getAddEmbargoes().setNumberCompleted(++numberOfEmbargoesAdded);

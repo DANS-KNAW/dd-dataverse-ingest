@@ -52,7 +52,7 @@ public class FilesEditorDeleteFilesTest extends FilesEditorTestFixture {
         filesEditor.editFiles("pid");
 
         // Then
-        Mockito.verify(dataverseServiceMock).deleteFiles("pid", List.of(1, 3));
+        Mockito.verify(dataverseServiceMock).deleteFiles("pid", List.of(1L, 3L));
         assertThat(filesEditor.getFilesInDatasetCache().get("file1")).isNull();
         assertThat(filesEditor.getFilesInDatasetCache().get("file2")).isNotNull();
         assertThat(filesEditor.getFilesInDatasetCache().get("file3")).isNull();
