@@ -30,7 +30,7 @@
 
     <name>DD Dataverse Ingest</name>
     <description>Ingest datasets into Dataverse via the API</description>
-    <url>https://github.com/DANS-KNAW/dd-dataverse-ingest</url>
+    <url>https://dans-knaw.github.io/dd-dataverse-ingest</url>
     <inceptionYear>2024</inceptionYear>
 
     <scm>
