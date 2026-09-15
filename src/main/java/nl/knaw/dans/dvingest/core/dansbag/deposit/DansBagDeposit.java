@@ -15,7 +15,7 @@
  */
 package nl.knaw.dans.dvingest.core.dansbag.deposit;
 
-import gov.loc.repository.bagit.domain.Bag;
+import nl.knaw.dans.bagit.domain.Bag;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;

@@ -15,14 +15,14 @@
  */
 package nl.knaw.dans.dvingest.core.dansbag;
 
-import gov.loc.repository.bagit.creator.CreatePayloadManifestsVistor;
-import gov.loc.repository.bagit.creator.CreateTagManifestsVistor;
-import gov.loc.repository.bagit.domain.Bag;
-import gov.loc.repository.bagit.domain.Manifest;
-import gov.loc.repository.bagit.hash.Hasher;
-import gov.loc.repository.bagit.hash.StandardSupportedAlgorithms;
-import gov.loc.repository.bagit.util.PathUtils;
-import gov.loc.repository.bagit.writer.ManifestWriter;
+import nl.knaw.dans.bagit.creator.CreatePayloadManifestsVistor;
+import nl.knaw.dans.bagit.creator.CreateTagManifestsVistor;
+import nl.knaw.dans.bagit.domain.Bag;
+import nl.knaw.dans.bagit.domain.Manifest;
+import nl.knaw.dans.bagit.hash.Hasher;
+import nl.knaw.dans.bagit.hash.StandardSupportedAlgorithms;
+import nl.knaw.dans.bagit.util.PathUtils;
+import nl.knaw.dans.bagit.writer.ManifestWriter;
 import lombok.extern.slf4j.Slf4j;
 
 import javax.validation.constraints.NotNull;
@@ -37,7 +37,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import static gov.loc.repository.bagit.hash.StandardSupportedAlgorithms.SHA1;
+import static nl.knaw.dans.bagit.hash.StandardSupportedAlgorithms.SHA1;
 
 @Slf4j
 public class ManifestUtil {

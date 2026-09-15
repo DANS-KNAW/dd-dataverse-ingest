@@ -29,7 +29,7 @@ import nl.knaw.dans.lib.dataverse.model.dataset.Embargo;
 import nl.knaw.dans.lib.dataverse.model.dataset.FieldList;
 import nl.knaw.dans.lib.dataverse.model.dataset.FileList;
 import nl.knaw.dans.lib.dataverse.model.dataset.License;
-import nl.knaw.dans.lib.dataverse.model.dataset.MetadataBlockSummary;
+import nl.knaw.dans.lib.dataverse.model.dataset.MetadataBlock;
 import nl.knaw.dans.lib.dataverse.model.dataset.MetadataField;
 import nl.knaw.dans.lib.dataverse.model.dataset.PrimitiveSingleValueField;
 import nl.knaw.dans.lib.dataverse.model.dataset.UpdateType;
@@ -185,7 +185,7 @@ public class DataverseServiceImpl implements DataverseService {
             .listMetadataBlocks()
             .getData()
             .stream()
-            .map(MetadataBlockSummary::getName)
+            .map(MetadataBlock::getName)
             .collect(Collectors.toSet());
     }
 

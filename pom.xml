@@ -22,28 +22,25 @@
     <parent>
         <groupId>nl.knaw.dans</groupId>
         <artifactId>dd-parent</artifactId>
-        <version>1.12.0</version>
+        <version>3.0.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>dd-dataverse-ingest</artifactId>
     <version>4.0.3-SNAPSHOT</version>
 
     <name>DD Dataverse Ingest</name>
-    <url>https://github.com/DANS-KNAW/dd-dataverse-ingest</url>
     <description>Ingest datasets into Dataverse via the API</description>
+    <url>https://github.com/DANS-KNAW/dd-dataverse-ingest</url>
     <inceptionYear>2024</inceptionYear>
-
-    <properties>
-        <main-class>nl.knaw.dans.dvingest.DdDataverseIngestApplication</main-class>
-        <dans-java-utils.version>4.1.0</dans-java-utils.version>
-        <dans-dataverse-client-lib.version>2.2.1</dans-dataverse-client-lib.version>
-        <dd-dans-sword2-examples.version>1.2.0</dd-dans-sword2-examples.version>
-    </properties>
 
     <scm>
         <developerConnection>scm:git:ssh://github.com/DANS-KNAW/${project.artifactId}</developerConnection>
         <tag>HEAD</tag>
     </scm>
+
+    <properties>
+        <main-class>nl.knaw.dans.dvingest.DdDataverseIngestApplication</main-class>
+    </properties>
 
     <dependencies>
         <dependency>
@@ -63,7 +60,7 @@
             <artifactId>lombok</artifactId>
         </dependency>
         <dependency>
-            <groupId>nl.knaw.dans</groupId>
+            <groupId>nl.datastations</groupId>
             <artifactId>dans-dataverse-client-lib</artifactId>
         </dependency>
         <dependency>
@@ -71,7 +68,7 @@
             <artifactId>dans-java-utils</artifactId>
         </dependency>
         <dependency>
-            <groupId>nl.knaw.dans</groupId>
+            <groupId>nl.datastations</groupId>
             <artifactId>dans-validation-lib</artifactId>
         </dependency>
         <dependency>
@@ -172,8 +169,8 @@
             <artifactId>commons-beanutils</artifactId>
         </dependency>
         <dependency>
-            <groupId>nl.knaw.dans</groupId>
-            <artifactId>bagit</artifactId>
+            <groupId>nl.datastations</groupId>
+            <artifactId>dans-bagit-lib</artifactId>
         </dependency>
 
     </dependencies>
@@ -203,10 +200,10 @@
                 <executions>
                     <execution>
                         <id>compile-dependencies</id>
-                        <phase>initialize</phase>
                         <goals>
                             <goal>unpack</goal>
                         </goals>
+                        <phase>initialize</phase>
                         <configuration>
                             <artifactItems>
                                 <artifactItem>
@@ -226,10 +223,10 @@
                     </execution>
                     <execution>
                         <id>test-dependencies</id>
-                        <phase>generate-test-resources</phase>
                         <goals>
                             <goal>unpack</goal>
                         </goals>
+                        <phase>generate-test-resources</phase>
                         <configuration>
                             <artifactItems>
                                 <artifactItem>
@@ -291,53 +288,6 @@
 
         </plugins>
     </build>
-
-
-    <repositories>
-        <repository>
-            <id>dans-releases</id>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-            <url>https://maven.dans.knaw.nl/releases/</url>
-        </repository>
-        <repository>
-            <id>dans-snapshots</id>
-            <releases>
-                <enabled>false</enabled>
-            </releases>
-            <snapshots>
-                <enabled>true</enabled>
-            </snapshots>
-            <url>https://maven.dans.knaw.nl/snapshots/</url>
-        </repository>
-    </repositories>
-
-    <pluginRepositories>
-        <pluginRepository>
-            <id>dans-releases</id>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-            <url>https://maven.dans.knaw.nl/releases/</url>
-        </pluginRepository>
-        <pluginRepository>
-            <id>dans-snapshots</id>
-            <releases>
-                <enabled>false</enabled>
-            </releases>
-            <snapshots>
-                <enabled>true</enabled>
-            </snapshots>
-            <url>https://maven.dans.knaw.nl/snapshots/</url>
-        </pluginRepository>
-    </pluginRepositories>
 
     <profiles>
         <profile>
