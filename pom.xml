@@ -34,7 +34,8 @@
     <inceptionYear>2024</inceptionYear>
 
     <scm>
-        <developerConnection>scm:git:ssh://github.com/DANS-KNAW/${project.artifactId}</developerConnection>
+        <connection>scm:git:https://github.com/DANS-KNAW/dd-dataverse-ingest</connection>
+        <developerConnection>scm:git:ssh://github.com/DANS-KNAW/dd-dataverse-ingest</developerConnection>
         <tag>HEAD</tag>
         <url>https://github.com/DANS-KNAW/${project.artifactId}</url>
     </scm>
