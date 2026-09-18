@@ -42,6 +42,7 @@
 
     <properties>
         <main-class>nl.knaw.dans.dvingest.DdDataverseIngestApplication</main-class>
+        <dans-dataverse-client-lib.version>4.0.0</dans-dataverse-client-lib.version>
     </properties>
 
     <dependencies>

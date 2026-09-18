@@ -30,6 +30,7 @@ import nl.knaw.dans.lib.dataverse.model.dataset.FieldList;
 import nl.knaw.dans.lib.dataverse.model.dataset.FileList;
 import nl.knaw.dans.lib.dataverse.model.dataset.License;
 import nl.knaw.dans.lib.dataverse.model.dataset.MetadataBlock;
+import nl.knaw.dans.lib.dataverse.model.dataset.MetadataBlockDefinition;
 import nl.knaw.dans.lib.dataverse.model.dataset.MetadataField;
 import nl.knaw.dans.lib.dataverse.model.dataset.PrimitiveSingleValueField;
 import nl.knaw.dans.lib.dataverse.model.dataset.UpdateType;
@@ -181,11 +182,11 @@ public class DataverseServiceImpl implements DataverseService {
 
     @Override
     public Set<String> getActiveMetadataBlockNames() throws IOException, DataverseException {
-        return dataverseClient.dataverse("root")
+        return dataverseClient.metadataBlocks()
             .listMetadataBlocks()
             .getData()
             .stream()
-            .map(MetadataBlock::getName)
+            .map(MetadataBlockDefinition::getName)
             .collect(Collectors.toSet());
     }
 
