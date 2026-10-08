@@ -26,7 +26,7 @@
     </parent>
 
     <artifactId>dd-dataverse-ingest</artifactId>
-    <version>4.0.3</version>
+    <version>4.0.4-SNAPSHOT</version>
 
     <name>DD Dataverse Ingest</name>
     <description>Ingest datasets into Dataverse via the API</description>
@@ -36,7 +36,7 @@
     <scm>
         <connection>scm:git:https://github.com/DANS-KNAW/dd-dataverse-ingest</connection>
         <developerConnection>scm:git:ssh://github.com/DANS-KNAW/dd-dataverse-ingest</developerConnection>
-        <tag>v4.0.3</tag>
+        <tag>HEAD</tag>
         <url>https://github.com/DANS-KNAW/dd-dataverse-ingest</url>
     </scm>
 
