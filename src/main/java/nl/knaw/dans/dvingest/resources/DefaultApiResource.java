@@ -15,14 +15,16 @@
  */
 package nl.knaw.dans.dvingest.resources;
 
+import nl.knaw.dans.dvingest.api.AppInfoDto;
+
 import javax.ws.rs.core.Response;
 
 public class DefaultApiResource implements DefaultApi {
 
     @Override
     public Response rootGet() {
-        return Response.ok().entity(
-            "Dataverse Ingest Service v%s".formatted(
-                this.getClass().getPackage().getImplementationVersion())).build();
+        return Response.ok(new AppInfoDto()
+            .name("dd-dataverse-ingest")
+            .version(this.getClass().getPackage().getImplementationVersion())).build();
     }
 }
