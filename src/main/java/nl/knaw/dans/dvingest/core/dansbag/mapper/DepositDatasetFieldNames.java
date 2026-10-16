@@ -120,26 +120,26 @@ public interface DepositDatasetFieldNames {
     String ABR_PERIOD = "dansAbrPeriod";
     String AAT_CLASSIFICATION = "dansAATClassification";
 
-    String ABR_BASE_URL = "https://data.cultureelerfgoed.nl/term/id/abr";
+    String ABR_BASE_URL = "https://data.cultureelerfgoed.nl/term/id/abr/2";
     String SCHEME_ABR_OLD = "Archeologisch Basis Register";
     String SCHEME_URI_ABR_OLD = "https://data.cultureelerfgoed.nl/term/id/rn/a4a7933c-e096-4bcf-a921-4f70a78749fe";
     String SCHEME_ABR_PLUS = "Archeologisch Basis Register";
-    String SCHEME_URI_ABR_PLUS = "https://data.cultureelerfgoed.nl/term/id/abr/b6df7840-67bf-48bd-aa56-7ee39435d2ed";
+    String SCHEME_URI_ABR2 = "https://data.cultureelerfgoed.nl/term/id/abr/2/b402446a-0a00-4fee-a9cd-1a7f307d651e";
 
     String SCHEME_ABR_COMPLEX = "ABR Complextypen";
-    String SCHEME_URI_ABR_COMPLEX = "https://data.cultureelerfgoed.nl/term/id/abr/e9546020-4b28-4819-b0c2-29e7c864c5c0";
+    String SCHEME_URI_ABR_COMPLEX = "https://data.cultureelerfgoed.nl/term/id/abr/2/e9546020-4b28-4819-b0c2-29e7c864c5c0";
 
     String SCHEME_ABR_ARTIFACT = "ABR Artefacten";
-    String SCHEME_URI_ABR_ARTIFACT = "https://data.cultureelerfgoed.nl/term/id/abr/22cbb070-6542-48f0-8afe-7d98d398cc0b";
+    String SCHEME_URI_ABR_ARTIFACT = "https://data.cultureelerfgoed.nl/term/id/abr/2/22cbb070-6542-48f0-8afe-7d98d398cc0b";
 
     String SCHEME_ABR_PERIOD = "ABR Periodes";
-    String SCHEME_URI_ABR_PERIOD = "https://data.cultureelerfgoed.nl/term/id/abr/9b688754-1315-484b-9c89-8817e87c1e84";
+    String SCHEME_URI_ABR_PERIOD = "https://data.cultureelerfgoed.nl/term/id/abr/2/9b688754-1315-484b-9c89-8817e87c1e84";
 
     String SCHEME_ABR_RAPPORT_TYPE = "ABR Rapporten";
-    String SCHEME_URI_ABR_RAPPORT_TYPE = "https://data.cultureelerfgoed.nl/term/id/abr/7a99aaba-c1e7-49a4-9dd8-d295dbcc870e";
+    String SCHEME_URI_ABR_RAPPORT_TYPE = "https://data.cultureelerfgoed.nl/term/id/abr/2/7a99aaba-c1e7-49a4-9dd8-d295dbcc870e";
 
     String SCHEME_ABR_VERWERVINGSWIJZE = "ABR verwervingswijzen";
-    String SCHEME_URI_ABR_VERWERVINGSWIJZE = "https://data.cultureelerfgoed.nl/term/id/abr/554ca1ec-3ed8-42d3-ae4b-47bcb848b238";
+    String SCHEME_URI_ABR_VERWERVINGSWIJZE = "https://data.cultureelerfgoed.nl/term/id/abr/2/554ca1ec-3ed8-42d3-ae4b-47bcb848b238";
 
     String TEMPORAL_COVERAGE = "dansTemporalCoverage";
     String SPATIAL_POINT = "dansSpatialPoint";

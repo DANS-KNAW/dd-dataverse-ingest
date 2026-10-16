@@ -23,7 +23,7 @@ import java.util.Map;
 import static nl.knaw.dans.dvingest.core.dansbag.mapper.DepositDatasetFieldNames.SCHEME_ABR_PERIOD;
 import static nl.knaw.dans.dvingest.core.dansbag.mapper.DepositDatasetFieldNames.SCHEME_ABR_PLUS;
 import static nl.knaw.dans.dvingest.core.dansbag.mapper.DepositDatasetFieldNames.SCHEME_URI_ABR_PERIOD;
-import static nl.knaw.dans.dvingest.core.dansbag.mapper.DepositDatasetFieldNames.SCHEME_URI_ABR_PLUS;
+import static nl.knaw.dans.dvingest.core.dansbag.mapper.DepositDatasetFieldNames.SCHEME_URI_ABR2;
 
 @Slf4j
 public class TemporalAbr extends Base {
@@ -47,7 +47,7 @@ public class TemporalAbr extends Base {
 
         var a2 = hasAttributes(node,
             SCHEME_ABR_PLUS,
-            SCHEME_URI_ABR_PLUS
+            SCHEME_URI_ABR2
         );
 
         return a1 || a2;

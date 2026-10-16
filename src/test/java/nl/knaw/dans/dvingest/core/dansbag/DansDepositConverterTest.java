@@ -173,6 +173,7 @@ public class DansDepositConverterTest extends DansConversionFixture {
                 DATASET_CONTACT_EMAIL, "jdoe@foo.com"));
         assertCompoundMultiValueFieldContainsValues(citationBlockFields, DESCRIPTION,
             Map.of(DESCRIPTION_VALUE, "<p>This bags contains one or more examples of each mapping rule.</p>"),
+            Map.of(DESCRIPTION_VALUE, "<p>This is a longer description which boths exceeds the maximum length for a bag-info.txt line and....<br>contains a newline<br>and yet another one</p>"),
             Map.of(DESCRIPTION_VALUE, "<p>A second description</p>"),
             Map.of(DESCRIPTION_VALUE, "<p>DC title 2</p>"),
             Map.of(DESCRIPTION_VALUE, "<p>DCTERMS alt title 1</p>"),
@@ -326,26 +327,26 @@ public class DansDepositConverterTest extends DansConversionFixture {
             Map.of(ARCHIS_NUMBER_TYPE, "waarneming",
                 ARCHIS_NUMBER_ID, "67890"));
         assertPrimitiveMultiValueFieldContainsValues(archaeologyMetadataBlockFields, ABR_RAPPORT_TYPE,
-            "https://data.cultureelerfgoed.nl/term/id/abr/d6b2e162-3f49-4027-8f03-28194db2905e", // BAAC-rapport
-            "https://data.cultureelerfgoed.nl/term/id/abr/a881708a-4545-4ca3-ac5e-bc096e98e9f7"); // RCE Rapportage Archeologische Monumentenzorg
+            "https://data.cultureelerfgoed.nl/term/id/abr/2/d6b2e162-3f49-4027-8f03-28194db2905e", // BAAC-rapport
+            "https://data.cultureelerfgoed.nl/term/id/abr/2/a881708a-4545-4ca3-ac5e-bc096e98e9f7"); // RCE Rapportage Archeologische Monumentenzorg
         assertPrimitiveMultiValueFieldContainsValues(archaeologyMetadataBlockFields, ABR_RAPPORT_NUMMER,
             "BAAC 123-A",
             "RCE Rapportage Archeologische Monumentenzorg");
         assertPrimitiveMultiValueFieldContainsValues(archaeologyMetadataBlockFields, ABR_VERWERVINGSWIJZE,
-            "https://data.cultureelerfgoed.nl/term/id/abr/967bfdf8-c44d-4c69-8318-34ed1ab1e784",
-            "https://data.cultureelerfgoed.nl/term/id/abr/b2aa3a32-1f79-4ddf-81b5-2cdd28ad4919");
+            "https://data.cultureelerfgoed.nl/term/id/abr/2/967bfdf8-c44d-4c69-8318-34ed1ab1e784",
+            "https://data.cultureelerfgoed.nl/term/id/abr/2/b2aa3a32-1f79-4ddf-81b5-2cdd28ad4919");
         assertPrimitiveMultiValueFieldContainsValues(archaeologyMetadataBlockFields, ABR_COMPLEX,
-            "https://data.cultureelerfgoed.nl/term/id/abr/9a758542-8d0d-4afa-b664-104b938fe13e",
-            "https://data.cultureelerfgoed.nl/term/id/abr/60bc20cd-0010-48ea-8d6f-42d333bfb39d",
-            "https://data.cultureelerfgoed.nl/term/id/abr/2ac4deb4-a12a-4aa1-baa1-496b0e649941");
+            "https://data.cultureelerfgoed.nl/term/id/abr/2/9a758542-8d0d-4afa-b664-104b938fe13e",
+            "https://data.cultureelerfgoed.nl/term/id/abr/2/60bc20cd-0010-48ea-8d6f-42d333bfb39d",
+            "https://data.cultureelerfgoed.nl/term/id/abr/2/2ac4deb4-a12a-4aa1-baa1-496b0e649941");
         assertPrimitiveMultiValueFieldContainsValues(archaeologyMetadataBlockFields, ABR_ARTIFACT,
-            "https://data.cultureelerfgoed.nl/term/id/abr/88d17503-7f04-4310-843d-e9e6005a163b",
-            "https://data.cultureelerfgoed.nl/term/id/abr/5bd97bc0-697c-4128-b7b2-d2324bc4a2e1",
-            "https://data.cultureelerfgoed.nl/term/id/abr/5c166519-c182-43c3-941c-551b3bed7136",
-            "https://data.cultureelerfgoed.nl/term/id/abr/84bccabd-a463-4fda-8a7c-60390699436b");
+            "https://data.cultureelerfgoed.nl/term/id/abr/2/88d17503-7f04-4310-843d-e9e6005a163b",
+            "https://data.cultureelerfgoed.nl/term/id/abr/2/5bd97bc0-697c-4128-b7b2-d2324bc4a2e1",
+            "https://data.cultureelerfgoed.nl/term/id/abr/2/5c166519-c182-43c3-941c-551b3bed7136",
+            "https://data.cultureelerfgoed.nl/term/id/abr/2/84bccabd-a463-4fda-8a7c-60390699436b");
         assertPrimitiveMultiValueFieldContainsValues(archaeologyMetadataBlockFields, ABR_PERIOD,
-            "https://data.cultureelerfgoed.nl/term/id/abr/5b253754-ddd0-4ae0-a5bb-555176bca858",
-            "https://data.cultureelerfgoed.nl/term/id/abr/6264b6bd-899e-4c34-a88e-03a36e1d4008");
+            "https://data.cultureelerfgoed.nl/term/id/abr/2/5b253754-ddd0-4ae0-a5bb-555176bca858",
+            "https://data.cultureelerfgoed.nl/term/id/abr/2/6264b6bd-899e-4c34-a88e-03a36e1d4008");
         assertPrimitiveMultiValueFieldContainsValues(archaeologyMetadataBlockFields, AAT_CLASSIFICATION,
             "http://vocab.getty.edu/aat/300239261");
 

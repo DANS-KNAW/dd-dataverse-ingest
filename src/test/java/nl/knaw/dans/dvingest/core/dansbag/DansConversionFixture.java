@@ -116,7 +116,7 @@ public abstract class DansConversionFixture extends TestDirFixture {
         List<Map<String, String>> actualValuesList = new ArrayList<>();
         for (var actualValue : actualValues) {
             var actualValueMap = actualValue.entrySet().stream()
-                .map(e -> Map.entry(e.getKey(), e.getValue().getValue()))
+                .map(e -> Map.entry(e.getKey(), e.getValue().getValue().trim()))
                 .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
             actualValuesList.add(actualValueMap);
         }
