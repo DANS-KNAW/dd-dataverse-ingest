@@ -42,7 +42,7 @@
 
     <properties>
         <main-class>nl.knaw.dans.dvingest.DdDataverseIngestApplication</main-class>
-        <dd-dans-sword2-examples.version>1.2.2-SNAPSHOT</dd-dans-sword2-examples.version>
+        <dd-dans-sword2-examples.version>2.0.0</dd-dans-sword2-examples.version>
         <dans-dataverse-client-lib.version>4.0.0</dans-dataverse-client-lib.version>
     </properties>
 
