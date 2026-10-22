@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <link rel="shortcut icon" href="img/favicon.ico" />
+    <title>Description - dd-dataverse-ingest</title>
+    <link rel="stylesheet" href="css/theme.css" />
+    <link rel="stylesheet" href="css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Description";
+        var mkdocs_page_input_path = "index.md";
+        var mkdocs_page_url = null;
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="." class="icon icon-home"> dd-dataverse-ingest
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="./search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption"><span class="caption-text">Manual</span></p>
+              <ul class="current">
+                  <li class="toctree-l1 current"><a class="reference internal current" href="#">Description</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#purpose">Purpose</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#interfaces">Interfaces</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#metadata-and-instructions">Metadata and instructions</a>
+        <ul>
+    <li class="toctree-l4"><a class="reference internal" href="#inityml">init.yml</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#datasetyml">dataset.yml</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#edit-permissionsyml">edit-permissions.yml</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#edit-filesyml">edit-files.yml</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#edit-metadatayml">edit-metadata.yml</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#update-stateyml">update-state.yml</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#new-versions-of-existing-datasets">New versions of existing datasets</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#dans-bag">DANS bag</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#processing">Processing</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#processing-a-batch">Processing a batch</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#processing-a-deposit">Processing a deposit</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#processing-a-bag">Processing a bag</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#the-task-log">The task log</a>
+    </li>
+        </ul>
+    </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="installation/">Installation</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="config/">Configuration</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="to-api/">API</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="context/">Context</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Development</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="dev/">Overview</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="dev-debugging/">Local debugging</a>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href=".">dd-dataverse-ingest</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="." class="icon icon-home" aria-label="Docs"></a></li>
+          <li class="breadcrumb-item">Manual</li>
+      <li class="breadcrumb-item active">Description</li>
+    <li class="wy-breadcrumbs-aside">
+          <a href="https://github.com/DANS-KNAW/dd-dataverse-ingest/edit/master/docs/index.md">Edit on DANS-KNAW/dd-dataverse-ingest</a>
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="dd-dataverse-ingest">dd-dataverse-ingest<a class="headerlink" href="#dd-dataverse-ingest" title="Permanent link">&para;</a></h1>
+<p>Service for ingesting datasets into Dataverse via the API.</p>
+<h2 id="purpose">Purpose<a class="headerlink" href="#purpose" title="Permanent link">&para;</a></h2>
+<p>This service takes directories containing data and metadata and creates datasets from them in a Dataverse installation via the Dataverse API.</p>
+<h2 id="interfaces">Interfaces<a class="headerlink" href="#interfaces" title="Permanent link">&para;</a></h2>
+<p>The datasets are prepared as deposit directories (or "deposits" for short) in the ingest area. A deposit is a directory with the following structure:</p>
+<pre><code class="language-text">087920d1-e37d-4263-84c7-1321e3ecb5f8
+├── bag
+│   ├── bag-info.txt
+│   ├── bagit.txt
+│   ├── data
+│   │   ├── file1.txt
+│   │   ├── file2.txt
+│   │   └── subdirectory
+│   │       └── file3.txt
+│   ├── dataset.yml
+│   └── manifest-sha1.txt
+└── deposit.properties
+</code></pre>
+<p>The name of the deposit directory must be a UUID. The deposit directory contains the following files:</p>
+<table>
+<thead>
+<tr>
+<th>File</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>deposit.properties</code></td>
+<td>Contains instructions for <code>dd-dataverse-ingest</code> on how to ingest the dataset.</td>
+</tr>
+<tr>
+<td><code>bag/</code></td>
+<td>A bag, i.e. a directory with the files to be ingested, laid out according to <br>the <a href="https://www.rfc-editor.org/rfc/rfc8493.html" target="_blank">BagIt</a> specification. <br>The name of the bag does not have to be "bag"; it may be any valid filename.</td>
+</tr>
+</tbody>
+</table>
+<p>Instead of one bag multiple bags may be included, see <a href="#new-versions-of-existing-datasets">below</a>.</p>
+<h4 id="metadata-and-instructions">Metadata and instructions<a class="headerlink" href="#metadata-and-instructions" title="Permanent link">&para;</a></h4>
+<p>In the root of the bag, the following files can be included to provide metadata and instructions for the ingest process. The files are in YAML format and
+closely follow the JSON that is passed to the Dataverse API.</p>
+<table>
+<thead>
+<tr>
+<th>File</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>init.yml</code></td>
+<td>Preconditions and instructions for creating a new dataset.</td>
+</tr>
+<tr>
+<td><code>dataset.yml</code></td>
+<td>Dataset level metadata.</td>
+</tr>
+<tr>
+<td><code>edit-permissions.yml</code></td>
+<td>Role assignments to create or delete on the dataset</td>
+</tr>
+<tr>
+<td><code>edit-files.yml</code></td>
+<td>Instructions for deleting, replacing or moving files, or updating the file metadata;<br> also included: restricting and embargoing files</td>
+</tr>
+<tr>
+<td><code>edit-metadata.yml</code></td>
+<td>Edit dataset level metadata, including metadata value deletions</td>
+</tr>
+<tr>
+<td><code>update-state.yml</code></td>
+<td>Whether to publish the dataset version or submit it for review</td>
+</tr>
+</tbody>
+</table>
+<h5 id="inityml">init.yml<a class="headerlink" href="#inityml" title="Permanent link">&para;</a></h5>
+<p>The init file initializes the ingest process. It can be used to verify that an expected precondition is met:</p>
+<pre><code class="language-yaml">init:
+  expect:
+    state: 'released' # or 'draft'
+    dataverseRoleAssignment:
+      assignee: '@myuser'
+      role: ':autenticated-user'
+    datasetRoleAssignment:
+      assignee: '@myuser'
+      role: 'contributor'
+
+</code></pre>
+<p>If the state of the dataset does not match the expected state, the ingest procedure will be aborted and the deposit will be put in the FAILED state. The
+expected state can be either <code>released</code> or <code>draft</code>. By default, no check will be performed.</p>
+<p>If the role assignment in  <code>dataverseRoleAssignment</code> does not exist on the target dataverse collection (currently always <code>root</code>) the ingest procedure will be
+aborted putting the deposit in a REJECTED state. The same happens if the role assignment in <code>datasetRoleAssignment</code> does not exist on the target dataset
+(only applicable to update-deposits).</p>
+<p>Note the difference in the resulting deposit state when expectations are not met. The rationale is that an unexpected dataset state is likely an error by the
+service or Dataverse and the expected role assignments are a kind of authorization check.</p>
+<p>The <code>init.yml</code> file can also be used to instruct the service to import the bag as a dataset with an existing DOI:</p>
+<pre><code class="language-yaml">init:
+  create:
+    importPid: 'doi:10.5072/FK2/ABCDEF'
+</code></pre>
+<p>In this case the <code>updates-dataset</code> property in <code>deposit.properties</code> should not be set. It will be ignored if it is. By default, a new dataset will be created,
+whose persistent identifier will be assigned by Dataverse.</p>
+<p>The user is responsible for providing expectations and instructions that do not conflict with each other. For example, if the <code>importPid</code> property is set, and
+the <code>state</code> property is set to <code>released</code>, the service will either abort because the dataset already exists, or it will fail to import the dataset, because
+the dataset already exists.</p>
+<h5 id="datasetyml">dataset.yml<a class="headerlink" href="#datasetyml" title="Permanent link">&para;</a></h5>
+<p>The format is the same as the JSON that is passed to the <a href="https://guides.dataverse.org/en/latest/api/native-api.html#create-a-dataset-in-a-dataverse-collection" target="_blank">createDataset</a> endpoint of the Dataverse API. Note that the <code>files</code> field is not used.
+It will be set to the empty list by the service, because otherwise Dataverse will reject the request.</p>
+<pre><code class="language-yaml">datasetVersion:
+  license:
+    name: &quot;CC0 1.0&quot;
+    uri: &quot;http://creativecommons.org/publicdomain/zero/1.0&quot;
+  fileAccessRequest: true
+  metadataBlocks:
+    citation:
+      displayName: &quot;Citation Metadata&quot;
+      name: &quot;citation&quot;
+      fields:
+        - typeName: &quot;title&quot;
+          multiple: false
+          typeClass: &quot;primitive&quot;
+          value: &quot;My dataset&quot;
+      # Add more metadata  fields and blocks as needed
+</code></pre>
+<h5 id="edit-permissionsyml">edit-permissions.yml<a class="headerlink" href="#edit-permissionsyml" title="Permanent link">&para;</a></h5>
+<pre><code class="language-yaml">editPermissions:
+  deleteRoleAssignments:
+    - role: 'admin'
+      assignee: '@user1'
+  addRoleAssignments:
+    - role: 'admin'
+      assignee: '@user2'
+</code></pre>
+<p>Allows you to selectively delete or add role assignments on the dataset. The format is the same as the JSON that is passed to the
+<a href="https://guides.dataverse.org/en/latest/api/native-api.html#assign-a-new-role-on-a-dataset" target="_blank">assignNewRole</a> and <a href="https://guides.dataverse.org/en/latest/api/native-api.html#delete-role-assignment-on-a-dataset" target="_blank">deleteRoleAssignments</a> endpoints of the Dataverse API.</p>
+<h5 id="edit-filesyml">edit-files.yml<a class="headerlink" href="#edit-filesyml" title="Permanent link">&para;</a></h5>
+<p>See the inline comments for more information. The steps are performed in the order here given. You <strong>cannot</strong> change the order of the steps by changing the
+order
+of the items in the file.</p>
+<p>The actions specified in this file correspond roughly to the actions available in the dropdown menu in the file view of a dataset in Dataverse.</p>
+<p><code>updateFileMetas</code> contains items in the format of the JSON that is passed to the <a href="https://guides.dataverse.org/en/latest/api/native-api.html#updating-file-metadata" target="_blank">updateFileMetadata</a> endpoint of the Dataverse API.</p>
+<pre><code class="language-yaml">editFiles:
+  # Deletes the files from the dataset. The files are looked up by their path in the dataset. Note, that it is possible to add files back to the same location 
+  # in the dataset in the same deposit. In that case, there will be no continuous history of the file in the dataset.  
+  deleteFiles:
+    - 'file1.txt'
+    - 'subdirectory/file3.txt'
+  # Replaces the files in the dataset. The files are looked up by their path in the dataset. The replacement file is looked up in the bag, under the `data`
+  # directory under the same path as the original file has in the dataset. Note that files in `replaceFiles` will automatically be skipped in the add files step, 
+  replaceFiles:
+    - 'file2.txt'
+  # Adds files to the dataset and makes them unrestricted. The files are processed in batches, meaning they are uploaded as ZIP files to Dataverse, for Dataverse 
+  # to unzip them. This is more efficient than adding the files one by one.
+  addUnrestrictedFiles:
+    - 'file6.txt'
+  # Adds files to the dataset and makes them restricted. The files are processed in batches, meaning they are uploaded as ZIP files to Dataverse, for Dataverse
+  # to unzip them. This is more efficient than adding the files one by one. 
+  addRestrictedFiles:
+    - 'file4.txt'
+    - 'subdirectory/file5.txt'
+  # Adds files to the dataset and makes them unrestricted. The files are processed in batches, but separately, so that these files are not uploaded together
+  # with files from addUnrestrictedFiles. This is useful if you need to circumvent special processing by Dataverse, such as re-zipping Shapefile projects.
+  # See: https://guides.dataverse.org/en/6.3/developers/geospatial.html#geospatial-data 
+  addUnrestrictedFilesSeparately:
+    - 'bicycles.shp'
+    - 'cars.shp'
+  # Adds files to the dataset and makes them restricted. The files are processed in batches, but separately, so that these files are not uploaded together
+  # with files from addRestrictedFiles. This is useful if you need to circumvent special processing by Dataverse, such as re-zipping Shapefile projects.
+  # See: https://guides.dataverse.org/en/6.3/developers/geospatial.html#geospatial-data    
+  addRestrictedFilesSeparately:
+    - 'bicycles.shp'
+    - 'cars.shp'
+  # Adds files to the dataset and makes them unrestricted. The files are processed one by one, meaning they are uploaded as individual files to Dataverse. This is
+  # useful if you need to make sure that ZIP files are expanded by Dataverse, for example because you want to make sure the special processing for Shapefiles is
+  # applied.
+  addUnrestrictedFilesIndividually:
+    - 'bicycles.zip'
+  # The same as above, but the files are added restricted.
+  addRestrictedFilesIndividually:
+    - 'bicycles.zip'
+  # Moves files in the dataset. This is essentially a metadata change: the label and/or directoryLabel of the file is changed.
+  moveFiles:
+    - from: 'file6.txt' # Old location in the dataset
+      to: 'subdirectory/file6.txt' # New location in the dataset
+  # Updates the metadata of the files in the dataset. The files are looked up by their path in the dataset, so it is not possible to change the label or 
+  # directoryLabel of the file in this step; use moveFiles for that.
+  updateFileMetas:
+    - description: &quot;This is the first file&quot;
+      label: &quot;file1.txt&quot;
+      directoryLabel: &quot;subdirectory&quot;
+      restricted: false
+      categories: [ 'Testlabel' ]
+  # Sets one or more embargoes on the files in the dataset.     
+  addEmbargoes:
+    - filePaths: [ 'file1.txt' ] # All other files will NOT be embargoed
+      dateAvailable: '2030-01-01'
+      reason: 'Pending publication'
+    # This is not a separate step, but the auto-renaming takes place whenever a local filepath is translated to a dataset filepath.    
+  autoRenameFiles:
+    - from: &quot;Unsanitize'd/file?&quot; # Local file name
+      to: &quot;Sanitize_d/file_&quot; # The file name assigned in the dataset
+</code></pre>
+<h5 id="edit-metadatayml">edit-metadata.yml<a class="headerlink" href="#edit-metadatayml" title="Permanent link">&para;</a></h5>
+<pre><code class="language-yaml">editMetadata:
+  addFieldValues:
+    - typeName: &quot;subject&quot;
+      typeClass: &quot;controlledVocabulary&quot;
+      multiple: true
+      value:
+        - 'Astronomy and Astrophysics'
+  replaceFieldValues:
+    - typeName: &quot;producer&quot;
+      typeClass: &quot;compound&quot;
+      multiple: true
+      value:
+        - producerName:
+            typeName: &quot;producerName&quot;
+            value: &quot;John Doe&quot;
+        - producerAffiliation:
+            typeName: &quot;producerAffiliation&quot;
+            value: &quot;University of Somewhere&quot;
+  deleteFieldValues:
+    - typeName: &quot;subject&quot;
+      typeClass: &quot;controlledVocabulary&quot;
+      multiple: true
+      value:
+        - 'Astronomy and Astrophysics'
+</code></pre>
+<p>Allows you to selectively delete, add or replace metadata field values. The format is the based on the JSON that is passed to the
+<a href="https://guides.dataverse.org/en/latest/api/native-api.html#edit-dataset-metadata" target="_blank">editDatasetMetadata</a> and <a href="https://guides.dataverse.org/en/latest/api/native-api.html#delete-dataset-metadata" target="_blank">deleteDatasetMetadata</a> endpoints of the Dataverse API. However, unlike in the JSON accepted by
+Dataverse, the <code>typeClass</code> and `multiple fields are <strong><em><strong>not optional</strong></em></strong> in the YAML file. This is due to the library used to parse the YAML files, which uses
+a deserializer that was designed to parse the JSON that is returned by the Dataverse API (which does not include these fields).</p>
+<p>The only difference between <code>addFieldValues</code> and <code>replaceFieldValues</code> is that the latter will pass the <code>replace=true</code> parameter to the API. See the API
+documentation for the exact behavior.</p>
+<p>Unlike in the editing of files, deletion of field values takes place at the end of the process, so that we don't create a situation where a required field is
+temporarily empty and Dataverse refuses to save the metadata.</p>
+<h5 id="update-stateyml">update-state.yml<a class="headerlink" href="#update-stateyml" title="Permanent link">&para;</a></h5>
+<pre><code class="language-yaml">updateState:
+  publish: major # or 'minor'
+</code></pre>
+<pre><code class="language-yaml">updateState:
+  releaseMigrated: 2021-01-01
+</code></pre>
+<h4 id="new-versions-of-existing-datasets">New versions of existing datasets<a class="headerlink" href="#new-versions-of-existing-datasets" title="Permanent link">&para;</a></h4>
+<p>A deposit can also be used to create a new version of an existing dataset. In this case, the <code>deposit.properties</code> file must contain the following property:</p>
+<pre><code class="language-text">updates-dataset: 'doi:10.5072/FK2/ABCDEF'
+</code></pre>
+<p>in which the value is the DOI of the dataset to be updated.</p>
+<p>Instead of one bag directory, the deposit may contain multiple bags. In this case the directories are processed in lexicographical order, so you should name the
+bags accordingly, e.g. <code>1-bag</code>, <code>2-bag</code>, <code>3-bag</code>, etc. , or <code>001-bag</code>, <code>002-bag</code>, <code>003-bag</code>, etc., depending on the number of bags.</p>
+<h3 id="dans-bag">DANS bag<a class="headerlink" href="#dans-bag" title="Permanent link">&para;</a></h3>
+<p>A DANS bag is a directory in the <a href="https://www.rfc-editor.org/rfc/rfc8493.html" target="_blank">BagIt</a> format, that also conforms to the <a href="https://doi.org/10.17026/dans-z52-ybfe" target="_blank">DANS bag profile</a>. This is a legacy format that is
+used by the DANS SWORD2 service. The service can convert a DANS deposit to the standard one described above.</p>
+<!-- TODO: elaborate -->
+
+<h2 id="processing">Processing<a class="headerlink" href="#processing" title="Permanent link">&para;</a></h2>
+<p>The deposit area is a directory with the following structure:</p>
+<pre><code class="language-text">imports
+├── inbox
+│   └── path
+│       └── to
+│           ├── batch1
+│           │   ├── 0223914e-c053-4ee8-99d8-a9135fa4db4a
+│           │   ├── 1b5c1b24-de40-4a40-9c58-d4409672229e
+│           │   └── 9a47c5be-58c0-4295-8409-8156bd9ed9e1
+│           └── batch2
+│               ├── 5e42a936-4b90-4cac-b3c1-798b0b5eeb0b
+│               └── 9c2ce5a5-b836-468a-89d4-880efb071d9d
+└── outbox
+    └── path
+        └── to
+            └── batch1
+                ├── failed
+                ├── processed
+                │   └── 7660539b-6ddb-4719-aa31-a3d1c978081b
+                └── rejected
+</code></pre>
+<h3 id="processing-a-batch">Processing a batch<a class="headerlink" href="#processing-a-batch" title="Permanent link">&para;</a></h3>
+<p>The deposits to be processed are to be placed under <code>inbox</code>. All the files in it must be readable and writable by the service.
+When the service is requested to process a batch, it will do the following:</p>
+<ol>
+<li>Sort the deposits in the batch by their <code>creation.timestamp</code> property in <code>deposit.properties</code>, in ascending order.</li>
+<li>Process each deposit in the batch in order.</li>
+</ol>
+<h3 id="processing-a-deposit">Processing a deposit<a class="headerlink" href="#processing-a-deposit" title="Permanent link">&para;</a></h3>
+<ol>
+<li>Sort the bags in the deposit by lexicographical order.</li>
+<li>Process each bag in the deposit in order.</li>
+<li>Move the deposit to:<ul>
+<li><code>outbox/path/to/batch/processed</code> if the all versions were published successfully, or to</li>
+<li><code>outbox/path/to/batch/rejected</code> if one or more of the versions were not valid, or to</li>
+<li><code>outbox/path/to/batch/failed</code> if some other error occurred.</li>
+</ul>
+</li>
+</ol>
+<p>Note that the relative path of the processed deposits in outbox is the same as in the inbox, except for an extra level of directories for the status of the
+deposit.</p>
+<h3 id="processing-a-bag">Processing a bag<a class="headerlink" href="#processing-a-bag" title="Permanent link">&para;</a></h3>
+<p>The actions described in the Yaml files will be executed in same order as they are listed above. Note that changing the order of the actions in the Yaml files
+has no effect on the order in which they are executed. All files and all action fields (e.g., <code>addRestrictedFiles</code>) are optional, except for <code>dataset.yml</code>, when
+creating a new dataset.</p>
+<h3 id="the-task-log">The task log<a class="headerlink" href="#the-task-log" title="Permanent link">&para;</a></h3>
+<p>The service keeps the progress of the processing in file called <code>_tasks.yml</code>. Its layout corresponds closely to the combined layout of the instruction Yaml
+files. (The underscore in the name is there to make it stand out in the directory listing.):</p>
+<pre><code class="language-yaml">taskLog:
+  init:
+    targetPid: null
+    expect:
+      state:
+        completed: false
+      dataverseRoleAssignment:
+        completed: false
+      datasetRoleAssignment:
+        completed: false
+    create:
+      completed: false
+  dataset:
+    completed: false
+  editPermissions:
+    deleteRoleAssignments:
+      completed: false
+      numberCompleted: 0
+    addRoleAssignments:
+      completed: false
+      numberCompleted: 0
+  editFiles:
+    deleteFiles:
+      completed: false
+    replaceFiles:
+      completed: false
+      numberCompleted: 0
+    addUnrestrictedFiles:
+      completed: false
+      numberCompleted: 0
+    addRestrictedFiles:
+      completed: false
+      numberCompleted: 0
+    addUnrestrictedIndividually:
+      completed: false
+      numberCompleted: 0
+    addRestrictedIndividually:
+      completed: false
+      numberCompleted: 0
+    moveFiles:
+      completed: false
+    updateFileMetas:
+      completed: false
+    addEmbargoes:
+      completed: false
+      numberCompleted: 0
+  editMetadata:
+    addFieldValues:
+      completed: false
+    replaceFieldValues:
+      completed: false
+    deleteFieldValues:
+      completed: false
+  updateState:
+    completed: false
+</code></pre>
+<p>The file is updated in memory and will be written to the root of the bag when the processing of the bag is finished or fails. If at the start of processing the
+bag the file is found in the root of the bag, the service will continue from where it left off. Note, that some items have a <code>numberCompleted</code> field, so if the
+overall task is not yet completed, the service will continue from where it left off.</p>
+<p>If you want to re-ingest a deposit completely, delete the <code>_tasks.yml</code> file from the root of the deposit. You should probably also delete the dataset version
+that was created in the previous run.</p>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="installation/" class="btn btn-neutral float-right" title="Installation">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+        <span>
+          <a href="https://github.com/DANS-KNAW/dd-dataverse-ingest" class="fa fa-code-fork" style="color: #fcfcfc"> DANS-KNAW/dd-dataverse-ingest</a>
+        </span>
+    
+    
+    
+      <span><a href="installation/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script src="js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = ".";</script>
+    <script src="js/theme_extra.js"></script>
+    <script src="js/theme.js"></script>
+      <script src="search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>
