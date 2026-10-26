@@ -5,7 +5,7 @@ To locally debug you need to have the following services running:
 
 * A dataverse instance. Internal DANS developers can use the vagrant boxes with development versions of the Data Stations for this. You will need to configure
   access to the admin interface to use the unblock-key. For local development only, run the following inside the Vagrant box from the Payara
-  `bin` directory (for example `/usr/local/payara6/bin`), authenticating as admin. Keep
+  `bin` directory (for example `/usr/local/payara7/bin`), authenticating as admin. Keep
   `dataverse.api.blocked.endpoints=api/admin,api/builtin-users` configured. Replace `s3kretKey` with a development key and configure the calling
   client to use the same key (for direct API calls, send the `X-Dataverse-unblock-key` header):
 
