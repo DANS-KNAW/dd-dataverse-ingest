@@ -4,14 +4,21 @@ Local debugging
 To locally debug you need to have the following services running:
 
 * A dataverse instance. Internal DANS developers can use the vagrant boxes with development versions of the Data Stations for this. You will need to configure
-  access to the admin interface to use the unblock-key:
+  access to the admin interface to use the unblock-key. For local development only, run the following inside the Vagrant box from the Payara
+  `bin` directory (for example `/usr/local/payara6/bin`), authenticating as admin. Keep
+  `dataverse.api.blocked.endpoints=api/admin,api/builtin-users` configured. Replace `s3kretKey` with a development key and configure the calling
+  client to use the same key (for direct API calls, send the `X-Dataverse-unblock-key` header):
 
-        curl -X PUT -d s3kretKey http://localhost:8080/api/admin/settings/:BlockedApiKey
-        curl -X PUT -d unblock-key http://localhost:8080/api/admin/settings/:BlockedApiPolicy
+        ./asadmin delete-jvm-options '-Ddataverse.api.blocked.policy=localhost-only'
+        ./asadmin create-jvm-options '-Ddataverse.api.blocked.key=s3kretKey'
+        ./asadmin create-jvm-options '-Ddataverse.api.blocked.policy=unblock-key'
+        sudo systemctl restart payara
 
-        # When done debugging, you can reset the policy to localhost-only:
-        curl -X PUT -d localhost-only \
-              http://localhost:8080/api/admin/settings/:BlockedApiPolicy/?unblock-key=s3kretKey
+        # When done debugging, restore localhost-only access and remove the development key:
+        ./asadmin delete-jvm-options '-Ddataverse.api.blocked.policy=unblock-key'
+        ./asadmin create-jvm-options '-Ddataverse.api.blocked.policy=localhost-only'
+        ./asadmin delete-jvm-options '-Ddataverse.api.blocked.key=s3kretKey'
+        sudo systemctl restart payara
 
 * [dd-validate-dans-bag]{:target="_blank"}. Note that its `validation.baseFolder` configuration property should point to the deposit area or an ancestor of it.
 
